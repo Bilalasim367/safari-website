@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== MODELS ====================
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@index([slug])
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  description      String?
+  price            Float
+  originalPrice   Float?
+  image            String
+  images           String[]
+  categoryId       String?
+  category         Category? @relation(fields: [categoryId], references: [id])
+  categorySlug    String?
+  size             String    @default("50ml")
+  fragranceFamily String?
+  rating           Float     @default(0)
+  reviewCount      Int       @default(0)
+  notesTop         String[]
+  notesHeart       String[]
+  notesBase        String[]
+  inStock          Boolean   @default(true)
+  isBestseller     Boolean   @default(false)
+  isNew            Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([name, description])
+  @@index([categorySlug, isBestseller])
+  @@index([categorySlug, isNew])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  avatar    String?
+  role      String   @default("customer") // customer, admin
+  status    String   @default("active") // active, inactive, blocked
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastLogin DateTime?
+  resetCode      String?
+  resetCodeExpiry DateTime?
+
+  addresses Address[]
+  cart      CartItem[]
+  wishlist   WishlistItem[]
+  orders    Order[]
+  notifications Notification[]
+
+  @@index([email, role])
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  firstName String?
+  lastName  String?
+  address1 String?
+  address2 String?
+  city     String?
+  state    String?
+  zipCode  String?
+  country  String  @default("US")
+  phone    String?
+  isDefault Boolean @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  productId String
+  name      String
+  price     Float
+  image     String?
+  size      String?
+  quantity  Int     @default(1)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WishlistItem {
+  id        String  @id @default(cuid())
+  productId String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  orderNumber    String   @unique
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id])
+  customerName  String
+  customerEmail String
+  items         OrderItem[]
+  subtotal      Float
+  shipping     Float     @default(0)
+  tax          Float     @default(0)
+  total        Float
+  status       String    @default("pending") // pending, processing, shipped, delivered, cancelled
+  paymentStatus String @default("pending") // pending, paid, failed, refunded
+  shippingAddress Json?
+  createdAt    DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  productId String?
+  name      String
+  price     Float
+  quantity  Int
+  size      String?
+  image     String?
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   @default("system") // order, system, promotion
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id                   String   @id @default(cuid())
+  storeName            String   @default("My Store")
+  storeEmail           String?
+  storePhone          String?
+  storeAddress        String?
+  currency            String   @default("USD")
+  timezone            String   @default("America/New_York")
+  taxRate             Float    @default(0)
+  shippingFee         Float    @default(0)
+  freeShippingThreshold Float  @default(0)
+  emailNotifications  Boolean  @default(true)
+  orderEmails         Boolean  @default(true)
+  marketingEmails    Boolean  @default(false)
+  smtpHost            String?
+  smtpPort            Int?
+  smtpUser            String?
+  smtpPassword        String?
+  metaTitle           String?
+  metaDescription     String?
+  metaKeywords       String?
+  updatedAt           DateTime @updatedAt
+}
