@@ -142,12 +142,15 @@ export default function ProductsPage() {
       const res = await fetch('/api/admin/products', {
         method: editingProduct ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
       
       const data = await res.json();
+      console.log('Save response:', data);
       
-      if (res.ok) {
+      if (data.success) {
+        alert(editingProduct ? 'Product updated!' : 'Product created!');
         fetchProducts();
         handleCloseModal();
       } else {
@@ -155,7 +158,7 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Error saving product');
+      alert('Error saving product: ' + (error as Error).message);
     }
   };
 
