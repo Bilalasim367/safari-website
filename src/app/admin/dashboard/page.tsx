@@ -31,9 +31,10 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        const headers = { 'x-api-key': 'safari-admin-api-key-secure-2024' };
         const [ordersRes, productsRes] = await Promise.all([
-          fetch('/api/admin/orders'),
-          fetch('/api/admin/products'),
+          fetch('/api/admin/orders', { headers }),
+          fetch('/api/admin/products', { headers }),
         ]);
         const ordersData = await ordersRes.json();
         const productsData = await productsRes.json();

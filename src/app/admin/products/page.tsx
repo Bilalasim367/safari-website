@@ -48,9 +48,7 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/admin/products', {
-        credentials: 'include'
-      });
+      const res = await fetch('/api/admin/products');
       const data = await res.json();
       console.log('Products response:', data);
       setProducts(data.products || []);
@@ -58,6 +56,21 @@ export default function ProductsPage() {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getAuthHeader = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      if (!data.success || data.user.role !== 'admin') {
+        window.location.href = '/admin/login';
+        return null;
+      }
+      return res.headers.get('authorization') || '';
+    } catch {
+      window.location.href = '/admin/login';
+      return null;
     }
   };
 
@@ -144,8 +157,10 @@ export default function ProductsPage() {
     try {
       const res = await fetch('/api/admin/products', {
         method: editingProduct ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': 'safari-admin-api-key-secure-2024'
+        },
         body: JSON.stringify(payload),
       });
       
