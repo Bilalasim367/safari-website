@@ -4,32 +4,30 @@ import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function GET() {
-  console.log('GET /api/admin/products - Starting');
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value;
 
     if (!token) {
-      console.log('GET /api/admin/products - No token');
       return NextResponse.json({ success: false, products: [] }, { status: 401 });
     }
 
     const payload = await verifyToken(token);
     if (!payload || payload.role !== 'admin') {
-      console.log('GET /api/admin/products - Not admin');
       return NextResponse.json({ success: false, products: [] }, { status: 403 });
     }
 
-    // Optimized: Only select needed fields to avoid payload too large
     const products = await prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 50,
       select: {
         id: true,
         name: true,
         slug: true,
-        description: true,
         price: true,
         originalPrice: true,
         image: true,
@@ -43,18 +41,10 @@ export async function GET() {
       },
     });
 
-    console.log('GET /api/admin/products - Found:', products.length);
-
-    return NextResponse.json({
-      success: true,
-      products: products,
-    });
+    return NextResponse.json({ success: true, products });
   } catch (error) {
-    console.error('GET /api/admin/products - Error:', error);
-    return NextResponse.json(
-      { success: false, message: String(error) },
-      { status: 500 }
-    );
+    console.error('Error:', error);
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
 
