@@ -48,8 +48,11 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/admin/products');
+      const res = await fetch('/api/admin/products', {
+        credentials: 'include'
+      });
       const data = await res.json();
+      console.log('Products response:', data);
       setProducts(data.products || []);
     } catch (error) {
       console.error('Error fetching products:', error);

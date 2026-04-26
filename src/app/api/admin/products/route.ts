@@ -22,36 +22,32 @@ export async function GET() {
       return NextResponse.json({ success: false, products: [] }, { status: 403 });
     }
 
+    // Optimized: Only select needed fields to avoid payload too large
     const products = await prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+        image: true,
+        categorySlug: true,
+        size: true,
+        fragranceFamily: true,
+        inStock: true,
+        isBestseller: true,
+        isNew: true,
+        createdAt: true,
+      },
     });
 
     console.log('GET /api/admin/products - Found:', products.length);
 
     return NextResponse.json({
       success: true,
-      products: products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        description: p.description,
-        price: p.price,
-        originalPrice: p.originalPrice,
-        image: p.image,
-        images: p.images,
-        categorySlug: p.categorySlug,
-        size: p.size,
-        fragranceFamily: p.fragranceFamily,
-        rating: p.rating,
-        reviewCount: p.reviewCount,
-        notesTop: p.notesTop,
-        notesHeart: p.notesHeart,
-        notesBase: p.notesBase,
-        inStock: p.inStock,
-        isBestseller: p.isBestseller,
-        isNew: p.isNew,
-        createdAt: p.createdAt,
-      })),
+      products: products,
     });
   } catch (error) {
     console.error('GET /api/admin/products - Error:', error);
