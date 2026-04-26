@@ -66,10 +66,12 @@ export async function POST(request: Request) {
 
     const payload = await verifyToken(token);
     if (!payload || payload.role !== 'admin') {
-      return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ success: false, message: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
     const body = await request.json();
+    
+    console.log('POST product - Body:', JSON.stringify(body));
 
     const existingProduct = await prisma.product.findUnique({
       where: { slug: body.slug }
@@ -139,11 +141,13 @@ export async function PUT(request: Request) {
 
     const payload = await verifyToken(token);
     if (!payload || payload.role !== 'admin') {
-      return NextResponse.json({ success: false, message: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ success: false, message: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
     const body = await request.json();
     const { id, ...data } = body;
+
+    console.log('PUT product - ID:', id, 'Data:', JSON.stringify(data));
 
     if (!id) {
       return NextResponse.json({ success: false, message: 'Product ID required' }, { status: 400 });
@@ -156,6 +160,30 @@ export async function PUT(request: Request) {
       });
       categoryId = category?.id || null;
     }
+
+    // Build explicit update data to avoid schema mismatches
+    const updateData: Record<string, unknown> = {
+      name: data.name,
+      slug: data.slug,
+      description: data.description,
+      price: data.price,
+      originalPrice: data.originalPrice,
+      image: data.image,
+      images: data.images || [],
+      categoryId: categoryId,
+      categorySlug: data.categorySlug,
+      size: data.size || '50ml',
+      fragranceFamily: data.fragranceFamily,
+      rating: data.rating || 0,
+      notesTop: data.notesTop || [],
+      notesHeart: data.notesHeart || [],
+      notesBase: data.notesBase || [],
+      inStock: data.inStock ?? true,
+      isBestseller: data.isBestseller ?? false,
+      isNew: data.isNew ?? false,
+    };
+
+    console.log('Updating product with data:', JSON.stringify(updateData));
 
     const product = await prisma.product.update({
       where: { id },
