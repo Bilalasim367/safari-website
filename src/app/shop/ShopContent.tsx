@@ -299,10 +299,9 @@ function FilterSection({
     
     if (paramKey === 'price' && priceRanges) {
       const range = priceRanges.find((r) => r.label === option);
-      if (range) {
-        return `/shop?minPrice=${range.min}&maxPrice=${range.max === Infinity ? '' : range.max}`;
-      }
-      return '/shop';
+      const newMin = range?.min ?? '';
+      const newMax = range?.max === Infinity ? '' : range?.max ?? '';
+      return `/shop?minPrice=${newMin}&maxPrice=${newMax}`;
     }
     
     newSelected = isSelected
