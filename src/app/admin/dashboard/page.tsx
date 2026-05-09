@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingBag, Plus, Users, Settings as SettingsIcon } from "lucide-react";
 
 interface Order {
   id: string;
@@ -19,6 +22,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  image?: string;
   isNew: boolean;
   isBestseller: boolean;
 }
@@ -77,14 +81,14 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-8">
-        <div className="h-8 w-48 bg-gray-200 animate-pulse rounded" />
+        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white p-6 rounded-xl shadow-sm animate-pulse">
-              <div className="h-12 w-12 bg-gray-200 rounded-lg mb-4" />
-              <div className="h-8 bg-gray-200 rounded mb-2" />
-              <div className="h-4 bg-gray-200 w-24" />
-            </div>
+            <Card key={i} className="p-6 animate-pulse">
+              <div className="h-12 w-12 bg-muted rounded-lg mb-4" />
+              <div className="h-8 bg-muted rounded mb-2" />
+              <div className="h-4 bg-muted w-24" />
+            </Card>
           ))}
         </div>
       </div>
@@ -94,132 +98,161 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-black">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome back! Here&apos;s what&apos;s happening with your store.</p>
+      <div className="mb-8">
+        <h1 className="text-2xl md:text-3xl font-heading font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground text-sm mt-1">Welcome back! Here&apos;s what&apos;s happening with your store.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div
-            key={stat.label}
-            className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+        {stats.map((stat) => (
+          <Card key={stat.label} className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                {stat.label}
+              </CardTitle>
+              <div className="rounded-xl bg-primary/10 p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={stat.icon} />
                 </svg>
               </div>
-            </div>
-            <h3 className="text-3xl font-bold text-black mb-1">{stat.value}</h3>
-            <p className="text-gray-500 text-sm">{stat.label}</p>
-            <p className="text-gray-400 text-xs mt-1">{stat.subtext}</p>
-          </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold tracking-tight text-foreground">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.subtext}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Recent Orders */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-black">Recent Orders</h2>
-            <Link href="/admin/orders" className="text-sm text-black font-medium hover:underline">
+        <Card>
+          <CardHeader className="flex items-center justify-between flex-row p-6 border-b">
+            <CardTitle className="text-lg">Recent Orders</CardTitle>
+            <Link href="/admin/orders" className="text-sm font-medium hover:underline">
               View All →
             </Link>
-          </div>
-          <div className="divide-y divide-gray-50">
-            {orders.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">No orders yet</div>
-            ) : (
-              orders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-                  <div>
-                    <p className="font-medium text-black">{order.orderNumber}</p>
-                    <p className="text-gray-500 text-sm">{order.customerName}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-black">${order.total.toFixed(2)}</p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                      {getStatusLabel(order.status)}
-                    </span>
-                  </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-muted">
+              {orders.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <ShoppingBag className="w-10 h-10 text-muted-foreground/30 mb-3" />
+                  <p className="text-sm text-muted-foreground">No orders yet</p>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Recent Products */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-black">Recent Products</h2>
-            <Link href="/admin/products" className="text-sm text-black font-medium hover:underline">
-              Manage →
-            </Link>
-          </div>
-          <div className="divide-y divide-gray-50">
-            {products.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">No products yet</div>
-            ) : (
-              products.map((product) => (
-                <div key={product.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-                  <div>
-                    <p className="font-medium text-black">{product.name}</p>
-                    <div className="flex gap-2 mt-1">
-                      {product.isNew && <span className="text-xs bg-black text-white px-2 py-0.5 rounded">NEW</span>}
-                      {product.isBestseller && <span className="text-xs bg-gray-200 text-black px-2 py-0.5 rounded">BEST</span>}
+              ) : (
+                orders.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-4">
+                    <div>
+                      <p className="font-medium">{order.orderNumber}</p>
+                      <p className="text-muted-foreground text-sm">{order.customerName}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">${order.total.toFixed(2)}</p>
+                      <Badge 
+                        variant={
+                          order.status === 'pending' ? 'default' :
+                          order.status === 'processing' ? 'secondary' :
+                          order.status === 'shipped' ? 'default' :
+                          order.status === 'delivered' ? 'default' : 'destructive'
+                        }
+                        className={
+                          order.status === 'delivered' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                          order.status === 'shipped' ? 'bg-purple-100 text-purple-800 hover:bg-purple-100' :
+                          order.status === 'processing' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' :
+                          order.status === 'cancelled' ? '' : 'bg-amber-100 text-amber-800 hover:bg-amber-100'
+                        }
+                      >
+                        {getStatusLabel(order.status)}
+                      </Badge>
                     </div>
                   </div>
-                  <p className="font-semibold text-black">${product.price}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Products */}
+        <Card>
+          <CardHeader className="flex items-center justify-between flex-row p-6 border-b">
+            <CardTitle className="text-lg">Recent Products</CardTitle>
+            <Link href="/admin/products" className="text-sm font-medium hover:underline">
+              Manage →
+            </Link>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-muted">
+              {products.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">No products yet</div>
+              ) : (
+                products.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between py-3 border-b border-border last:border-0 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-md bg-muted shrink-0 overflow-hidden">
+                        {product.image && <img src={product.image} className="w-full h-full object-cover" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{product.name}</p>
+                        <div className="flex gap-2 mt-1">
+                          {product.isNew && <Badge className="bg-blue-50 text-blue-700 text-[10px] h-4">NEW</Badge>}
+                          {product.isBestseller && <Badge className="bg-amber-50 text-amber-700 text-[10px] h-4">BEST</Badge>}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold shrink-0">${product.price}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold text-black mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Link href="/admin/products" className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-black">Add Product</span>
-          </Link>
-          <Link href="/admin/orders" className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-black">View Orders</span>
-          </Link>
-          <Link href="/admin/users" className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-black">Customers</span>
-          </Link>
-          <Link href="/admin/settings" className="flex flex-col items-center gap-3 p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-black">Settings</span>
-          </Link>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link href="/admin/products" className="block">
+              <Card className="text-center p-6 hover:border-primary hover:shadow-sm transition-all cursor-pointer group border">
+                <div className="rounded-xl bg-primary/10 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Plus className="w-6 h-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-foreground">Add Product</p>
+              </Card>
+            </Link>
+            <Link href="/admin/orders" className="block">
+              <Card className="text-center p-6 hover:border-primary hover:shadow-sm transition-all cursor-pointer group border">
+                <div className="rounded-xl bg-primary/10 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <ShoppingBag className="w-6 h-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-foreground">View Orders</p>
+              </Card>
+            </Link>
+            <Link href="/admin/users" className="block">
+              <Card className="text-center p-6 hover:border-primary hover:shadow-sm transition-all cursor-pointer group border">
+                <div className="rounded-xl bg-primary/10 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Users className="w-6 h-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-foreground">Customers</p>
+              </Card>
+            </Link>
+            <Link href="/admin/settings" className="block">
+              <Card className="text-center p-6 hover:border-primary hover:shadow-sm transition-all cursor-pointer group border">
+                <div className="rounded-xl bg-primary/10 w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <SettingsIcon className="w-6 h-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-foreground">Settings</p>
+              </Card>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

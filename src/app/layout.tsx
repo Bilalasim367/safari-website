@@ -1,10 +1,28 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
+import { Playfair_Display, Montserrat } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CartSidebar from '@/components/CartSidebar'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
+import { Toaster } from '@/components/ui/toaster'
+import { TooltipProvider } from '@/components/ui/tooltip'
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-montserrat',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'SAFARI | Luxury Fragrances',
@@ -20,22 +38,29 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') || ''
+  const isAdmin = pathname.startsWith('/admin')
+
   return (
-    <html lang='en'>
-      <body className='min-h-full flex flex-col'>
-        <AuthProvider>
-          <CartProvider>
-            <Header />
-            <main className='flex-1'>{children}</main>
-            <Footer />
-            <CartSidebar />
-          </CartProvider>
-        </AuthProvider>
+    <html lang='en' className={`${playfair.variable} ${montserrat.variable}`}>
+      <body className={isAdmin ? 'h-screen overflow-hidden' : 'min-h-full flex flex-col'}>
+        <TooltipProvider>
+          <AuthProvider>
+            <CartProvider>
+              {!isAdmin && <Header />}
+              {isAdmin ? children : <main className="flex-1">{children}</main>}
+              {!isAdmin && <Footer />}
+              {!isAdmin && <CartSidebar />}
+              <Toaster />
+            </CartProvider>
+          </AuthProvider>
+        </TooltipProvider>
       </body>
     </html>
   )
