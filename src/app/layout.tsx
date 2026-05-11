@@ -48,7 +48,7 @@ export default async function RootLayout({
   const isAdmin = pathname.startsWith('/admin')
 
   return (
-    <html lang='en' className={`${playfair.variable} ${montserrat.variable}`}>
+    <html lang='en' className={`${playfair.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
       <body className={isAdmin ? 'h-screen overflow-hidden' : 'min-h-full flex flex-col'}>
         <TooltipProvider>
           <AuthProvider>
