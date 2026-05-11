@@ -1,6 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 
 interface OrderItem {
   id: string;
@@ -43,7 +50,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const fetchOrders = async () => {
@@ -64,7 +71,8 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
-  const updateOrderStatus = async (id: string, status: string) => {
+  const updateOrderStatus = async (id: string, status: string | null) => {
+    if (!status) return;
     try {
       const res = await fetch('/api/admin/orders', {
         method: 'PUT',
@@ -105,43 +113,47 @@ export default function OrdersPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-black">Orders</h1>
-          <p className="text-gray-500 mt-1">{orders.length} total orders</p>
+          <h1 className="text-3xl font-serif font-bold">Orders</h1>
+          <p className="text-muted-foreground mt-1">{orders.length} total orders</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {['pending', 'processing', 'delivered', 'cancelled'].map((status) => (
-          <div key={status} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">{status}</p>
-            <p className="text-2xl font-serif font-bold text-black mt-1">
+          <Card key={status} className="p-4">
+            <p className="text-muted-foreground text-xs uppercase tracking-wide">{status}</p>
+            <p className="text-2xl font-serif font-bold mt-1">
               {orders.filter(o => o.status === status).length}
             </p>
-          </div>
+          </Card>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+      <Card className="p-4 mb-6">
         <div className="flex gap-3">
-          <input
+          <Input
             type="text"
             placeholder="Search orders..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-black"
+            className="flex-1"
           />
-          <select
+          <Select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-200 px-4 py-2 rounded-lg focus:outline-none focus:border-black"
+            onValueChange={(value) => setStatusFilter(value)}
           >
-            <option value="">All Status</option>
-            {statusOptions.map((s) => (
-              <option key={s} value={s} className="capitalize">{s}</option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Status</SelectItem>
+              {statusOptions.map((s) => (
+                <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 gap-3">
         {filteredOrders.map((order) => (
@@ -181,91 +193,88 @@ export default function OrdersPage() {
           </div>
         ))}
         
-        {filteredOrders.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
-            <p className="text-gray-400">No orders found</p>
-          </div>
-        )}
-      </div>
+       {filteredOrders.length === 0 && (
+         <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
+           <p className="text-muted-foreground">No orders found</p>
+         </div>
+       )}
+       </div>
 
-      {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedOrder(null)} />
-          <div className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="sticky top-0 bg-white border-b border-gray-100 p-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-black">{selectedOrder.orderNumber}</h2>
-                <p className="text-gray-400 text-sm">{new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
-              </div>
-              <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-black">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+       {selectedOrder && (
+        <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedOrder.orderNumber}</DialogTitle>
+              <p className="text-muted-foreground text-sm">{new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+            </DialogHeader>
 
-            <div className="p-5 space-y-5">
+            <div className="space-y-5">
               <div className="flex gap-3">
-                <select
+                <Select
                   value={selectedOrder.status}
-                  onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
-                  className="flex-1 border border-gray-200 px-4 py-2 rounded-lg focus:outline-none focus:border-black"
+                  onValueChange={(value) => updateOrderStatus(selectedOrder.id, value)}
                 >
-                  {statusOptions.map((s) => (
-                    <option key={s} value={s} className="capitalize">{s}</option>
-                  ))}
-                </select>
-                <div className={`px-4 py-2 rounded-lg text-sm ${
-                  selectedOrder.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                }`}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((s) => (
+                      <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Badge 
+                  variant={selectedOrder.paymentStatus === 'paid' ? 'default' : 'secondary'}
+                  className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
+                >
                   {selectedOrder.paymentStatus}
-                </div>
+                </Badge>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Customer</p>
-                <p className="font-medium text-black">{selectedOrder.customerName}</p>
-                <p className="text-gray-500 text-sm">{selectedOrder.customerEmail}</p>
+              <div className="bg-muted rounded-xl p-4">
+                <p className="text-muted-foreground text-xs uppercase tracking-wide mb-2">Customer</p>
+                <p className="font-medium">{selectedOrder.customerName}</p>
+                <p className="text-muted-foreground text-sm">{selectedOrder.customerEmail}</p>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Shipping Address</p>
-                <p className="text-black">{selectedOrder.shippingAddress?.firstName} {selectedOrder.shippingAddress?.lastName}</p>
-                <p className="text-gray-500 text-sm">{selectedOrder.shippingAddress?.address1}</p>
-                <p className="text-gray-500 text-sm">{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.zipCode}</p>
+              <div className="bg-muted rounded-xl p-4">
+                <p className="text-muted-foreground text-xs uppercase tracking-wide mb-2">Shipping Address</p>
+                <p className="text-foreground">{selectedOrder.shippingAddress?.firstName} {selectedOrder.shippingAddress?.lastName}</p>
+                <p className="text-muted-foreground text-sm">{selectedOrder.shippingAddress?.address1}</p>
+                <p className="text-muted-foreground text-sm">{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.zipCode}</p>
               </div>
 
               <div className="space-y-2">
-                <p className="text-gray-400 text-xs uppercase tracking-wide">Items</p>
+                <p className="text-muted-foreground text-xs uppercase tracking-wide">Items</p>
                 {selectedOrder.items.map((item, i) => (
-                  <div key={i} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
-                    <span className="text-black">{item.name} ({item.size}) x{item.quantity}</span>
-                    <span className="font-medium text-black">${(item.price * item.quantity).toFixed(2)}</span>
+                  <div key={i} className="flex justify-between py-2 border-b border-muted last:border-0">
+                    <span className="text-foreground">{item.name} ({item.size}) x{item.quantity}</span>
+                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="pt-3 border-t border-gray-100">
-                <div className="flex justify-between text-gray-500 text-sm">
+              <div className="pt-3 border-t border-muted">
+                <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Subtotal</span>
                   <span>${selectedOrder.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-500 text-sm">
+                <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Shipping</span>
                   <span>{selectedOrder.shipping === 0 ? 'Free' : `$${selectedOrder.shipping.toFixed(2)}`}</span>
                 </div>
-                <div className="flex justify-between text-gray-500 text-sm">
+                <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Tax</span>
                   <span>${selectedOrder.tax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-medium text-black text-lg mt-2">
+                <div className="flex justify-between font-medium text-lg mt-2">
                   <span>Total</span>
                   <span>${selectedOrder.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

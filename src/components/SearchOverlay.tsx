@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface SearchResult {
   id: string;
@@ -53,31 +56,28 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] bg-black/50" onClick={onClose}>
-      <div 
-        className="bg-white max-w-2xl mx-auto mt-20 rounded-lg shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-2xl p-0">
         <div className="flex items-center border-b border-gray-200 p-4">
           <svg className="w-6 h-6 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input
+          <Input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products..."
-            className="flex-1 text-lg outline-none text-black"
+            className="flex-1 text-lg border-0 focus-visible:ring-0"
             autoFocus
           />
-          <button onClick={onClose} className="text-gray-400 hover:text-black">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <DialogClose>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-black">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </Button>
+          </DialogClose>
         </div>
 
         <div className="max-h-[60vh] overflow-y-auto">
@@ -115,9 +115,9 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">{product.categorySlug}</p>
-                    <h3 className="text-black font-medium">{product.name}</h3>
-                    <p className="text-gray-600 mt-1">${product.price}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{product.categorySlug}</p>
+                    <h3 className="text-foreground font-medium">{product.name}</h3>
+                    <p className="text-muted-foreground mt-1">${product.price}</p>
                   </div>
                 </Link>
               ))}
@@ -129,14 +129,14 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
               <Link 
                 href={`/shop?q=${encodeURIComponent(query)}`} 
                 onClick={onClose}
-                className="text-black font-medium hover:underline"
+                className="text-foreground font-medium hover:underline"
               >
                 View all results →
               </Link>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

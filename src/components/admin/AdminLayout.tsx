@@ -4,6 +4,22 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" },
@@ -59,121 +75,104 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 bg-black text-white transition-all duration-300 ${
-          isSidebarOpen ? "w-64" : "w-20"
-        } ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-800">
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Sidebar */}
+        <Sidebar className="border-r border-sidebar-border">
+          <SidebarHeader className="p-6 border-b border-sidebar-border">
             <Link href="/admin/dashboard" className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
                 <span className="text-black font-bold text-xl">S</span>
               </div>
-              {isSidebarOpen && (
-                <div>
-                  <span className="font-serif font-bold text-xl tracking-wider">SAFARI</span>
-                  <p className="text-gray-500 text-xs">Admin Panel</p>
-                </div>
-              )}
+              <div className="flex flex-col">
+                <span className="font-serif font-bold text-xl tracking-wider text-white">SAFARI</span>
+                <span className="text-gray-500 text-xs">Admin Panel</span>
+              </div>
             </Link>
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="hidden lg:block text-gray-400 hover:text-white transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={isSidebarOpen ? "M11 19l-7-7 7-7m8 14l-7-7 7-7" : "M13 5l7 7-7 7M5 5l7 7-7 7"} />
-              </svg>
-            </button>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+          </SidebarHeader>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    isActive
-                      ? "bg-white text-black font-semibold"
-                      : "text-gray-400 hover:text-white hover:bg-gray-800"
-                  }`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+          <SidebarContent className="p-4">
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton isActive={isActive}>
+                          <Link href={item.href}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+                            </svg>
+                            <span>{item.label}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter className="p-4 border-t border-sidebar-border space-y-1">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
+                  <Link href="/" target="_blank">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    <span>View Store</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleLogout} className="w-full">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  {isSidebarOpen && <span>{item.label}</span>}
+                  <span>Sign Out</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+
+        <SidebarInset>
+          {/* Header */}
+          <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between px-6 lg:px-8 py-4">
+              <SidebarTrigger className="lg:hidden text-gray-600 hover:text-black">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </SidebarTrigger>
+
+              <div className="flex items-center gap-4 ml-auto">
+                <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors">
+                  View Store →
                 </Link>
-              );
-            })}
-          </nav>
-
-          {/* Bottom Links */}
-          <div className="p-4 border-t border-gray-800 space-y-1">
-            <Link href="/" target="_blank" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-              {isSidebarOpen && <span>View Store</span>}
-            </Link>
-            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              {isSidebarOpen && <span>Sign Out</span>}
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-      )}
-
-      {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? "lg:ml-64" : "lg:ml-20"}`}>
-        {/* Header */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between px-6 lg:px-8 py-4">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-gray-600 hover:text-black">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            <div className="flex items-center gap-4 ml-auto">
-              <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors">
-                View Store →
-              </Link>
-              
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-                <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">{getInitials(user?.name || 'Admin')}</span>
-                </div>
-                <div className="hidden sm:block">
-                  <p className="text-black text-sm font-medium">{user?.name || 'Admin'}</p>
-                  <p className="text-gray-500 text-xs">{user?.email || 'admin@safari.com'}</p>
+                
+                <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-black text-white font-semibold text-sm">
+                      {getInitials(user?.name || 'Admin')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden sm:block">
+                    <p className="text-black text-sm font-medium">{user?.name || 'Admin'}</p>
+                    <p className="text-gray-500 text-xs">{user?.email || 'admin@safari.com'}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Content */}
-        <main className="p-6 lg:p-8 bg-gray-50 min-h-screen">{children}</main>
+          {/* Content */}
+          <main className="p-6 lg:p-8 bg-gray-50 min-h-screen">{children}</main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

@@ -4,6 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface Order {
   id: number;
@@ -105,11 +110,11 @@ export default function AccountPage() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <div className="bg-white border-b border-gray-200 py-12">
+      <div className="bg-background border-b border-border py-12">
         <div className="container-custom">
-          <h1 className="text-4xl md:text-5xl font-serif text-black mb-2">My Account</h1>
-          <p className="text-gray-500">
-            <Link href="/" className="hover:text-black">Home</Link> / Account
+          <h1 className="text-4xl md:text-5xl font-serif text-foreground mb-2">My Account</h1>
+          <p className="text-muted-foreground">
+            <Link href="/" className="hover:text-foreground">Home</Link> / Account
           </p>
         </div>
       </div>
@@ -120,145 +125,139 @@ export default function AccountPage() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
             <div className="lg:w-64 flex-shrink-0">
-              <div className="bg-gray-50 p-6">
-                <div className="text-center mb-6 pb-6 border-b border-gray-200">
-                  <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white font-bold text-2xl">
+              <Card className="p-6">
+                <div className="text-center mb-6 pb-6 border-b border-border">
+                  <Avatar className="w-20 h-20 mx-auto mb-3">
+                    <AvatarFallback className="bg-foreground text-background text-2xl font-bold">
                       {profileData.firstName?.[0]}{profileData.lastName?.[0]}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-black">{user.name}</h3>
-                  <p className="text-gray-500 text-sm">{user.email}</p>
+                    </AvatarFallback>
+                  </Avatar>
+                  <h3 className="font-semibold text-foreground">{user.name}</h3>
+                  <p className="text-muted-foreground text-sm">{user.email}</p>
                 </div>
                 <nav className="space-y-1">
                   {tabs.map((tab) => (
-                    <button
+                    <Button
                       key={tab.id}
+                      variant={activeTab === tab.id ? "default" : "ghost"}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full px-4 py-3 text-left text-sm transition-all ${
-                        activeTab === tab.id
-                          ? 'bg-black text-white font-medium'
-                          : 'text-gray-600 hover:text-black hover:bg-gray-100'
-                      }`}
+                      className="w-full justify-start"
                     >
                       {tab.label}
-                    </button>
+                    </Button>
                   ))}
                 </nav>
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <button
+                <div className="mt-6 pt-6 border-t border-border">
+                  <Button
                     onClick={handleLogout}
-                    className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-all"
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     Sign Out
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             </div>
 
             {/* Content */}
             <div className="flex-1">
               {activeTab === 'profile' && (
-                <div className="bg-gray-50 p-8">
-                  <h2 className="text-xl font-semibold text-black mb-6">Profile Information</h2>
+                <Card className="p-8">
+                  <h2 className="text-xl font-semibold text-foreground mb-6">Profile Information</h2>
                   <form onSubmit={handleProfileSave} className="space-y-6 max-w-xl">
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm text-gray-600 block mb-2">First Name</label>
-                        <input
+                      <div className="space-y-2">
+                        <label className="text-sm text-muted-foreground">First Name</label>
+                        <Input
                           type="text"
                           value={profileData.firstName}
                           onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 bg-white text-black focus:outline-none focus:border-black"
                         />
                       </div>
-                      <div>
-                        <label className="text-sm text-gray-600 block mb-2">Last Name</label>
-                        <input
+                      <div className="space-y-2">
+                        <label className="text-sm text-muted-foreground">Last Name</label>
+                        <Input
                           type="text"
                           value={profileData.lastName}
                           onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-300 bg-white text-black focus:outline-none focus:border-black"
                         />
                       </div>
                     </div>
-                    <div>
-                      <label className="text-sm text-gray-600 block mb-2">Email</label>
-                      <input
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground">Email</label>
+                      <Input
                         type="email"
                         value={profileData.email}
                         disabled
-                        className="w-full px-4 py-3 border border-gray-200 bg-gray-100 text-gray-500"
+                        className="bg-muted text-muted-foreground"
                       />
                     </div>
-                    <div>
-                      <label className="text-sm text-gray-600 block mb-2">Phone</label>
-                      <input
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground">Phone</label>
+                      <Input
                         type="tel"
                         value={profileData.phone}
                         onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                         placeholder="+1 (555) 123-4567"
-                        className="w-full px-4 py-3 border border-gray-300 bg-white text-black focus:outline-none focus:border-black"
                       />
                     </div>
-                    <button
+                    <Button
                       type="submit"
                       disabled={saving}
-                      className="bg-black text-white px-8 py-3 text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-colors"
                     >
                       {saving ? 'Saving...' : 'Save Changes'}
-                    </button>
+                    </Button>
                   </form>
-                </div>
+                </Card>
               )}
 
               {activeTab === 'orders' && (
-                <div className="bg-gray-50 p-8">
-                  <h2 className="text-xl font-semibold text-black mb-6">My Orders</h2>
+                <Card className="p-8">
+                  <h2 className="text-xl font-semibold text-foreground mb-6">My Orders</h2>
                   {loading ? (
-                    <p className="text-gray-500">Loading orders...</p>
+                    <p className="text-muted-foreground">Loading orders...</p>
                   ) : orders.length === 0 ? (
                     <div className="text-center py-12">
-                      <p className="text-gray-500 mb-4">You haven&apos;t placed any orders yet.</p>
-                      <Link href="/shop" className="text-black hover:underline">
+                      <p className="text-muted-foreground mb-4">You haven&apos;t placed any orders yet.</p>
+                      <Link href="/shop" className="text-foreground hover:underline">
                         Browse Shop →
                       </Link>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {orders.map((order) => (
-                        <div key={order.id} className="bg-white p-6 border border-gray-200">
+                        <Card key={order.id} className="p-6">
                           <div className="flex justify-between items-center mb-3">
-                            <span className="font-medium text-black">{order.orderNumber}</span>
-                            <span className="text-sm px-3 py-1 bg-green-100 text-green-700">
+                            <span className="font-medium text-foreground">{order.orderNumber}</span>
+                            <span className="text-sm px-3 py-1 bg-primary/10 text-primary rounded-md">
                               {order.status}
                             </span>
                           </div>
-                          <p className="text-gray-500 text-sm">
+                          <p className="text-muted-foreground text-sm">
                             {new Date(order.createdAt).toLocaleDateString()} • ${order.total}
                           </p>
-                        </div>
+                        </Card>
                       ))}
                     </div>
                   )}
-                </div>
+                </Card>
               )}
 
               {activeTab === 'wishlist' && (
-                <div className="bg-gray-50 p-8">
-                  <h2 className="text-xl font-semibold text-black mb-6">My Wishlist</h2>
-                  <p className="text-gray-500 mb-4">Your wishlist is empty.</p>
-                  <Link href="/shop" className="text-black hover:underline">
+                <Card className="p-8">
+                  <h2 className="text-xl font-semibold text-foreground mb-6">My Wishlist</h2>
+                  <p className="text-muted-foreground mb-4">Your wishlist is empty.</p>
+                  <Link href="/shop" className="text-foreground hover:underline">
                     Browse Shop →
                   </Link>
-                </div>
+                </Card>
               )}
 
               {activeTab === 'addresses' && (
-                <div className="bg-gray-50 p-8">
-                  <h2 className="text-xl font-semibold text-black mb-6">Saved Addresses</h2>
-                  <p className="text-gray-500">No saved addresses.</p>
-                </div>
+                <Card className="p-8">
+                  <h2 className="text-xl font-semibold text-foreground mb-6">Saved Addresses</h2>
+                  <p className="text-muted-foreground">No saved addresses.</p>
+                </Card>
               )}
             </div>
           </div>

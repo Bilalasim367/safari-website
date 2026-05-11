@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
@@ -15,37 +17,45 @@ export default function Footer() {
     }
   }
   return (
-    <footer className='bg-black text-gray-300 py-20 md:py-28'>
+    <footer className='bg-primary text-primary-foreground/90 py-20 md:py-28'>
       <div className='container-custom'>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-14 lg:gap-16 mb-20'>
           {/* Column 1: Brand & About */}
           <div className='lg:col-span-1'>
             <Link href='/' className='inline-block mb-8'>
-              <h2 className='text-2xl md:text-3xl font-serif font-bold tracking-wide'>
-                <span className='text-white'>SAFARI</span>
+              <h2 className='text-2xl md:text-3xl font-serif font-bold tracking-wide text-primary-foreground'>
+                SAFARI
               </h2>
             </Link>
-            <p className='text-gray-400 text-base leading-relaxed mb-8 max-w-xs'>
+            <p className='text-primary-foreground/70 text-base leading-relaxed mb-8 max-w-xs'>
               Crafting luxury fragrances that capture the essence of elegance
               and sophistication since 2015. Every scent tells a story of
               craftsmanship and passion.
             </p>
-            <Link
-              href='/about'
-              className='text-white text-base hover:text-gray-300 transition-colors'
-            >
-              Read More →
-            </Link>
+            <Button variant="link" className="p-0 h-auto text-primary-foreground hover:text-primary-foreground/80 gap-2 group">
+              <Link href='/about'>
+                Read More
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 16 16" 
+                  fill="none"
+                  className="transition-transform group-hover:translate-x-1"
+                >
+                  <path d="M4 8l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </Button>
 
-            <div className='mt-10 pt-10 border-t border-gray-800'>
-              <h4 className='text-white font-semibold text-base tracking-wide mb-6'>
+            <div className='mt-10 pt-10 border-t border-primary-foreground/20'>
+              <h4 className='text-primary-foreground font-semibold text-base tracking-wide mb-6'>
                 Contact Us
               </h4>
               <ul className='space-y-5 text-base'>
                 <li>
                   <a
                     href='mailto:hello@SAFARI.com'
-                    className='hover:text-white transition-colors flex items-center gap-3'
+                    className='hover:text-primary-foreground transition-colors flex items-center gap-3'
                   >
                     <svg
                       className='w-5 h-5'
@@ -66,7 +76,7 @@ export default function Footer() {
                 <li>
                   <a
                     href='tel:+15551234567'
-                    className='hover:text-white transition-colors flex items-center gap-3'
+                    className='hover:text-primary-foreground transition-colors flex items-center gap-3'
                   >
                     <svg
                       className='w-5 h-5'
@@ -95,7 +105,7 @@ export default function Footer() {
 
           {/* Column 2: Quick Links */}
           <div>
-            <h4 className='text-white font-semibold text-base tracking-wide mb-8'>
+            <h4 className='text-primary-foreground font-semibold text-sm uppercase tracking-[0.2em] mb-8'>
               Quick Links
             </h4>
             <ul className='space-y-5'>
@@ -110,7 +120,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className='text-base text-gray-400 hover:text-white transition-colors'
+                    className='text-base text-primary-foreground/70 hover:text-primary-foreground transition-colors'
                   >
                     {link.label}
                   </Link>
@@ -121,7 +131,7 @@ export default function Footer() {
 
           {/* Column 3: Customer Service */}
           <div>
-            <h4 className='text-white font-semibold text-base tracking-wide mb-8'>
+            <h4 className='text-primary-foreground font-semibold text-sm uppercase tracking-[0.2em] mb-8'>
               Customer Service
             </h4>
             <ul className='space-y-5'>
@@ -136,7 +146,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className='text-base text-gray-400 hover:text-white transition-colors'
+                    className='text-base text-primary-foreground/70 hover:text-primary-foreground transition-colors'
                   >
                     {link.label}
                   </Link>
@@ -147,30 +157,31 @@ export default function Footer() {
 
           {/* Column 4: Newsletter & Contact */}
           <div>
-            <h4 className='text-white font-bold text-xl mb-6'>
+            <h4 className='text-primary-foreground font-bold text-xl mb-6'>
               Stay Connected & Save
             </h4>
-            <p className='text-gray-400 text-base mb-8'>
+            <p className='text-primary-foreground/60 text-base mb-8'>
               Sign up for exclusive updates & offers, and get 10% off your first
               order!
             </p>
-            <form onSubmit={handleSubscribe} className='mb-8'>
-              <input
+            <form onSubmit={handleSubscribe} className='mb-8 space-y-4'>
+              <Input
                 type='email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder='Enter your email'
                 required
-                className='w-full h-14 px-5 mb-4 bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-white transition-colors'
+                className='h-14 bg-background text-foreground placeholder:text-muted-foreground border-border'
                 aria-label='Email address for newsletter'
               />
-              <button
+              <Button
                 type='submit'
                 disabled={subscribed}
-                className='w-full h-14 bg-white text-black font-semibold uppercase text-sm tracking-wider hover:bg-gray-200 transition-colors disabled:opacity-70'
+                className='w-full h-14 font-semibold uppercase tracking-wider'
+                variant='default'
               >
                 {subscribed ? 'Subscribed!' : 'Subscribe'}
-              </button>
+              </Button>
             </form>
             {subscribed && (
               <p className='text-green-500 text-sm mt-2'>Thanks for subscribing!</p>
@@ -198,7 +209,7 @@ export default function Footer() {
                 <button
                   key={social.name}
                   onClick={() => alert('Coming soon!')}
-                  className="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center text-gray-400 hover:border-white hover:text-white transition-all cursor-not-allowed"
+                  className="w-12 h-12 rounded-full border border-primary-foreground/20 flex items-center justify-center text-primary-foreground/60 hover:border-primary-foreground hover:text-primary-foreground transition-all cursor-not-allowed"
                   aria-label={`${social.name} - Coming soon`}
                 >
                   <svg
@@ -215,20 +226,20 @@ export default function Footer() {
         </div>
 
         {/* Bottom Footer */}
-        <div className='pt-14 border-t border-gray-800'>
+        <div className='pt-14 border-t border-primary-foreground/20'>
           <div className='flex flex-col lg:flex-row items-center justify-between gap-8'>
             {/* Payment Methods */}
             <div className='flex items-center gap-6'>
-              <span className='text-base text-gray-500 tracking-wide'>
+              <span className='text-base text-primary-foreground/60 tracking-wide'>
                 We Accept:
               </span>
               <div className='flex gap-3'>
                 {['Visa', 'MC', 'Amex', 'PayPal'].map((card) => (
                   <div
                     key={card}
-                    className='w-16 h-10 bg-gray-800 rounded flex items-center justify-center border border-gray-700'
+                    className='w-16 h-10 bg-primary-foreground/10 rounded flex items-center justify-center border border-primary-foreground/20'
                   >
-                    <span className='text-xs text-gray-400 uppercase tracking-wider'>
+                    <span className='text-xs text-primary-foreground/60 uppercase tracking-wider'>
                       {card}
                     </span>
                   </div>
@@ -246,7 +257,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className='text-base text-gray-500 hover:text-gray-300 transition-colors'
+                  className='text-base text-primary-foreground/60 hover:text-primary-foreground/80 transition-colors'
                 >
                   {link.label}
                 </Link>
@@ -257,9 +268,9 @@ export default function Footer() {
       </div>
 
       {/* Copyright Bar */}
-      <div className='bg-gray-950 py-8 mt-14'>
+      <div className='bg-secondary py-8 mt-14'>
         <div className='container-custom'>
-          <p className='text-center text-base text-gray-500'>
+          <p className='text-center text-base text-secondary-foreground/60'>
             © {new Date().getFullYear()} SAFARI Perfumes. All rights reserved.
           </p>
         </div>

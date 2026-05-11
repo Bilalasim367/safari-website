@@ -2,6 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
 
 interface User {
   id: string;
@@ -19,7 +26,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const fetchUsers = async () => {
@@ -70,7 +77,7 @@ export default function UsersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -79,26 +86,26 @@ export default function UsersPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-black">Customers</h1>
-          <p className="text-gray-500 mt-1">{users.length} total customers</p>
+          <h1 className="text-3xl font-serif font-bold">Customers</h1>
+          <p className="text-muted-foreground mt-1">{users.length} total customers</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <Card className="p-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H3v2a3 3 0 005.356 1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
             <div>
-              <p className="text-2xl font-serif font-bold text-black">{users.length}</p>
-              <p className="text-gray-400 text-sm">Total</p>
+              <p className="text-2xl font-serif font-bold">{users.length}</p>
+              <p className="text-muted-foreground text-sm">Total</p>
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        </Card>
+        <Card className="p-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,11 +114,11 @@ export default function UsersPage() {
             </div>
             <div>
               <p className="text-2xl font-serif font-bold text-green-600">{users.filter(u => u.status === 'active').length}</p>
-              <p className="text-gray-400 text-sm">Active</p>
+              <p className="text-muted-foreground text-sm">Active</p>
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        </Card>
+        <Card className="p-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,154 +127,171 @@ export default function UsersPage() {
             </div>
             <div>
               <p className="text-2xl font-serif font-bold text-yellow-600">{users.filter(u => u.status === 'inactive').length}</p>
-              <p className="text-gray-400 text-sm">Inactive</p>
+              <p className="text-muted-foreground text-sm">Inactive</p>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+      <Card className="p-4 mb-6">
         <div className="flex gap-3">
-          <input
+          <Input
             type="text"
             placeholder="Search customers..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-black"
+            className="flex-1"
           />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-200 px-4 py-2 rounded-lg focus:outline-none focus:border-black"
+          <Select
+            value={statusFilter || ""}
+            onValueChange={(value) => setStatusFilter(value || null)}
           >
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="blocked">Blocked</option>
-          </select>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="blocked">Blocked</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredUsers.map((user) => (
-          <div 
+          <Card 
             key={user.id} 
-            className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+            className="p-5 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => setSelectedUser(user)}
           >
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center overflow-hidden">
                 {user.avatar && user.avatar.trim() ? (
                   <Image src={user.avatar} alt={user.name} width={48} height={48} className="object-cover" />
                 ) : (
-                  <span className="text-lg font-medium text-gray-500">{user.name?.charAt(0) || '?'}</span>
+                  <span className="text-lg font-medium text-muted-foreground">{user.name?.charAt(0) || '?'}</span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-black truncate">{user.name}</p>
-                <p className="text-gray-400 text-sm truncate">{user.email}</p>
+                <p className="font-medium truncate">{user.name}</p>
+                <p className="text-muted-foreground text-sm truncate">{user.email}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between pt-3 border-t">
               <div>
-                <p className="text-lg font-serif font-bold text-black">${user.totalSpent.toFixed(2)}</p>
-                <p className="text-gray-400 text-xs">{user.orders} orders</p>
+                <p className="text-lg font-serif font-bold">${user.totalSpent.toFixed(2)}</p>
+                <p className="text-muted-foreground text-xs">{user.orders} orders</p>
               </div>
-              <span className={`px-3 py-1 text-xs rounded-full capitalize ${
-                user.status === 'active' ? 'bg-green-100 text-green-700' :
-                user.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                'bg-yellow-100 text-yellow-700'
-              }`}>
+              <Badge 
+                variant={
+                  user.status === 'active' ? 'default' :
+                  user.status === 'blocked' ? 'destructive' :
+                  'secondary'
+                }
+                className={
+                  user.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                  user.status === 'blocked' ? '' :
+                  'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+                }
+              >
                 {user.status}
-              </span>
+              </Badge>
             </div>
-          </div>
+          </Card>
         ))}
         
         {filteredUsers.length === 0 && (
-          <div className="col-span-full text-center py-12 bg-white rounded-xl border border-gray-100">
-            <p className="text-gray-400">No customers found</p>
+          <div className="col-span-full text-center py-12 bg-white rounded-xl border">
+            <p className="text-muted-foreground">No customers found</p>
           </div>
         )}
       </div>
 
       {selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUser(null)} />
-          <div className="relative bg-white rounded-2xl w-full max-w-sm max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="border-b border-gray-100 p-5 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-black">Customer Details</h2>
-              <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-black">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+        <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+          <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Customer Details</DialogTitle>
+            </DialogHeader>
 
-            <div className="p-5 space-y-4">
+            <div className="space-y-4">
               <div className="text-center">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden">
                   {selectedUser.avatar && selectedUser.avatar.trim() ? (
                     <Image src={selectedUser.avatar} alt={selectedUser.name} width={80} height={80} className="object-cover" />
                   ) : (
-                    <span className="text-3xl font-medium text-gray-500">{selectedUser.name?.charAt(0) || '?'}</span>
+                    <span className="text-3xl font-medium text-muted-foreground">{selectedUser.name?.charAt(0) || '?'}</span>
                   )}
                 </div>
-                <h3 className="text-xl font-semibold text-black">{selectedUser.name}</h3>
-                <p className="text-gray-500">{selectedUser.email}</p>
-                <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full capitalize ${
-                  selectedUser.status === 'active' ? 'bg-green-100 text-green-700' :
-                  selectedUser.status === 'blocked' ? 'bg-red-100 text-red-700' :
-                  'bg-yellow-100 text-yellow-700'
-                }`}>
+                <h3 className="text-xl font-semibold">{selectedUser.name}</h3>
+                <p className="text-muted-foreground">{selectedUser.email}</p>
+                <Badge 
+                  variant={
+                    selectedUser.status === 'active' ? 'default' :
+                    selectedUser.status === 'blocked' ? 'destructive' :
+                    'secondary'
+                  }
+                  className={
+                    selectedUser.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                    selectedUser.status === 'blocked' ? '' :
+                    'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+                  }
+                >
                   {selectedUser.status}
-                </span>
+                </Badge>
               </div>
 
               <div className="grid grid-cols-2 gap-3 pt-3">
-                <div className="bg-gray-50 rounded-xl p-4 text-center">
-                  <p className="text-2xl font-serif font-bold text-black">{selectedUser.orders}</p>
-                  <p className="text-gray-400 text-xs">Orders</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4 text-center">
-                  <p className="text-2xl font-serif font-bold text-black">${selectedUser.totalSpent.toFixed(2)}</p>
-                  <p className="text-gray-400 text-xs">Total Spent</p>
-                </div>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-serif font-bold">{selectedUser.orders}</p>
+                  <p className="text-muted-foreground text-xs">Orders</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-serif font-bold">${selectedUser.totalSpent.toFixed(2)}</p>
+                  <p className="text-muted-foreground text-xs">Total Spent</p>
+                </Card>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Phone</p>
-                <p className="text-black">{selectedUser.phone || 'Not provided'}</p>
+              <div className="bg-muted rounded-xl p-4">
+                <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Phone</p>
+                <p className="text-foreground">{selectedUser.phone || 'Not provided'}</p>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Member Since</p>
-                <p className="text-black">{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'Unknown'}</p>
+              <div className="bg-muted rounded-xl p-4">
+                <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Member Since</p>
+                <p className="text-foreground">{selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'Unknown'}</p>
               </div>
 
-              <div className="pt-3 border-t border-gray-100">
-                <p className="text-gray-500 text-sm mb-3">Update Status</p>
+              <div className="pt-3 border-t">
+                <p className="text-muted-foreground text-sm mb-3">Update Status</p>
                 <div className="flex gap-2">
                   {['active', 'inactive', 'blocked'].map((status) => (
-                    <button
+                    <Button
                       key={status}
                       onClick={() => updateUserStatus(selectedUser.id, status)}
-                      className={`flex-1 py-2 rounded-lg text-sm capitalize transition-colors ${
+                      variant={
                         selectedUser.status === status 
-                          ? status === 'active' ? 'bg-green-600 text-white' :
-                            status === 'blocked' ? 'bg-red-600 text-white' :
-                            'bg-yellow-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? status === 'active' ? 'default' :
+                            status === 'blocked' ? 'destructive' :
+                            'secondary'
+                          : 'outline'
+                      }
+                      className={`flex-1 capitalize ${
+                        selectedUser.status === status && status === 'active' ? 'bg-green-600 text-white hover:bg-green-600' :
+                        selectedUser.status === status && status === 'blocked' ? '' :
+                        selectedUser.status === status && 'bg-yellow-500 text-white hover:bg-yellow-500'
                       }`}
                     >
                       {status}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

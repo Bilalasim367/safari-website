@@ -147,8 +147,8 @@ export default async function ShopContent({
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
             <aside className="lg:w-72 flex-shrink-0 hidden lg:block">
               <div className="sticky top-24">
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-black uppercase tracking-wider">Filters</h2>
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+                  <h2 className="text-lg font-semibold text-foreground uppercase tracking-wider">Filters</h2>
                   {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length) > 0 && (
                     <Link
                       href="/shop"
@@ -191,13 +191,13 @@ export default async function ShopContent({
             </aside>
 
             <div className="flex-1">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-200">
-                <p className="text-gray-500 text-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-border">
+                <p className="text-muted-foreground text-sm">
                   {total} Product{total !== 1 ? 's' : ''}
                 </p>
                 <select
                   defaultValue={sort}
-                  className="bg-transparent border border-gray-300 text-black text-sm px-4 py-2.5 outline-none focus:border-black transition-colors cursor-pointer"
+                  className="bg-transparent border border-input text-foreground text-sm px-4 py-2.5 outline-none focus:border-foreground transition-colors cursor-pointer"
                 >
                   <option value="featured">Sort: Featured</option>
                   <option value="price-low">Price: Low to High</option>
@@ -208,14 +208,14 @@ export default async function ShopContent({
               </div>
 
               {formattedProducts.length === 0 ? (
-                <div className="text-center py-20 bg-gray-50">
+                <div className="text-center py-20 bg-muted/50">
                   <div className="mb-6">
-                    <svg className="w-16 h-16 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-16 h-16 mx-auto text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
-                  <p className="text-gray-500 mb-6">No products found matching your filters.</p>
-                  <Link href="/shop" className="text-sm border-b border-black pb-1 hover:opacity-60 transition-opacity">
+                  <p className="text-muted-foreground mb-6">No products found matching your filters.</p>
+                  <Link href="/shop" className="text-sm border-b border-foreground pb-1 hover:opacity-60 transition-opacity">
                     Clear All Filters
                   </Link>
                 </div>
@@ -243,18 +243,18 @@ export default async function ShopContent({
                       {page > 1 && (
                         <Link
                           href={`/shop?page=${page - 1}${params.category ? `&category=${params.category}` : ''}${params.size ? `&size=${params.size}` : ''}${params.fragranceFamily ? `&fragranceFamily=${params.fragranceFamily}` : ''}${params.sort ? `&sort=${params.sort}` : ''}`}
-                          className="px-4 py-2 border border-gray-300 text-sm hover:bg-black hover:text-white transition-colors"
-                        >
-                          Previous
+                      className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
+                    >
+                      Previous
                         </Link>
                       )}
-                      <span className="px-4 py-2 text-sm">
+                      <span className="px-4 py-2 text-sm text-muted-foreground">
                         Page {page} of {totalPages}
                       </span>
                       {page < totalPages && (
                         <Link
                           href={`/shop?page=${page + 1}${params.category ? `&category=${params.category}` : ''}${params.size ? `&size=${params.size}` : ''}${params.fragranceFamily ? `&fragranceFamily=${params.fragranceFamily}` : ''}${params.sort ? `&sort=${params.sort}` : ''}`}
-                          className="px-4 py-2 border border-gray-300 text-sm hover:bg-black hover:text-white transition-colors"
+                          className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
                         >
                           Next
                         </Link>
@@ -272,7 +272,7 @@ export default async function ShopContent({
     console.error('Error fetching products:', error);
     return (
       <div className="container-custom py-20 text-center">
-        <p className="text-gray-500 mb-4">Failed to load products. Please try again.</p>
+        <p className="text-muted-foreground mb-4">Failed to load products. Please try again.</p>
         <Link href="/shop" className="btn-primary">
           Try Again
         </Link>
@@ -317,7 +317,7 @@ function FilterSection({
 
   return (
     <div className="mb-8">
-      <h3 className="text-black text-xs font-bold uppercase tracking-[0.2em] mb-4">{title}</h3>
+                <h3 className="text-foreground text-xs font-bold uppercase tracking-[0.2em] mb-4">{title}</h3>
       <div className="space-y-3">
         {options.map((option) => {
           const isSelected = selected.includes(option);
@@ -327,24 +327,24 @@ function FilterSection({
             <Link
               key={option}
               href={href}
-              className="flex items-center gap-3 group"
-            >
-              <span
-                className={`w-4 h-4 border flex items-center justify-center ${
-                  isSelected
-                    ? 'bg-black border-black'
-                    : 'border-gray-300'
-                }`}
+                className="flex items-center gap-3 group"
               >
-                {isSelected && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </span>
-              <span className="text-gray-600 group-hover:text-black transition-colors text-sm">
-                {option}
-              </span>
+                <span
+                  className={`w-4 h-4 border flex items-center justify-center ${
+                    isSelected
+                      ? 'bg-foreground border-foreground'
+                      : 'border-input'
+                  }`}
+                >
+                  {isSelected && (
+                    <svg className="w-3 h-3 text-background" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </span>
+                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">
+                  {option}
+                </span>
             </Link>
           );
         })}
@@ -356,7 +356,7 @@ function FilterSection({
 function ShopError({ message }: { message: string }) {
   return (
     <div className="container-custom py-20 text-center">
-      <p className="text-gray-500 mb-4">{message}</p>
+      <p className="text-muted-foreground mb-4">{message}</p>
       <Link href="/shop" className="btn-primary">
         Try Again
       </Link>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 interface HeroSliderProps {
   banners: string[]
@@ -34,14 +35,14 @@ export default function HeroSlider({ banners, content }: HeroSliderProps) {
         />
       </div>
 
-      <div className="hero-overlay absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
 
       <div className="relative z-10 text-center px-8 md:px-12 max-w-6xl mx-auto py-32 md:py-40 lg:py-48">
-        <p className="text-white text-sm md:text-base tracking-[0.6em] uppercase mb-12 fade-up">
+        <p className="text-white/90 text-sm md:text-base tracking-[0.6em] uppercase mb-12 animate-fade-in">
           {content[currentSlide].subtitle}
         </p>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-extrabold text-white mb-10 fade-up delay-100 tracking-tight">
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-extrabold text-white mb-10 animate-fade-in tracking-tight">
           {content[currentSlide].title}
           <br />
           <span className="text-white italic pb-8 block">
@@ -49,14 +50,16 @@ export default function HeroSlider({ banners, content }: HeroSliderProps) {
           </span>
         </h1>
 
-        <p className="text-white/80 text-lg md:text-2xl font-light max-w-3xl mx-auto mb-16 fade-up delay-200 leading-relaxed">
+        <p className="text-white/80 text-lg md:text-2xl font-light max-w-3xl mx-auto mb-16 animate-fade-in delay-100 leading-relaxed">
           {content[currentSlide].description}
         </p>
 
-        <div className="fade-up delay-300">
-          <Link href="/shop" className="btn-primary inline-block">
-            {content[currentSlide].cta}
-          </Link>
+        <div className="animate-fade-in delay-200">
+          <Button variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-black transition-all duration-300 rounded-none px-8 py-6 text-sm tracking-[0.3em] uppercase">
+            <Link href="/shop">
+              {content[currentSlide].cta}
+            </Link>
+          </Button>
         </div>
       </div>
 

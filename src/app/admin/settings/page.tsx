@@ -1,6 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -30,238 +37,230 @@ export default function SettingsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-black">Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your store preferences</p>
+        <h1 className="text-3xl font-serif font-bold">Settings</h1>
+        <p className="text-muted-foreground mt-1">Manage your store preferences</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-56 flex-shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2">
+          <div className="bg-white rounded-xl shadow-sm border border-muted p-2">
             {tabs.map((tab) => (
-              <button
+              <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                variant={activeTab === tab.id ? "default" : "ghost"}
+                className={`w-full justify-start gap-3 ${
                   activeTab === tab.id
-                    ? "bg-black text-white"
-                    : "text-gray-500 hover:text-black hover:bg-gray-50"
+                    ? ""
+                    : "text-muted-foreground"
                 }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tab.icon} />
                 </svg>
                 <span className="font-medium">{tab.label}</span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
         <div className="flex-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <Card>
+            <CardContent className="p-6">
             {activeTab === "general" && (
               <div className="space-y-5">
-                <h2 className="text-lg font-semibold text-black">General Settings</h2>
+                <h2 className="text-lg font-semibold">General Settings</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-1">Store Name</label>
-                    <input
+                  <div className="bg-muted rounded-xl p-4">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Store Name</Label>
+                    <Input
                       type="text"
                       value={settings.storeName}
                       onChange={(e) => setSettings({ ...settings, storeName: e.target.value })}
-                      className="w-full bg-transparent text-black font-medium outline-none"
+                      className="bg-transparent"
                     />
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-1">Email</label>
-                    <input
+                  <div className="bg-muted rounded-xl p-4">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Email</Label>
+                    <Input
                       type="email"
                       value={settings.storeEmail}
                       onChange={(e) => setSettings({ ...settings, storeEmail: e.target.value })}
-                      className="w-full bg-transparent text-black font-medium outline-none"
+                      className="bg-transparent"
                     />
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-1">Phone</label>
-                    <input
+                  <div className="bg-muted rounded-xl p-4">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Phone</Label>
+                    <Input
                       type="text"
                       value={settings.storePhone}
                       onChange={(e) => setSettings({ ...settings, storePhone: e.target.value })}
-                      className="w-full bg-transparent text-black font-medium outline-none"
+                      className="bg-transparent"
                     />
                   </div>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-1">Currency</label>
-                    <select
+                  <div className="bg-muted rounded-xl p-4">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Currency</Label>
+                    <Select
                       value={settings.currency}
-                      onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
-                      className="w-full bg-transparent text-black font-medium outline-none"
+                      onValueChange={(value) => setSettings({ ...settings, currency: value || "USD" })}
                     >
-                      <option value="USD" className="bg-white">USD ($)</option>
-                      <option value="EUR" className="bg-white">EUR (€)</option>
-                      <option value="GBP" className="bg-white">GBP (£)</option>
-                    </select>
+                      <SelectTrigger className="bg-transparent">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="USD">USD ($)</SelectItem>
+                        <SelectItem value="EUR">EUR (€)</SelectItem>
+                        <SelectItem value="GBP">GBP (£)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                <button onClick={handleSave} className="bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors">
+                <Button onClick={handleSave}>
                   {saved ? "Saved!" : "Save Changes"}
-                </button>
+                </Button>
               </div>
             )}
 
             {activeTab === "shipping" && (
               <div className="space-y-5">
-                <h2 className="text-lg font-semibold text-black">Shipping Settings</h2>
-
+                <h2 className="text-lg font-semibold">Shipping Settings</h2>
+                
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 rounded-xl p-5">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-2">Standard Shipping</label>
-                    <p className="text-2xl font-serif font-bold text-black">${settings.shippingFee}</p>
-                    <p className="text-gray-400 text-sm mt-1">Flat rate</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-5">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-2">Free Shipping</label>
-                    <p className="text-2xl font-serif font-bold text-black">${settings.freeShippingThreshold}</p>
-                    <p className="text-gray-400 text-sm mt-1">Minimum order</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-xl p-5">
-                    <label className="text-gray-400 text-xs uppercase tracking-wide block mb-2">Tax Rate</label>
-                    <p className="text-2xl font-serif font-bold text-black">{settings.taxRate}%</p>
-                    <p className="text-gray-400 text-sm mt-1">Per order</p>
-                  </div>
+                  <Card className="p-5">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-2">Standard Shipping</Label>
+                    <p className="text-2xl font-serif font-bold">${settings.shippingFee}</p>
+                    <p className="text-muted-foreground text-sm mt-1">Flat rate</p>
+                  </Card>
+                  <Card className="p-5">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-2">Free Shipping</Label>
+                    <p className="text-2xl font-serif font-bold">${settings.freeShippingThreshold}</p>
+                    <p className="text-muted-foreground text-sm mt-1">Minimum order</p>
+                  </Card>
+                  <Card className="p-5">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-2">Tax Rate</Label>
+                    <p className="text-2xl font-serif font-bold">{settings.taxRate}%</p>
+                    <p className="text-muted-foreground text-sm mt-1">Per order</p>
+                  </Card>
                 </div>
 
                 <div className="space-y-3 pt-3">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium text-black">Free Shipping</p>
-                      <p className="text-gray-400 text-sm">Orders over ${settings.freeShippingThreshold}</p>
+                      <p className="font-medium">Free Shipping</p>
+                      <p className="text-muted-foreground text-sm">Orders over ${settings.freeShippingThreshold}</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
+                    <Switch defaultChecked />
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium text-black">Express Shipping</p>
-                      <p className="text-gray-400 text-sm">1-2 business days</p>
+                      <p className="font-medium">Express Shipping</p>
+                      <p className="text-muted-foreground text-sm">1-2 business days</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
+                    <Switch />
                   </div>
                 </div>
 
-                <button onClick={handleSave} className="bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors">
+                <Button onClick={handleSave}>
                   {saved ? "Saved!" : "Save Changes"}
-                </button>
+                </Button>
               </div>
             )}
 
             {activeTab === "email" && (
               <div className="space-y-5">
-                <h2 className="text-lg font-semibold text-black">Email Notifications</h2>
-
+                <h2 className="text-lg font-semibold">Email Notifications</h2>
+                
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium text-black">New Order Alerts</p>
-                      <p className="text-gray-400 text-sm">Get notified when a new order is placed</p>
+                      <p className="font-medium">New Order Alerts</p>
+                      <p className="text-muted-foreground text-sm">Get notified when a new order is placed</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
+                    <Switch defaultChecked />
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium text-black">Order Confirmation</p>
-                      <p className="text-gray-400 text-sm">Email customers order confirmation</p>
+                      <p className="font-medium">Order Confirmation</p>
+                      <p className="text-muted-foreground text-sm">Email customers order confirmation</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
+                    <Switch defaultChecked />
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium text-black">Shipping Updates</p>
-                      <p className="text-gray-400 text-sm">Notify on status changes</p>
+                      <p className="font-medium">Shipping Updates</p>
+                      <p className="text-muted-foreground text-sm">Notify on status changes</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
+                    <Switch defaultChecked />
                   </div>
                 </div>
 
-                <button onClick={handleSave} className="bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors">
+                <Button onClick={handleSave}>
                   {saved ? "Saved!" : "Save Changes"}
-                </button>
+                </Button>
               </div>
             )}
 
             {activeTab === "payment" && (
               <div className="space-y-5">
-                <h2 className="text-lg font-semibold text-black">Payment Methods</h2>
-
+                <h2 className="text-lg font-semibold">Payment Methods</h2>
+                
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between py-4 px-5 bg-green-50 rounded-xl border border-green-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
-                        <span className="text-black text-xs font-bold">VISA</span>
+                  <Card className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
+                          <span className="text-black text-xs font-bold">VISA</span>
+                        </div>
+                        <div>
+                          <p className="font-medium">Credit/Debit Cards</p>
+                          <p className="text-muted-foreground text-sm">Visa, Mastercard, Amex</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-black">Credit/Debit Cards</p>
-                        <p className="text-gray-400 text-sm">Visa, Mastercard, Amex</p>
-                      </div>
+                      <Badge variant="default" className="bg-green-100 text-green-800">Enabled</Badge>
                     </div>
-                    <span className="text-green-600 text-sm font-medium">Enabled</span>
-                  </div>
+                  </Card>
                   
-                  <div className="flex items-center justify-between py-4 px-5 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
-                        <span className="text-black text-xs font-bold">PayPal</span>
+                  <Card className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
+                          <span className="text-black text-xs font-bold">PayPal</span>
+                        </div>
+                        <div>
+                          <p className="font-medium">PayPal</p>
+                          <p className="text-muted-foreground text-sm">Pay with PayPal</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-black">PayPal</p>
-                        <p className="text-gray-400 text-sm">Pay with PayPal</p>
-                      </div>
+                      <Switch defaultChecked />
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
-                  </div>
+                  </Card>
 
-                  <div className="flex items-center justify-between py-4 px-5 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
-                        <span className="text-black text-xs font-bold">COD</span>
+                  <Card className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
+                          <span className="text-black text-xs font-bold">COD</span>
+                        </div>
+                        <div>
+                          <p className="font-medium">Cash on Delivery</p>
+                          <p className="text-muted-foreground text-sm">Pay when you receive</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-black">Cash on Delivery</p>
-                        <p className="text-gray-400 text-sm">Pay when you receive</p>
-                      </div>
+                      <Switch />
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                    </label>
-                  </div>
+                  </Card>
                 </div>
 
-                <button onClick={handleSave} className="bg-black text-white px-6 py-2.5 rounded-lg hover:bg-gray-800 transition-colors">
+                <Button onClick={handleSave}>
                   {saved ? "Saved!" : "Save Changes"}
-                </button>
+                </Button>
               </div>
-            )}
-          </div>
-        </div>
+             )}
+           </CardContent>
+         </Card>
+         </div>
       </div>
     </div>
   );

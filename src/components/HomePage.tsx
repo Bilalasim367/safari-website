@@ -1,0 +1,566 @@
+"use client"
+
+import React from 'react'
+import Link from 'next/link'
+import HeroSlider from '@/components/HeroSlider'
+import ProductCard from '@/components/ProductCard'
+import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+
+const HERO_BANNERS = [
+  '/banner1.png',
+  '/banner2.png',
+  '/banner3.png',
+]
+
+const HERO_CONTENT = [
+  {
+    subtitle: "Exclusive Collection",
+    title: "DISCOVER YOUR",
+    highlight: "SIGNATURE SCENT",
+    description: "Crafted with passion, designed to captivate your senses. Explore our exclusive range of captivating fragrances.",
+    cta: "Shop Now",
+  },
+  {
+    subtitle: "New Arrivals",
+    title: "EMBRACE THE",
+    highlight: "LATEST ESSENCE",
+    description: "Be the first to experience our newest creations. Limited edition fragrances for the discerning collector.",
+    cta: "Explore New",
+  },
+  {
+    subtitle: "Best Sellers",
+    title: "REDISCOVER",
+    highlight: "CLASSIC LUXURY",
+    description: "Timeless fragrances that have charmed thousands. Discover the scents that define elegance.",
+    cta: "View All",
+  },
+]
+
+const COLLECTION_IMAGES: Record<string, string> = {
+  men: '/men.png',
+  women: '/women.png',
+  unisex: '/unisex.png',
+}
+
+const SCENT_IMAGES: Record<string, string> = {
+  woody: '/woody.png',
+  fresh: '/fresh.png',
+  floral: '/floral.png',
+}
+
+interface HomePageProps {
+  bestsellers: any[]
+  newArrivals: any[]
+}
+
+export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
+  return (
+    <>
+      {/* HERO SECTION */}
+      <section className='relative min-h-[90vh] flex items-center justify-center overflow-hidden'>
+        <HeroSlider banners={HERO_BANNERS} content={HERO_CONTENT} />
+      </section>
+
+      {/* TRUST & VALUE SECTION */}
+      <section className='px-6 md:px-12 py-16 md:py-24 bg-background'>
+        <div className='container-custom'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12'>
+            {[
+              {
+                icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.123l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.123l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
+                title: '5-Star Ratings',
+                desc: 'Loved by thousands of customers worldwide',
+              },
+              {
+                icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
+                title: 'Premium Quality',
+                desc: 'Exceptional ingredients, crafted to perfection',
+              },
+              {
+                icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+                title: '24/7 Support',
+                desc: 'Dedicated team ready to assist you anytime',
+              },
+              {
+                icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+                title: 'Fast Delivery',
+                desc: 'Quick & reliable shipping worldwide',
+              },
+            ].map((item, i) => (
+              <Card key={i} size="sm" className="flex flex-col items-center text-center hover:shadow-md transition-all duration-300">
+                <CardContent className="flex flex-col items-center pt-6 pb-6">
+                  <div className='mb-6 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center'>
+                    <svg
+                      className='w-6 h-6 text-primary'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={1.5}
+                        d={item.icon}
+                      />
+                    </svg>
+                  </div>
+                  <h3 className='text-lg font-semibold text-foreground mb-3'>
+                    {item.title}
+                  </h3>
+                  <p className='text-muted-foreground text-base'>{item.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEW ARRIVALS SECTION */}
+      <section className="px-6 md:px-12 py-16 md:py-24 bg-background">
+        <div className='container-custom'>
+          <div className='text-center mb-16'>
+            <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
+              Discover
+            </p>
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+              New Arrivals
+            </h2>
+          </div>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            {newArrivals.length > 0
+              ? newArrivals.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={String(product.id)}
+                    name={product.name}
+                    slug={product.slug}
+                    price={product.price}
+                    originalPrice={product.originalPrice ?? undefined}
+                    image={product.image}
+                    category={product.category?.name || 'Signature'}
+                    isNew={product.isNew}
+                    isBestseller={product.isBestseller}
+                    size={product.size}
+                  />
+                ))
+              : [...Array(4)].map((_, i) => (
+                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
+                ))}
+          </div>
+
+          <div className='text-center mt-16'>
+            <Button variant="outline" className="border-foreground/30 hover:bg-foreground hover:text-background px-10 py-6 tracking-[0.2em] uppercase text-sm">
+              <Link href='/shop?filter=new'>Explore All Products</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* COLLECTIONS SECTION */}
+      <section className="px-6 md:px-12 py-16 md:py-24 bg-background">
+        <div className='container-custom'>
+          <div className='text-center mb-16'>
+            <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
+              Browse
+            </p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground pb-16">
+              Explore Our Collections
+            </h2>
+          </div>
+
+          <div
+            className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'
+            style={{ paddingBottom: '80px' }}
+          >
+            {[
+              { name: 'Men', slug: 'men', desc: 'Bold & distinctive', image: COLLECTION_IMAGES.men },
+              { name: 'Women', slug: 'women', desc: 'Elegant & enchanting', image: COLLECTION_IMAGES.women },
+              { name: 'Unisex', slug: 'unisex', desc: 'For everyone', image: COLLECTION_IMAGES.unisex },
+            ].map((cat, i) => (
+              <Link
+                key={cat.name}
+                href={`/shop?category=${cat.slug}`}
+                className='collection-card group relative block overflow-hidden'
+              >
+                <div className='w-full h-full'>
+                  <img 
+                    src={cat.image} 
+                    alt={cat.name}
+                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                  />
+                </div>
+                <div className='absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors' />
+                <span className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full">
+                  {cat.name}
+                </span>
+                <div className='absolute bottom-0 left-0 right-0 p-12 text-center'>
+                  <h3 className='text-3xl md:text-4xl font-serif text-white font-bold mb-4 tracking-wider'>
+                    {cat.name}
+                  </h3>
+                  <p className='text-white/70 text-base mb-6'>{cat.desc}</p>
+                  <span className='inline-block text-sm tracking-[0.25em] uppercase text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500'>
+                    Shop Now →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* OUR STORY SECTION */}
+      <section
+        className='px-6 md:px-12 py-24 bg-background'
+        style={{ paddingTop: '120px', paddingBottom: '120px' }}
+      >
+        <div className='container-custom'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
+            <div>
+              <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-5'>
+                About Us
+              </p>
+              <div className='mb-12'>
+                <h2
+                  className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground inline-block'
+                  style={{ paddingBottom: '30px' }}
+                >
+                  Our Story
+                </h2>
+                <Separator className='mt-2 w-16 bg-foreground/20' />
+              </div>
+
+              <p className='text-muted-foreground text-lg md:text-xl leading-relaxed mb-8'>
+                SAFARI is a luxury fragrance house dedicated to creating
+                exceptional scents that capture the essence of sophistication
+                and elegance. Our perfumes are crafted with the finest
+                ingredients from around the world, each bottle telling a unique
+                story of craftsmanship and passion.
+              </p>
+              <p
+                className='text-muted-foreground text-lg md:text-xl leading-relaxed mb-14'
+                style={{ paddingBottom: '30px' }}
+              >
+                Founded with a vision to bring the art of perfumery to
+                discerning customers, we continue to innovate and inspire
+                through our collections. Every SAFARI fragrance is a
+                masterpiece, designed to leave a lasting impression.
+              </p>
+
+              <Button variant="link" className="p-0 h-auto text-foreground gap-2 group">
+                <Link href='/about'>
+                  Read More
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 16 16" 
+                    fill="none"
+                    className="transition-transform group-hover:translate-x-1"
+                  >
+                    <path d="M4 8h8M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+              </Button>
+            </div>
+
+            <div className='relative aspect-[4/5] shadow-2xl bg-muted rounded-lg overflow-hidden mt-12 lg:mt-0'>
+              <img 
+                src='/story.png' 
+                alt="Our Story"
+                className='w-full h-full object-cover'
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BEST SELLERS SECTION */}
+      <section className='px-6 md:px-12 py-16 md:py-24 bg-background'>
+        <div className='container-custom'>
+          <div className='flex items-end justify-between mb-16'>
+            <div>
+              <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
+                Most Popular
+              </p>
+              <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+                Best Sellers
+              </h2>
+            </div>
+            <Link
+              href='/shop?filter=bestseller'
+              className='hidden md:block text-sm text-muted-foreground hover:text-foreground transition-colors tracking-wider'
+            >
+              View All →
+            </Link>
+          </div>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            {bestsellers.length > 0
+              ? bestsellers.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={String(product.id)}
+                    name={product.name}
+                    slug={product.slug}
+                    price={product.price}
+                    originalPrice={product.originalPrice ?? undefined}
+                    image={product.image}
+                    category={product.category?.name || 'Signature'}
+                    isNew={product.isNew}
+                    isBestseller={product.isBestseller}
+                    size={product.size}
+                  />
+                ))
+              : [...Array(4)].map((_, i) => (
+                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
+                ))}
+          </div>
+        </div>
+      </section>
+
+      {/* BUNDLES SECTION */}
+      <section
+        className='px-6 md:px-12 py-24 bg-background'
+        style={{ paddingTop: '80px', paddingBottom: '80px' }}
+      >
+        <div className='container-custom'>
+          <div className='text-center mb-16'>
+            <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
+              Perfect Gifts
+            </p>
+            <h2
+              className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'
+              style={{ paddingBottom: '60px' }}
+            >
+              Bundles & Gift Sets
+            </h2>
+          </div>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            {[
+              {
+                name: 'Signature Trio',
+                desc: 'Three distinct fragrances',
+                size: '3 x 30ml',
+                price: 199,
+                originalPrice: 279,
+                save: '28%',
+              },
+              {
+                name: 'Couple Set',
+                desc: 'For him & her',
+                size: '2 x 50ml',
+                price: 249,
+                originalPrice: 349,
+                save: '29%',
+              },
+              {
+                name: 'Luxury Collection',
+                desc: 'Premium selection',
+                size: '5 x 50ml',
+                price: 399,
+                originalPrice: 599,
+                save: '33%',
+              },
+              {
+                name: 'Travel Essentials',
+                desc: 'On-the-go luxury',
+                size: '4 x 10ml',
+                price: 129,
+                originalPrice: 179,
+                save: '28%',
+              },
+            ].map((bundle) => (
+              <Link
+                key={bundle.name}
+                href='/shop?filter=bundles'
+                className='h-full'
+              >
+                <Card className="h-full flex flex-col group hover:shadow-lg transition-all duration-300">
+                  <div className='relative bg-muted flex items-center justify-center p-12'>
+                    <span className='text-muted-foreground text-lg'>[BUNDLE IMAGE]</span>
+                    <span className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+                      SAVE {bundle.save}
+                    </span>
+                  </div>
+                  <CardContent className="flex-1 pt-6">
+                    <h3 className='font-heading text-foreground text-lg mb-2'>{bundle.name}</h3>
+                    <p className='text-muted-foreground text-sm'>
+                      {bundle.desc} • {bundle.size}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <div className='w-full'>
+                      <p className='text-2xl font-bold text-foreground tracking-tight'>
+                        ${bundle.price}
+                        <span className='text-sm text-muted-foreground line-through ml-2'>
+                          ${bundle.originalPrice}
+                        </span>
+                      </p>
+                    </div>
+                  </CardFooter>
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          <div className='text-center mt-16' style={{ paddingTop: '60px' }}>
+            <Button variant="outline" className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background">
+              <Link href='/shop?filter=bundles'>
+                Explore All Bundles
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* SHOP BY SCENT SECTION */}
+      <section
+        className='px-6 md:px-12 py-24 bg-background'
+        style={{ paddingTop: '80px', paddingBottom: '80px' }}
+      >
+        <div className='container-custom'>
+          <div className='text-center mb-16'>
+            <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
+              Find Your Match
+            </p>
+            <h2
+              className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'
+              style={{ paddingBottom: '60px' }}
+            >
+              Shop By Scent Profile
+            </h2>
+          </div>
+
+          <div
+            className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'
+            style={{ paddingBottom: '20px' }}
+          >
+            {[
+              { name: 'Woody', desc: 'Warm, earthy & mysterious', image: SCENT_IMAGES.woody },
+              { name: 'Fresh', desc: 'Clean, aquatic & energizing', image: SCENT_IMAGES.fresh },
+              { name: 'Floral', desc: 'Romantic, delicate & elegant', image: SCENT_IMAGES.floral },
+            ].map((profile) => (
+              <Link
+                key={profile.name}
+                href={`/shop?fragranceFamily=${profile.name.toLowerCase()}`}
+                className='collection-card group relative block overflow-hidden ring-offset-background hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all duration-300'
+              >
+                <div className='w-full h-full'>
+                  <img 
+                    src={profile.image} 
+                    alt={profile.name}
+                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                  />
+                </div>
+                <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent' />
+                <div className='absolute bottom-0 left-0 right-0 p-12 text-center'>
+                  <h3 className='text-4xl md:text-5xl font-heading text-white font-bold mb-4 uppercase tracking-[0.3em]'>
+                    {profile.name}
+                  </h3>
+                  <p className='text-white/70 text-base'>{profile.desc}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS SECTION */}
+      <section className='px-6 md:px-12 py-24 bg-muted'>
+        <div className='container-custom'>
+          <div className='text-center mb-16'>
+            <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
+              Testimonials
+            </p>
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+              What Our Customers Say
+            </h2>
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'>
+            {[
+              {
+                name: 'Sarah M.',
+                text: 'Absolutely love my purchase! The fragrance is long-lasting and luxurious. Highly recommended!',
+                product: 'Signature Scent',
+              },
+              {
+                name: 'James K.',
+                text: 'SAFARI perfumes are truly exceptional. Great quality and beautiful packaging. Will definitely order again.',
+                product: 'Noir Edition',
+              },
+              {
+                name: 'Emma R.',
+                text: "Perfect gift for my husband. He's received so many compliments! The scent is just divine.",
+                product: 'Couple Set',
+              },
+            ].map((testimonial, i) => (
+              <Card key={i} size="sm" className="p-10 md:p-12">
+                <CardContent className="flex flex-col items-center p-0">
+                  <div className='flex justify-center gap-1 mb-8'>
+                    {[...Array(5)].map((_, s) => (
+                      <svg
+                        key={s}
+                        className='w-6 h-6 text-primary'
+                        fill='currentColor'
+                        viewBox='0 0 20 20'
+                      >
+                        <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className='text-muted-foreground font-serif text-lg leading-relaxed italic text-center mb-8'>
+                    &ldquo;{testimonial.text}&rdquo;
+                  </p>
+                  <p className='font-semibold text-foreground text-center text-lg'>
+                    {testimonial.name}
+                  </p>
+                  <p className='text-muted-foreground text-center mt-3'>
+                    {testimonial.product}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEWSLETTER SECTION */}
+      <section className='px-6 md:px-12 py-24 bg-secondary text-secondary-foreground'>
+        <div className='container-custom'>
+          <div className='max-w-xl mx-auto text-center'>
+            <p className='text-secondary-foreground/70 text-sm tracking-[0.5em] uppercase mb-4'>
+              Stay Connected & Save
+            </p>
+            <h2 className='text-3xl md:text-4xl lg:text-5xl font-heading text-secondary-foreground mb-10'>
+              Join Our Newsletter
+            </h2>
+            <p className='text-secondary-foreground/60 mb-12 max-w-md mx-auto text-lg'>
+              Subscribe to receive exclusive updates & offers, and get 10% off
+              your first order!
+            </p>
+            <form className='flex flex-col sm:flex-row gap-5 max-w-md mx-auto'>
+              <Input
+                type='email'
+                placeholder='Enter your email'
+                required
+                className='flex-1 h-16 px-6 bg-background text-foreground placeholder:text-muted-foreground text-lg border-border'
+                aria-label='Email address for newsletter'
+              />
+              <Button
+                type='submit'
+                className='h-16 px-12 bg-background text-foreground hover:bg-background/80 uppercase tracking-wider text-base'
+              >
+                Subscribe
+              </Button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}

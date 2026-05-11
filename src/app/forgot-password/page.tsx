@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
@@ -80,11 +82,11 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 bg-white">
-      <div className="bg-white border-b border-gray-200 py-12">
+    <div className="min-h-screen pt-20 bg-background">
+      <div className="bg-background border-b border-border py-12">
         <div className="container-custom">
-          <h1 className="text-4xl font-serif text-black mb-2">Reset Password</h1>
-          <p className="text-gray-500">We'll help you recover your account</p>
+          <h1 className="text-4xl font-serif text-foreground mb-2">Reset Password</h1>
+          <p className="text-muted-foreground">We'll help you recover your account</p>
         </div>
       </div>
 
@@ -92,37 +94,36 @@ export default function ForgotPasswordPage() {
         <div className="max-w-md mx-auto">
           {step === 1 && (
             <form onSubmit={handleSendCode} className="space-y-6">
-              <p className="text-gray-600">Enter your email address and we'll send you a reset code.</p>
+              <p className="text-muted-foreground">Enter your email address and we'll send you a reset code.</p>
               
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
                   {error}
                 </div>
               )}
 
-              <div>
-                <label className="text-gray-700 text-sm block mb-2">Email</label>
-                <input
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Email</label>
+                <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black"
                   placeholder="your@email.com"
                 />
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-black text-white py-4 font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors disabled:opacity-50"
+                className="w-full font-semibold uppercase tracking-wider"
               >
                 {loading ? 'Sending...' : 'Send Reset Code'}
-              </button>
+              </Button>
 
-              <p className="text-center text-gray-600">
+              <p className="text-center text-muted-foreground">
                 Remember your password?{' '}
-                <Link href="/login" className="text-black font-medium hover:underline">
+                <Link href="/login" className="text-foreground font-medium hover:underline">
                   Sign In
                 </Link>
               </p>
@@ -132,76 +133,74 @@ export default function ForgotPasswordPage() {
           {step === 2 && (
             <form onSubmit={handleReset} className="space-y-6">
               {demoCode && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 text-sm">
+                <div className="bg-primary/10 border border-primary/20 text-primary px-4 py-3 rounded-lg text-sm">
                   <p className="font-medium mb-1">Demo Mode - Your reset code:</p>
                   <p className="text-2xl font-bold tracking-wider">{demoCode}</p>
                 </div>
               )}
 
-              <p className="text-gray-600">Enter the reset code sent to your email.</p>
+              <p className="text-muted-foreground">Enter the reset code sent to your email.</p>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">
                   {error}
                 </div>
               )}
 
-              <div>
-                <label className="text-gray-700 text-sm block mb-2">Reset Code</label>
-                <input
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Reset Code</label>
+                <Input
                   type="text"
                   value={resetCode}
                   onChange={(e) => setResetCode(e.target.value.toUpperCase())}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black uppercase tracking-wider text-center text-xl"
+                  className="uppercase tracking-wider text-center text-xl"
                   placeholder="XXXXXX"
                   maxLength={6}
                 />
               </div>
 
-              <div>
-                <label className="text-gray-700 text-sm block mb-2">New Password</label>
-                <input
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">New Password</label>
+                <Input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black"
                   placeholder="Min 8 characters"
                 />
               </div>
 
-              <div>
-                <label className="text-gray-700 text-sm block mb-2">Confirm Password</label>
-                <input
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Confirm Password</label>
+                <Input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 text-black focus:outline-none focus:border-black"
                   placeholder="Confirm password"
                 />
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-black text-white py-4 font-semibold uppercase tracking-wider hover:bg-gray-800 transition-colors disabled:opacity-50"
+                className="w-full font-semibold uppercase tracking-wider"
               >
                 {loading ? 'Resetting...' : 'Reset Password'}
-              </button>
+              </Button>
             </form>
           )}
 
           {step === 3 && (
             <div className="text-center space-y-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-black">Password Reset Complete</h2>
-              <p className="text-gray-600">Your password has been reset successfully.</p>
+              <h2 className="text-2xl font-semibold text-foreground">Password Reset Complete</h2>
+              <p className="text-muted-foreground">Your password has been reset successfully.</p>
               <Link href="/login" className="btn-primary inline-block">
                 Sign In
               </Link>
