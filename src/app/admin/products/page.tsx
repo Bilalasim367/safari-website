@@ -21,6 +21,7 @@ interface Product {
   image: string;
   categorySlug: string | null;
   size: string;
+  sizePrices: string;
   inStock: boolean;
   isBestseller: boolean;
   isNew: boolean;
@@ -45,6 +46,13 @@ export default function ProductsPage() {
     isNew: false,
     image: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [sizePrices, setSizePrices] = useState([
+    { size: "30ml", price: "", originalPrice: "" },
+    { size: "50ml", price: "", originalPrice: "" },
+    { size: "100ml", price: "", originalPrice: "" },
+  ]);
 
   const loadProducts = async () => {
     setLoading(true);
@@ -72,6 +80,12 @@ export default function ProductsPage() {
     return matchesSearch;
   });
 
+  const defaultSizePrices = [
+    { size: "30ml", price: "", originalPrice: "" },
+    { size: "50ml", price: "", originalPrice: "" },
+    { size: "100ml", price: "", originalPrice: "" },
+  ];
+
   const handleOpenModal = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
@@ -87,6 +101,17 @@ export default function ProductsPage() {
         isNew: product.isNew ?? false,
         image: product.image || "",
       });
+      const parsed = (() => {
+        try { return JSON.parse(product.sizePrices || '[]'); } catch { return []; }
+      })();
+      const filled = defaultSizePrices.map((dsp) => {
+        const match = parsed.find((p: { size: string }) => p.size === dsp.size);
+        return match
+          ? { size: match.size, price: String(match.price ?? ''), originalPrice: String(match.originalPrice ?? '') }
+          : { ...dsp };
+      });
+      setSizePrices(filled);
+      setImagePreview(null);
     } else {
       setEditingProduct(null);
       setFormData({
@@ -101,6 +126,8 @@ export default function ProductsPage() {
         isNew: false,
         image: "",
       });
+      setSizePrices(defaultSizePrices.map(s => ({ ...s })));
+      setImagePreview(null);
     }
     setIsModalOpen(true);
   };
@@ -108,11 +135,44 @@ export default function ProductsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
+    setImagePreview(null);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+
+    const body = new FormData();
+    body.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body });
+      const data = await res.json();
+
+      if (data.url) {
+        setFormData((prev) => ({ ...prev, image: data.url }));
+      }
+    } catch {
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+      const parsedSizePrices = sizePrices.map((sp) => ({
+        size: sp.size,
+        price: Number(sp.price),
+        originalPrice: sp.originalPrice ? Number(sp.originalPrice) : null,
+      }));
+
       const payload = {
         name: formData.name,
         slug: formData.slug,
@@ -121,6 +181,7 @@ export default function ProductsPage() {
         image: formData.image,
         categorySlug: formData.categorySlug || undefined,
         size: formData.size,
+        sizePrices: parsedSizePrices,
         inStock: formData.inStock,
         isBestseller: formData.isBestseller,
         isNew: formData.isNew,
@@ -139,7 +200,7 @@ export default function ProductsPage() {
         handleCloseModal();
         loadProducts();
       } else {
-        alert(result.error || 'Error saving product');
+        toast.error(result.error || 'Error saving product');
       }
     } catch (err) {
       console.error('Error saving product:', err);
@@ -308,14 +369,50 @@ export default function ProductsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
-                type="url"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                placeholder="https://..."
-              />
+              <Label>Image</Label>
+              <div className="flex items-start gap-4">
+                <div className="h-24 w-24 rounded border bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : formData.image ? (
+                    <img src={formData.image} alt="Current" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">No image</span>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => document.getElementById('image-upload')?.click()}
+                  >
+                    {uploading ? 'Uploading...' : 'Choose Image'}
+                  </Button>
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                  {formData.image && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, image: '' }));
+                        setImagePreview(null);
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
@@ -334,7 +431,7 @@ export default function ProductsPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="size">Size</Label>
+              <Label htmlFor="size">Default Size</Label>
               <Select
                 value={formData.size}
                 onValueChange={(value) => setFormData({ ...formData, size: value || "50ml" })}
@@ -349,6 +446,38 @@ export default function ProductsPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-3 pt-2">
+              <Label className="text-sm font-semibold">Size Pricing</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {sizePrices.map((sp, i) => (
+                  <div key={sp.size} className="space-y-2 p-3 border rounded-md">
+                    <Label className="text-xs font-medium">{sp.size}</Label>
+                    <Input
+                      type="number"
+                      placeholder="Price"
+                      value={sp.price}
+                      onChange={(e) => {
+                        const updated = [...sizePrices];
+                        updated[i] = { ...updated[i], price: e.target.value };
+                        setSizePrices(updated);
+                      }}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Original"
+                      value={sp.originalPrice}
+                      onChange={(e) => {
+                        const updated = [...sizePrices];
+                        updated[i] = { ...updated[i], originalPrice: e.target.value };
+                        setSizePrices(updated);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2">
                 <Checkbox
@@ -392,6 +521,8 @@ export default function ProductsPage() {
                     isNew: false,
                     image: "",
                   });
+                  setSizePrices(defaultSizePrices.map(s => ({ ...s })));
+                  setImagePreview(null);
                 }}
               >
                 Cancel

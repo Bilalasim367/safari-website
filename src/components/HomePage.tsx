@@ -8,6 +8,8 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Rating } from '@/components/Rating'
+import { testimonials } from '@/data/products'
 
 const HERO_BANNERS = [
   '/banner1.png',
@@ -54,9 +56,10 @@ const SCENT_IMAGES: Record<string, string> = {
 interface HomePageProps {
   bestsellers: any[]
   newArrivals: any[]
+  bundles: any[]
 }
 
-export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
+export default function HomePage({ bestsellers, newArrivals, bundles }: HomePageProps) {
   return (
     <>
       {/* HERO SECTION */}
@@ -65,7 +68,7 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* TRUST & VALUE SECTION */}
-      <section className='px-6 md:px-12 py-16 md:py-24 bg-background'>
+      <section className='px-6 md:px-12 py-10 md:py-14 bg-background '>
         <div className='container-custom'>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12'>
             {[
@@ -119,9 +122,9 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* NEW ARRIVALS SECTION */}
-      <section className="px-6 md:px-12 py-16 md:py-24 bg-background">
+      <section className="px-6 md:px-12 py-10 md:py-14 bg-background">
         <div className='container-custom'>
-          <div className='text-center mb-16'>
+          <div className='text-center mb-10'>
             <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
               Discover
             </p>
@@ -145,6 +148,8 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
                     isNew={product.isNew}
                     isBestseller={product.isBestseller}
                     size={product.size}
+                    rating={product.rating}
+                    reviewCount={product.reviewCount}
                   />
                 ))
               : [...Array(4)].map((_, i) => (
@@ -152,7 +157,7 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
                 ))}
           </div>
 
-          <div className='text-center mt-16'>
+          <div className='text-center mt-10'>
             <Button variant="outline" className="border-foreground/30 hover:bg-foreground hover:text-background px-10 py-6 tracking-[0.2em] uppercase text-sm">
               <Link href='/shop?filter=new'>Explore All Products</Link>
             </Button>
@@ -161,21 +166,18 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* COLLECTIONS SECTION */}
-      <section className="px-6 md:px-12 py-16 md:py-24 bg-background">
+      <section className="px-6 md:px-12 py-10 md:py-14 bg-background">
         <div className='container-custom'>
-          <div className='text-center mb-16'>
+          <div className='text-center mb-10'>
             <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
               Browse
             </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground pb-16">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground">
               Explore Our Collections
             </h2>
           </div>
 
-          <div
-            className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'
-            style={{ paddingBottom: '80px' }}
-          >
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'>
             {[
               { name: 'Men', slug: 'men', desc: 'Bold & distinctive', image: COLLECTION_IMAGES.men },
               { name: 'Women', slug: 'women', desc: 'Elegant & enchanting', image: COLLECTION_IMAGES.women },
@@ -213,24 +215,18 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* OUR STORY SECTION */}
-      <section
-        className='px-6 md:px-12 py-24 bg-background'
-        style={{ paddingTop: '120px', paddingBottom: '120px' }}
-      >
+      <section className='px-6 md:px-12 py-14 bg-background'>
         <div className='container-custom'>
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center'>
             <div>
-              <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-5'>
+              <p className='text-primary text-sm tracking-[0.5em] uppercase mb-5'>
                 About Us
               </p>
-              <div className='mb-12'>
-                <h2
-                  className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground inline-block'
-                  style={{ paddingBottom: '30px' }}
-                >
-                  Our Story
+              <div className='mb-10'>
+                <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground inline-block pb-8'>
+                  Our <span className='text-primary'>Story</span>
                 </h2>
-                <Separator className='mt-2 w-16 bg-foreground/20' />
+                <Separator className='mt-2 w-20 bg-primary/40' />
               </div>
 
               <p className='text-muted-foreground text-lg md:text-xl leading-relaxed mb-8'>
@@ -240,30 +236,47 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
                 ingredients from around the world, each bottle telling a unique
                 story of craftsmanship and passion.
               </p>
-              <p
-                className='text-muted-foreground text-lg md:text-xl leading-relaxed mb-14'
-                style={{ paddingBottom: '30px' }}
-              >
+
+              <div className='relative pl-6 mb-8 border-l-2 border-primary/30'>
+                <p className='font-heading text-xl md:text-2xl italic text-foreground/80 leading-relaxed'>
+                  &ldquo;Every SAFARI fragrance is a masterpiece, designed to leave a lasting impression.&rdquo;
+                </p>
+              </div>
+
+              <p className='text-muted-foreground text-lg md:text-xl leading-relaxed mb-10'>
                 Founded with a vision to bring the art of perfumery to
                 discerning customers, we continue to innovate and inspire
-                through our collections. Every SAFARI fragrance is a
-                masterpiece, designed to leave a lasting impression.
+                through our collections since 2015.
               </p>
 
-              <Button variant="link" className="p-0 h-auto text-foreground gap-2 group">
-                <Link href='/about'>
-                  Read More
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-6 mb-10'>
+                {[
+                  { number: '2015', label: 'Founded' },
+                  { number: '50+', label: 'Fragrances' },
+                  { number: '10K+', label: 'Happy Customers' },
+                  { number: '🌍', label: 'Global Shipping' },
+                ].map((stat) => (
+                  <div key={stat.label} className='text-center'>
+                    <p className='text-2xl md:text-3xl font-bold text-primary tracking-tight'>{stat.number}</p>
+                    <p className='text-xs text-muted-foreground mt-1 uppercase tracking-wider'>{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <Link href='/about'>
+                <Button variant="outline" className="group border-primary/40 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary px-8 py-6">
+                  Read Our Story
                   <svg 
                     width="16" 
                     height="16" 
                     viewBox="0 0 16 16" 
                     fill="none"
-                    className="transition-transform group-hover:translate-x-1"
+                    className="ml-2 transition-transform group-hover:translate-x-1"
                   >
                     <path d="M4 8h8M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
 
             <div className='relative aspect-[4/5] shadow-2xl bg-muted rounded-lg overflow-hidden mt-12 lg:mt-0'>
@@ -272,15 +285,19 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
                 alt="Our Story"
                 className='w-full h-full object-cover'
               />
+              <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent' />
+              <span className='absolute top-5 right-5 bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full tracking-wider shadow-lg'>
+                Since 2015
+              </span>
             </div>
           </div>
         </div>
       </section>
 
       {/* BEST SELLERS SECTION */}
-      <section className='px-6 md:px-12 py-16 md:py-24 bg-background'>
+      <section className='px-6 md:px-12 py-10 md:py-14 bg-background'>
         <div className='container-custom'>
-          <div className='flex items-end justify-between mb-16'>
+          <div className='flex items-end justify-between mb-10'>
             <div>
               <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
                 Most Popular
@@ -312,6 +329,8 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
                     isNew={product.isNew}
                     isBestseller={product.isBestseller}
                     size={product.size}
+                    rating={product.rating}
+                    reviewCount={product.reviewCount}
                   />
                 ))
               : [...Array(4)].map((_, i) => (
@@ -322,94 +341,69 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* BUNDLES SECTION */}
-      <section
-        className='px-6 md:px-12 py-24 bg-background'
-        style={{ paddingTop: '80px', paddingBottom: '80px' }}
-      >
+      <section className='px-6 md:px-12 py-14 bg-background'>
         <div className='container-custom'>
-          <div className='text-center mb-16'>
+          <div className='text-center mb-10'>
             <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
               Perfect Gifts
             </p>
-            <h2
-              className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'
-              style={{ paddingBottom: '60px' }}
-            >
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
               Bundles & Gift Sets
             </h2>
           </div>
 
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
-            {[
-              {
-                name: 'Signature Trio',
-                desc: 'Three distinct fragrances',
-                size: '3 x 30ml',
-                price: 199,
-                originalPrice: 279,
-                save: '28%',
-              },
-              {
-                name: 'Couple Set',
-                desc: 'For him & her',
-                size: '2 x 50ml',
-                price: 249,
-                originalPrice: 349,
-                save: '29%',
-              },
-              {
-                name: 'Luxury Collection',
-                desc: 'Premium selection',
-                size: '5 x 50ml',
-                price: 399,
-                originalPrice: 599,
-                save: '33%',
-              },
-              {
-                name: 'Travel Essentials',
-                desc: 'On-the-go luxury',
-                size: '4 x 10ml',
-                price: 129,
-                originalPrice: 179,
-                save: '28%',
-              },
-            ].map((bundle) => (
-              <Link
-                key={bundle.name}
-                href='/shop?filter=bundles'
-                className='h-full'
-              >
-                <Card className="h-full flex flex-col group hover:shadow-lg transition-all duration-300">
-                  <div className='relative bg-muted flex items-center justify-center p-12'>
-                    <span className='text-muted-foreground text-lg'>[BUNDLE IMAGE]</span>
-                    <span className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
-                      SAVE {bundle.save}
-                    </span>
-                  </div>
-                  <CardContent className="flex-1 pt-6">
-                    <h3 className='font-heading text-foreground text-lg mb-2'>{bundle.name}</h3>
-                    <p className='text-muted-foreground text-sm'>
-                      {bundle.desc} • {bundle.size}
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <div className='w-full'>
-                      <p className='text-2xl font-bold text-foreground tracking-tight'>
-                        ${bundle.price}
-                        <span className='text-sm text-muted-foreground line-through ml-2'>
-                          ${bundle.originalPrice}
-                        </span>
-                      </p>
-                    </div>
-                  </CardFooter>
-                </Card>
-              </Link>
-            ))}
+            {bundles.length > 0
+              ? bundles.map((bundle) => (
+                  <Link
+                    key={bundle.id || bundle.name}
+                    href={`/bundles/${bundle.slug}`}
+                    className='h-full'
+                  >
+                    <Card className="h-full flex flex-col group hover:shadow-lg transition-all duration-300">
+                      <div className='relative bg-muted overflow-hidden' style={{ height: '260px' }}>
+                        {bundle.image ? (
+                          <img src={bundle.image} alt={bundle.name} className='w-full h-full object-cover' />
+                        ) : (
+                          <div className='w-full h-full flex items-center justify-center'>
+                            <span className='text-muted-foreground text-lg'>No Image</span>
+                          </div>
+                        )}
+                        {bundle.save && (
+                          <span className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+                            SAVE {bundle.save}
+                          </span>
+                        )}
+                      </div>
+                      <CardContent className="flex-1 pt-6">
+                        <h3 className='font-heading text-foreground text-lg mb-2'>{bundle.name}</h3>
+                        <p className='text-muted-foreground text-sm'>
+                          {bundle.description} {bundle.size && <>• {bundle.size}</>}
+                        </p>
+                      </CardContent>
+                      <CardFooter>
+                        <div className='w-full'>
+                          <p className='text-2xl font-bold text-foreground tracking-tight'>
+                            ${bundle.price}
+                            {bundle.originalPrice && (
+                              <span className='text-sm text-muted-foreground line-through ml-2'>
+                                ${bundle.originalPrice}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                ))
+              : [...Array(4)].map((_, i) => (
+                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
+                ))}
           </div>
 
-          <div className='text-center mt-16' style={{ paddingTop: '60px' }}>
+          <div className='text-center mt-10'>
             <Button variant="outline" className="border-foreground/20 text-foreground hover:bg-foreground hover:text-background">
-              <Link href='/shop?filter=bundles'>
+              <Link href='/bundles'>
                 Explore All Bundles
               </Link>
             </Button>
@@ -418,27 +412,18 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* SHOP BY SCENT SECTION */}
-      <section
-        className='px-6 md:px-12 py-24 bg-background'
-        style={{ paddingTop: '80px', paddingBottom: '80px' }}
-      >
+      <section className='px-6 md:px-12 py-14 bg-background'>
         <div className='container-custom'>
-          <div className='text-center mb-16'>
+          <div className='text-center mb-10'>
             <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
               Find Your Match
             </p>
-            <h2
-              className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'
-              style={{ paddingBottom: '60px' }}
-            >
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
               Shop By Scent Profile
             </h2>
           </div>
 
-          <div
-            className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'
-            style={{ paddingBottom: '20px' }}
-          >
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'>
             {[
               { name: 'Woody', desc: 'Warm, earthy & mysterious', image: SCENT_IMAGES.woody },
               { name: 'Fresh', desc: 'Clean, aquatic & energizing', image: SCENT_IMAGES.fresh },
@@ -470,57 +455,66 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* TESTIMONIALS SECTION */}
-      <section className='px-6 md:px-12 py-24 bg-muted'>
+      <section className='px-6 md:px-12 py-14 bg-muted'>
         <div className='container-custom'>
-          <div className='text-center mb-16'>
-            <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
+          <div className='text-center mb-14'>
+            <p className='text-primary text-sm tracking-[0.5em] uppercase mb-4'>
               Testimonials
             </p>
             <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
-              What Our Customers Say
+              What Our <span className='text-primary'>Customers</span> Say
             </h2>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12'>
-            {[
-              {
-                name: 'Sarah M.',
-                text: 'Absolutely love my purchase! The fragrance is long-lasting and luxurious. Highly recommended!',
-                product: 'Signature Scent',
-              },
-              {
-                name: 'James K.',
-                text: 'SAFARI perfumes are truly exceptional. Great quality and beautiful packaging. Will definitely order again.',
-                product: 'Noir Edition',
-              },
-              {
-                name: 'Emma R.',
-                text: "Perfect gift for my husband. He's received so many compliments! The scent is just divine.",
-                product: 'Couple Set',
-              },
-            ].map((testimonial, i) => (
-              <Card key={i} size="sm" className="p-10 md:p-12">
-                <CardContent className="flex flex-col items-center p-0">
-                  <div className='flex justify-center gap-1 mb-8'>
-                    {[...Array(5)].map((_, s) => (
-                      <svg
-                        key={s}
-                        className='w-6 h-6 text-primary'
-                        fill='currentColor'
-                        viewBox='0 0 20 20'
-                      >
-                        <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-                      </svg>
-                    ))}
+          <div className='flex flex-wrap items-center justify-center gap-3 mb-12'>
+            <div className='flex gap-0.5'>
+              {[...Array(5)].map((_, i) => (
+                <svg key={i} className='w-5 h-5 text-primary' fill='currentColor' viewBox='0 0 20 20'>
+                  <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
+                </svg>
+              ))}
+            </div>
+            <span className='text-lg font-bold text-foreground'>4.9/5</span>
+            <span className='text-muted-foreground text-sm'>Based on 300+ reviews</span>
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10'>
+            {testimonials.map((testimonial, i) => (
+              <Card
+                key={testimonial.id}
+                size="sm"
+                className='p-8 md:p-10 border-t-4 border-t-primary/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300'
+                style={{
+                  opacity: 0,
+                  animation: 'fadeIn 0.6s ease-out forwards',
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              >
+                <CardContent className='flex flex-col items-center p-0'>
+                  <div className='flex justify-center mb-6'>
+                    <Rating rating={testimonial.rating} size="sm" />
                   </div>
-                  <p className='text-muted-foreground font-serif text-lg leading-relaxed italic text-center mb-8'>
+                  <p className='text-muted-foreground font-serif text-base md:text-lg leading-relaxed italic text-center mb-8'>
                     &ldquo;{testimonial.text}&rdquo;
                   </p>
-                  <p className='font-semibold text-foreground text-center text-lg'>
+                  <div className='w-14 h-14 rounded-full overflow-hidden bg-muted mb-4 ring-2 ring-primary/20'>
+                    {testimonial.image ? (
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className='w-full h-full object-cover'
+                      />
+                    ) : (
+                      <div className='w-full h-full flex items-center justify-center text-lg font-medium text-muted-foreground'>
+                        {testimonial.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <p className='font-semibold text-foreground text-center text-base'>
                     {testimonial.name}
                   </p>
-                  <p className='text-muted-foreground text-center mt-3'>
-                    {testimonial.product}
+                  <p className='text-muted-foreground text-center text-sm mt-1'>
+                    {testimonial.location}
                   </p>
                 </CardContent>
               </Card>
@@ -530,7 +524,7 @@ export default function HomePage({ bestsellers, newArrivals }: HomePageProps) {
       </section>
 
       {/* NEWSLETTER SECTION */}
-      <section className='px-6 md:px-12 py-24 bg-secondary text-secondary-foreground'>
+      <section className='px-6 md:px-12 py-14 bg-secondary text-secondary-foreground'>
         <div className='container-custom'>
           <div className='max-w-xl mx-auto text-center'>
             <p className='text-secondary-foreground/70 text-sm tracking-[0.5em] uppercase mb-4'>

@@ -32,6 +32,7 @@ Run `npm run lint` before making commits. There is no separate typecheck - ESLin
 - **Lib**: `src/lib/` - utilities, models, API client, validation
 - **Data**: `src/data/products.ts` - static product catalog
 - **Database**: `prisma/schema.prisma` - Prisma models
+- **DB Client**: `src/lib/turso.ts` - Prisma client configured for Turso (libSQL)
 
 ## Path Alias
 Use `@/*` to import from `./src/*` (e.g., `@/components/Header`).
@@ -42,9 +43,10 @@ Use `@/*` to import from `./src/*` (e.g., `@/components/Header`).
 - Fonts: Playfair Display (heading), Montserrat (body), Lato (secondary)
 
 ## Database
-- Prisma with PostgreSQL
-- Requires `.env` with `DATABASE_URL`
-- Run `npm run db:seed` to seed test data
+- **Turso (libSQL)** via Prisma driver adapter
+- Requires `.env` with `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
+- Run `npm run db:seed` to seed product data
+- Schema pushes use `npx tsx --env-file=.env prisma/apply-migration.ts` (or Turso CLI for production)
 
 ## Entry Points
 - Homepage: `src/app/page.tsx`

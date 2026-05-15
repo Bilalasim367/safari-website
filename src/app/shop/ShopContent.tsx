@@ -1,4 +1,4 @@
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 
@@ -16,6 +16,8 @@ interface Product {
   size: string;
   isBestseller: boolean;
   isNew: boolean;
+  rating: number;
+  reviewCount: number;
 }
 
 interface SearchParams {
@@ -124,6 +126,8 @@ export default async function ShopContent({
       size: p.size || '50ml',
       isBestseller: p.isBestseller,
       isNew: p.isNew,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
     }));
 
     const selectedCategories = params.category?.split(',').filter(Boolean) || [];
@@ -235,6 +239,8 @@ export default async function ShopContent({
                         isNew={product.isNew}
                         isBestseller={product.isBestseller}
                         size={product.size}
+                        rating={product.rating}
+                        reviewCount={product.reviewCount}
                       />
                     ))}
                   </div>

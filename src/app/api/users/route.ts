@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/postgres";
+import prisma from "@/lib/turso";
 
 export async function GET(request: Request) {
   try {

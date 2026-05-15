@@ -27,7 +27,7 @@ export default function CartSidebar() {
   return (
     <>
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-        <SheetContent side="right" className="w-full max-w-md p-0 flex flex-col">
+        <SheetContent side="right" className="w-full max-w-md p-0 flex flex-col bg-white">
           <SheetHeader className="flex items-center justify-between p-6 border-b border-muted">
             <SheetTitle className="text-sm font-medium tracking-[0.2em] uppercase">Shopping Bag ({items.length})</SheetTitle>
           </SheetHeader>

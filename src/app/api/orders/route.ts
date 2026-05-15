@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { verifyToken } from '@/lib/auth';
-import { Prisma } from '@prisma/client';
+import { sendOrderConfirmationEmail } from '@/lib/email';
+
 
 function generateOrderNumber() {
   const prefix = 'SAF';
@@ -12,7 +13,7 @@ function generateOrderNumber() {
 }
 
 interface OrderItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
@@ -86,11 +87,13 @@ export async function POST(request: Request) {
       if (user) customerEmail = user.email;
     }
 
+    const customerName = shippingAddress.firstName + ' ' + shippingAddress.lastName
+
     const order = await prisma.order.create({
       data: {
         orderNumber,
         userId,
-        customerName: shippingAddress.firstName + ' ' + shippingAddress.lastName,
+        customerName,
         customerEmail,
         subtotal,
         shipping,
@@ -98,7 +101,7 @@ export async function POST(request: Request) {
         total,
         status: 'pending',
         paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',
-        shippingAddress: shippingAddress as Prisma.InputJsonValue,
+        shippingAddress: JSON.stringify(shippingAddress),
         items: {
           create: items.map((item: OrderItem) => ({
             productId: item.id,
@@ -113,9 +116,29 @@ export async function POST(request: Request) {
       include: { items: true },
     });
 
+    await prisma.notification.create({
+      data: {
+        type: 'order',
+        title: 'New Order',
+        message: `Order ${orderNumber} placed by ${customerName}`,
+      },
+    });
+
     if (userId) {
       await prisma.cartItem.deleteMany({ where: { userId } });
     }
+
+    sendOrderConfirmationEmail(
+      customerEmail,
+      customerName,
+      orderNumber,
+      items,
+      subtotal,
+      shipping,
+      tax,
+      total,
+      shippingAddress
+    ).catch(e => console.error('Order confirmation email failed:', e))
 
     return NextResponse.json({
       success: true,
@@ -163,6 +186,7 @@ export async function GET() {
         status: order.status,
         total: order.total,
         itemCount: order.items.length,
+        trackingNumber: order.trackingNumber,
         createdAt: order.createdAt,
       })),
     });

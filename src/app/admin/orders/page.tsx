@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
@@ -42,6 +42,8 @@ interface Order {
   total: number;
   status: string;
   paymentStatus: string;
+  trackingNumber?: string | null;
+  shippedAt?: string | null;
   shippingAddress: ShippingAddress;
   createdAt: string;
 }
@@ -52,7 +54,7 @@ export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
+  const [trackingInput, setTrackingInput] = useState("");
   const fetchOrders = async () => {
     try {
       const res = await fetch('/api/admin/orders');
@@ -68,22 +70,38 @@ export default function OrdersPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTrackingInput(selectedOrder.trackingNumber || "");
+    }
+  }, [selectedOrder]);
 
   const updateOrderStatus = async (id: string, status: string | null) => {
     if (!status) return;
     try {
+      const body: Record<string, unknown> = { id, status };
+      if (status === 'shipped' && trackingInput) {
+        body.trackingNumber = trackingInput;
+      }
       const res = await fetch('/api/admin/orders', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data.success) {
-        setOrders(orders.map(o => o.id === id ? { ...o, status } : o));
+        const updatedOrder: Partial<Order> = { status };
+        if (status === 'shipped' && trackingInput) {
+          updatedOrder.trackingNumber = trackingInput;
+        }
+        setOrders(orders.map(o => o.id === id ? { ...o, ...updatedOrder } : o));
         if (selectedOrder && selectedOrder.id === id) {
-          setSelectedOrder({ ...selectedOrder, status });
+          setSelectedOrder({ ...selectedOrder, ...updatedOrder });
         }
       }
     } catch (error) {
@@ -209,26 +227,49 @@ export default function OrdersPage() {
             </DialogHeader>
 
             <div className="space-y-5">
-              <div className="flex gap-3">
-                <Select
-                  value={selectedOrder.status}
-                  onValueChange={(value) => updateOrderStatus(selectedOrder.id, value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((s) => (
-                      <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Badge 
-                  variant={selectedOrder.paymentStatus === 'paid' ? 'default' : 'secondary'}
-                  className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
-                >
-                  {selectedOrder.paymentStatus}
-                </Badge>
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <Select
+                    value={selectedOrder.status}
+                    onValueChange={(value) => updateOrderStatus(selectedOrder.id, value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((s) => (
+                        <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Badge 
+                    variant={selectedOrder.paymentStatus === 'paid' ? 'default' : 'secondary'}
+                    className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
+                  >
+                    {selectedOrder.paymentStatus}
+                  </Badge>
+                </div>
+
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-xs text-muted-foreground">Tracking Number</label>
+                    <Input
+                      type="text"
+                      value={trackingInput}
+                      onChange={(e) => setTrackingInput(e.target.value)}
+                      placeholder="e.g. 1Z999AA10123456784"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => updateOrderStatus(selectedOrder.id, selectedOrder.status)}
+                    disabled={!trackingInput}
+                  >
+                    Save
+                  </Button>
+                </div>
+
               </div>
 
               <div className="bg-muted rounded-xl p-4">

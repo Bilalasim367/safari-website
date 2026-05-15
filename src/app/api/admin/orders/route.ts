@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { sendOrderShippedEmail } from '@/lib/email';
 
 export async function GET() {
   try {
@@ -43,6 +44,8 @@ export async function GET() {
         total: order.total,
         status: order.status,
         paymentStatus: order.paymentStatus,
+        trackingNumber: order.trackingNumber,
+        shippedAt: order.shippedAt,
         shippingAddress: order.shippingAddress,
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
@@ -72,7 +75,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { id, status, paymentStatus } = body;
+    const { id, status, paymentStatus, trackingNumber } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, message: 'Order ID required' }, { status: 400 });
@@ -81,6 +84,8 @@ export async function PUT(request: Request) {
     const updateData: any = {};
     if (status) updateData.status = status;
     if (paymentStatus) updateData.paymentStatus = paymentStatus;
+    if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
+    if (status === 'shipped') updateData.shippedAt = new Date();
 
     const order = await prisma.order.update({
       where: { id },
@@ -89,6 +94,18 @@ export async function PUT(request: Request) {
 
     if (!order) {
       return NextResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
+    }
+
+    if (status === 'shipped' && trackingNumber) {
+      const origin = request.headers.get('origin') || 'http://localhost:3000'
+      const trackUrl = `${origin}/track?order=${order.orderNumber}`
+      sendOrderShippedEmail(
+        order.customerEmail,
+        order.customerName,
+        order.orderNumber,
+        trackingNumber,
+        trackUrl
+      ).catch(e => console.error('Auto ship email failed:', e))
     }
 
     return NextResponse.json({

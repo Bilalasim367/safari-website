@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -61,11 +61,15 @@ export async function POST(request: Request) {
         description: description || `${name} - Luxury fragrance`,
         price: parseFloat(price),
         image: image || '',
+        images: JSON.stringify(image ? [image] : []),
         categorySlug: categorySlug?.toLowerCase() || 'men',
         size: size || '50ml',
         inStock: inStock ?? true,
         isBestseller: isBestseller ?? false,
         isNew: isNew ?? false,
+        notesTop: '[]',
+        notesHeart: '[]',
+        notesBase: '[]',
       },
     });
 

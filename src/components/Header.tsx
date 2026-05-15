@@ -32,7 +32,7 @@ export default function Header() {
     { href: '/shop', label: 'Shop All' },
     { href: '/shop?filter=new', label: 'New Arrivals' },
     { href: '/collections', label: 'Collections' },
-    { href: '/shop?filter=bundles', label: 'Gifts & Sets' },
+    { href: '/bundles', label: 'Gifts & Sets' },
   ];
 
   return (

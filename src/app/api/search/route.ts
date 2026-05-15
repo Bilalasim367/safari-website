@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/postgres";
+import prisma from "@/lib/turso";
 
 export async function GET(request: Request) {
   try {
@@ -13,10 +13,10 @@ export async function GET(request: Request) {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } },
-          { fragranceFamily: { contains: query, mode: 'insensitive' } },
-          { categorySlug: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query } },
+          { description: { contains: query } },
+          { fragranceFamily: { contains: query } },
+          { categorySlug: { contains: query } },
         ],
       },
       take: 10,

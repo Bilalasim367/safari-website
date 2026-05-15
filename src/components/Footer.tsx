@@ -114,7 +114,7 @@ export default function Footer() {
                 { label: 'New Arrivals', href: '/shop?filter=new' },
                 { label: 'Best Sellers', href: '/shop?filter=bestseller' },
                 { label: 'Collections', href: '/collections' },
-                { label: 'Bundles & Gift Sets', href: '/shop?filter=bundles' },
+                { label: 'Bundles & Gift Sets', href: '/bundles' },
                 { label: 'Gift Cards', href: '/gift-cards' },
               ].map((link) => (
                 <li key={link.href}>

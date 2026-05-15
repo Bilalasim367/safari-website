@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { validateEmail, validatePassword } from '@/lib/validation';
 
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'safari-admin-setup-key-2024';

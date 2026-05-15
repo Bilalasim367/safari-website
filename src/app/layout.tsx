@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import CartSidebar from '@/components/CartSidebar'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
+import { WishlistProvider } from '@/context/WishlistContext'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
@@ -53,11 +54,13 @@ export default async function RootLayout({
         <TooltipProvider>
           <AuthProvider>
             <CartProvider>
-              {!isAdmin && <Header />}
-              {isAdmin ? children : <main className="flex-1">{children}</main>}
-              {!isAdmin && <Footer />}
-              {!isAdmin && <CartSidebar />}
-              <Toaster />
+              <WishlistProvider>
+                {!isAdmin && <Header />}
+                {isAdmin ? children : <main className="flex-1">{children}</main>}
+                {!isAdmin && <Footer />}
+                {!isAdmin && <CartSidebar />}
+                <Toaster />
+              </WishlistProvider>
             </CartProvider>
           </AuthProvider>
         </TooltipProvider>

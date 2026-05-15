@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 

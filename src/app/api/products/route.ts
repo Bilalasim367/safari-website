@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/postgres";
+import prisma from "@/lib/turso";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 
@@ -49,6 +49,14 @@ export async function GET(request: Request) {
       prisma.product.count({ where }),
     ]);
 
+    const parseJsonArray = (val: string | string[]): string[] => {
+      if (Array.isArray(val)) return val;
+      if (typeof val === 'string') {
+        try { return JSON.parse(val); } catch { return []; }
+      }
+      return [];
+    };
+
     const formattedProducts = products.map((product) => ({
       id: product.id,
       name: product.name,
@@ -56,7 +64,7 @@ export async function GET(request: Request) {
       price: product.price,
       originalPrice: product.originalPrice,
       image: product.image,
-      images: product.images || [],
+      images: parseJsonArray(product.images),
       category: product.category ? { 
         name: product.category.name, 
         slug: product.category.slug 
@@ -64,6 +72,7 @@ export async function GET(request: Request) {
       categoryId: product.category?.id,
       categorySlug: product.categorySlug,
       size: product.size,
+      sizePrices: parseJsonArray(product.sizePrices),
       fragranceFamily: product.fragranceFamily,
       rating: product.rating,
       reviews: product.reviewCount,
@@ -71,9 +80,9 @@ export async function GET(request: Request) {
       isBestseller: product.isBestseller,
       isNew: product.isNew,
       inStock: product.inStock,
-      notesTop: product.notesTop,
-      notesHeart: product.notesHeart,
-      notesBase: product.notesBase,
+      notesTop: parseJsonArray(product.notesTop),
+      notesHeart: parseJsonArray(product.notesHeart),
+      notesBase: parseJsonArray(product.notesBase),
     }));
 
     return NextResponse.json({ products: formattedProducts, total, page, totalPages: Math.ceil(total / limit) });

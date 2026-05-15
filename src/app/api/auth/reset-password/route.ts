@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { validatePassword } from '@/lib/validation';
 
 export async function POST(request: Request) {

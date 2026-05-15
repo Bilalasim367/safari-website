@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
@@ -18,7 +17,7 @@ import { Rating } from "@/components/Rating";
 import { toast } from "sonner";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   price: number;
@@ -38,6 +37,7 @@ interface Product {
   notesTop: string[];
   notesHeart: string[];
   notesBase: string[];
+  sizePrices?: { size: string; price: number; originalPrice?: number }[];
 }
 
 export default function ProductDetailPage() {
@@ -84,12 +84,20 @@ export default function ProductDetailPage() {
       .slice(0, 4);
   }, [product, allProducts]);
 
+  const priceData = useMemo(() => {
+    if (!product?.sizePrices) return null;
+    return product.sizePrices.find((s) => s.size === selectedSize) || null;
+  }, [selectedSize, product?.sizePrices]);
+
+  const displayPrice = priceData?.price ?? product?.price ?? 0;
+  const displayOriginalPrice = priceData?.originalPrice ?? product?.originalPrice;
+
   const handleAddToCart = () => {
     if (product) {
       addItem({
-        id: Number(product.id),
+        id: product.id,
         name: product.name,
-        price: product.price,
+        price: displayPrice,
         image: product.image,
         size: selectedSize,
         quantity,
@@ -131,9 +139,13 @@ export default function ProductDetailPage() {
     );
   }
 
-  const productImages = product.images?.filter((img: string) => img && img.trim() !== '')?.length > 0 
-    ? product.images.filter((img: string) => img && img.trim() !== '') 
-    : (product.image && product.image.trim() !== '' ? [product.image] : []);
+  const mainImage = product.image?.trim() || '';
+  const galleryImages = Array.isArray(product.images) 
+    ? product.images.filter((img: string) => img?.trim()) 
+    : [];
+  const productImages = mainImage 
+    ? [mainImage, ...galleryImages.filter(img => img !== mainImage)]
+    : galleryImages.length > 0 ? galleryImages : [];
 
   return (
     <div className="pt-20">
@@ -168,17 +180,15 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
             {/* Images */}
             <div className="space-y-4">
-              <div className="relative aspect-[3/4] bg-muted overflow-hidden rounded-lg border border-border">
+              <div className="relative bg-muted overflow-hidden rounded-lg border border-border" style={{ minHeight: '400px' }}>
                 {productImages[selectedImage] ? (
-                  <Image
+                  <img
                     src={productImages[selectedImage]}
                     alt={product.name}
-                    fill
-                    className="object-cover"
-                    priority
+                    className="w-full h-full object-cover absolute inset-0"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-full h-full flex items-center justify-center absolute inset-0">
                     <span className="text-muted-foreground text-lg">[Product Image]</span>
                   </div>
                 )}
@@ -187,14 +197,14 @@ export default function ProductDetailPage() {
                 const thumbnails = productImages.map((img: string, index: number) => (
                   <button
                     key={index}
-                    className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-md cursor-pointer transition-all ${
+                    className={`relative w-20 h-24 shrink-0 overflow-hidden rounded-md cursor-pointer transition-all ${
                       selectedImage === index
                         ? "ring-2 ring-primary ring-offset-1"
                         : "opacity-60 hover:opacity-100"
                     }`}
                     onClick={() => setSelectedImage(index)}
                   >
-                    <Image src={img} alt={`${product.name} - View ${index + 1}`} fill className="object-cover" />
+                    <img src={img} alt={`${product.name} - View ${index + 1}`} className="w-full h-full object-cover absolute inset-0" />
                   </button>
                 ));
                 return productImages.length > 4 ? (
@@ -227,12 +237,12 @@ export default function ProductDetailPage() {
 
               {/* Price */}
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="text-4xl font-bold text-foreground tracking-tight">${product.price}</span>
-                {product.originalPrice && (
+                <span className="text-4xl font-bold text-foreground tracking-tight">${displayPrice}</span>
+                {displayOriginalPrice && (
                   <>
-                    <span className="text-lg text-muted-foreground line-through ml-3">${product.originalPrice}</span>
+                    <span className="text-lg text-muted-foreground line-through ml-3">${displayOriginalPrice}</span>
                     <Badge variant="secondary">
-                      Save {Math.round((1 - product.price / product.originalPrice) * 100)}%
+                      Save {Math.round((1 - displayPrice / displayOriginalPrice) * 100)}%
                     </Badge>
                   </>
                 )}
@@ -335,6 +345,8 @@ export default function ProductDetailPage() {
                 isNew={relProduct.isNew}
                 isBestseller={relProduct.isBestseller}
                 size={relProduct.size}
+                rating={relProduct.rating}
+                reviewCount={relProduct.reviews}
               />
             ))}
             {Array.from({ length: Math.max(0, 4 - relatedProducts.length) }).map((_, i) => (

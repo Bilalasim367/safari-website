@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { validateLogin } from '@/lib/validation';
 import { createAccessToken, createRefreshToken } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rateLimit';

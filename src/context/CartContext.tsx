@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useAuth } from "./AuthContext";
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -15,8 +15,8 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (id: number, size: string) => void;
-  updateQuantity: (id: number, size: string, quantity: number) => void;
+  removeItem: (id: string, size: string) => void;
+  updateQuantity: (id: string, size: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -103,7 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsCartOpen(true);
   }, [saveCartToDB]);
 
-  const removeItem = useCallback((id: number, size: string) => {
+  const removeItem = useCallback((id: string, size: string) => {
     setItems((prev) => {
       const newCart = prev.filter((item) => !(item.id === id && item.size === size));
       saveCartToDB(newCart);
@@ -111,7 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, [saveCartToDB]);
 
-  const updateQuantity = useCallback((id: number, size: string, quantity: number) => {
+  const updateQuantity = useCallback((id: string, size: string, quantity: number) => {
     if (quantity <= 0) {
       setItems((prev) => {
         const newCart = prev.filter((item) => !(item.id === id && item.size === size));

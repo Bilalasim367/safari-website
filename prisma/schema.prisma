@@ -1,16 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("TURSO_DATABASE_URL")
 }
-
-// ==================== MODELS ====================
 
 model Category {
   id          String   @id @default(cuid())
@@ -34,26 +30,59 @@ model Product {
   price            Float
   originalPrice   Float?
   image            String
-  images           String[]
+  images           String
   categoryId       String?
   category         Category? @relation(fields: [categoryId], references: [id])
   categorySlug    String?
   size             String    @default("50ml")
+  sizePrices      String    @default("[]")
   fragranceFamily String?
   rating           Float     @default(0)
   reviewCount      Int       @default(0)
-  notesTop         String[]
-  notesHeart       String[]
-  notesBase        String[]
+  notesTop         String
+  notesHeart       String
+  notesBase        String
   inStock          Boolean   @default(true)
   isBestseller     Boolean   @default(false)
   isNew            Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  @@index([name, description])
+  bundleItems BundleItem[]
+
   @@index([categorySlug, isBestseller])
   @@index([categorySlug, isNew])
+}
+
+model Bundle {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  description   String?
+  price         Float
+  originalPrice Float?
+  image         String?
+  save          String?
+  size          String?
+  inStock       Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items BundleItem[]
+
+  @@index([isActive])
+}
+
+model BundleItem {
+  id        String   @id @default(cuid())
+  bundleId  String
+  bundle    Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+
+  @@unique([bundleId, productId])
 }
 
 model User {
@@ -63,8 +92,8 @@ model User {
   password  String
   phone     String?
   avatar    String?
-  role      String   @default("customer") // customer, admin
-  status    String   @default("active") // active, inactive, blocked
+  role      String   @default("customer")
+  status    String   @default("active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   lastLogin DateTime?
@@ -130,9 +159,12 @@ model Order {
   shipping     Float     @default(0)
   tax          Float     @default(0)
   total        Float
-  status       String    @default("pending") // pending, processing, shipped, delivered, cancelled
-  paymentStatus String @default("pending") // pending, paid, failed, refunded
-  shippingAddress Json?
+  status       String    @default("pending")
+  paymentStatus String @default("pending")
+  shippingAddress String?
+  trackingNumber String?
+  shippedAt      DateTime?
+  estimatedDelivery DateTime?
   createdAt    DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -155,7 +187,7 @@ model OrderItem {
 
 model Notification {
   id        String   @id @default(cuid())
-  type      String   @default("system") // order, system, promotion
+  type      String   @default("system")
   title     String
   message   String
   read      Boolean  @default(false)

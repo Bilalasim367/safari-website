@@ -7,16 +7,25 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface Order {
-  id: number;
+  id: string;
   orderNumber: string;
   status: string;
   total: number;
+  trackingNumber?: string | null;
   createdAt: string;
   items: { name: string; quantity: number }[];
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: 'bg-yellow-100 text-yellow-700',
+  processing: 'bg-blue-100 text-blue-700',
+  shipped: 'bg-purple-100 text-purple-700',
+  delivered: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
 }
 
 export default function AccountPage() {
@@ -49,6 +58,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (user) {
       const nameParts = user.name?.split(' ') || ['', ''];
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProfileData({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
@@ -225,19 +235,64 @@ export default function AccountPage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {orders.map((order) => (
-                        <Card key={order.id} className="p-6">
-                          <div className="flex justify-between items-center mb-3">
-                            <span className="font-medium text-foreground">{order.orderNumber}</span>
-                            <span className="text-sm px-3 py-1 bg-primary/10 text-primary rounded-md">
-                              {order.status}
-                            </span>
-                          </div>
-                          <p className="text-muted-foreground text-sm">
-                            {new Date(order.createdAt).toLocaleDateString()} • ${order.total}
-                          </p>
-                        </Card>
-                      ))}
+                      {orders.map((order) => {
+                        const stepIndex = ['pending', 'processing', 'shipped', 'delivered'].indexOf(order.status)
+                        const currentStep = stepIndex >= 0 ? stepIndex : 0
+                        return (
+                          <Card key={order.id} className="p-6 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between mb-4">
+                              <div>
+                                <span className="font-semibold text-foreground">{order.orderNumber}</span>
+                                <p className="text-muted-foreground text-sm mt-0.5">
+                                  {new Date(order.createdAt).toLocaleDateString()} &bull; ${order.total.toFixed(2)}
+                                </p>
+                              </div>
+                              <span className={`text-xs font-medium px-3 py-1 rounded-full capitalize ${STATUS_STYLES[order.status] || 'bg-muted text-muted-foreground'}`}>
+                                {order.status}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1 mb-4">
+                              {['Ordered', 'Processing', 'Shipped', 'Delivered'].map((label, i) => (
+                                <React.Fragment key={label}>
+                                  <div className={`flex items-center gap-1.5 ${i <= currentStep ? 'text-primary' : 'text-muted-foreground/40'}`}>
+                                    <div className={`w-2 h-2 rounded-full ${i <= currentStep ? 'bg-primary' : 'bg-border'}`} />
+                                    <span className="text-[10px] uppercase tracking-wider font-medium">{label}</span>
+                                  </div>
+                                  {i < 3 && (
+                                    <div className={`flex-1 h-px ${i < currentStep ? 'bg-primary' : 'bg-border'}`} />
+                                  )}
+                                </React.Fragment>
+                              ))}
+                            </div>
+
+                            {order.trackingNumber && (
+                              <Link
+                                href={`/track?order=${order.orderNumber}`}
+                                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                              >
+                                Track: {order.trackingNumber}
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                  <path d="M3 6h6M6 3l3 3-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              </Link>
+                            )}
+
+                            {!order.trackingNumber && order.status === 'shipped' && (
+                              <p className="text-xs text-muted-foreground italic">Tracking number pending</p>
+                            )}
+
+                            <div className="mt-3">
+                              <Link
+                                href={`/track?order=${order.orderNumber}`}
+                                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                View Details &rarr;
+                              </Link>
+                            </div>
+                          </Card>
+                        )
+                      })}
                     </div>
                   )}
                 </Card>

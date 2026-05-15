@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {

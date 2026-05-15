@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/postgres';
+import prisma from '@/lib/turso';
 import { verifyToken } from '@/lib/auth';
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     if (cart.length > 0) {
       const cartItemsData = cart.filter(item => item?.id).map(item => ({
         userId: payload.userId,
-        productId: String(item.id),
+        productId: item.id,
         name: item.name || 'Unknown',
         price: Number(item.price) || 0,
         image: item.image || '',
