@@ -118,9 +118,6 @@ export default function BulkUploadPage() {
     try {
       const res = await fetch('/api/admin/products/bulk-upload', {
         method: 'POST',
-        headers: {
-          'x-api-key': localStorage.getItem('adminApiKey') || '',
-        },
         body,
       });
       const data: UploadResult = await res.json();
@@ -133,8 +130,8 @@ export default function BulkUploadPage() {
     }
   };
 
-  const totalColumns = SAMPLE_HEADERS.length;
-  const detectedColumns = headers.length;
+  const totalColumns = SAMPLE_HEADERS?.length ?? 0;
+  const detectedColumns = headers?.length ?? 0;
   const columnsMatch = detectedColumns === totalColumns;
 
   return (
@@ -230,7 +227,7 @@ export default function BulkUploadPage() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold mb-2">Preview (first {Math.min(preview.length, 5)} rows)</h3>
+            <h3 className="text-sm font-semibold mb-2">Preview (first {Math.min(preview?.length ?? 0, 5)} rows)</h3>
             <div className="overflow-x-auto rounded-md border">
               <Table>
                 <TableHeader>
