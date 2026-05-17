@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from "react";
-import { getAdminProducts, createProduct, updateProduct, deleteProduct } from "../actions";
+import Link from "next/link";
+import { getAdminProducts, createProduct, updateProduct, deleteProduct, updateProductPartial } from "../actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,14 @@ interface Product {
   inStock: boolean;
   isBestseller: boolean;
   isNew: boolean;
+  gender?: string;
+  season?: string | null;
+  stockStatus?: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
+  price50mlPhysical?: number | null;
+  price50mlOnline?: number | null;
+  productId?: string | null;
 }
 
 export default function ProductsPage() {
@@ -32,6 +41,10 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [genderFilter, setGenderFilter] = useState<string>("all");
+  const [seasonFilter, setSeasonFilter] = useState<string>("all");
+  const [stockFilter, setStockFilter] = useState<string>("all");
+  const [activeFilter, setActiveFilter] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
@@ -57,9 +70,9 @@ export default function ProductsPage() {
   const loadProducts = async () => {
     setLoading(true);
     setError("");
-    
+
     const result = await getAdminProducts();
-    
+
     if (result.error) {
       setError(result.error);
       if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
@@ -77,7 +90,11 @@ export default function ProductsPage() {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    const matchesGender = genderFilter === "all" || (product.gender || "").toLowerCase() === genderFilter;
+    const matchesSeason = seasonFilter === "all" || (product.season || "").toLowerCase() === seasonFilter;
+    const matchesStock = stockFilter === "all" || (product.stockStatus || (product.inStock ? "in_stock" : "out_of_stock")) === stockFilter;
+    const matchesActive = activeFilter === "all" || (product.isActive === true).toString() === activeFilter;
+    return matchesSearch && matchesGender && matchesSeason && matchesStock && matchesActive;
   });
 
   const defaultSizePrices = [
@@ -166,7 +183,7 @@ export default function ProductsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
       const parsedSizePrices = sizePrices.map((sp) => ({
         size: sp.size,
         price: Number(sp.price),
@@ -189,13 +206,13 @@ export default function ProductsPage() {
 
     try {
       let result;
-      
+
       if (editingProduct) {
         result = await updateProduct(editingProduct.id, payload);
       } else {
         result = await createProduct(payload);
       }
-      
+
       if (result.success) {
         handleCloseModal();
         loadProducts();
@@ -216,6 +233,20 @@ export default function ProductsPage() {
       } else {
         alert(result.error || 'Error deleting product');
       }
+    }
+  };
+
+  const handleToggleActive = async (product: Product) => {
+    try {
+      const result = await updateProductPartial(product.id, { isActive: !product.isActive });
+      if (result.success) {
+        toast.success(`Product ${product.isActive ? 'deactivated' : 'activated'}`);
+        loadProducts();
+      } else {
+        toast.error(result.error || 'Error toggling status');
+      }
+    } catch {
+      toast.error('Error toggling status');
     }
   };
 
@@ -252,30 +283,81 @@ export default function ProductsPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Products</h1>
-        <Button
-          onClick={() => handleOpenModal()}
-        >
-          Add Product
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/admin/products/bulk-upload">
+            <Button variant="outline">
+              Bulk Upload
+            </Button>
+          </Link>
+          <Button onClick={() => handleOpenModal()}>
+            Add Product
+          </Button>
+        </div>
       </div>
 
-      <div className="mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <Input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search by name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
+          className="max-w-xs"
         />
+        <Select value={genderFilter} onValueChange={(v) => v !== null && setGenderFilter(v)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Genders</SelectItem>
+            <SelectItem value="men">Men</SelectItem>
+            <SelectItem value="women">Women</SelectItem>
+            <SelectItem value="unisex">Unisex</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={seasonFilter} onValueChange={(v) => v !== null && setSeasonFilter(v)}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Season" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Seasons</SelectItem>
+            <SelectItem value="summer">Summer</SelectItem>
+            <SelectItem value="winter">Winter</SelectItem>
+            <SelectItem value="all season">All Season</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={stockFilter} onValueChange={(v) => v !== null && setStockFilter(v)}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Stock" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Stock</SelectItem>
+            <SelectItem value="in_stock">In Stock</SelectItem>
+            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+            <SelectItem value="pre_order">Pre-Order</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={activeFilter} onValueChange={(v) => v !== null && setActiveFilter(v)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="true">Active</SelectItem>
+            <SelectItem value="false">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Image</TableHead>
+              <TableHead>Product ID</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Price</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Season</TableHead>
+              <TableHead>50ml Physical</TableHead>
+              <TableHead>50ml Online</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -283,44 +365,59 @@ export default function ProductsPage() {
           <TableBody>
             {filteredProducts.map((product) => (
               <TableRow key={product.id}>
-                <TableCell>
-                  <div className="h-12 w-12 bg-gray-100 rounded overflow-hidden">
-                    {product.image ? (
-                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-gray-400 text-xs">No img</span>
-                    )}
-                  </div>
+                <TableCell className="font-mono text-xs">
+                  {product.productId || <span className="text-muted-foreground">—</span>}
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell>${product.price}</TableCell>
                 <TableCell>
-                  <div className="flex gap-1">
+                  <Badge variant="outline" className="text-xs">
+                    {product.gender || 'Unisex'}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm text-muted-foreground">
+                  {product.season || '—'}
+                </TableCell>
+                <TableCell className="font-mono text-sm">
+                  {product.price50mlPhysical != null ? `PKR ${product.price50mlPhysical}` : (product.inStock ? <span className="text-muted-foreground">—</span> : '—')}
+                </TableCell>
+                <TableCell className="font-mono text-sm">
+                  {product.price50mlOnline != null ? `PKR ${product.price50mlOnline}` : '—'}
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {product.isActive === false && (
+                      <Badge variant="secondary" className="text-xs">Inactive</Badge>
+                    )}
+                    {product.isFeatured && (
+                      <Badge className="text-xs bg-gold">Featured</Badge>
+                    )}
                     {product.isNew && (
-                      <Badge variant="secondary">NEW</Badge>
+                      <Badge variant="secondary" className="text-xs">NEW</Badge>
                     )}
                     {product.isBestseller && (
-                      <Badge>BEST</Badge>
+                      <Badge className="text-xs">BEST</Badge>
                     )}
-                    {!product.inStock && (
-                      <Badge variant="destructive">Out</Badge>
+                    {product.stockStatus === 'out_of_stock' && (
+                      <Badge variant="destructive" className="text-xs">Out</Badge>
+                    )}
+                    {product.stockStatus === 'pre_order' && (
+                      <Badge variant="secondary" className="text-xs">Pre-Order</Badge>
                     )}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenModal(product)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleOpenModal(product)}>
                       Edit
                     </Button>
                     <Button
-                      variant="destructive"
+                      variant={product.isActive === false ? "default" : "secondary"}
                       size="sm"
-                      onClick={() => handleDelete(product.id)}
+                      onClick={() => handleToggleActive(product)}
                     >
+                      {product.isActive === false ? 'Activate' : 'Deactivate'}
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(product.id)}>
                       Delete
                     </Button>
                   </div>

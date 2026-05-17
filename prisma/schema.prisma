@@ -45,6 +45,36 @@ model Product {
   inStock          Boolean   @default(true)
   isBestseller     Boolean   @default(false)
   isNew            Boolean   @default(false)
+
+  // Bulk upload fields (additive, optional)
+  productId        String?   @unique
+  gender           String    @default("Unisex")
+  type             String    @default("Attar & Spray")
+  season           String?
+  bestTime         String?
+  impressionOf     String?
+  shortDescription String?
+  longDescription  String?
+  tags             String?
+  sizesAvailable   String    @default("3ml,6ml,12ml,50ml")
+  price3mlPhysical Int?
+  price6mlPhysical Int?
+  price12mlPhysical Int?
+  price50mlPhysical Int?
+  price3mlOnline   Int?
+  price6mlOnline   Int?
+  price12mlOnline  Int?
+  price50mlOnline  Int?
+  currency         String    @default("PKR")
+  oilPricePer100g  Int?
+  supplier         String?
+  isFeatured       Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  stockStatus      String    @default("in_stock")
+  imageFolder      String?
+  metaTitle        String?
+  metaDescription  String?
+
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

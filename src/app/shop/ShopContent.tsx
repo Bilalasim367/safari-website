@@ -18,6 +18,19 @@ interface Product {
   isNew: boolean;
   rating: number;
   reviewCount: number;
+  gender?: string;
+  season?: string | null;
+  impressionOf?: string | null;
+  tags?: string | null;
+  price3mlPhysical?: number | null;
+  price6mlPhysical?: number | null;
+  price12mlPhysical?: number | null;
+  price50mlPhysical?: number | null;
+  price3mlOnline?: number | null;
+  price6mlOnline?: number | null;
+  price12mlOnline?: number | null;
+  price50mlOnline?: number | null;
+  currency?: string;
 }
 
 interface SearchParams {
@@ -114,21 +127,41 @@ export default async function ShopContent({
 
     const totalPages = Math.ceil(total / PAGE_SIZE);
 
-    const formattedProducts: Product[] = products.map((p) => ({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      price: p.price,
-      originalPrice: p.originalPrice ?? undefined,
-      image: p.image || '',
-      category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
-      categorySlug: p.categorySlug ?? undefined,
-      size: p.size || '50ml',
-      isBestseller: p.isBestseller,
-      isNew: p.isNew,
-      rating: p.rating,
-      reviewCount: p.reviewCount,
-    }));
+    const formattedProducts: Product[] = products.map((p) => {
+      const physicalPrices = [p.price3mlPhysical, p.price6mlPhysical, p.price12mlPhysical, p.price50mlPhysical]
+        .filter((pr): pr is number => pr !== null);
+      const lowestPhysicalPrice = physicalPrices.length > 0 ? Math.min(...physicalPrices) : null;
+
+      return {
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        price: p.price,
+        originalPrice: p.originalPrice ?? undefined,
+        image: p.image || '',
+        category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
+        categorySlug: p.categorySlug ?? undefined,
+        size: p.size || '50ml',
+        isBestseller: p.isBestseller,
+        isNew: p.isNew,
+        rating: p.rating,
+        reviewCount: p.reviewCount,
+        gender: p.gender ?? undefined,
+        season: p.season ?? undefined,
+        impressionOf: p.impressionOf ?? undefined,
+        tags: p.tags ?? undefined,
+        price3mlPhysical: p.price3mlPhysical ?? undefined,
+        price6mlPhysical: p.price6mlPhysical ?? undefined,
+        price12mlPhysical: p.price12mlPhysical ?? undefined,
+        price50mlPhysical: p.price50mlPhysical ?? undefined,
+        price3mlOnline: p.price3mlOnline ?? undefined,
+        price6mlOnline: p.price6mlOnline ?? undefined,
+        price12mlOnline: p.price12mlOnline ?? undefined,
+        price50mlOnline: p.price50mlOnline ?? undefined,
+        currency: p.currency ?? undefined,
+        _lowestPhysicalPrice: lowestPhysicalPrice,
+      } as Product;
+    });
 
     const selectedCategories = params.category?.split(',').filter(Boolean) || [];
     const selectedSizes = params.size?.split(',').filter(Boolean) || [];
@@ -241,6 +274,11 @@ export default async function ShopContent({
                         size={product.size}
                         rating={product.rating}
                         reviewCount={product.reviewCount}
+                        gender={product.gender}
+                        season={product.season}
+                        impressionOf={product.impressionOf}
+                        lowestPrice={(product as unknown as Record<string, unknown>)._lowestPhysicalPrice as number | null}
+                        currency={product.currency}
                       />
                     ))}
                   </div>

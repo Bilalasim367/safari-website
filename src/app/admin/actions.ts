@@ -34,6 +34,14 @@ export async function getAdminProducts() {
         inStock: true,
         isBestseller: true,
         isNew: true,
+        productId: true,
+        gender: true,
+        season: true,
+        stockStatus: true,
+        isActive: true,
+        isFeatured: true,
+        price50mlPhysical: true,
+        price50mlOnline: true,
       },
     });
     return { success: true, products };
@@ -122,6 +130,23 @@ export async function deleteProduct(id: string) {
   
   try {
     await prisma.product.delete({ where: { id } });
+    return { success: true };
+  } catch (e) {
+    return { error: String(e) };
+  }
+}
+
+export async function updateProductPartial(id: string, data: Record<string, unknown>) {
+  const auth = await getAuth();
+  if (!auth || auth.role !== 'admin') {
+    return { error: 'Unauthorized' };
+  }
+
+  try {
+    await prisma.product.update({
+      where: { id },
+      data,
+    });
     return { success: true };
   } catch (e) {
     return { error: String(e) };

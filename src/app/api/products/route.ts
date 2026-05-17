@@ -65,9 +65,9 @@ export async function GET(request: Request) {
       originalPrice: product.originalPrice,
       image: product.image,
       images: parseJsonArray(product.images),
-      category: product.category ? { 
-        name: product.category.name, 
-        slug: product.category.slug 
+      category: product.category ? {
+        name: product.category.name,
+        slug: product.category.slug
       } : null,
       categoryId: product.category?.id,
       categorySlug: product.categorySlug,
@@ -83,6 +83,24 @@ export async function GET(request: Request) {
       notesTop: parseJsonArray(product.notesTop),
       notesHeart: parseJsonArray(product.notesHeart),
       notesBase: parseJsonArray(product.notesBase),
+      gender: product.gender,
+      season: product.season,
+      impressionOf: product.impressionOf,
+      tags: product.tags,
+      sizesAvailable: product.sizesAvailable,
+      price3mlPhysical: product.price3mlPhysical,
+      price6mlPhysical: product.price6mlPhysical,
+      price12mlPhysical: product.price12mlPhysical,
+      price50mlPhysical: product.price50mlPhysical,
+      price3mlOnline: product.price3mlOnline,
+      price6mlOnline: product.price6mlOnline,
+      price12mlOnline: product.price12mlOnline,
+      price50mlOnline: product.price50mlOnline,
+      currency: product.currency,
+      longDescription: product.longDescription,
+      metaTitle: product.metaTitle,
+      metaDescription: product.metaDescription,
+      stockStatus: product.stockStatus,
     }));
 
     return NextResponse.json({ products: formattedProducts, total, page, totalPages: Math.ceil(total / limit) });

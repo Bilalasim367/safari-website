@@ -21,9 +21,14 @@ interface ProductCardProps {
   size?: string;
   rating?: number;
   reviewCount?: number;
+  gender?: string;
+  season?: string | null;
+  impressionOf?: string | null;
+  lowestPrice?: number | null;
+  currency?: string;
 }
 
-export default function ProductCard({ id, name, slug, price, originalPrice, image, category, isNew, isBestseller, size, rating, reviewCount }: ProductCardProps) {
+export default function ProductCard({ id, name, slug, price, originalPrice, image, category, isNew, isBestseller, size, rating, reviewCount, gender, season, impressionOf, lowestPrice, currency }: ProductCardProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [added, setAdded] = useState(false);
@@ -122,13 +127,32 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
         </div>
 
         <div className="flex-1 px-5 pb-3 pt-4">
-          {/* Category */}
-          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em] mb-1">{category}</p>
+          {/* Category + Gender badge + Season chip */}
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em]">{category}</p>
+            {gender && (
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded border border-muted-foreground/20 text-muted-foreground uppercase tracking-wider">
+                {gender}
+              </span>
+            )}
+            {season && (
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                {season}
+              </span>
+            )}
+          </div>
 
           {/* Product Name */}
           <h3 className="text-base font-semibold text-foreground leading-tight mb-1">
             {name}
           </h3>
+
+          {/* Impression label */}
+          {impressionOf && (
+            <p className="text-[11px] text-muted-foreground italic mb-1">
+              Impression of {impressionOf}
+            </p>
+          )}
 
           {/* Rating */}
           {rating !== undefined && (
@@ -139,10 +163,16 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
 
           {/* Pricing Row */}
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-2xl font-bold text-foreground tracking-tight">
-              ${price.toFixed(2)}
-            </span>
-            {originalPrice && (
+            {lowestPrice != null ? (
+              <span className="text-2xl font-bold text-foreground tracking-tight">
+                {currency || 'PKR'} {lowestPrice.toLocaleString()}
+              </span>
+            ) : (
+              <span className="text-2xl font-bold text-foreground tracking-tight">
+                {currency || 'PKR'} {price.toFixed(2)}
+              </span>
+            )}
+            {originalPrice && !lowestPrice && (
               <>
                 <span className="text-sm text-muted-foreground line-through">
                   ${originalPrice.toFixed(2)}
@@ -151,6 +181,11 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
                   Save ${(originalPrice - price).toFixed(2)}
                 </span>
               </>
+            )}
+            {lowestPrice != null && lowestPrice !== price && (
+              <span className="text-sm text-muted-foreground">
+                From
+              </span>
             )}
           </div>
         </div>

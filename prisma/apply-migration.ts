@@ -58,6 +58,44 @@ async function main() {
     try { await turso.execute(colSql) } catch { /* column exists */ }
   }
 
+  // Add bulk upload columns to Product (idempotent)
+  const bulkColumns = [
+    `ALTER TABLE "Product" ADD COLUMN "productId" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "gender" TEXT NOT NULL DEFAULT 'Unisex';`,
+    `ALTER TABLE "Product" ADD COLUMN "type" TEXT NOT NULL DEFAULT 'Attar & Spray';`,
+    `ALTER TABLE "Product" ADD COLUMN "season" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "bestTime" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "impressionOf" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "shortDescription" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "longDescription" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "tags" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "sizesAvailable" TEXT NOT NULL DEFAULT '3ml,6ml,12ml,50ml';`,
+    `ALTER TABLE "Product" ADD COLUMN "price3mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price6mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price12mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price50mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price3mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price6mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price12mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price50mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "currency" TEXT NOT NULL DEFAULT 'PKR';`,
+    `ALTER TABLE "Product" ADD COLUMN "oilPricePer100g" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "supplier" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "isFeatured" INTEGER NOT NULL DEFAULT 0;`,
+    `ALTER TABLE "Product" ADD COLUMN "isActive" INTEGER NOT NULL DEFAULT 1;`,
+    `ALTER TABLE "Product" ADD COLUMN "stockStatus" TEXT NOT NULL DEFAULT 'in_stock';`,
+    `ALTER TABLE "Product" ADD COLUMN "imageFolder" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "metaTitle" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "metaDescription" TEXT;`,
+  ]
+  for (const colSql of bulkColumns) {
+    try { await turso.execute(colSql) } catch { /* column exists */ }
+  }
+  // Unique index for productId (idempotent)
+  try {
+    await turso.execute(`CREATE UNIQUE INDEX IF NOT EXISTS "Product_productId_key" ON "Product"("productId");`)
+  } catch { /* index exists */ }
+
   console.log('Migration applied successfully!')
 }
 
