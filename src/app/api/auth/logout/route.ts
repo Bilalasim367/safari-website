@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function POST() {
   try {
@@ -25,8 +24,7 @@ export async function POST() {
     });
 
     return response;
-  } catch (error) {
-    console.error('Logout error:', error);
+  } catch {
     return NextResponse.json(
       { success: false, message: 'An error occurred' },
       { status: 500 }

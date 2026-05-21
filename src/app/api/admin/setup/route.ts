@@ -3,14 +3,21 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/turso';
 import { validateEmail, validatePassword } from '@/lib/validation';
 
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'safari-admin-setup-key-2024';
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email, password, firstName, lastName, adminKey } = body;
 
-    if (adminKey !== ADMIN_SECRET_KEY) {
+    if (!ADMIN_SECRET_KEY) {
+      return NextResponse.json(
+        { success: false, message: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    if (!adminKey || adminKey !== ADMIN_SECRET_KEY) {
       return NextResponse.json(
         { success: false, message: 'Invalid admin key' },
         { status: 403 }

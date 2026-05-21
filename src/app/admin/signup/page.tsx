@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const ADMIN_KEY = "safari-admin-setup-key-2024";
-
 export default function AdminSignupPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -34,11 +32,6 @@ export default function AdminSignupPage() {
 
     if (formData.password.length < 8) {
       setError("Password must be at least 8 characters");
-      return;
-    }
-
-    if (formData.adminKey !== ADMIN_KEY) {
-      setError("Invalid admin registration key");
       return;
     }
 

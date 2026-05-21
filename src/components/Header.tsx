@@ -94,12 +94,55 @@ export default function Header() {
         {/* Main Header - black initially, 20% opacity when scrolled */}
       <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-secondary/20 border-b border-transparent' : 'bg-secondary shadow-lg border-b border-secondary'}`}>
         <div className='container-custom'>
-          <div className='flex items-center justify-between h-20 md:h-24'>
-            <Link href='/' className='flex-shrink-0'>
-              <h1 className='text-3xl md:text-4xl font-serif font-bold tracking-wide'>
-                <span className='text-secondary-foreground'>SAFARI</span>
-              </h1>
-            </Link>
+          <div className='flex items-center justify-between h-16 md:h-20'>
+            <div className='flex items-center gap-3'>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger className="md:hidden inline-flex shrink-0 items-center justify-center rounded-lg size-8 text-secondary-foreground/80 hover:text-secondary-foreground transition-all outline-none select-none">
+                  <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M4 6h16M4 12h16M4 18h16' />
+                  </svg>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[350px] max-w-[90vw] p-0 bg-black">
+                  <div className='flex flex-col h-full'>
+                    <div className='flex items-center justify-between p-8 border-b border-white/10'>
+                      <h2 className='text-2xl font-serif font-bold tracking-[0.3em] text-white'>MENU</h2>
+                    </div>
+                    <nav className='flex-1 p-8 space-y-0 overflow-y-auto'>
+                      {mainNav.map((item) => (
+                        <SheetClose key={item.href}>
+                          <Link href={item.href} className='block text-base text-white/70 hover:text-white transition-colors py-6 border-b border-white/10 font-medium'>
+                            {item.label}
+                          </Link>
+                        </SheetClose>
+                      ))}
+                      <div className='border-b border-white/10 my-4' />
+                      {topLinks.map((item) => (
+                        <SheetClose key={item.href}>
+                          <Link href={item.href} className='block text-base text-white/50 hover:text-white transition-colors py-6'>
+                            {item.label}
+                          </Link>
+                        </SheetClose>
+                      ))}
+                    </nav>
+                    <div className='p-8 border-t border-white/10'>
+                      <div className='flex gap-5'>
+                        {['I', 'F', 'T'].map((letter, i) => (
+                          <Button key={i} variant="ghost" size="icon" className='w-12 h-12 rounded-full border border-white/20 text-white/50 hover:border-gold hover:text-gold transition-all'>
+                            <span className='text-base font-medium'>{letter}</span>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <Link href='/' className='flex-shrink-0'>
+                <h1 className='text-2xl md:text-4xl font-serif font-bold tracking-wide'>
+                  <span className='text-secondary-foreground'>SAFARI</span>
+                </h1>
+              </Link>
+            </div>
 
             <nav className='hidden lg:flex items-center gap-8 md:gap-10'>
               {mainNav.map((item) => (
@@ -113,7 +156,7 @@ export default function Header() {
               ))}
             </nav>
 
-             <div className='flex items-center gap-5 md:gap-6'>
+             <div className='flex items-center gap-3 md:gap-6'>
               <Button
                 variant="ghost"
                 size="icon"
@@ -165,53 +208,7 @@ export default function Header() {
         </div>
       </header>
 
-      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetTrigger className="md:hidden fixed top-4 left-4 z-50 text-foreground/80 hover:text-foreground bg-background/80 backdrop-blur-sm border border-border inline-flex shrink-0 items-center justify-center rounded-lg size-8 transition-all outline-none select-none">
-          <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M4 6h16M4 12h16M4 18h16' />
-          </svg>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[350px] max-w-[90vw] p-0">
-          <div className='flex flex-col h-full'>
-            <div className='flex items-center justify-between p-8 border-b border-border'>
-              <h2 className='text-2xl font-serif font-bold tracking-[0.3em] text-foreground'>MENU</h2>
-            </div>
 
-            <nav className='flex-1 p-8 space-y-0 overflow-y-auto'>
-              {mainNav.map((item) => (
-                <SheetClose key={item.href}>
-                  <Link href={item.href} className='block text-base text-foreground/80 hover:text-foreground transition-colors py-6 border-b border-border font-medium'>
-                    {item.label}
-                  </Link>
-                </SheetClose>
-              ))}
-              <div className='border-b border-border my-4' />
-              {topLinks.map((item) => (
-                <SheetClose key={item.href}>
-                  <Link href={item.href} className='block text-base text-muted-foreground hover:text-foreground transition-colors py-6'>
-                    {item.label}
-                  </Link>
-                </SheetClose>
-              ))}
-            </nav>
-
-            <div className='p-8 border-t border-border'>
-              <div className='flex gap-5'>
-                {['I', 'F', 'T'].map((letter, i) => (
-                  <Button
-                    key={i}
-                    variant="ghost"
-                    size="icon"
-                    className='w-12 h-12 rounded-full border border-border text-muted-foreground hover:border-foreground hover:text-foreground transition-all'
-                  >
-                    <span className='text-base font-medium'>{letter}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

@@ -20,14 +20,31 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+  const handleClose = () => {
+    setQuery('');
+    setResults([]);
+    onClose();
+  };
 
   React.useEffect(() => {
-    if (!query || !isOpen) {
-      setResults([]);
-      return;
-    }
+    if (!isOpen) return;
 
-    const timer = setTimeout(async () => {
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = '';
+      clearTimeout(timeoutRef.current);
+    };
+  }, [isOpen]);
+
+  React.useEffect(() => {
+    clearTimeout(timeoutRef.current);
+
+    if (!query) return;
+
+    timeoutRef.current = setTimeout(async () => {
       setLoading(true);
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
@@ -40,27 +57,14 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
       }
     }, 300);
 
-    return () => clearTimeout(timer);
-  }, [query, isOpen]);
-
-  React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      setQuery('');
-      setResults([]);
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+    return () => clearTimeout(timeoutRef.current);
+  }, [query]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-2xl p-0">
-        <div className="flex items-center border-b border-gray-200 p-4">
-          <svg className="w-6 h-6 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="flex items-center border-b border-border p-4">
+          <svg className="w-6 h-6 text-muted-foreground mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <Input
@@ -72,7 +76,7 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
             autoFocus
           />
           <DialogClose>
-            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-black">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -82,25 +86,25 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
 
         <div className="max-h-[60vh] overflow-y-auto">
           {loading && (
-            <div className="p-8 text-center text-gray-500">Searching...</div>
+            <div className="p-8 text-center text-muted-foreground">Searching...</div>
           )}
 
           {!loading && query && results.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              No products found for "{query}"
+            <div className="p-8 text-center text-muted-foreground">
+              No products found for &quot;{query}&quot;
             </div>
           )}
 
           {!loading && results.length > 0 && (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border">
               {results.map((product) => (
                 <Link
                   key={product.id}
                   href={`/shop/${product.slug}`}
-                  onClick={onClose}
-                  className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+                  onClick={handleClose}
+                  className="flex items-center gap-4 p-4 hover:bg-accent transition-colors"
                 >
-                  <div className="relative w-16 h-20 bg-gray-100 flex-shrink-0">
+                  <div className="relative w-16 h-20 bg-muted flex-shrink-0">
                     {product.image ? (
                       <Image 
                         src={product.image} 
@@ -109,7 +113,7 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
                         className="object-cover" 
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground/50 text-xs">
                         No Image
                       </div>
                     )}
@@ -125,7 +129,7 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
           )}
 
           {!loading && results.length > 0 && (
-            <div className="p-4 bg-gray-50 text-center">
+            <div className="p-4 bg-muted text-center">
               <Link 
                 href={`/shop?q=${encodeURIComponent(query)}`} 
                 onClick={onClose}

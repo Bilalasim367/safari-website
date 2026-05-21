@@ -18,7 +18,10 @@ export async function GET(request: Request) {
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {
+      isActive: true,
+      inStock: true,
+    };
 
     if (category) {
       where.categorySlug = { in: category.split(",") };
@@ -153,15 +156,15 @@ export async function POST(request: Request) {
         price: body.price,
         originalPrice: body.originalPrice,
         image: body.image,
-        images: body.images || [],
+        images: body.images ? JSON.stringify(body.images) : '[]',
         categoryId,
         categorySlug: body.categorySlug,
         size: body.size || "50ml",
         fragranceFamily: body.fragranceFamily,
         rating: body.rating || 0,
-        notesTop: body.notesTop || [],
-        notesHeart: body.notesHeart || [],
-        notesBase: body.notesBase || [],
+        notesTop: body.notesTop ? JSON.stringify(body.notesTop) : '[]',
+        notesHeart: body.notesHeart ? JSON.stringify(body.notesHeart) : '[]',
+        notesBase: body.notesBase ? JSON.stringify(body.notesBase) : '[]',
         inStock: body.inStock ?? true,
         isBestseller: body.isBestseller ?? false,
         isNew: body.isNew ?? false,

@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
+import { verifyToken } from "@/lib/auth";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("access_token")?.value;
+    const auth = token ? await verifyToken(token) : null;
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
 

@@ -2,13 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 
 interface Category {
   _id: string;
@@ -48,7 +46,23 @@ export default function CategoriesPage() {
   };
 
   useEffect(() => {
-    fetchCategories();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch('/api/categories');
+        const data = await res.json();
+        if (!cancelled && data.categories) {
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, []);
 
   const handleOpenModal = (category?: Category) => {

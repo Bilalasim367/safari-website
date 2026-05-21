@@ -55,23 +55,21 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [trackingInput, setTrackingInput] = useState("");
-  const fetchOrders = async () => {
-    try {
-      const res = await fetch('/api/admin/orders');
-      const data = await res.json();
-      if (data.success) {
-        setOrders(data.orders);
-      }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchOrders();
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/admin/orders");
+        const data = await res.json();
+        if (data.orders) {
+          setOrders(data.orders);
+        }
+      } catch {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -104,7 +102,7 @@ export default function OrdersPage() {
           setSelectedOrder({ ...selectedOrder, ...updatedOrder });
         }
       }
-    } catch (error) {
+    } catch {
       console.error('Error updating order:', error);
     }
   };

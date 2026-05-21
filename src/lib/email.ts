@@ -95,7 +95,7 @@ export async function sendOrderShippedEmail(
     return { sent: true }
   } catch (e) {
     console.error('Failed to send shipment email:', e)
-    return { sent: false, reason: String(e) }
+    return { sent: false, reason: 'Failed to send shipment email' }
   }
 }
 
@@ -212,6 +212,6 @@ export async function sendOrderConfirmationEmail(
     return { sent: true }
   } catch (e) {
     console.error('Failed to send confirmation email:', e)
-    return { sent: false, reason: String(e) }
+    return { sent: false, reason: 'Failed to send confirmation email' }
   }
 }

@@ -17,26 +17,30 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchWishlist = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false;
+
     if (!user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setItems([]);
       setLoading(false);
       return;
     }
-    try {
-      const res = await fetch('/api/wishlist');
-      const data = await res.json();
-      setItems(data.wishlist || []);
-    } catch {
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
 
-  useEffect(() => {
-    fetchWishlist();
-  }, [fetchWishlist]);
+    (async () => {
+      try {
+        const res = await fetch('/api/wishlist');
+        const data = await res.json();
+        if (!cancelled) setItems(data.wishlist || []);
+      } catch {
+        if (!cancelled) setItems([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [user]);
 
   const isWishlisted = useCallback((productId: string) => {
     return items.includes(productId);

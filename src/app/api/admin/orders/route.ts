@@ -81,7 +81,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, message: 'Order ID required' }, { status: 400 });
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (status) updateData.status = status;
     if (paymentStatus) updateData.paymentStatus = paymentStatus;
     if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;

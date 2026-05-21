@@ -38,10 +38,19 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+function loadCartFromStorage(): CartItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem("safari-cart");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(loadCartFromStorage);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const debouncedItems = useDebounce(items, 500);
@@ -50,23 +59,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem("safari-cart");
-    if (saved) {
-      try {
-        setItems(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse cart", e);
-      }
-    }
-    setIsInitialized(true);
-  }, []);
-
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem("safari-cart", JSON.stringify(items));
-    }
-  }, [items, isInitialized]);
+    localStorage.setItem("safari-cart", JSON.stringify(items));
+  }, [items]);
 
   const saveCartToDB = useCallback(async (cart: CartItem[]) => {
     if (!user || cart.length === 0) return;
@@ -87,55 +81,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback((newItem: CartItem) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.id === newItem.id && item.size === newItem.size);
-      let newCart;
       if (existing) {
-        newCart = prev.map((item) =>
+        return prev.map((item) =>
           item.id === newItem.id && item.size === newItem.size
             ? { ...item, quantity: item.quantity + newItem.quantity }
             : item
         );
-      } else {
-        newCart = [...prev, newItem];
       }
-      saveCartToDB(newCart);
-      return newCart;
+      return [...prev, newItem];
     });
     setIsCartOpen(true);
-  }, [saveCartToDB]);
+  }, []);
 
   const removeItem = useCallback((id: string, size: string) => {
-    setItems((prev) => {
-      const newCart = prev.filter((item) => !(item.id === id && item.size === size));
-      saveCartToDB(newCart);
-      return newCart;
-    });
-  }, [saveCartToDB]);
+    setItems((prev) => prev.filter((item) => !(item.id === id && item.size === size)));
+  }, []);
 
   const updateQuantity = useCallback((id: string, size: string, quantity: number) => {
     if (quantity <= 0) {
-      setItems((prev) => {
-        const newCart = prev.filter((item) => !(item.id === id && item.size === size));
-        saveCartToDB(newCart);
-        return newCart;
-      });
+      setItems((prev) => prev.filter((item) => !(item.id === id && item.size === size)));
       return;
     }
-    setItems((prev) => {
-      const newCart = prev.map((item) =>
+    setItems((prev) =>
+      prev.map((item) =>
         item.id === id && item.size === size ? { ...item, quantity } : item
-      );
-      saveCartToDB(newCart);
-      return newCart;
-    });
-  }, [saveCartToDB]);
+      )
+    );
+  }, []);
 
   const clearCart = useCallback(() => {
     setItems([]);
-    saveCartToDB([]);
-  }, [saveCartToDB]);
+  }, []);
 
   useEffect(() => {
-    if (user && debouncedItems.length > 0) {
+    if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       saveCartToDB(debouncedItems);
     }
   }, [user, debouncedItems, saveCartToDB]);

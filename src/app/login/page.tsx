@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -12,18 +12,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 export default function LoginPage() {
   const router = useRouter();
   const { loginFromResponse } = useAuth();
-  const [redirectTo, setRedirectTo] = useState('/account');
+  const [redirectTo] = useState(() => {
+    if (typeof window === 'undefined') return '/account';
+    const params = new URLSearchParams(window.location.search);
+    return params.get('redirect') || '/account';
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setRedirectTo(params.get('redirect') || '/account');
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +52,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen pt-16 md:pt-20">
       {/* Hero */}
       <div className="bg-background border-b border-border py-12">
         <div className="container-custom">
@@ -135,7 +134,7 @@ export default function LoginPage() {
               </Button>
 
               <p className="text-center text-muted-foreground">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/signup" className="text-foreground font-medium hover:underline">
                   Create one
                 </Link>

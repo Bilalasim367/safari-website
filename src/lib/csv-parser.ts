@@ -113,8 +113,8 @@ function hasValidPrice(row: CsvRow): boolean {
 
 function toInt(val: string | undefined | null): number | null {
   if (!val || val.trim() === '') return null;
-  const n = parseInt(val.trim(), 10);
-  return isNaN(n) ? null : n;
+  const n = parseFloat(val.trim());
+  return isNaN(n) ? null : Math.round(n);
 }
 
 export function parseCsv(text: string): { rows: CsvRow[]; errors: ValidationError[] } {
@@ -229,6 +229,6 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
     price: lowestPrice,
     image: '',
     sizePrices: JSON.stringify(sizePricesArr),
-    inStock: true,
+    inStock: row.stock_status?.trim() !== 'out_of_stock',
   };
 }

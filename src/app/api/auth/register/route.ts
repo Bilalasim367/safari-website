@@ -4,16 +4,20 @@ import prisma from '@/lib/turso';
 import { validateRegistration } from '@/lib/validation';
 import { createAccessToken } from '@/lib/auth';
 
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'safari-admin-key';
+const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email, password, confirmPassword, firstName, lastName, phone, adminKey } = body;
 
-    const isAdminRequest = adminKey && adminKey === ADMIN_SECRET_KEY;
-
-    if (isAdminRequest) {
+    if (adminKey) {
+      if (!ADMIN_SECRET_KEY) {
+        return NextResponse.json(
+          { success: false, message: 'Server configuration error' },
+          { status: 500 }
+        );
+      }
       if (adminKey !== ADMIN_SECRET_KEY) {
         return NextResponse.json(
           { success: false, errors: { adminKey: 'Invalid admin key' } },

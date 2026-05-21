@@ -34,13 +34,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const startRefreshTimer = useCallback(() => {
-    clearRefreshTimer();
-    refreshTimerRef.current = setInterval(() => {
-      refreshUser();
-    }, 13 * 60 * 1000);
-  }, [clearRefreshTimer]);
-
   const refreshUser = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/refresh', {
@@ -67,6 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearRefreshTimer();
     }
   }, [clearRefreshTimer]);
+
+  const startRefreshTimer = useCallback(() => {
+    clearRefreshTimer();
+    refreshTimerRef.current = setInterval(() => {
+      refreshUser();
+    }, 13 * 60 * 1000);
+  }, [clearRefreshTimer, refreshUser]);
 
   const logout = useCallback(async () => {
     setLoading(true);

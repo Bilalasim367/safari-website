@@ -1,14 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Product, Category, Order, User, Notification, dashboardStats, recentActivity, categories as initialCategories, orders as initialOrders, users as initialUsers, notifications as initialNotifications } from "@/data/admin/data";
+import { Category, Order, User, Notification, dashboardStats, recentActivity, categories as initialCategories, orders as initialOrders, users as initialUsers, notifications as initialNotifications } from "@/data/admin/data";
 
 interface AdminContextType {
-  products: Product[];
-  addProduct: (product: Product) => void;
-  updateProduct: (id: number, product: Partial<Product>) => void;
-  deleteProduct: (id: number) => void;
-  
   categories: Category[];
   addCategory: (category: Category) => void;
   updateCategory: (id: number, category: Partial<Category>) => void;
@@ -32,23 +27,10 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
-
-  const addProduct = (product: Product) => {
-    setProducts((prev) => [...prev, product]);
-  };
-
-  const updateProduct = (id: number, updates: Partial<Product>) => {
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
-  };
-
-  const deleteProduct = (id: number) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
 
   const addCategory = (category: Category) => {
     setCategories((prev) => [...prev, category]);
@@ -91,10 +73,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   return (
     <AdminContext.Provider
       value={{
-        products,
-        addProduct,
-        updateProduct,
-        deleteProduct,
         categories,
         addCategory,
         updateCategory,

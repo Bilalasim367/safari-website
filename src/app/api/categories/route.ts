@@ -1,5 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
+import { verifyToken } from "@/lib/auth";
+import { cookies } from "next/headers";
+
+async function requireAdmin() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  if (!token) return null;
+  const auth = await verifyToken(token);
+  if (!auth || auth.role !== "admin") return null;
+  return auth;
+}
 
 export async function GET() {
   try {
@@ -26,6 +37,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAdmin();
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     
     const category = await prisma.category.create({

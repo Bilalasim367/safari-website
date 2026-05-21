@@ -118,7 +118,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="pt-20">
+    <div className="pt-16 md:pt-20">
       {/* Hero */}
       <div className="bg-background border-b border-border py-12">
         <div className="container-custom">

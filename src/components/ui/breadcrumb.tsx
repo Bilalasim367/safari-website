@@ -13,6 +13,7 @@ const Breadcrumb = React.forwardRef<
 >(({ ...props }, ref) => (
   <nav ref={ref} aria-label="breadcrumb" {...props} />
 ))
+Breadcrumb.displayName = "Breadcrumb"
 
 const BreadcrumbList = React.forwardRef<
   HTMLOListElement,
@@ -24,6 +25,7 @@ const BreadcrumbList = React.forwardRef<
     {...props}
   />
 ))
+BreadcrumbList.displayName = "BreadcrumbList"
 
 const BreadcrumbItem = React.forwardRef<
   HTMLLIElement,
@@ -35,6 +37,7 @@ const BreadcrumbItem = React.forwardRef<
     {...props}
   />
 ))
+BreadcrumbItem.displayName = "BreadcrumbItem"
 
 const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
@@ -52,6 +55,7 @@ const BreadcrumbLink = React.forwardRef<
     />
   )
 })
+BreadcrumbLink.displayName = "BreadcrumbLink"
 
 const BreadcrumbPage = React.forwardRef<
   HTMLSpanElement,
@@ -66,6 +70,7 @@ const BreadcrumbPage = React.forwardRef<
     {...props}
   />
 ))
+BreadcrumbPage.displayName = "BreadcrumbPage"
 
 const BreadcrumbSeparator = ({
   children,

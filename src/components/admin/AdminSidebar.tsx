@@ -8,7 +8,6 @@ import {
   Package,
   ShoppingBag,
   Users,
-  Layers,
   Settings,
   Gift,
   ExternalLink,

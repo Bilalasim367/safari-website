@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -11,12 +11,11 @@ import { Button } from '@/components/ui/button';
 export default function SignupPage() {
   const router = useRouter();
   const { loginFromResponse } = useAuth();
-  const [redirectTo, setRedirectTo] = useState('/account');
-  
-  useEffect(() => {
+  const [redirectTo] = useState(() => {
+    if (typeof window === 'undefined') return '/account';
     const params = new URLSearchParams(window.location.search);
-    setRedirectTo(params.get('redirect') || '/account');
-  }, []);
+    return params.get('redirect') || '/account';
+  });
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -74,7 +73,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen pt-16 md:pt-20">
       {/* Hero */}
       <div className="bg-background border-b border-border py-12">
         <div className="container-custom">

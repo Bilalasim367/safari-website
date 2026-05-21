@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
+import { verifyToken } from "@/lib/auth";
+import { cookies } from "next/headers";
+
+async function getAuth() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+  if (!token) return null;
+  return verifyToken(token);
+}
 
 export async function GET(
   request: Request,
@@ -28,6 +37,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -75,6 +89,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     await prisma.product.delete({ where: { id } });
 

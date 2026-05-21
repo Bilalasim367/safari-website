@@ -45,8 +45,8 @@ export async function getAdminProducts() {
       },
     });
     return { success: true, products };
-  } catch (e) {
-    return { error: String(e), products: [] };
+  } catch {
+    return { error: 'Failed to fetch products', products: [] };
   }
 }
 
@@ -88,8 +88,8 @@ export async function createProduct(data: {
       },
     });
     return { success: true, product };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to delete bundle' };
   }
 }
 
@@ -100,11 +100,6 @@ export async function updateProduct(id: string, data: Record<string, unknown>) {
   }
   
   try {
-    const cartCount = await prisma.cartItem.count({ where: { productId: id } });
-    if (cartCount > 0) {
-      return { error: `Cannot edit product — it is in ${cartCount} active cart(s). Remove it from all carts before editing.` };
-    }
-
     await prisma.product.update({
       where: { id },
       data: {
@@ -117,8 +112,8 @@ export async function updateProduct(id: string, data: Record<string, unknown>) {
       },
     });
     return { success: true };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to update product' };
   }
 }
 
@@ -131,8 +126,8 @@ export async function deleteProduct(id: string) {
   try {
     await prisma.product.delete({ where: { id } });
     return { success: true };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to delete product' };
   }
 }
 
@@ -148,8 +143,8 @@ export async function updateProductPartial(id: string, data: Record<string, unkn
       data,
     });
     return { success: true };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to update product' };
   }
 }
 
@@ -179,8 +174,8 @@ export async function getAdminBundles() {
       },
     });
     return { success: true, bundles };
-  } catch (e) {
-    return { error: String(e), bundles: [] };
+  } catch {
+    return { error: 'Failed to fetch bundles', bundles: [] };
   }
 }
 
@@ -217,8 +212,8 @@ export async function createBundle(data: {
       },
     });
     return { success: true, bundle };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to create bundle' };
   }
 }
 
@@ -234,8 +229,8 @@ export async function updateBundle(id: string, data: Record<string, unknown>) {
       data,
     });
     return { success: true };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to update bundle' };
   }
 }
 
@@ -248,7 +243,7 @@ export async function deleteBundle(id: string) {
   try {
     await prisma.bundle.delete({ where: { id } });
     return { success: true };
-  } catch (e) {
-    return { error: String(e) };
+  } catch {
+    return { error: 'Failed to delete bundle' };
   }
 }

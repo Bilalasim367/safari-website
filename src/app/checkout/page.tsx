@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
@@ -112,7 +111,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="pt-20 bg-white">
+    <div className="pt-16 md:pt-20 bg-white">
       <div className="bg-background border-b border-border py-12">
         <div className="container-custom">
           <h1 className="text-4xl font-serif text-foreground mb-2">Checkout</h1>
@@ -124,7 +123,7 @@ export default function CheckoutPage() {
 
       <div className="container-custom py-12">
         {/* Steps */}
-        <div className="flex items-center justify-center mb-12">
+          <div className="flex items-center justify-center mb-12">
           {[
             { num: 1, label: "Shipping" },
             { num: 2, label: "Payment" },
@@ -132,7 +131,7 @@ export default function CheckoutPage() {
           ].map((s, i) => (
             <React.Fragment key={s.num}>
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm ${
                   step >= s.num
                     ? "bg-foreground text-background"
                     : "bg-muted text-muted-foreground"
@@ -141,7 +140,7 @@ export default function CheckoutPage() {
                 {step > s.num ? "✓" : s.num}
               </div>
               {i < 2 && (
-                <div className={`w-24 h-0.5 mx-3 ${step > s.num ? "bg-foreground" : "bg-muted"}`} />
+                <div className={`w-12 md:w-24 h-0.5 mx-2 md:mx-3 ${step > s.num ? "bg-foreground" : "bg-muted"}`} />
               )}
             </React.Fragment>
           ))}
@@ -173,7 +172,7 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm text-muted-foreground">First Name</label>
                       <Input
@@ -221,7 +220,7 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm text-muted-foreground">City</label>
                       <Input

@@ -63,17 +63,6 @@ export default function DashboardPage() {
     { label: "Pending", value: pendingOrders.toString(), subtext: "Awaiting action", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "bg-amber-100 text-amber-700";
-      case "processing": return "bg-blue-100 text-blue-700";
-      case "shipped": return "bg-purple-100 text-purple-700";
-      case "delivered": return "bg-green-100 text-green-700";
-      case "cancelled": return "bg-red-100 text-red-700";
-      default: return "bg-gray-100 text-gray-700";
-    }
-  };
-
   const getStatusLabel = (status: string) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
   };

@@ -4,16 +4,11 @@ import React, { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { ArrowLeft, Upload, Download, CheckCircle, AlertCircle, Loader2, FileText } from 'lucide-react';
 
-interface ParseResult {
-  data: Record<string, string>[];
-  errors: Papa.ParseError[];
-  meta: Papa.ParseMeta;
-}
+
 
 interface UploadError {
   row: number;
@@ -61,6 +56,20 @@ export default function BulkUploadPage() {
   const [progress, setProgress] = useState('');
   const [result, setResult] = useState<UploadResult | null>(null);
 
+  const parsePreview = (f: File) => {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const parsed = Papa.parse<Record<string, string>>(text, {
+        header: true,
+        skipEmptyLines: true,
+      });
+      setHeaders(parsed.meta.fields || []);
+      setPreview(parsed.data.slice(0, 5));
+    };
+    reader.readAsText(f);
+  };
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const f = e.dataTransfer.files[0];
@@ -77,20 +86,6 @@ export default function BulkUploadPage() {
       parsePreview(f);
     }
   }, []);
-
-  const parsePreview = (f: File) => {
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const text = evt.target?.result as string;
-      const parsed = Papa.parse<Record<string, string>>(text, {
-        header: true,
-        skipEmptyLines: true,
-      });
-      setHeaders(parsed.meta.fields || []);
-      setPreview(parsed.data.slice(0, 5));
-    };
-    reader.readAsText(f);
-  };
 
   const downloadSample = () => {
     const csvContent = [

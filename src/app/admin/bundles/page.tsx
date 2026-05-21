@@ -64,7 +64,19 @@ export default function BundlesPage() {
   };
 
   React.useEffect(() => {
-    loadBundles();
+    (async () => {
+      setLoading(true);
+      setError("");
+
+      const result = await getAdminBundles();
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setBundles(result.bundles || []);
+      }
+      setLoading(false);
+    })();
   }, []);
 
   const filteredBundles = bundles.filter((bundle) =>
@@ -118,6 +130,7 @@ export default function BundlesPage() {
 
     setUploading(true);
 
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
 

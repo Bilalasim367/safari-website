@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -85,7 +85,22 @@ export default function ProductsPage() {
   };
 
   React.useEffect(() => {
-    loadProducts();
+    (async () => {
+      setLoading(true);
+      setError("");
+
+      const result = await getAdminProducts();
+
+      if (result.error) {
+        setError(result.error);
+        if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
+          window.location.href = '/admin/login';
+        }
+      } else {
+        setProducts(result.products || []);
+      }
+      setLoading(false);
+    })();
   }, []);
 
   const filteredProducts = products.filter((product) => {
@@ -161,6 +176,7 @@ export default function ProductsPage() {
 
     setUploading(true);
 
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
 

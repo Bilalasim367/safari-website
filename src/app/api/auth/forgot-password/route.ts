@@ -33,7 +33,8 @@ export async function POST(request: Request) {
       });
     }
 
-    const resetCodeStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const crypto = await import('crypto');
+    const resetCodeStr = crypto.randomBytes(4).toString('hex').toUpperCase();
     
     await prisma.user.update({
       where: { id: user.id },

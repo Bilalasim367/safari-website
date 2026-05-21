@@ -54,9 +54,36 @@ const SCENT_IMAGES: Record<string, string> = {
 }
 
 interface HomePageProps {
-  bestsellers: any[]
-  newArrivals: any[]
-  bundles: any[]
+  bestsellers: PrismaProduct[]
+  newArrivals: PrismaProduct[]
+  bundles: PrismaBundle[]
+}
+
+interface PrismaProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  originalPrice: number | null;
+  image: string;
+  categorySlug: string | null;
+  size: string;
+  inStock: boolean;
+  isBestseller: boolean;
+  isNew: boolean;
+  rating: number;
+}
+
+interface PrismaBundle {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  originalPrice: number | null;
+  image: string | null;
+  save: string | null;
+  size: string | null;
+  inStock: boolean;
 }
 
 export default function HomePage({ bestsellers, newArrivals, bundles }: HomePageProps) {
@@ -182,7 +209,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
               { name: 'Men', slug: 'men', desc: 'Bold & distinctive', image: COLLECTION_IMAGES.men },
               { name: 'Women', slug: 'women', desc: 'Elegant & enchanting', image: COLLECTION_IMAGES.women },
               { name: 'Unisex', slug: 'unisex', desc: 'For everyone', image: COLLECTION_IMAGES.unisex },
-            ].map((cat, i) => (
+            ].map((cat) => (
               <Link
                 key={cat.name}
                 href={`/shop?category=${cat.slug}`}

@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 
 interface User {
@@ -29,22 +28,24 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch('/api/admin/users');
-      const data = await res.json();
-      if (data.success) {
-        setUsers(data.users);
-      }
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchUsers();
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/users');
+        const data = await res.json();
+        if (!cancelled && data.success) {
+          setUsers(data.users);
+        }
+      } catch {
+        console.error('Error fetching users:', error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, []);
 
   const updateUserStatus = async (id: string, status: string) => {
@@ -61,7 +62,7 @@ export default function UsersPage() {
           setSelectedUser({ ...selectedUser, status });
         }
       }
-    } catch (error) {
+    } catch {
       console.error('Error updating user:', error);
     }
   };

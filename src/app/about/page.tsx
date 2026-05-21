@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export default function AboutPage() {
   return (
-    <div className="pt-20">
+    <div className="pt-16 md:pt-20">
       <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image

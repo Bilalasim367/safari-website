@@ -1,20 +1,12 @@
-'use client'
-import { useState } from 'react'
-import AdminSidebar from '@/components/admin/AdminSidebar'
-import AdminTopbar from '@/components/admin/AdminTopbar'
+import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth'
+import AdminShell from './AdminShell'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  if (!session || session.role !== 'admin') {
+    redirect('/admin/login')
+  }
 
-  return (
-    <div className="flex h-screen w-screen overflow-hidden bg-muted/20">
-      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <AdminTopbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10">
-          {children}
-        </main>
-      </div>
-    </div>
-  )
+  return <AdminShell>{children}</AdminShell>
 }

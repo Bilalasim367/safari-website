@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/turso';
+import { verifyToken } from '@/lib/auth';
+import { cookies } from 'next/headers';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+async function getAuth() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('access_token')?.value;
+  if (!token) return null;
+  const auth = await verifyToken(token);
+  if (!auth || auth.role !== 'admin') return null;
+  return auth;
+}
+
 export async function GET() {
   try {
-    // Simple API key check
-    // In production, use environment variable
-    const apiKey = process.env.ADMIN_API_KEY;
-    
+    const auth = await getAuth();
+    if (!auth) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const products = await prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
       take: 20,
@@ -26,7 +38,6 @@ export async function GET() {
       },
     });
 
-    // Return minimal JSON
     return NextResponse.json({ products }, {
       headers: {
         'Cache-Control': 'no-store',
@@ -35,15 +46,14 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const apiKey = request.headers.get('x-api-key');
-    
-    if (apiKey !== process.env.ADMIN_API_KEY) {
+    const auth = await getAuth();
+    if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -76,15 +86,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, product: { id: product.id, name: product.name } });
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PUT(request: Request) {
   try {
-    const apiKey = request.headers.get('x-api-key');
-    
-    if (apiKey !== process.env.ADMIN_API_KEY) {
+    const auth = await getAuth();
+    if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -111,15 +120,14 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const apiKey = request.headers.get('x-api-key');
-    
-    if (apiKey !== process.env.ADMIN_API_KEY) {
+    const auth = await getAuth();
+    if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -135,6 +143,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

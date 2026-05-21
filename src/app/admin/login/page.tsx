@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -12,17 +12,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [redirectTo, setRedirectTo] = useState('/admin/dashboard');
+  const [redirectTo] = useState(() => {
+    if (typeof window === 'undefined') return '/admin/dashboard';
+    const params = new URLSearchParams(window.location.search);
+    return params.get('redirect') || '/admin/dashboard';
+  });
   const { loginFromResponse } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setRedirectTo(params.get('redirect') || '/admin/dashboard');
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
@@ -79,7 +79,6 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("50ml");
-  const [channel, setChannel] = useState<"physical" | "online">("physical");
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -136,28 +135,16 @@ export default function ProductDetailPage() {
   const csvSizes = useMemo(() => {
     if (!product?.sizesAvailable) return [];
     return product.sizesAvailable.split(',').map((s: string) => s.trim()).filter(Boolean);
-  }, [product?.sizesAvailable]);
+  }, [product]);
+
+  const router = useRouter();
 
   const priceData = useMemo(() => {
     if (!product?.sizePrices) return null;
     return product.sizePrices.find((s) => s.size === selectedSize) || null;
-  }, [selectedSize, product?.sizePrices]);
-
-  const csvPriceData = useMemo(() => {
-    if (!product) return null;
-    const sizeNum = selectedSize.replace('ml', '');
-    const physicalKey = `price${sizeNum}mlPhysical` as keyof Product;
-    const onlineKey = `price${sizeNum}mlOnline` as keyof Product;
-    const physicalPrice = product[physicalKey] as number | undefined;
-    const onlinePrice = product[onlineKey] as number | undefined;
-    return {
-      physical: physicalPrice ?? null,
-      online: onlinePrice ?? null,
-    };
   }, [product, selectedSize]);
 
-  const displayCsvPrice = channel === 'physical' ? csvPriceData?.physical : csvPriceData?.online;
-  const displayPrice = displayCsvPrice ?? priceData?.price ?? product?.price ?? 0;
+  const displayPrice = priceData?.price ?? product?.price ?? 0;
   const displayOriginalPrice = priceData?.originalPrice ?? product?.originalPrice;
   const currencySymbol = product?.currency || 'PKR';
 
@@ -166,7 +153,7 @@ export default function ProductDetailPage() {
       addItem({
         id: product.id,
         name: product.name,
-        price: displayCsvPrice ?? product.price,
+        price: product.price,
         image: product.image,
         size: selectedSize,
         quantity,
@@ -175,12 +162,26 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handleBuyNow = () => {
+    if (product) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        size: selectedSize,
+        quantity,
+      });
+      router.push('/checkout');
+    }
+  };
+
   if (loading) {
     return (
-      <div className="pt-24">
+      <div className="pt-16 md:pt-24">
         <div className="container-custom">
           <div className="animate-pulse">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
               <div className="aspect-[3/4] bg-muted" />
               <div>
                 <div className="h-4 bg-muted w-20 mb-6" />
@@ -198,8 +199,8 @@ export default function ProductDetailPage() {
     return (
       <div className="pt-32 pb-24 text-center">
         <div className="container-custom">
-          <h1 className="text-4xl font-serif text-black mb-4">Product Not Found</h1>
-          <p className="text-gray-500 mb-8">The product you're looking for doesn't exist.</p>
+          <h1 className="text-4xl font-serif text-foreground mb-4">Product Not Found</h1>
+          <p className="text-muted-foreground mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
           <Link href="/shop" className="btn-primary">
             Back to Shop
           </Link>
@@ -220,9 +221,9 @@ export default function ProductDetailPage() {
 
   return (
     <>
-      <div className="pt-20">
+      <div className="pt-16 md:pt-20 pb-16 lg:pb-0">
         <div className="border-b border-border">
-          <div className="max-w-[1280px] mx-auto px-6 py-3">
+          <div className="container-custom py-3">
             <Breadcrumb>
               <BreadcrumbList className="text-xs text-muted-foreground">
                 <BreadcrumbItem>
@@ -246,10 +247,10 @@ export default function ProductDetailPage() {
         </div>
 
         <div>
-          <div className="max-w-[1280px] mx-auto px-6 py-16">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          <div className="container-custom py-8 md:py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 lg:gap-24">
               <div className="space-y-4">
-                <div className="relative bg-muted overflow-hidden rounded-lg border border-border" style={{ minHeight: '400px' }}>
+                <div className="relative bg-muted overflow-hidden rounded-lg border border-border min-h-[300px] lg:min-h-[400px]">
                   {productImages[selectedImage] ? (
                     <img
                       src={productImages[selectedImage]}
@@ -330,7 +331,7 @@ export default function ProductDetailPage() {
 
                 {(csvSizes.length > 0 || product.description) && (
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    {csvSizes.length > 0 && displayCsvPrice === null ? (
+                    {csvSizes.length > 0 && !priceData ? (
                       <span>From {currencySymbol} {Math.min(
                         ...([product.price3mlPhysical, product.price6mlPhysical, product.price12mlPhysical, product.price50mlPhysical]
                           .filter((p): p is number => p !== null))
@@ -358,36 +359,8 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                {csvPriceData && (csvPriceData.physical !== null || csvPriceData.online !== null) && (
-                  <div className="mb-6">
-                    <label className="text-xs tracking-[0.2em] uppercase font-semibold text-foreground mb-3 block">Channel</label>
-                    <div className="flex gap-2">
-                      {csvPriceData.physical !== null && (
-                        <Button
-                          variant={channel === "physical" ? "default" : "outline"}
-                          size="sm"
-                          className="rounded-none"
-                          onClick={() => setChannel("physical")}
-                        >
-                          Physical Store — {currencySymbol} {csvPriceData.physical.toLocaleString()}
-                        </Button>
-                      )}
-                      {csvPriceData.online !== null && (
-                        <Button
-                          variant={channel === "online" ? "default" : "outline"}
-                          size="sm"
-                          className="rounded-none"
-                          onClick={() => setChannel("online")}
-                        >
-                          Online — {currencySymbol} {csvPriceData.online.toLocaleString()}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex gap-3 items-center mb-8">
-                  <div className="flex items-center border border-border rounded-none w-fit">
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mb-8">
+                  <div className="flex items-center justify-center sm:justify-start border border-border rounded-none w-full sm:w-fit">
                     <Button variant="ghost" size="icon" className="rounded-none" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                       <Minus className="h-4 w-4" />
                     </Button>
@@ -396,10 +369,13 @@ export default function ProductDetailPage() {
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
-                  <Button onClick={handleAddToCart} className="flex-1 rounded-none bg-foreground text-background hover:bg-foreground/90 text-sm font-semibold uppercase tracking-wider py-4 px-8">
+                  <Button onClick={handleAddToCart} className="w-full sm:flex-1 rounded-none bg-foreground text-background hover:bg-foreground/90 text-sm font-semibold uppercase tracking-wider py-4 px-8">
                     Add to Cart
                   </Button>
-                  <Button variant="outline" size="icon" className="rounded-none flex-shrink-0" aria-label="Add to wishlist">
+                  <Button onClick={handleBuyNow} className="w-full sm:flex-1 rounded-none bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold uppercase tracking-wider py-4 px-8">
+                    Buy Now
+                  </Button>
+                  <Button variant="outline" size="icon" className="hidden sm:flex rounded-none flex-shrink-0" aria-label="Add to wishlist">
                     <Heart className="h-4 w-4" />
                   </Button>
                 </div>
@@ -461,8 +437,8 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        <section className="py-16 lg:py-24 mt-24 mb-16 bg-muted">
-          <div className="max-w-[1280px] mx-auto px-6">
+        <section className="py-10 lg:py-24 mt-12 lg:mt-24 mb-10 lg:mb-16 bg-muted">
+          <div className="container-custom">
             <h2 className="font-heading text-3xl md:text-4xl text-center mb-12">You May Also Like</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((relProduct) => (
@@ -496,6 +472,41 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </section>
+      </div>
+
+      {/* Mobile sticky Add-to-Cart bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background border-t border-border px-4 py-3 shadow-lg">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex-shrink-0">
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-lg font-bold text-foreground">{currencySymbol} {displayPrice.toLocaleString()}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center border border-input rounded-md">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="w-8 text-center text-sm font-medium text-foreground">{quantity}</span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Increase quantity"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            <Button
+              onClick={handleBuyNow}
+              className="rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold uppercase tracking-wider px-6 h-9"
+            >
+              Buy Now
+            </Button>
+          </div>
+        </div>
       </div>
     </>
   );

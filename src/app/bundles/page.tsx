@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card'
 export const dynamic = 'force-dynamic'
 
 export default async function BundlesPage() {
-  let bundles: any[] = []
+  let bundles: Awaited<ReturnType<typeof prisma.bundle.findMany>> = []
 
   try {
     bundles = await prisma.bundle.findMany({

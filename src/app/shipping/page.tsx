@@ -1,8 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 
 export default function ShippingPage() {
   return (

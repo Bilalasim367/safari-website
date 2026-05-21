@@ -1,6 +1,9 @@
 import prisma from '@/lib/turso';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
+import SortSelect from './SortSelect';
+import MobileFilterDrawer from './MobileFilterDrawer';
+import FILTERS, { FilterSection } from './FilterSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +34,7 @@ interface Product {
   price12mlOnline?: number | null;
   price50mlOnline?: number | null;
   currency?: string;
+  lowestPhysicalPrice?: number | null;
 }
 
 interface SearchParams {
@@ -43,21 +47,16 @@ interface SearchParams {
   sort?: string;
 }
 
-export const revalidate = 60;
-
-const FILTERS = {
-  categories: ['Men', 'Women', 'Unisex'],
-  sizes: ['30ml', '50ml', '100ml'],
-  fragranceFamilies: ['Floral', 'Woody', 'Oriental', 'Fresh'],
-  priceRanges: [
-    { label: 'Under $100', min: 0, max: 100 },
-    { label: '$100 - $150', min: 100, max: 150 },
-    { label: '$150 - $200', min: 150, max: 200 },
-    { label: 'Over $200', min: 200, max: Infinity },
-  ],
-};
-
 const PAGE_SIZE = 12;
+
+function buildParamString(params: SearchParams): string {
+  const sp = new URLSearchParams();
+  for (const [key, val] of Object.entries(params)) {
+    if (val && key !== 'page') sp.set(key, val);
+  }
+  const qs = sp.toString();
+  return qs ? `&${qs}` : '';
+}
 
 export default async function ShopContent({
   searchParams,
@@ -113,8 +112,11 @@ export default async function ShopContent({
       break;
   }
 
+  let products: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
+  let total = 0;
+  
   try {
-    const [products, total] = await Promise.all([
+    const result = await Promise.all([
       prisma.product.findMany({
         where,
         include: { category: true },
@@ -124,62 +126,67 @@ export default async function ShopContent({
       }),
       prisma.product.count({ where }),
     ]);
+    products = result[0];
+    total = result[1];
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
 
-    const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
-    const formattedProducts: Product[] = products.map((p) => {
-      const physicalPrices = [p.price3mlPhysical, p.price6mlPhysical, p.price12mlPhysical, p.price50mlPhysical]
-        .filter((pr): pr is number => pr !== null);
-      const lowestPhysicalPrice = physicalPrices.length > 0 ? Math.min(...physicalPrices) : null;
+  const formattedProducts: Product[] = products.map((p) => {
+    const physicalPrices = [p.price3mlPhysical, p.price6mlPhysical, p.price12mlPhysical, p.price50mlPhysical]
+      .filter((pr): pr is number => pr !== null);
+    const lowestPhysicalPrice = physicalPrices.length > 0 ? Math.min(...physicalPrices) : null;
 
-      return {
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        price: p.price,
-        originalPrice: p.originalPrice ?? undefined,
-        image: p.image || '',
-        category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
-        categorySlug: p.categorySlug ?? undefined,
-        size: p.size || '50ml',
-        isBestseller: p.isBestseller,
-        isNew: p.isNew,
-        rating: p.rating,
-        reviewCount: p.reviewCount,
-        gender: p.gender ?? undefined,
-        season: p.season ?? undefined,
-        impressionOf: p.impressionOf ?? undefined,
-        tags: p.tags ?? undefined,
-        price3mlPhysical: p.price3mlPhysical ?? undefined,
-        price6mlPhysical: p.price6mlPhysical ?? undefined,
-        price12mlPhysical: p.price12mlPhysical ?? undefined,
-        price50mlPhysical: p.price50mlPhysical ?? undefined,
-        price3mlOnline: p.price3mlOnline ?? undefined,
-        price6mlOnline: p.price6mlOnline ?? undefined,
-        price12mlOnline: p.price12mlOnline ?? undefined,
-        price50mlOnline: p.price50mlOnline ?? undefined,
-        currency: p.currency ?? undefined,
-        _lowestPhysicalPrice: lowestPhysicalPrice,
-      } as Product;
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      price: p.price,
+      originalPrice: p.originalPrice ?? undefined,
+      image: p.image || '',
+      category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
+      categorySlug: p.categorySlug ?? undefined,
+      size: p.size || '50ml',
+      isBestseller: p.isBestseller,
+      isNew: p.isNew,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      gender: p.gender ?? undefined,
+      season: p.season ?? undefined,
+      impressionOf: p.impressionOf ?? undefined,
+      tags: p.tags ?? undefined,
+      price3mlPhysical: p.price3mlPhysical ?? undefined,
+      price6mlPhysical: p.price6mlPhysical ?? undefined,
+      price12mlPhysical: p.price12mlPhysical ?? undefined,
+      price50mlPhysical: p.price50mlPhysical ?? undefined,
+      price3mlOnline: p.price3mlOnline ?? undefined,
+      price6mlOnline: p.price6mlOnline ?? undefined,
+      price12mlOnline: p.price12mlOnline ?? undefined,
+      price50mlOnline: p.price50mlOnline ?? undefined,
+      currency: p.currency ?? undefined,
+      lowestPhysicalPrice,
+    } as Product;
+  });
+
+  const selectedCategories = params.category?.split(',').filter(Boolean) || [];
+  const selectedSizes = params.size?.split(',').filter(Boolean) || [];
+  const selectedFamilies = params.fragranceFamily?.split(',').filter(Boolean) || [];
+  const selectedPriceRanges: string[] = [];
+
+  if (params.minPrice || params.maxPrice) {
+    FILTERS.priceRanges.forEach((range) => {
+      const minMatch = params.minPrice === range.min.toString();
+      const maxMatch = params.maxPrice === (range.max === Infinity ? '' : range.max?.toString());
+      if (minMatch && maxMatch) {
+        selectedPriceRanges.push(range.label);
+      }
     });
+  }
 
-    const selectedCategories = params.category?.split(',').filter(Boolean) || [];
-    const selectedSizes = params.size?.split(',').filter(Boolean) || [];
-    const selectedFamilies = params.fragranceFamily?.split(',').filter(Boolean) || [];
-    const selectedPriceRanges: string[] = [];
-
-    if (params.minPrice || params.maxPrice) {
-      FILTERS.priceRanges.forEach((range) => {
-        const minMatch = params.minPrice === range.min.toString();
-        const maxMatch = params.maxPrice === (range.max === Infinity ? '' : range.max?.toString());
-        if (minMatch && maxMatch) {
-          selectedPriceRanges.push(range.label);
-        }
-      });
-    }
-
-    return (
-      <div className="bg-white">
+  return (
+    <div className="bg-white">
         <div className="container-custom py-12 lg:py-16">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
             <aside className="lg:w-72 flex-shrink-0 hidden lg:block">
@@ -201,6 +208,7 @@ export default async function ShopContent({
                   options={FILTERS.categories}
                   selected={selectedCategories}
                   paramKey="category"
+                  currentParams={params}
                 />
 
                 <FilterSection
@@ -208,6 +216,7 @@ export default async function ShopContent({
                   options={FILTERS.sizes}
                   selected={selectedSizes}
                   paramKey="size"
+                  currentParams={params}
                 />
 
                 <FilterSection
@@ -215,6 +224,7 @@ export default async function ShopContent({
                   options={FILTERS.fragranceFamilies}
                   selected={selectedFamilies}
                   paramKey="fragranceFamily"
+                  currentParams={params}
                 />
 
                 <FilterSection
@@ -223,25 +233,56 @@ export default async function ShopContent({
                   selected={selectedPriceRanges}
                   paramKey="price"
                   priceRanges={FILTERS.priceRanges}
+                  currentParams={params}
                 />
               </div>
             </aside>
 
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-border">
-                <p className="text-muted-foreground text-sm">
-                  {total} Product{total !== 1 ? 's' : ''}
-                </p>
-                <select
-                  defaultValue={sort}
-                  className="bg-transparent border border-input text-foreground text-sm px-4 py-2.5 outline-none focus:border-foreground transition-colors cursor-pointer"
-                >
-                  <option value="featured">Sort: Featured</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="newest">Newest</option>
-                  <option value="rating">Top Rated</option>
-                </select>
+                <div className="flex items-center gap-4 w-full sm:w-auto">
+                  <p className="text-muted-foreground text-sm">
+                    {total} Product{total !== 1 ? 's' : ''}
+                  </p>
+                  <div className="lg:hidden ml-auto">
+                    <MobileFilterDrawer
+                      filterCount={
+                        selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length
+                      }
+                    >
+                      <FilterSection
+                        title="Category"
+                        options={FILTERS.categories}
+                        selected={selectedCategories}
+                        paramKey="category"
+                        currentParams={params}
+                      />
+                      <FilterSection
+                        title="Size"
+                        options={FILTERS.sizes}
+                        selected={selectedSizes}
+                        paramKey="size"
+                        currentParams={params}
+                      />
+                      <FilterSection
+                        title="Fragrance Family"
+                        options={FILTERS.fragranceFamilies}
+                        selected={selectedFamilies}
+                        paramKey="fragranceFamily"
+                        currentParams={params}
+                      />
+                      <FilterSection
+                        title="Price"
+                        options={FILTERS.priceRanges.map((r) => r.label)}
+                        selected={selectedPriceRanges}
+                        paramKey="price"
+                        priceRanges={FILTERS.priceRanges}
+                        currentParams={params}
+                      />
+                    </MobileFilterDrawer>
+                  </div>
+                </div>
+                <SortSelect currentSort={sort} />
               </div>
 
               {formattedProducts.length === 0 ? (
@@ -277,7 +318,7 @@ export default async function ShopContent({
                         gender={product.gender}
                         season={product.season}
                         impressionOf={product.impressionOf}
-                        lowestPrice={(product as unknown as Record<string, unknown>)._lowestPhysicalPrice as number | null}
+                        lowestPrice={product.lowestPhysicalPrice ?? undefined}
                         currency={product.currency}
                       />
                     ))}
@@ -286,7 +327,7 @@ export default async function ShopContent({
                     <div className="flex items-center justify-center gap-2 mt-12">
                       {page > 1 && (
                         <Link
-                          href={`/shop?page=${page - 1}${params.category ? `&category=${params.category}` : ''}${params.size ? `&size=${params.size}` : ''}${params.fragranceFamily ? `&fragranceFamily=${params.fragranceFamily}` : ''}${params.sort ? `&sort=${params.sort}` : ''}`}
+                          href={`/shop?page=${page - 1}${buildParamString(params)}`}
                       className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
                     >
                       Previous
@@ -297,7 +338,7 @@ export default async function ShopContent({
                       </span>
                       {page < totalPages && (
                         <Link
-                          href={`/shop?page=${page + 1}${params.category ? `&category=${params.category}` : ''}${params.size ? `&size=${params.size}` : ''}${params.fragranceFamily ? `&fragranceFamily=${params.fragranceFamily}` : ''}${params.sort ? `&sort=${params.sort}` : ''}`}
+                          href={`/shop?page=${page + 1}${buildParamString(params)}`}
                           className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
                         >
                           Next
@@ -312,98 +353,6 @@ export default async function ShopContent({
         </div>
       </div>
     );
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return (
-      <div className="container-custom py-20 text-center">
-        <p className="text-muted-foreground mb-4">Failed to load products. Please try again.</p>
-        <Link href="/shop" className="btn-primary">
-          Try Again
-        </Link>
-      </div>
-    );
-  }
 }
 
-function FilterSection({
-  title,
-  options,
-  selected,
-  paramKey,
-  priceRanges,
-}: {
-  title: string;
-  options: string[];
-  selected: string[];
-  paramKey: string;
-  priceRanges?: { label: string; min: number; max: number }[];
-}) {
-  const buildHref = (option: string, isSelected: boolean) => {
-    let newSelected: string[];
-    
-    if (paramKey === 'price' && priceRanges) {
-      const range = priceRanges.find((r) => r.label === option);
-      const newMin = range?.min ?? '';
-      const newMax = range?.max === Infinity ? '' : range?.max ?? '';
-      return `/shop?minPrice=${newMin}&maxPrice=${newMax}`;
-    }
-    
-    newSelected = isSelected
-      ? selected.filter((s) => s !== option)
-      : [...selected, option];
-    
-    if (newSelected.length === 0) {
-      return '/shop';
-    }
-    
-    return `/shop?${paramKey}=${newSelected.join(',')}`;
-  };
 
-  return (
-    <div className="mb-8">
-                <h3 className="text-foreground text-xs font-bold uppercase tracking-[0.2em] mb-4">{title}</h3>
-      <div className="space-y-3">
-        {options.map((option) => {
-          const isSelected = selected.includes(option);
-          const href = buildHref(option, isSelected);
-
-          return (
-            <Link
-              key={option}
-              href={href}
-                className="flex items-center gap-3 group"
-              >
-                <span
-                  className={`w-4 h-4 border flex items-center justify-center ${
-                    isSelected
-                      ? 'bg-foreground border-foreground'
-                      : 'border-input'
-                  }`}
-                >
-                  {isSelected && (
-                    <svg className="w-3 h-3 text-background" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </span>
-                <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">
-                  {option}
-                </span>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ShopError({ message }: { message: string }) {
-  return (
-    <div className="container-custom py-20 text-center">
-      <p className="text-muted-foreground mb-4">{message}</p>
-      <Link href="/shop" className="btn-primary">
-        Try Again
-      </Link>
-    </div>
-  );
-}

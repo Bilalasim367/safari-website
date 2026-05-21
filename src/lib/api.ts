@@ -60,7 +60,7 @@ export async function fetchSettings() {
   return res.json();
 }
 
-export async function createProduct(data: any) {
+export async function createProduct(data: Record<string, unknown>) {
   const res = await fetch(`${API_URL}/api/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -70,7 +70,7 @@ export async function createProduct(data: any) {
   return res.json();
 }
 
-export async function updateProduct(id: number, data: any) {
+export async function updateProduct(id: number, data: Record<string, unknown>) {
   const res = await fetch(`${API_URL}/api/products/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -88,7 +88,7 @@ export async function deleteProduct(id: number) {
   return res.json();
 }
 
-export async function createCategory(data: any) {
+export async function createCategory(data: Record<string, unknown>) {
   const res = await fetch(`${API_URL}/api/categories`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -118,7 +118,7 @@ export async function updateUserStatus(id: number, status: string) {
   return res.json();
 }
 
-export async function createOrder(data: any) {
+export async function createOrder(data: Record<string, unknown>) {
   const res = await fetch(`${API_URL}/api/orders`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -128,7 +128,7 @@ export async function createOrder(data: any) {
   return res.json();
 }
 
-export async function updateSettings(data: any) {
+export async function updateSettings(data: Record<string, unknown>) {
   const res = await fetch(`${API_URL}/api/settings`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

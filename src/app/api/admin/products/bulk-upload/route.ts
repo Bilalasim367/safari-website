@@ -26,8 +26,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'File must be a .csv' }, { status: 400 });
     }
 
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 });
+    }
+
     const text = await file.text();
     const { rows, errors: parseErrors } = parseCsv(text);
+
+    const maxRows = 1000;
+    if (rows.length > maxRows) {
+      return NextResponse.json({ error: `Too many rows. Maximum is ${maxRows}.` }, { status: 400 });
+    }
 
     if (rows.length === 0) {
       return NextResponse.json({
@@ -49,14 +59,22 @@ export async function POST(request: Request) {
       existing.map((p) => p.productId).filter((id): id is string => id !== null)
     );
 
+    const seenProductIds = new Set<string>();
+    const dedupedRows = rows.filter((row) => {
+      const pid = row.product_id?.trim();
+      if (!pid || seenProductIds.has(pid)) return false;
+      seenProductIds.add(pid);
+      return true;
+    });
+
     let created = 0;
     let updated = 0;
     let skipped = 0;
     const errors: { row: number; product_id: string; reason: string }[] = [...parseErrors];
 
     const batchSize = 50;
-    for (let i = 0; i < rows.length; i += batchSize) {
-      const batch = rows.slice(i, i + batchSize);
+    for (let i = 0; i < dedupedRows.length; i += batchSize) {
+      const batch = dedupedRows.slice(i, i + batchSize);
       const operations = batch.map(async (row) => {
         const transformed = transformRow(row, existingSlugs);
         const isUpdate = existingProductIds.has(transformed.productId);
@@ -118,17 +136,17 @@ export async function POST(request: Request) {
           });
           if (isUpdate) updated++;
           else created++;
-        } catch (e) {
+        } catch {
           skipped++;
           errors.push({
             row: i + batch.indexOf(row) + 2,
             product_id: transformed.productId || `row ${i + batch.indexOf(row) + 2}`,
-            reason: String(e),
+            reason: 'Operation failed',
           });
         }
       });
 
-      await Promise.all(operations);
+      await prisma.$transaction(operations);
     }
 
     return NextResponse.json({
@@ -141,6 +159,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Bulk upload error:', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

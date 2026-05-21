@@ -32,6 +32,7 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [added, setAdded] = useState(false);
+  const [showQuickView, setShowQuickView] = useState(false);
 
   const hasValidImage = image && image.trim() !== '';
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
@@ -65,7 +66,7 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
         className="group relative w-full overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full bg-card rounded-xl border border-border hover:-translate-y-1 hover:shadow-lg"
       >
         {/* Image Area */}
-        <div className="relative overflow-hidden bg-muted aspect-[3/4]">
+        <div className="relative overflow-hidden bg-muted aspect-[3/4]" onClick={() => setShowQuickView(prev => !prev)}>
           {hasValidImage ? (
             <Image
               src={image}
@@ -90,8 +91,10 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             </div>
           )}
 
-          {/* Hover overlay */}
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          {/* Hover overlay - desktop hover + mobile tap */}
+          <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 flex items-center justify-center ${
+            showQuickView ? 'opacity-100' : 'lg:opacity-0 lg:group-hover:opacity-100'
+          }`}>
             <span className="border border-white text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-white hover:text-black transition-colors">
               Quick View
             </span>
@@ -175,10 +178,10 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             {originalPrice && !lowestPrice && (
               <>
                 <span className="text-sm text-muted-foreground line-through">
-                  ${originalPrice.toFixed(2)}
+                  {currency || 'PKR'} {originalPrice.toFixed(2)}
                 </span>
                 <span className="ml-auto bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full">
-                  Save ${(originalPrice - price).toFixed(2)}
+                  Save {(currency || 'PKR') + ' ' + (originalPrice - price).toFixed(2)}
                 </span>
               </>
             )}
@@ -220,8 +223,8 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             )}
           </button>
 
-          {/* Trust signals */}
-          <div className="flex items-center justify-center gap-4 mt-3">
+          {/* Trust signals - hidden on mobile */}
+          <div className="hidden sm:flex items-center justify-center gap-4 mt-3">
             {["Free Returns", "Secure Pay", "Fast Ship"].map((txt) => (
               <span
                 key={txt}

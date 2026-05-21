@@ -46,7 +46,7 @@ export default function CartSidebar() {
               <div className="space-y-6">
                 {items.map((item) => (
                   <div key={`${item.id}-${item.size}`} className="flex gap-4">
-                    <div className="relative w-24 h-28 bg-muted flex-shrink-0">
+                    <div className="relative w-20 h-24 sm:w-24 sm:h-28 bg-muted flex-shrink-0">
                       <Image src={item.image} alt={item.name} fill className="object-cover" />
                     </div>
                     <div className="flex-1 flex flex-col justify-between py-1">
@@ -56,9 +56,9 @@ export default function CartSidebar() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center border border-input">
-                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">−</button>
-                          <span className="w-8 text-center text-foreground">{item.quantity}</span>
-                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">+</button>
+                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">−</button>
+                          <span className="w-9 sm:w-8 text-center text-foreground">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)} className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">+</button>
                         </div>
                         <p className="font-serif text-foreground">${item.price * item.quantity}</p>
                       </div>

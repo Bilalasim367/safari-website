@@ -26,7 +26,7 @@ export default function ReturnsPage() {
             <Card className='p-8 md:p-12 mb-12'>
               <h2 className='text-2xl font-semibold text-foreground mb-6'>Our Return Policy</h2>
               <p className='text-muted-foreground leading-relaxed mb-6'>
-                We want you to be completely satisfied with your purchase. If for any reason you're not happy with your fragrance, 
+                We want you to be completely satisfied with your purchase. If for any reason you&apos;re not happy with your fragrance, 
                 we offer a hassle-free return and exchange policy.
               </p>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>

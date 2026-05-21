@@ -13,7 +13,6 @@ export default function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
   const [demoCode, setDemoCode] = useState('');
 
   const handleSendCode = async (e: React.FormEvent) => {
@@ -31,7 +30,6 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
 
       if (data.success) {
-        setMessage(data.message);
         setDemoCode(data.resetCode || '');
         setStep(2);
       } else {
@@ -82,11 +80,11 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 bg-background">
+    <div className="min-h-screen pt-16 md:pt-20 bg-background">
       <div className="bg-background border-b border-border py-12">
         <div className="container-custom">
           <h1 className="text-4xl font-serif text-foreground mb-2">Reset Password</h1>
-          <p className="text-muted-foreground">We'll help you recover your account</p>
+          <p className="text-muted-foreground">We&apos;ll help you recover your account</p>
         </div>
       </div>
 
@@ -94,7 +92,7 @@ export default function ForgotPasswordPage() {
         <div className="max-w-md mx-auto">
           {step === 1 && (
             <form onSubmit={handleSendCode} className="space-y-6">
-              <p className="text-muted-foreground">Enter your email address and we'll send you a reset code.</p>
+              <p className="text-muted-foreground">Enter your email address and we&apos;ll send you a reset code.</p>
               
               {error && (
                 <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm">

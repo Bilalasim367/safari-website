@@ -21,7 +21,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="pt-20">
+    <div className="pt-16 md:pt-20">
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-b from-background via-card to-background" />
