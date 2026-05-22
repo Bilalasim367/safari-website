@@ -20,7 +20,7 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleClose = () => {
     setQuery('');

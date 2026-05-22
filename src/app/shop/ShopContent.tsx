@@ -1,4 +1,5 @@
 import prisma from '@/lib/turso';
+import { Prisma } from '@prisma/client';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import SortSelect from './SortSelect';
@@ -112,7 +113,7 @@ export default async function ShopContent({
       break;
   }
 
-  let products: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
+  let products: (Prisma.ProductGetPayload<{ include: { category: true } }> & {})[] = [];
   let total = 0;
   
   try {
@@ -126,7 +127,7 @@ export default async function ShopContent({
       }),
       prisma.product.count({ where }),
     ]);
-    products = result[0];
+    products = result[0] as any;
     total = result[1];
   } catch (error) {
     console.error('Error fetching products:', error);

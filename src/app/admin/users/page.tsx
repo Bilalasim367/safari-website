@@ -38,8 +38,8 @@ export default function UsersPage() {
         if (!cancelled && data.success) {
           setUsers(data.users);
         }
-      } catch {
-        console.error('Error fetching users:', error);
+      } catch (err) {
+        console.error('Error fetching users:', err);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -62,8 +62,8 @@ export default function UsersPage() {
           setSelectedUser({ ...selectedUser, status });
         }
       }
-    } catch {
-      console.error('Error updating user:', error);
+    } catch (err) {
+      console.error('Error updating user:', err);
     }
   };
 

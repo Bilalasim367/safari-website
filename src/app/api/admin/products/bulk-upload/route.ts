@@ -146,7 +146,7 @@ export async function POST(request: Request) {
         }
       });
 
-      await prisma.$transaction(operations);
+      await prisma.$transaction(operations as any);
     }
 
     return NextResponse.json({

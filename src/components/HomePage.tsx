@@ -67,11 +67,13 @@ interface PrismaProduct {
   originalPrice: number | null;
   image: string;
   categorySlug: string | null;
+  category?: { name: string } | null;
   size: string;
   inStock: boolean;
   isBestseller: boolean;
   isNew: boolean;
   rating: number;
+  reviewCount: number;
 }
 
 interface PrismaBundle {
@@ -84,6 +86,7 @@ interface PrismaBundle {
   save: string | null;
   size: string | null;
   inStock: boolean;
+  description?: string | null;
 }
 
 export default function HomePage({ bestsellers, newArrivals, bundles }: HomePageProps) {

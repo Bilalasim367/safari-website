@@ -64,8 +64,8 @@ export default function OrdersPage() {
         if (data.orders) {
           setOrders(data.orders);
         }
-      } catch {
-        console.error("Error fetching orders:", error);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
       } finally {
         setLoading(false);
       }
@@ -102,8 +102,8 @@ export default function OrdersPage() {
           setSelectedOrder({ ...selectedOrder, ...updatedOrder });
         }
       }
-    } catch {
-      console.error('Error updating order:', error);
+    } catch (err) {
+      console.error('Error updating order:', err);
     }
   };
 
