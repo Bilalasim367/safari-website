@@ -7,10 +7,16 @@ declare global {
 }
 
 const createPrismaClient = () => {
-  const libsqlClient = createClient({
-    url: process.env.TURSO_DATABASE_URL!,
-    authToken: process.env.TURSO_AUTH_TOKEN!,
-  });
+  const url = process.env.TURSO_DATABASE_URL
+  const authToken = process.env.TURSO_AUTH_TOKEN
+
+  if (!url || !authToken) {
+    throw new Error(
+      'Missing Turso database credentials. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN environment variables.'
+    )
+  }
+
+  const libsqlClient = createClient({ url, authToken })
 
   const adapter = new PrismaLibSQL(libsqlClient);
 
