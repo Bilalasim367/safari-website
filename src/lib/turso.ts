@@ -3,7 +3,7 @@ import { PrismaLibSQL } from '@prisma/adapter-libsql';
 import { createClient } from '@libsql/client';
 
 declare global {
-  var prisma: ReturnType<typeof createPrismaClient> | undefined;
+  var __prisma: PrismaClient | undefined;
 }
 
 const createPrismaClient = () => {
@@ -22,10 +22,17 @@ const createPrismaClient = () => {
   return client;
 };
 
-export const prisma = globalThis.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma;
+function getPrisma() {
+  if (!globalThis.__prisma) {
+    globalThis.__prisma = createPrismaClient();
+  }
+  return globalThis.__prisma;
 }
+
+const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    return getPrisma()[prop as keyof PrismaClient];
+  },
+});
 
 export default prisma;
