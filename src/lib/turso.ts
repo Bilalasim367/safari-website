@@ -31,7 +31,12 @@ function getPrisma() {
 
 const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop) {
-    return getPrisma()[prop as keyof PrismaClient];
+    const client = getPrisma();
+    const value = client[prop as keyof PrismaClient];
+    if (typeof value === 'function') {
+      return value.bind(client);
+    }
+    return value;
   },
 });
 
