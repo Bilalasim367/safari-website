@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaLibSQL } from '@prisma/adapter-libsql'
 import { createClient } from '@libsql/client'
 import { products } from '../src/data/products'
+import { classifyProductType } from '../src/lib/product-types'
 
 const libsql = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -45,6 +46,9 @@ async function main() {
 
   // Create products
   for (const p of products) {
+    const sizeList = (p.sizePrices || []).map((sp) => sp.size).join(',')
+    const type = sizeList ? classifyProductType({ sizesAvailable: sizeList }) : 'perfume'
+
     await prisma.product.upsert({
       where: { slug: p.slug },
       update: {},
@@ -59,6 +63,7 @@ async function main() {
         categorySlug: p.category.toLowerCase(),
         size: p.size,
         sizePrices: JSON.stringify(p.sizePrices || []),
+        sizesAvailable: sizeList,
         fragranceFamily: p.fragranceFamily,
         rating: p.rating,
         reviewCount: p.reviews,
@@ -68,6 +73,7 @@ async function main() {
         inStock: p.inStock,
         isBestseller: p.isBestseller,
         isNew: p.isNew,
+        type,
       },
     })
   }

@@ -57,6 +57,17 @@ model Product {
   longDescription  String?
   tags             String?
   sizesAvailable   String    @default("3ml,6ml,12ml,50ml")
+
+  // Perfume-specific attributes
+  concentration    String?   // EDP, EDT, Parfum, Extrait
+  bottleStyle      String?   // Spray, Atomizer, Splash, Decant
+  longevity        String?   // Very Long, Long, Moderate, Light
+  sillage          String?   // Heavy, Moderate, Soft, Intimate
+
+  // Attar-specific attributes
+  applicatorType   String?   // roll-on, stick, premium-box
+  origin           String?   // Sourcing region e.g. Assam, India
+  ingredients      String?   // Ingredient list
   price3mlPhysical Int?
   price6mlPhysical Int?
   price12mlPhysical Int?
@@ -226,13 +237,26 @@ model Notification {
   createdAt DateTime @default(now())
 }
 
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  customerName  String
+  rating    Int
+  text      String
+  date      DateTime @default(now())
+  isApproved Boolean @default(true)
+
+  @@index([productId])
+  @@index([isApproved])
+}
+
 model Settings {
   id                   String   @id @default(cuid())
   storeName            String   @default("My Store")
   storeEmail           String?
   storePhone          String?
   storeAddress        String?
-  currency            String   @default("USD")
+  currency            String   @default("PKR")
   timezone            String   @default("America/New_York")
   taxRate             Float    @default(0)
   shippingFee         Float    @default(0)

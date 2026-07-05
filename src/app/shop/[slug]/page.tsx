@@ -56,6 +56,14 @@ interface Product {
   metaTitle?: string;
   metaDescription?: string;
   stockStatus?: string;
+  type?: string;
+  concentration?: string;
+  bottleStyle?: string;
+  longevity?: string;
+  sillage?: string;
+  applicatorType?: string;
+  origin?: string;
+  ingredients?: string;
 }
 
 function renderLongDescription(text: string): React.ReactNode[] {
@@ -136,6 +144,13 @@ export default function ProductDetailPage() {
     if (!product?.sizesAvailable) return [];
     return product.sizesAvailable.split(',').map((s: string) => s.trim()).filter(Boolean);
   }, [product]);
+
+  const isPerfume = useMemo(() => {
+    if (!product) return false;
+    if (product.type === 'Perfume') return true;
+    const sizes = csvSizes;
+    return sizes.some(s => ['30ml', '50ml', '100ml'].includes(s.toLowerCase()));
+  }, [product, csvSizes]);
 
   const router = useRouter();
 
@@ -309,9 +324,11 @@ export default function ProductDetailPage() {
                   </p>
                 )}
 
-                <div className="flex items-center gap-1 mb-6">
-                  <Rating rating={product.rating} reviews={product.reviews} />
-                </div>
+                {product.reviews > 0 && (
+                  <div className="flex items-center gap-1 mb-6">
+                    <Rating rating={product.rating} reviews={product.reviews} />
+                  </div>
+                )}
 
                 <div className="flex items-baseline gap-3 mb-6">
                   <span className="text-4xl font-bold text-foreground tracking-tight">
@@ -405,25 +422,85 @@ export default function ProductDetailPage() {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="notes">
-                    <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Fragrance Notes</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Top Notes</h4>
-                          <p className="text-muted-foreground">{product.notesTop?.join(" • ") || "N/A"}</p>
+                  {product.notesTop?.length > 0 || product.notesHeart?.length > 0 || product.notesBase?.length > 0 ? (
+                    <AccordionItem value="notes">
+                      <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Fragrance Notes</AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-4">
+                          {product.notesTop?.length > 0 && (
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Top Notes</h4>
+                              <p className="text-muted-foreground">{product.notesTop.join(" • ")}</p>
+                            </div>
+                          )}
+                          {product.notesHeart?.length > 0 && (
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Heart Notes</h4>
+                              <p className="text-muted-foreground">{product.notesHeart.join(" • ")}</p>
+                            </div>
+                          )}
+                          {product.notesBase?.length > 0 && (
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Base Notes</h4>
+                              <p className="text-muted-foreground">{product.notesBase.join(" • ")}</p>
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Heart Notes</h4>
-                          <p className="text-muted-foreground">{product.notesHeart?.join(" • ") || "N/A"}</p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ) : null}
+
+                  {(product.concentration || product.bottleStyle || product.longevity || product.sillage || product.applicatorType || product.origin || product.ingredients) ? (
+                    <AccordionItem value="details">
+                      <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Product Details</AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-3">
+                          {isPerfume && product.concentration && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Concentration</span>
+                              <span className="text-sm font-medium text-foreground">{product.concentration}</span>
+                            </div>
+                          )}
+                          {isPerfume && product.bottleStyle && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Bottle Type</span>
+                              <span className="text-sm font-medium text-foreground text-capitalize">{product.bottleStyle}</span>
+                            </div>
+                          )}
+                          {isPerfume && product.longevity && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Longevity</span>
+                              <span className="text-sm font-medium text-foreground">{product.longevity}</span>
+                            </div>
+                          )}
+                          {isPerfume && product.sillage && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Sillage</span>
+                              <span className="text-sm font-medium text-foreground">{product.sillage}</span>
+                            </div>
+                          )}
+                          {!isPerfume && product.applicatorType && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Applicator</span>
+                              <span className="text-sm font-medium text-foreground text-capitalize">{product.applicatorType.replace('-', ' ')}</span>
+                            </div>
+                          )}
+                          {!isPerfume && product.origin && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Origin</span>
+                              <span className="text-sm font-medium text-foreground">{product.origin}</span>
+                            </div>
+                          )}
+                          {!isPerfume && product.ingredients && (
+                            <div className="flex justify-between py-1.5 border-b border-border/50">
+                              <span className="text-sm text-muted-foreground">Ingredients</span>
+                              <span className="text-sm font-medium text-foreground">{product.ingredients}</span>
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Base Notes</h4>
-                          <p className="text-muted-foreground">{product.notesBase?.join(" • ") || "N/A"}</p>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ) : null}
 
                   <AccordionItem value="shipping">
                     <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Shipping & Returns</AccordionTrigger>
@@ -449,6 +526,7 @@ export default function ProductDetailPage() {
                   slug={relProduct.slug}
                   price={relProduct.price}
                   image={relProduct.image}
+                  images={relProduct.images}
                   category={relProduct.category?.name || "Unisex"}
                   isNew={relProduct.isNew}
                   isBestseller={relProduct.isBestseller}

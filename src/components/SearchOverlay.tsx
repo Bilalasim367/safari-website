@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 
 interface SearchResult {
   id: string;
@@ -75,12 +74,10 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
             className="flex-1 text-lg border-0 focus-visible:ring-0"
             autoFocus
           />
-          <DialogClose>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </Button>
+          <DialogClose className="inline-flex items-center justify-center rounded-lg size-8 text-muted-foreground hover:text-foreground transition-all outline-none select-none">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </DialogClose>
         </div>
 
@@ -121,7 +118,7 @@ export default function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; on
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{product.categorySlug}</p>
                     <h3 className="text-foreground font-medium">{product.name}</h3>
-                    <p className="text-muted-foreground mt-1">${product.price}</p>
+                    <p className="text-muted-foreground mt-1">PKR {product.price}</p>
                   </div>
                 </Link>
               ))}

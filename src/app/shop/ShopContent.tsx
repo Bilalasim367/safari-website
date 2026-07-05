@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import SortSelect from './SortSelect';
 import MobileFilterDrawer from './MobileFilterDrawer';
 import FILTERS, { FilterSection } from './FilterSection';
+import { classifyProductType, type ProductType } from '@/lib/product-types';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,7 @@ interface Product {
   price: number;
   originalPrice?: number | null;
   image: string;
+  images?: string[];
   category: { name: string; slug: string } | null;
   categorySlug?: string | null;
   size: string;
@@ -36,6 +38,7 @@ interface Product {
   price50mlOnline?: number | null;
   currency?: string;
   lowestPhysicalPrice?: number | null;
+  type: ProductType;
 }
 
 interface SearchParams {
@@ -46,6 +49,7 @@ interface SearchParams {
   maxPrice?: string;
   page?: string;
   sort?: string;
+  type?: string;
 }
 
 const PAGE_SIZE = 12;
@@ -72,11 +76,13 @@ export default async function ShopContent({
     maxPrice: searchParams.maxPrice as string,
     page: searchParams.page as string,
     sort: searchParams.sort as string,
+    type: Array.isArray(searchParams.type) ? searchParams.type.join(',') : searchParams.type,
   };
   
   const page = parseInt(params.page || '1');
   const skip = (page - 1) * PAGE_SIZE;
   const sort = params.sort || 'featured';
+  const typeFilter = params.type as ProductType | undefined;
 
   const where: Record<string, unknown> = {};
 
@@ -113,29 +119,12 @@ export default async function ShopContent({
       break;
   }
 
-  let products: (Prisma.ProductGetPayload<{ include: { category: true } }> & {})[] = [];
-  let total = 0;
-  
-  try {
-    const result = await Promise.all([
-      prisma.product.findMany({
-        where,
-        include: { category: true },
-        orderBy,
-        skip,
-        take: PAGE_SIZE,
-      }),
-      prisma.product.count({ where }),
-    ]);
-    products = result[0] as any;
-    total = result[1];
-  } catch (error) {
-    console.error('Error fetching products:', error);
+  function parseJsonArray(val: string | null): string[] {
+    if (!val) return [];
+    try { return JSON.parse(val); } catch { return []; }
   }
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-
-  const formattedProducts: Product[] = products.map((p) => {
+  function mapToFormattedProduct(p: Prisma.ProductGetPayload<{ include: { category: true } }>): Product {
     const physicalPrices = [p.price3mlPhysical, p.price6mlPhysical, p.price12mlPhysical, p.price50mlPhysical]
       .filter((pr): pr is number => pr !== null);
     const lowestPhysicalPrice = physicalPrices.length > 0 ? Math.min(...physicalPrices) : null;
@@ -147,6 +136,7 @@ export default async function ShopContent({
       price: p.price,
       originalPrice: p.originalPrice ?? undefined,
       image: p.image || '',
+      images: parseJsonArray(p.images),
       category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
       categorySlug: p.categorySlug ?? undefined,
       size: p.size || '50ml',
@@ -168,13 +158,49 @@ export default async function ShopContent({
       price50mlOnline: p.price50mlOnline ?? undefined,
       currency: p.currency ?? undefined,
       lowestPhysicalPrice,
+      type: classifyProductType(p),
     } as Product;
-  });
+  }
+
+  let formattedProducts: Product[] = [];
+  let total = 0;
+
+  try {
+    if (typeFilter) {
+      const allProducts = await prisma.product.findMany({
+        where,
+        include: { category: true },
+        orderBy,
+      });
+      const allFormatted = allProducts.map((p) => mapToFormattedProduct(p as Prisma.ProductGetPayload<{ include: { category: true } }>));
+      const filtered = allFormatted.filter((p) => p.type === typeFilter);
+      total = filtered.length;
+      formattedProducts = filtered.slice(skip, skip + PAGE_SIZE);
+    } else {
+      const [products, count] = await Promise.all([
+        prisma.product.findMany({
+          where,
+          include: { category: true },
+          orderBy,
+          skip,
+          take: PAGE_SIZE,
+        }),
+        prisma.product.count({ where }),
+      ]);
+      total = count;
+      formattedProducts = (products as Prisma.ProductGetPayload<{ include: { category: true } }>[]).map((p) => mapToFormattedProduct(p));
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const selectedCategories = params.category?.split(',').filter(Boolean) || [];
   const selectedSizes = params.size?.split(',').filter(Boolean) || [];
   const selectedFamilies = params.fragranceFamily?.split(',').filter(Boolean) || [];
   const selectedPriceRanges: string[] = [];
+  const selectedTypes = params.type ? [params.type] : [];
 
   if (params.minPrice || params.maxPrice) {
     FILTERS.priceRanges.forEach((range) => {
@@ -194,7 +220,7 @@ export default async function ShopContent({
               <div className="sticky top-24">
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
                   <h2 className="text-lg font-semibold text-foreground uppercase tracking-wider">Filters</h2>
-                  {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length) > 0 && (
+                  {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
                     <Link
                       href="/shop"
                       className="text-black text-sm hover:underline underline-offset-2 transition-all"
@@ -236,6 +262,14 @@ export default async function ShopContent({
                   priceRanges={FILTERS.priceRanges}
                   currentParams={params}
                 />
+
+                <FilterSection
+                  title="Product Type"
+                  options={FILTERS.productTypes}
+                  selected={selectedTypes}
+                  paramKey="type"
+                  currentParams={params}
+                />
               </div>
             </aside>
 
@@ -248,7 +282,7 @@ export default async function ShopContent({
                   <div className="lg:hidden ml-auto">
                     <MobileFilterDrawer
                       filterCount={
-                        selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length
+                        selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length + selectedTypes.length
                       }
                     >
                       <FilterSection
@@ -278,6 +312,13 @@ export default async function ShopContent({
                         selected={selectedPriceRanges}
                         paramKey="price"
                         priceRanges={FILTERS.priceRanges}
+                        currentParams={params}
+                      />
+                      <FilterSection
+                        title="Product Type"
+                        options={FILTERS.productTypes}
+                        selected={selectedTypes}
+                        paramKey="type"
                         currentParams={params}
                       />
                     </MobileFilterDrawer>
@@ -310,6 +351,7 @@ export default async function ShopContent({
                         price={product.price}
                         originalPrice={product.originalPrice ?? undefined}
                         image={product.image}
+                        images={product.images}
                         category={product.category?.name || 'Unisex'}
                         isNew={product.isNew}
                         isBestseller={product.isBestseller}

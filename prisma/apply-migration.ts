@@ -87,6 +87,15 @@ async function main() {
     `ALTER TABLE "Product" ADD COLUMN "imageFolder" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "metaTitle" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "metaDescription" TEXT;`,
+    // Perfume-specific attributes (Step 1 - admin/PDP sync)
+    `ALTER TABLE "Product" ADD COLUMN "concentration" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "bottleStyle" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "longevity" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "sillage" TEXT;`,
+    // Attar-specific attributes
+    `ALTER TABLE "Product" ADD COLUMN "applicatorType" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "origin" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "ingredients" TEXT;`,
   ]
   for (const colSql of bulkColumns) {
     try { await turso.execute(colSql) } catch { /* column exists */ }

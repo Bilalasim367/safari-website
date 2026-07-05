@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart } from "lucide-react";
+import { Heart, Eye } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { Rating } from "@/components/Rating";
+import QuickViewModal from "@/components/QuickViewModal";
 
 interface ProductCardProps {
   id: string;
@@ -15,6 +16,7 @@ interface ProductCardProps {
   price: number;
   originalPrice?: number;
   image: string;
+  images?: string[];
   category: string;
   isNew?: boolean;
   isBestseller?: boolean;
@@ -28,7 +30,7 @@ interface ProductCardProps {
   currency?: string;
 }
 
-export default function ProductCard({ id, name, slug, price, originalPrice, image, category, isNew, isBestseller, size, rating, reviewCount, gender, season, impressionOf, lowestPrice, currency }: ProductCardProps) {
+export default function ProductCard({ id, name, slug, price, originalPrice, image, images, category, isNew, isBestseller, size, rating, reviewCount, gender, season, impressionOf, lowestPrice, currency }: ProductCardProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [added, setAdded] = useState(false);
@@ -60,21 +62,38 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
     toggleWishlist(id);
   };
 
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowQuickView(true);
+  };
+
   return (
     <Link href={`/shop/${slug}`} className="h-full">
       <div
         className="group relative w-full overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full bg-card rounded-xl border border-border hover:-translate-y-1 hover:shadow-lg"
       >
         {/* Image Area */}
-        <div className="relative overflow-hidden bg-muted aspect-[3/4]" onClick={() => setShowQuickView(prev => !prev)}>
+        <div className="relative overflow-hidden bg-muted aspect-[3/4]">
           {hasValidImage ? (
-            <Image
-              src={image}
-              alt={name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
+            <>
+              <Image
+                src={image}
+                alt={name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+              {images && images.length > 1 && (
+                <Image
+                  src={images[1]}
+                  alt={name}
+                  fill
+                  className="object-cover transition-opacity duration-300 opacity-0 lg:group-hover:opacity-100"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+              )}
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <svg
@@ -91,16 +110,7 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             </div>
           )}
 
-          {/* Hover overlay - desktop hover + mobile tap */}
-          <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 flex items-center justify-center ${
-            showQuickView ? 'opacity-100' : 'lg:opacity-0 lg:group-hover:opacity-100'
-          }`}>
-            <span className="border border-white text-white text-sm font-medium px-6 py-2.5 rounded-lg hover:bg-white hover:text-black transition-colors">
-              Quick View
-            </span>
-          </div>
-
-          {/* Discount badge */}
+          {/* Discount badge - top left */}
           {discount > 0 && (
             <span className="absolute top-3 left-3 flex items-center gap-1 bg-foreground text-background text-xs font-medium px-2 py-1 rounded-full z-10">
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-primary">
@@ -112,22 +122,48 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
 
           {/* Category badge */}
           {badge && (
-            <span className="absolute top-3 right-12 bg-secondary text-secondary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm z-10">
+            <span className="absolute bottom-3 left-3 bg-secondary text-secondary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm z-10">
               {badge}
             </span>
           )}
 
-          {/* Wishlist button */}
-          <button
-            onClick={handleWishlist}
-            aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors z-10"
-          >
-            <Heart
-              className={`w-4 h-4 ${wishlisted ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
-            />
-          </button>
+          {/* Icon buttons - stacked top right */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+            <button
+              onClick={handleQuickView}
+              aria-label="Quick view"
+              className="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+            >
+              <Eye className="w-5 h-5 md:w-4 md:h-4 text-muted-foreground" />
+            </button>
+            <button
+              onClick={handleWishlist}
+              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              className="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
+            >
+              <Heart
+                className={`w-5 h-5 md:w-4 md:h-4 ${wishlisted ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
+              />
+            </button>
+          </div>
         </div>
+
+        {showQuickView && (
+          <QuickViewModal
+            id={id}
+            name={name}
+            slug={slug}
+            price={price}
+            originalPrice={originalPrice}
+            image={image}
+            images={images}
+            category={category}
+            size={size}
+            rating={rating}
+            reviewCount={reviewCount}
+            onClose={() => setShowQuickView(false)}
+          />
+        )}
 
         <div className="flex-1 px-5 pb-3 pt-4">
           {/* Category + Gender badge + Season chip */}

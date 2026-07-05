@@ -276,7 +276,9 @@ export const testimonials = [
     location: "Dubai, UAE",
     rating: 5,
     text: "Safari Midnight has become my signature scent. The quality is exceptional and the packaging is absolutely luxurious. I've received countless compliments.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
+    product: "Safari Midnight",
+    productSlug: "safari-midnight",
+    date: "2024-12-15"
   },
   {
     id: 2,
@@ -284,7 +286,9 @@ export const testimonials = [
     location: "Singapore",
     rating: 5,
     text: "As someone who appreciates fine fragrances, Safari Oud exceeded all my expectations. The depth and longevity are remarkable. Truly a masterpiece.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+    product: "Safari Oud",
+    productSlug: "safari-oud",
+    date: "2024-11-28"
   },
   {
     id: 3,
@@ -292,7 +296,39 @@ export const testimonials = [
     location: "London, UK",
     rating: 5,
     text: "The Rose collection is breathtaking. Each scent tells a story and the attention to detail is evident in every bottle. Safari has earned a lifelong customer.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
+    product: "Safari Rose",
+    productSlug: "safari-rose",
+    date: "2024-10-10"
+  },
+  {
+    id: 4,
+    name: "Usman Khan",
+    location: "Karachi, Pakistan",
+    rating: 4,
+    text: "Safari Noir is absolutely amazing! The longevity is incredible and I get compliments everywhere I go. Highly recommend for evening wear.",
+    product: "Safari Noir",
+    productSlug: "safari-noir",
+    date: "2024-09-05"
+  },
+  {
+    id: 5,
+    name: "Fatima Ahmed",
+    location: "Lahore, Pakistan",
+    rating: 5,
+    text: "The Safari Bloom is my go-to daily fragrance. It's fresh, elegant, and lasts all day. Truly impressed with the quality and presentation.",
+    product: "Safari Bloom",
+    productSlug: "safari-bloom",
+    date: "2024-08-22"
+  },
+  {
+    id: 6,
+    name: "Ali Raza",
+    location: "Islamabad, Pakistan",
+    rating: 5,
+    text: "Ordered Safari Oud and it exceeded my expectations. The packaging was beautiful and the fragrance is world-class. Will definitely order again.",
+    product: "Safari Oud",
+    productSlug: "safari-oud",
+    date: "2024-07-14"
   }
 ];
 
@@ -301,9 +337,9 @@ export const filters = {
   sizes: ["30ml", "50ml", "100ml"],
   fragranceFamilies: ["Floral", "Woody", "Oriental", "Fresh"],
   priceRanges: [
-    { label: "Under $100", min: 0, max: 100 },
-    { label: "$100 - $150", min: 100, max: 150 },
-    { label: "$150 - $200", min: 150, max: 200 },
-    { label: "Over $200", min: 200, max: Infinity }
+    { label: "Under PKR 5,000", min: 0, max: 5000 },
+    { label: "PKR 5,000 - PKR 15,000", min: 5000, max: 15000 },
+    { label: "PKR 15,000 - PKR 25,000", min: 15000, max: 25000 },
+    { label: "Over PKR 25,000", min: 25000, max: Infinity }
   ]
 };

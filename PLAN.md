@@ -1,30 +1,36 @@
-# Implementation Plan — Safari Perfumes
+# Plan: Convert Admin Product Modal → Full-Page Editor
 
-## Part A: Reduce Homepage Section Padding
+## Current State
+- Admin products (`/admin/products`) has an inline shadcn `Dialog` modal for add/edit
+- The modal only exposes ~10 fields: name, slug, price, image, category, size, sizePrices, inStock, isBestseller, isNew
+- The **Prisma schema** has 40+ fields, and the **product detail page** (`/shop/[slug]`) displays many that aren't editable
 
-**File:** `src/components/HomePage.tsx`
+## Goal
+Replace the modal with **dedicated full-page routes** for creation and editing, exposing **every field** from the Prisma `Product` model.
 
-Reduce excessive vertical spacing between homepage sections. Standardize padding and remove redundant inline style overrides.
+## New Files to Create
+| File | Purpose |
+|------|---------|
+| `src/components/admin/ProductForm.tsx` | Shared form component with **7 tabs** |
+| `src/app/admin/products/new/page.tsx` | Create page — renders `<ProductForm mode="create" />` |
+| `src/app/admin/products/[id]/edit/page.tsx` | Edit page — fetches product, renders `<ProductForm mode="edit" />` |
 
-All sections currently use `py-16 md:py-24` (64px/96px) or `py-24` (96px) with inline overrides up to 120px.
+## Files to Modify
+| File | Changes |
+|------|---------|
+| `src/app/admin/actions.ts` | Add `getProductById(id)`, expand `createProduct` & `updateProduct` to accept all 40+ fields |
+| `src/app/admin/products/page.tsx` | Remove Dialog (~200 lines), link to new pages, keep table/filters/delete/toggle |
 
-**Changes:** Reduce to `py-10 md:py-14` (40px/56px) for most sections, remove all inline override styles that double-up padding.
+## 7 Tabs in `ProductForm.tsx`
 
-## Part B: Enhance Bundle Detail Page
+1. **Basic Info** — name, auto-slug from name, productId, categorySlug, gender, type, season, bestTime, impressionOf
+2. **Pricing & Sizes** — price, originalPrice, currency, sizePrices grid (30/50/100ml with price & originalPrice), sizesAvailable (CSV), 3ml/6ml/12ml/50ml physical & online prices, oilPricePer100g, supplier
+3. **Media** — main image upload with preview, gallery images (multi-upload, drag-to-reorder, remove), imageFolder
+4. **Description** — description (short), longDescription (rich text with **bold** support), tags (CSV)
+5. **Fragrance Notes** — notesTop, notesHeart, notesBase (each as tag/chip input)
+6. **Status & Flags** — isActive, isFeatured, isNew, isBestseller, inStock, stockStatus, rating, reviewCount
+7. **SEO** — metaTitle, metaDescription
 
-### B1. Seed Data (`prisma/seed.ts`)
-- Add image URLs to bundle records
-- Add BundleItem records linking Travel Essentials to 4 products
-
-### B2. Enhanced `[slug]/page.tsx`
-- Breadcrumb nav
-- Hero with gradient + save badge + pricing
-- Features grid (auto-generated from bundle properties)
-- "What's Inside" product cards
-- Value breakdown showing savings
-- Add to Cart CTA with trust signals
-- Related bundles section
-
----
-
-For full details see `.opencode/plans/bundle-page-enhancements.md`
+## Data Flow
+- **Create**: `ProductForm` collects all data → calls `createProduct(payload)` server action → redirects to `/admin/products`
+- **Edit**: Page calls `getProductById(id)` on mount → populates `ProductForm` → calls `updateProduct(id, payload)` on submit

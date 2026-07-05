@@ -36,16 +36,8 @@ export default function Testimonials() {
               <p className="text-muted-foreground mb-8 leading-relaxed font-light">&ldquo;{testimonial.text}&rdquo;</p>
               <Separator className="mb-6" />
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                  {testimonial.image ? (
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-lg font-medium text-muted-foreground">{testimonial.name.charAt(0)}</span>
-                  )}
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <span className="text-xs font-bold text-muted-foreground">{testimonial.name.charAt(0)}</span>
                 </div>
                 <div>
                   <h4 className="text-foreground font-medium">{testimonial.name}</h4>

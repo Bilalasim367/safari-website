@@ -4,12 +4,14 @@ import React from 'react'
 import Link from 'next/link'
 import HeroSlider from '@/components/HeroSlider'
 import ProductCard from '@/components/ProductCard'
+import ProductCarousel from '@/components/ProductCarousel'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Rating } from '@/components/Rating'
 import { testimonials } from '@/data/products'
+import type { ProductType } from '@/lib/product-types'
 
 const HERO_BANNERS = [
   '/banner1.png',
@@ -57,6 +59,7 @@ interface HomePageProps {
   bestsellers: PrismaProduct[]
   newArrivals: PrismaProduct[]
   bundles: PrismaBundle[]
+  allProducts: PrismaProduct[]
 }
 
 interface PrismaProduct {
@@ -66,6 +69,7 @@ interface PrismaProduct {
   price: number;
   originalPrice: number | null;
   image: string;
+  images: string[];
   categorySlug: string | null;
   category?: { name: string } | null;
   size: string;
@@ -74,6 +78,9 @@ interface PrismaProduct {
   isNew: boolean;
   rating: number;
   reviewCount: number;
+  gender?: string | null;
+  fragranceFamily?: string | null;
+  type: ProductType;
 }
 
 interface PrismaBundle {
@@ -89,7 +96,66 @@ interface PrismaBundle {
   description?: string | null;
 }
 
-export default function HomePage({ bestsellers, newArrivals, bundles }: HomePageProps) {
+const TABS = [
+  { label: 'All', filter: null },
+  { label: 'Men', filter: 'Men' },
+  { label: 'Women', filter: 'Women' },
+  { label: 'Unisex', filter: 'Unisex' },
+  { label: 'Bundles', filter: 'bundles' },
+  { label: 'Woody', filter: 'Woody' },
+  { label: 'Fresh', filter: 'Fresh' },
+  { label: 'Floral', filter: 'Floral' },
+] as const
+
+type TabFilter = (typeof TABS)[number]['filter']
+
+function filterProducts(products: PrismaProduct[], filter: TabFilter): PrismaProduct[] {
+  if (!filter) return products
+  if (filter === 'bundles') return products
+  return products.filter((p) => {
+    if (p.gender === filter || p.fragranceFamily === filter) return true
+    if (p.category?.name === filter || p.categorySlug === filter) return true
+    return false
+  })
+}
+
+export default function HomePage({ bestsellers, newArrivals, bundles, allProducts }: HomePageProps) {
+  const [storyExpanded, setStoryExpanded] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<TabFilter>(null);
+
+  const filteredProducts = React.useMemo(
+    () => filterProducts(allProducts, activeTab),
+    [allProducts, activeTab]
+  )
+
+  const carouselProducts = React.useMemo(
+    () => filteredProducts.map((p) => ({
+      id: String(p.id),
+      name: p.name,
+      slug: p.slug,
+      price: p.price,
+      originalPrice: p.originalPrice ?? undefined,
+      image: p.image,
+      images: p.images,
+      category: p.category?.name || 'Signature',
+      isNew: p.isNew,
+      isBestseller: p.isBestseller,
+      size: p.size,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+    })),
+    [filteredProducts]
+  )
+
+  const attarProducts = React.useMemo(
+    () => allProducts.filter((p) => p.type === 'attar'),
+    [allProducts]
+  )
+
+  const perfumeProducts = React.useMemo(
+    () => allProducts.filter((p) => p.type === 'perfume'),
+    [allProducts]
+  )
   return (
     <>
       {/* HERO SECTION */}
@@ -151,6 +217,144 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
         </div>
       </section>
 
+      {/* SUMMER COLLECTION PROMO BANNER */}
+      <section className='px-6 md:px-12 py-10 md:py-14 bg-background'>
+        <div className='container-custom'>
+          <div className='relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/80 to-orange-200/60 dark:from-amber-950/30 dark:via-amber-900/20 dark:to-orange-900/30'>
+            <div className='relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12 p-8 md:p-16'>
+              <div className='flex-1 text-center md:text-left'>
+                <p className='text-primary text-sm tracking-[0.5em] uppercase mb-4'>
+                  Summer Collection
+                </p>
+                <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground mb-6'>
+                  Fresh Notes for <span className='text-primary'>Warm Days</span>
+                </h2>
+                <p className='text-muted-foreground text-lg md:text-xl leading-relaxed mb-8 max-w-lg'>
+                  Light, uplifting fragrances perfect for the season. Discover our curated summer essentials.
+                </p>
+                <Link href='/shop?fragranceFamily=fresh'>
+                  <Button variant="outline" className="border-foreground/30 hover:bg-foreground hover:text-background px-10 py-6 tracking-[0.2em] uppercase text-sm">
+                    Shop Now
+                  </Button>
+                </Link>
+              </div>
+              <div className='flex-shrink-0 w-48 h-48 md:w-64 md:h-64 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center'>
+                <svg className='w-24 h-24 md:w-32 md:h-32 text-primary/30' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={0.5} d='M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z' />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* OUR PRODUCTS TAB BAR + CAROUSEL */}
+      <section className='px-6 md:px-12 py-8 md:py-12 bg-background'>
+        <div className='container-custom'>
+          <div className='text-center mb-8'>
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+              Our Products
+            </h2>
+          </div>
+          <div className='flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 justify-start md:justify-center mb-8'>
+            {TABS.map((tab) => (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(tab.filter)}
+                className={`flex-shrink-0 snap-start scroll-ml-6 px-5 py-2.5 text-sm font-medium rounded-full border transition-colors whitespace-nowrap ${
+                  activeTab === tab.filter
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-background text-foreground border-border hover:bg-foreground hover:text-background'
+                }`}
+                style={{ minHeight: '40px', lineHeight: '40px', padding: '0 20px' }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <ProductCarousel products={carouselProducts} />
+        </div>
+      </section>
+
+      {/* ATTARS SECTION */}
+      <section className="px-6 md:px-12 py-10 md:py-14 bg-background">
+        <div className='container-custom'>
+          <div className='text-center mb-10'>
+            <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
+              Concentrated Elegance
+            </p>
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+              Attars
+            </h2>
+          </div>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            {attarProducts.length > 0
+              ? attarProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={String(product.id)}
+                    name={product.name}
+                    slug={product.slug}
+                    price={product.price}
+                    originalPrice={product.originalPrice ?? undefined}
+                    image={product.image}
+                    images={product.images}
+                    category={product.category?.name || 'Signature'}
+                    isNew={product.isNew}
+                    isBestseller={product.isBestseller}
+                    size={product.size}
+                    rating={product.rating}
+                    reviewCount={product.reviewCount}
+                  />
+                ))
+              : [...Array(4)].map((_, i) => (
+                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
+                ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PERFUMES SECTION */}
+      <section className="px-6 md:px-12 py-10 md:py-14 bg-background">
+        <div className='container-custom'>
+          <div className='text-center mb-10'>
+            <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
+              Luxury Fragrances
+            </p>
+            <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+              Perfumes
+            </h2>
+          </div>
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+            {perfumeProducts.length > 0
+              ? perfumeProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={String(product.id)}
+                    name={product.name}
+                    slug={product.slug}
+                    price={product.price}
+                    originalPrice={product.originalPrice ?? undefined}
+                    image={product.image}
+                    images={product.images}
+                    category={product.category?.name || 'Signature'}
+                    isNew={product.isNew}
+                    isBestseller={product.isBestseller}
+                    size={product.size}
+                    rating={product.rating}
+                    reviewCount={product.reviewCount}
+                  />
+                ))
+              : [...Array(4)].map((_, i) => (
+                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
+                ))}
+          </div>
+        </div>
+      </section>
+
       {/* NEW ARRIVALS SECTION */}
       <section className="px-6 md:px-12 py-10 md:py-14 bg-background">
         <div className='container-custom'>
@@ -174,6 +378,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
                     price={product.price}
                     originalPrice={product.originalPrice ?? undefined}
                     image={product.image}
+                    images={product.images}
                     category={product.category?.name || 'Signature'}
                     isNew={product.isNew}
                     isBestseller={product.isBestseller}
@@ -213,32 +418,33 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
               { name: 'Women', slug: 'women', desc: 'Elegant & enchanting', image: COLLECTION_IMAGES.women },
               { name: 'Unisex', slug: 'unisex', desc: 'For everyone', image: COLLECTION_IMAGES.unisex },
             ].map((cat) => (
-              <Link
-                key={cat.name}
-                href={`/shop?category=${cat.slug}`}
-                className='collection-card group relative block overflow-hidden'
-              >
-                <div className='w-full h-full'>
-                  <img 
-                    src={cat.image} 
-                    alt={cat.name}
-                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                  />
-                </div>
-                <div className='absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors' />
-                <span className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full">
-                  {cat.name}
-                </span>
-                <div className='absolute bottom-0 left-0 right-0 p-12 text-center'>
-                  <h3 className='text-3xl md:text-4xl font-serif text-white font-bold mb-4 tracking-wider'>
+              <div key={cat.name} id={cat.slug}>
+                <Link
+                  href={`/shop?category=${cat.slug}`}
+                  className='collection-card group relative block overflow-hidden'
+                >
+                  <div className='w-full h-full'>
+                    <img 
+                      src={cat.image} 
+                      alt={cat.name}
+                      className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                    />
+                  </div>
+                  <div className='absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors' />
+                  <span className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full">
                     {cat.name}
-                  </h3>
-                  <p className='text-white/70 text-base mb-6'>{cat.desc}</p>
-                  <span className='inline-block text-sm tracking-[0.25em] uppercase text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500'>
-                    Shop Now →
                   </span>
-                </div>
-              </Link>
+                  <div className='absolute bottom-0 left-0 right-0 p-12 text-center'>
+                    <h3 className='text-3xl md:text-4xl font-serif text-white font-bold mb-4 tracking-wider'>
+                      {cat.name}
+                    </h3>
+                    <p className='text-white/70 text-base mb-6'>{cat.desc}</p>
+                    <span className='inline-block text-sm tracking-[0.25em] uppercase text-white opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500'>
+                      Shop Now →
+                    </span>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -324,6 +530,67 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
         </div>
       </section>
 
+      {/* EXPANDED STORY SECTION */}
+      <section className='px-6 md:px-12 py-14 bg-background border-t border-border'>
+        <div className='container-custom'>
+          <div className='max-w-3xl mx-auto'>
+            {(() => {
+              const subsections = [
+                {
+                  title: 'What Makes SAFARI Fragrances Unique?',
+                  content: 'At SAFARI, every fragrance is a story waiting to be told. We source the finest ingredients from across the globe — from the rare agarwood forests of Southeast Asia to the jasmine fields of Grasse. Our master perfumers blend traditional artistry with modern innovation to create scents that are both timeless and contemporary. Each bottle undergoes rigorous quality testing to ensure longevity, sillage, and a truly captivating olfactory experience that sets us apart in the world of luxury perfumery.'
+                },
+                {
+                  title: 'Our Collection of Luxury Perfumes in Pakistan',
+                  content: 'SAFARI brings world-class perfumery to Pakistan with an exquisite collection that caters to every personality and occasion. From bold, commanding oud-based compositions to light, floral daytime essences, our range offers something for every connoisseur. Whether you prefer the warm embrace of amber and musk or the crisp vitality of citrus and aquatic notes, our curated selection represents the finest in Pakistani fragrance craftsmanship, delivered with international standards of excellence.'
+                },
+                {
+                  title: 'Best Perfumes in Pakistan Curated by SAFARI',
+                  content: 'Our team of fragrance experts travels the world to bring you the most exceptional scents available in Pakistan. Each perfume in our collection has been carefully evaluated for its composition, performance, and unique character. We pride ourselves on offering only the best — from our best-selling Safari Midnight and Safari Oud to hidden gems that deserve a place in every collection. Every recommendation is backed by thousands of satisfied customers across the country.'
+                },
+                {
+                  title: 'Why We Are a Leading Fragrance Brand',
+                  content: 'SAFARI has earned its reputation as a leading fragrance house through an unwavering commitment to quality, authenticity, and customer satisfaction. We work directly with reputable distilleries and suppliers to ensure every ingredient meets our exacting standards. Our transparent pricing, exceptional customer service, and dedication to continuous innovation have made us the preferred choice for fragrance lovers who demand nothing but the best. Our growing community of loyal customers is our greatest achievement.'
+                },
+                {
+                  title: 'Buy Perfume Online in Pakistan – Shop From Home',
+                  content: 'Shopping for luxury fragrances online has never been easier. SAFARI offers a seamless, secure e-commerce experience with detailed product descriptions, authentic customer reviews, and high-resolution imagery to help you make informed choices. Enjoy fast delivery across Pakistan, easy returns, and dedicated customer support. Browse our collections from the comfort of your home and discover your next signature scent with just a few clicks. Your perfect fragrance is waiting.'
+                }
+              ];
+              return (
+                <>
+                  <div className={`relative overflow-hidden transition-all duration-500 ${storyExpanded ? 'max-h-[2000px]' : 'max-h-48'}`}>
+                    <div className='space-y-8'>
+                      {subsections.map((subsection, i) => (
+                        <div key={i}>
+                          <h4 className='text-xl md:text-2xl font-heading text-foreground mb-3'>{subsection.title}</h4>
+                          <p className='text-muted-foreground text-base leading-relaxed'>{subsection.content}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {!storyExpanded && (
+                      <div className='absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none' />
+                    )}
+                  </div>
+                  <div className='text-center mt-8'>
+                    <button
+                      onClick={() => setStoryExpanded(!storyExpanded)}
+                      className='inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors'
+                    >
+                      {storyExpanded ? (
+                        <>Read Less <svg width='16' height='16' viewBox='0 0 16 16' fill='none'><path d='M4 10l4-4 4 4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/></svg></>
+                      ) : (
+                        <>Read More <svg width='16' height='16' viewBox='0 0 16 16' fill='none'><path d='M4 6l4 4 4-4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round'/></svg></>
+                      )}
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      </section>
+
       {/* BEST SELLERS SECTION */}
       <section className='px-6 md:px-12 py-10 md:py-14 bg-background'>
         <div className='container-custom'>
@@ -355,6 +622,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
                     price={product.price}
                     originalPrice={product.originalPrice ?? undefined}
                     image={product.image}
+                    images={product.images}
                     category={product.category?.name || 'Signature'}
                     isNew={product.isNew}
                     isBestseller={product.isBestseller}
@@ -371,7 +639,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
       </section>
 
       {/* BUNDLES SECTION */}
-      <section className='px-6 md:px-12 py-14 bg-background'>
+      <section id='bundles' className='px-6 md:px-12 py-14 bg-background'>
         <div className='container-custom'>
           <div className='text-center mb-10'>
             <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
@@ -442,7 +710,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
       </section>
 
       {/* SHOP BY SCENT SECTION */}
-      <section className='px-6 md:px-12 py-14 bg-background'>
+      <section id='scent-profiles' className='px-6 md:px-12 py-14 bg-background'>
         <div className='container-custom'>
           <div className='text-center mb-10'>
             <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-4'>
@@ -459,33 +727,34 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
               { name: 'Fresh', desc: 'Clean, aquatic & energizing', image: SCENT_IMAGES.fresh },
               { name: 'Floral', desc: 'Romantic, delicate & elegant', image: SCENT_IMAGES.floral },
             ].map((profile) => (
-              <Link
-                key={profile.name}
-                href={`/shop?fragranceFamily=${profile.name.toLowerCase()}`}
-                className='collection-card group relative block overflow-hidden ring-offset-background hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all duration-300'
-              >
-                <div className='w-full h-full'>
-                  <img 
-                    src={profile.image} 
-                    alt={profile.name}
-                    className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
-                  />
-                </div>
-                <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent' />
-                <div className='absolute bottom-0 left-0 right-0 p-12 text-center'>
-                  <h3 className='text-4xl md:text-5xl font-heading text-white font-bold mb-4 uppercase tracking-[0.3em]'>
-                    {profile.name}
-                  </h3>
-                  <p className='text-white/70 text-base'>{profile.desc}</p>
-                </div>
-              </Link>
+              <div key={profile.name} id={profile.name.toLowerCase()}>
+                <Link
+                  href={`/shop?fragranceFamily=${profile.name.toLowerCase()}`}
+                  className='collection-card group relative block overflow-hidden ring-offset-background hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all duration-300'
+                >
+                  <div className='w-full h-full'>
+                    <img 
+                      src={profile.image} 
+                      alt={profile.name}
+                      className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
+                    />
+                  </div>
+                  <div className='absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent' />
+                  <div className='absolute bottom-0 left-0 right-0 p-12 text-center'>
+                    <h3 className='text-4xl md:text-5xl font-heading text-white font-bold mb-4 uppercase tracking-[0.3em]'>
+                      {profile.name}
+                    </h3>
+                    <p className='text-white/70 text-base'>{profile.desc}</p>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* TESTIMONIALS SECTION */}
-      <section className='px-6 md:px-12 py-14 bg-muted'>
+      <section className='px-6 md:px-12 py-14 bg-muted overflow-hidden'>
         <div className='container-custom'>
           <div className='text-center mb-14'>
             <p className='text-primary text-sm tracking-[0.5em] uppercase mb-4'>
@@ -508,44 +777,44 @@ export default function HomePage({ bestsellers, newArrivals, bundles }: HomePage
             <span className='text-muted-foreground text-sm'>Based on 300+ reviews</span>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10'>
-            {testimonials.map((testimonial, i) => (
+          <div className='flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0'>
+            {testimonials.map((testimonial) => (
               <Card
                 key={testimonial.id}
                 size="sm"
-                className='p-8 md:p-10 border-t-4 border-t-primary/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300'
-                style={{
-                  opacity: 0,
-                  animation: 'fadeIn 0.6s ease-out forwards',
-                  animationDelay: `${i * 0.2}s`,
-                }}
+                className='min-w-[300px] md:min-w-[380px] flex-shrink-0 snap-start p-8 md:p-10 border-t-4 border-t-primary/30 hover:-translate-y-1 hover:shadow-lg transition-all duration-300'
               >
-                <CardContent className='flex flex-col items-center p-0'>
+                <CardContent className='flex flex-col p-0'>
                   <div className='flex justify-center mb-6'>
                     <Rating rating={testimonial.rating} size="sm" />
                   </div>
                   <p className='text-muted-foreground font-serif text-base md:text-lg leading-relaxed italic text-center mb-8'>
                     &ldquo;{testimonial.text}&rdquo;
                   </p>
-                  <div className='w-14 h-14 rounded-full overflow-hidden bg-muted mb-4 ring-2 ring-primary/20'>
-                    {testimonial.image ? (
-                      <img
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        className='w-full h-full object-cover'
-                      />
-                    ) : (
-                      <div className='w-full h-full flex items-center justify-center text-lg font-medium text-muted-foreground'>
-                        {testimonial.name.charAt(0)}
-                      </div>
+                  <div className='flex flex-col items-center mt-auto'>
+                    <div className='w-14 h-14 rounded-full overflow-hidden mb-4 ring-2 ring-primary/20 flex items-center justify-center bg-primary/10 text-primary text-lg font-bold'>
+                      {testimonial.name.charAt(0)}
+                    </div>
+                    <p className='font-semibold text-foreground text-center text-base'>
+                      {testimonial.name}
+                    </p>
+                    <p className='text-muted-foreground text-center text-sm mt-1'>
+                      {testimonial.location}
+                    </p>
+                    {'product' in testimonial && testimonial.product && (
+                      <Link
+                        href={`/shop/${'productSlug' in testimonial ? testimonial.productSlug : ''}`}
+                        className='text-xs text-primary hover:underline mt-2'
+                      >
+                        {testimonial.product}
+                      </Link>
+                    )}
+                    {'date' in testimonial && testimonial.date && (
+                      <p className='text-xs text-muted-foreground/60 mt-1'>
+                        {new Date(testimonial.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </p>
                     )}
                   </div>
-                  <p className='font-semibold text-foreground text-center text-base'>
-                    {testimonial.name}
-                  </p>
-                  <p className='text-muted-foreground text-center text-sm mt-1'>
-                    {testimonial.location}
-                  </p>
                 </CardContent>
               </Card>
             ))}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import SearchOverlay from './SearchOverlay';
@@ -14,6 +15,12 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [collectionsOpen, setCollectionsOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -81,70 +88,149 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Shipping Announcement */}
-      <div className='bg-primary text-primary-foreground py-5 md:py-6 px-4 text-center'>
-        <div className='container-custom relative'>
-          <p className='text-sm md:text-base tracking-[0.3em] uppercase font-semibold'>
-            <span className='font-bold mr-3'>FREE SHIPPING</span>
-            <span className='hidden md:inline'>ON ORDERS OVER $100</span>
-          </p>
+      {/* Scrolling Announcement Bar */}
+      <div className='bg-primary text-primary-foreground py-4 md:py-5 px-4 overflow-hidden'>
+        <div className='relative flex whitespace-nowrap animate-marquee'>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4'>
+            FREE SHIPPING ON ORDERS OVER PKR 15,000
+          </span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4 text-primary-foreground/40'>|</span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4'>
+            NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+          </span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4 text-primary-foreground/40'>|</span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4'>
+            BUY 2 GET 10% OFF — USE CODE: PAIR10
+          </span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4 text-primary-foreground/40'>|</span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4'>
+            FREE SHIPPING ON ORDERS OVER PKR 15,000
+          </span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4 text-primary-foreground/40'>|</span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4'>
+            NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+          </span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4 text-primary-foreground/40'>|</span>
+          <span className='text-xs md:text-sm tracking-[0.3em] uppercase font-semibold mx-4'>
+            BUY 2 GET 10% OFF — USE CODE: PAIR10
+          </span>
         </div>
       </div>
 
         {/* Main Header - black initially, 20% opacity when scrolled */}
       <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-secondary/20 border-b border-transparent' : 'bg-secondary shadow-lg border-b border-secondary'}`}>
         <div className='container-custom'>
-          <div className='flex items-center justify-between h-16 md:h-20'>
+          <div className='flex items-center justify-between h-20 md:h-24'>
             <div className='flex items-center gap-3'>
-              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-                <SheetTrigger className="md:hidden inline-flex shrink-0 items-center justify-center rounded-lg size-8 text-secondary-foreground/80 hover:text-secondary-foreground transition-all outline-none select-none">
-                  <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M4 6h16M4 12h16M4 18h16' />
-                  </svg>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[350px] max-w-[90vw] p-0 bg-black">
-                  <div className='flex flex-col h-full'>
-                    <div className='flex items-center justify-between p-8 border-b border-white/10'>
-                      <h2 className='text-2xl font-serif font-bold tracking-[0.3em] text-white'>MENU</h2>
-                    </div>
-                    <nav className='flex-1 p-8 space-y-0 overflow-y-auto'>
-                      {mainNav.map((item) => (
-                        <SheetClose key={item.href}>
-                          <Link href={item.href} className='block text-base text-white/70 hover:text-white transition-colors py-6 border-b border-white/10 font-medium'>
-                            {item.label}
-                          </Link>
-                        </SheetClose>
-                      ))}
-                      <div className='border-b border-white/10 my-4' />
-                      {topLinks.map((item) => (
-                        <SheetClose key={item.href}>
-                          <Link href={item.href} className='block text-base text-white/50 hover:text-white transition-colors py-6'>
-                            {item.label}
-                          </Link>
-                        </SheetClose>
-                      ))}
-                    </nav>
-                    <div className='p-8 border-t border-white/10'>
-                      <div className='flex gap-5'>
-                        {['I', 'F', 'T'].map((letter, i) => (
-                          <Button key={i} variant="ghost" size="icon" className='w-12 h-12 rounded-full border border-white/20 text-white/50 hover:border-gold hover:text-gold transition-all'>
-                            <span className='text-base font-medium'>{letter}</span>
-                          </Button>
+              <div className='md:hidden'>
+                <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                  <SheetTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg size-8 text-secondary-foreground/80 hover:text-secondary-foreground transition-all outline-none select-none">
+                    <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M4 6h16M4 12h16M4 18h16' />
+                    </svg>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[350px] max-w-[90vw] p-0 bg-black">
+                    <div className='flex flex-col h-full'>
+                      <div className='flex items-center justify-between p-8 border-b border-white/10'>
+                        <h2 className='text-2xl font-serif font-bold tracking-[0.3em] text-white'>MENU</h2>
+                      </div>
+                      <nav className='flex-1 p-8 space-y-0 overflow-y-auto'>
+                        {mainNav.map((item) => {
+                          if (item.label === 'Collections') {
+                            return (
+                              <div key={item.href} className='border-b border-white/10'>
+                                <button
+                                  onClick={() => setCollectionsOpen(!collectionsOpen)}
+                                  className='w-full flex items-center justify-between text-base text-white/70 hover:text-white transition-colors py-6 font-medium'
+                                  style={{ minHeight: '48px' }}
+                                >
+                                  <span>Collections</span>
+                                  <svg
+                                    className={`w-4 h-4 transition-transform duration-200 ${collectionsOpen ? 'rotate-180' : ''}`}
+                                    fill='none' viewBox='0 0 24 24' stroke='currentColor'
+                                  >
+                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+                                  </svg>
+                                </button>
+                                <div
+                                  className={`overflow-hidden transition-all duration-200 ${collectionsOpen ? 'max-h-80' : 'max-h-0'}`}
+                                >
+                                  <div className='pb-4 space-y-1 pl-4'>
+                                    {['Men', 'Women', 'Unisex'].map((col) => (
+                                      <SheetClose key={col}>
+                                        <Link
+                                          href={`/shop?category=${col.toLowerCase()}`}
+                                          className='block text-sm text-white/50 hover:text-white transition-colors py-3'
+                                          style={{ minHeight: '48px', lineHeight: '48px' }}
+                                        >
+                                          {col}
+                                        </Link>
+                                      </SheetClose>
+                                    ))}
+                                    <div className='pt-2 pb-1'>
+                                      <p className='text-xs text-white/30 uppercase tracking-wider px-1 pb-1'>Scent Profiles</p>
+                                    </div>
+                                    {['Woody', 'Fresh', 'Floral'].map((scent) => (
+                                      <SheetClose key={scent}>
+                                        <Link
+                                          href={`/shop?fragranceFamily=${scent.toLowerCase()}`}
+                                          className='block text-sm text-white/50 hover:text-white transition-colors py-3'
+                                          style={{ minHeight: '48px', lineHeight: '48px' }}
+                                        >
+                                          {scent}
+                                        </Link>
+                                      </SheetClose>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <SheetClose key={item.href}>
+                              <Link href={item.href} className='block text-base text-white/70 hover:text-white transition-colors py-6 border-b border-white/10 font-medium' style={{ minHeight: '48px', lineHeight: '48px' }}>
+                                {item.label}
+                              </Link>
+                            </SheetClose>
+                          );
+                        })}
+                        <div className='border-b border-white/10 my-4' />
+                        {topLinks.map((item) => (
+                          <SheetClose key={item.href}>
+                            <Link href={item.href} className='block text-base text-white/50 hover:text-white transition-colors py-6' style={{ minHeight: '48px', lineHeight: '48px' }}>
+                              {item.label}
+                            </Link>
+                          </SheetClose>
                         ))}
+                      </nav>
+                      <div className='p-8 border-t border-white/10'>
+                        <div className='flex gap-5'>
+                          {['I', 'F', 'T'].map((letter, i) => (
+                            <Button key={i} variant="ghost" size="icon" className='w-12 h-12 rounded-full border border-white/20 text-white/50 hover:border-gold hover:text-gold transition-all'>
+                              <span className='text-base font-medium'>{letter}</span>
+                            </Button>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  </SheetContent>
+                </Sheet>
+              </div>
 
-              <Link href='/' className='flex-shrink-0'>
-                <h1 className='text-2xl md:text-4xl font-serif font-bold tracking-wide'>
-                  <span className='text-secondary-foreground'>SAFARI</span>
-                </h1>
+              <Link href='/' className='flex-shrink-0 flex items-center'>
+                <div className='relative h-16 w-16 md:h-20 md:w-20'>
+                  <Image
+                    src='/logo.png'
+                    alt='SAFARI Logo'
+                    fill
+                    priority
+                    className='object-contain'
+                  />
+                </div>
               </Link>
             </div>
 
-            <nav className='hidden lg:flex items-center gap-8 md:gap-10'>
+            <nav className='hidden lg:flex items-center gap-6 xl:gap-8 whitespace-nowrap'>
               {mainNav.map((item) => (
                 <Link
                   key={item.href}
@@ -156,7 +242,7 @@ export default function Header() {
               ))}
             </nav>
 
-             <div className='flex items-center gap-3 md:gap-6'>
+             <div className='flex items-center gap-3 md:gap-5 flex-shrink-0'>
               <Button
                 variant="ghost"
                 size="icon"
@@ -197,7 +283,7 @@ export default function Header() {
                 <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' />
                 </svg>
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className='absolute -top-2 -right-2 w-5 h-5 bg-secondary-foreground text-secondary text-xs font-bold rounded-full flex items-center justify-center'>
                     {totalItems}
                   </span>

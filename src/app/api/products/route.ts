@@ -86,6 +86,7 @@ export async function GET(request: Request) {
       notesTop: parseJsonArray(product.notesTop),
       notesHeart: parseJsonArray(product.notesHeart),
       notesBase: parseJsonArray(product.notesBase),
+      type: product.type,
       gender: product.gender,
       season: product.season,
       impressionOf: product.impressionOf,
@@ -104,6 +105,13 @@ export async function GET(request: Request) {
       metaTitle: product.metaTitle,
       metaDescription: product.metaDescription,
       stockStatus: product.stockStatus,
+      concentration: product.concentration,
+      bottleStyle: product.bottleStyle,
+      longevity: product.longevity,
+      sillage: product.sillage,
+      applicatorType: product.applicatorType,
+      origin: product.origin,
+      ingredients: product.ingredients,
     }));
 
     return NextResponse.json({ products: formattedProducts, total, page, totalPages: Math.ceil(total / limit) });
@@ -168,6 +176,13 @@ export async function POST(request: Request) {
         inStock: body.inStock ?? true,
         isBestseller: body.isBestseller ?? false,
         isNew: body.isNew ?? false,
+        concentration: body.concentration || null,
+        bottleStyle: body.bottleStyle || null,
+        longevity: body.longevity || null,
+        sillage: body.sillage || null,
+        applicatorType: body.applicatorType || null,
+        origin: body.origin || null,
+        ingredients: body.ingredients || null,
       },
       include: { category: true },
     });
