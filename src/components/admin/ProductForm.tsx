@@ -282,6 +282,7 @@ export default function ProductForm({ initialData, mode, productId, productType 
     try {
       const payload: ProductFormData = {
         ...data,
+        image: data.image || '',
         price: Number(data.price),
         originalPrice: data.originalPrice ? Number(data.originalPrice) : null,
         rating: Number(data.rating),
