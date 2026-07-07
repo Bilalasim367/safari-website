@@ -33,7 +33,7 @@ export default function EditProductPage() {
           description: p.description || '',
           image: p.image || '',
           images: Array.isArray(p.images) ? p.images : [],
-          categorySlug: p.categorySlug,
+          categorySlug: p.categorySlug ?? undefined,
           size: p.size || '50ml',
           sizePrices: Array.isArray(p.sizePrices)
             ? p.sizePrices.map((sp: { size: string; price: number; originalPrice?: number | null }) => ({
