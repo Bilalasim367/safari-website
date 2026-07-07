@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import path from 'path';
 
 export async function POST(request: Request) {
   try {
@@ -35,12 +35,13 @@ export async function POST(request: Request) {
 
     const ext = path.extname(file.name) || '.jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
-    const dir = path.join(process.cwd(), 'public/products');
 
-    await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, filename), buffer);
+    const blob = await put(`products/${filename}`, buffer, {
+      contentType: file.type,
+      access: 'public',
+    });
 
-    return NextResponse.json({ url: `/products/${filename}` });
+    return NextResponse.json({ url: blob.url });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });

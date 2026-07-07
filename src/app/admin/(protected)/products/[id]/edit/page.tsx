@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ProductForm from '@/components/admin/ProductForm'
-import { getProductById, type ProductFormData } from '@/app/admin/(protected)/actions'
+import { getProductById } from '@/app/admin/(protected)/actions'
+import type { AdminProductFormValues } from '@/lib/validations/product'
 
 export default function EditProductPage() {
   const params = useParams()
   const id = params.id as string
-  const [product, setProduct] = useState<ProductFormData | null>(null)
+  const [product, setProduct] = useState<AdminProductFormValues | null>(null)
+  const [productType, setProductType] = useState<'perfume' | 'attar'>('perfume')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -21,6 +23,8 @@ export default function EditProductPage() {
         setError(result.error || 'Product not found')
       } else {
         const p = result.product
+        const type: 'perfume' | 'attar' = String(p.type || '').toLowerCase().includes('perfume') ? 'perfume' : 'attar'
+        setProductType(type)
         setProduct({
           name: p.name,
           slug: p.slug,
@@ -38,7 +42,7 @@ export default function EditProductPage() {
                 originalPrice: sp.originalPrice ?? null,
               }))
             : [{ size: '30ml', price: 0, originalPrice: null }, { size: '50ml', price: 0, originalPrice: null }, { size: '100ml', price: 0, originalPrice: null }],
-          fragranceFamily: p.fragranceFamily || '',
+          fragranceFamily: p.fragranceFamily || null,
           rating: p.rating ?? 0,
           reviewCount: p.reviewCount ?? 0,
           notesTop: Array.isArray(p.notesTop) ? p.notesTop : [],
@@ -49,7 +53,7 @@ export default function EditProductPage() {
           isNew: p.isNew ?? false,
           productId: p.productId || null,
           gender: p.gender || 'Unisex',
-          type: p.type || 'Attar & Spray',
+          type: p.type || null,
           season: p.season || null,
           bestTime: p.bestTime || null,
           impressionOf: p.impressionOf || null,
@@ -74,6 +78,13 @@ export default function EditProductPage() {
           imageFolder: p.imageFolder || null,
           metaTitle: p.metaTitle || null,
           metaDescription: p.metaDescription || null,
+          concentration: p.concentration || null,
+          bottleStyle: p.bottleStyle || null,
+          longevity: p.longevity || null,
+          sillage: p.sillage || null,
+          applicatorType: p.applicatorType || null,
+          origin: p.origin || null,
+          ingredients: p.ingredients || null,
         })
       }
       setLoading(false)
@@ -101,5 +112,5 @@ export default function EditProductPage() {
     )
   }
 
-  return <ProductForm mode="edit" initialData={product} productId={id} />
+  return <ProductForm mode="edit" initialData={product} productId={id} productType={productType} />
 }

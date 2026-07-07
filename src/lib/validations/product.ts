@@ -19,8 +19,6 @@ export const AttarUploadSchema = z.object({
   categorySlug: z.enum(['men', 'women', 'unisex']),
   gender: z.enum(['Men', 'Women', 'Unisex']),
   image: z.string().optional(),
-
-  // New fields for PDP sync
   notesTop: NotesArray,
   notesHeart: NotesArray,
   notesBase: NotesArray,
@@ -30,11 +28,9 @@ export const AttarUploadSchema = z.object({
   longDescription: z.string().optional(),
   images: z.array(z.string()).default([]),
   tags: z.string().optional(),
-
   originalPrice: z.number().min(0).optional(),
   rating: z.number().min(0).max(5).optional(),
   reviewCount: z.number().int().min(0).optional(),
-
   inStock: z.boolean(),
   isActive: z.boolean(),
 })
@@ -49,8 +45,6 @@ export const PerfumeUploadSchema = z.object({
   categorySlug: z.enum(['men', 'women', 'unisex']),
   gender: z.enum(['Men', 'Women', 'Unisex']),
   image: z.string().optional(),
-
-  // New fields for PDP sync
   notesTop: NotesArray,
   notesHeart: NotesArray,
   notesBase: NotesArray,
@@ -61,14 +55,75 @@ export const PerfumeUploadSchema = z.object({
   tags: z.string().optional(),
   longevity: z.string().optional(),
   sillage: z.string().optional(),
-
   originalPrice: z.number().min(0).optional(),
   rating: z.number().min(0).max(5).optional(),
   reviewCount: z.number().int().min(0).optional(),
-
   inStock: z.boolean(),
   isActive: z.boolean(),
 })
 
+const SizePriceEntry = z.object({
+  size: z.string(),
+  price: z.number(),
+  originalPrice: z.number().nullable().optional(),
+})
+
+export const AdminProductSchema = z.object({
+  name: z.string().min(1, 'Product name is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  price: z.number().min(0, 'Price must be at least 0'),
+  originalPrice: z.number().nullable().optional(),
+  description: z.string().optional(),
+  image: z.string().optional(),
+  images: z.array(z.string()).default([]),
+  categorySlug: z.string().optional(),
+  size: z.string().default('50ml'),
+  sizePrices: z.array(SizePriceEntry).default([]),
+  fragranceFamily: z.string().nullable().optional(),
+  rating: z.number().default(0),
+  reviewCount: z.number().default(0),
+  notesTop: NotesArray,
+  notesHeart: NotesArray,
+  notesBase: NotesArray,
+  inStock: z.boolean().default(true),
+  isBestseller: z.boolean().default(false),
+  isNew: z.boolean().default(false),
+  productId: z.string().nullable().optional(),
+  gender: z.string().nullable().optional(),
+  type: z.string().nullable().optional(),
+  season: z.string().nullable().optional(),
+  bestTime: z.string().nullable().optional(),
+  impressionOf: z.string().nullable().optional(),
+  shortDescription: z.string().nullable().optional(),
+  longDescription: z.string().nullable().optional(),
+  tags: z.string().nullable().optional(),
+  sizesAvailable: z.string().nullable().optional(),
+  price3mlPhysical: z.number().nullable().optional(),
+  price6mlPhysical: z.number().nullable().optional(),
+  price12mlPhysical: z.number().nullable().optional(),
+  price50mlPhysical: z.number().nullable().optional(),
+  price3mlOnline: z.number().nullable().optional(),
+  price6mlOnline: z.number().nullable().optional(),
+  price12mlOnline: z.number().nullable().optional(),
+  price50mlOnline: z.number().nullable().optional(),
+  currency: z.string().default('PKR'),
+  oilPricePer100g: z.number().nullable().optional(),
+  supplier: z.string().nullable().optional(),
+  isFeatured: z.boolean().default(false),
+  isActive: z.boolean().default(true),
+  stockStatus: z.string().default('in_stock'),
+  imageFolder: z.string().nullable().optional(),
+  metaTitle: z.string().nullable().optional(),
+  metaDescription: z.string().nullable().optional(),
+  concentration: z.string().nullable().optional(),
+  bottleStyle: z.string().nullable().optional(),
+  longevity: z.string().nullable().optional(),
+  sillage: z.string().nullable().optional(),
+  applicatorType: z.string().nullable().optional(),
+  origin: z.string().nullable().optional(),
+  ingredients: z.string().nullable().optional(),
+})
+
+export type AdminProductFormValues = z.input<typeof AdminProductSchema>
 export type AttarFormValues = z.input<typeof AttarUploadSchema>
 export type PerfumeFormValues = z.input<typeof PerfumeUploadSchema>
