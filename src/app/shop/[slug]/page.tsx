@@ -24,7 +24,7 @@ interface Product {
   originalPrice?: number;
   image: string;
   images: string[];
-  category: { name: string; slug: string };
+  category: { name: string; slug: string } | null;
   categorySlug?: string;
   size: string;
   fragranceFamily: string;
@@ -145,19 +145,23 @@ export default function ProductDetailPage() {
     return product.sizesAvailable.split(',').map((s: string) => s.trim()).filter(Boolean);
   }, [product]);
 
-  const isPerfume = useMemo(() => {
-    if (!product) return false;
-    if (product.type === 'Perfume') return true;
-    const sizes = csvSizes;
-    return sizes.some(s => ['30ml', '50ml', '100ml'].includes(s.toLowerCase()));
-  }, [product, csvSizes]);
+  const isPerfume = product?.type === 'Perfume';
 
   const router = useRouter();
 
   const priceData = useMemo(() => {
-    if (!product?.sizePrices) return null;
-    return product.sizePrices.find((s) => s.size === selectedSize) || null;
-  }, [product, selectedSize]);
+    if (!product) return null;
+    if (isPerfume && product.sizePrices) {
+      return product.sizePrices.find((s) => s.size === selectedSize) || null;
+    }
+    if (!isPerfume) {
+      const sizeKey = selectedSize.toLowerCase().replace('ml', '');
+      const physKey = `price${sizeKey}Physical` as keyof Product;
+      const price = product[physKey] as number | undefined;
+      if (price) return { size: selectedSize, price, originalPrice: undefined };
+    }
+    return null;
+  }, [product, selectedSize, isPerfume]);
 
   const displayPrice = priceData?.price ?? product?.price ?? 0;
   const displayOriginalPrice = priceData?.originalPrice ?? product?.originalPrice;
@@ -349,10 +353,14 @@ export default function ProductDetailPage() {
                 {(csvSizes.length > 0 || product.description) && (
                   <p className="text-muted-foreground leading-relaxed mb-6">
                     {csvSizes.length > 0 && !priceData ? (
-                      <span>From {currencySymbol} {Math.min(
-                        ...([product.price3mlPhysical, product.price6mlPhysical, product.price12mlPhysical, product.price50mlPhysical]
-                          .filter((p): p is number => p !== null))
-                      ).toLocaleString()}</span>
+                      (() => {
+                        const prices = [product.price3mlPhysical, product.price6mlPhysical, product.price12mlPhysical, product.price50mlPhysical].filter((p): p is number => p != null);
+                        return prices.length > 0 ? (
+                          <span>From {currencySymbol} {Math.min(...prices).toLocaleString()}</span>
+                        ) : (
+                          <span>{currencySymbol} {product.price.toLocaleString()}</span>
+                        );
+                      })()
                     ) : (
                       product.description
                     )}
