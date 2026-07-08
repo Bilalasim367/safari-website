@@ -78,7 +78,7 @@ const defaultFormState: AdminProductFormValues = {
 }
 
 const tabs = [
-  { key: 'pricing', label: 'Pricing & Sizes' },
+  { key: 'pricing', label: 'Pricing' },
   { key: 'media', label: 'Media' },
   { key: 'description', label: 'Description' },
   { key: 'details', label: 'Details' },
@@ -158,9 +158,12 @@ function GalleryUpload({ images, onChange }: GalleryUploadProps) {
       try {
         const res = await fetch('/api/upload', { method: 'POST', body })
         const data = await res.json()
+        if (!res.ok) {
+          throw new Error(data.error || 'Upload failed')
+        }
         if (data.url) uploaded.push(data.url)
-      } catch {
-        toast.error(`Failed to upload ${file.name}`)
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : `Failed to upload ${file.name}`)
       }
     }
 
@@ -258,7 +261,8 @@ export default function ProductForm({ initialData, mode, productId, productType 
 
     setUploadingImage(true)
     if (imagePreview) URL.revokeObjectURL(imagePreview)
-    setImagePreview(URL.createObjectURL(file))
+    const objectUrl = URL.createObjectURL(file)
+    setImagePreview(objectUrl)
 
     const body = new FormData()
     body.append('file', file)
@@ -266,12 +270,17 @@ export default function ProductForm({ initialData, mode, productId, productType 
     try {
       const res = await fetch('/api/upload', { method: 'POST', body })
       const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Upload failed')
+      }
       if (data.url) {
         form.setValue('image', data.url)
+        setImagePreview(data.url)
+        URL.revokeObjectURL(objectUrl)
       }
-    } catch {
+    } catch (err) {
       setImagePreview(null)
-      toast.error('Failed to upload image')
+      toast.error(err instanceof Error ? err.message : 'Failed to upload image')
     } finally {
       setUploadingImage(false)
     }
@@ -413,71 +422,75 @@ export default function ProductForm({ initialData, mode, productId, productType 
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader><CardTitle>Size Prices</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {sizePrices?.map((sp, i) => (
-                        <div key={sp.size} className="space-y-2 p-4 border rounded-md">
-                          <Label className="text-sm font-medium">{sp.size}</Label>
-                          <Input type="number" min="0" step="0.01" placeholder="Price"
-                            value={sp.price}
-                            onChange={(e) => {
-                              const updated = [...(sizePrices || [])]
-                              updated[i] = { ...updated[i], price: Number(e.target.value) }
-                              form.setValue('sizePrices', updated)
-                            }} />
-                          <Input type="number" min="0" step="0.01" placeholder="Original Price"
-                            value={sp.originalPrice ?? ''}
-                            onChange={(e) => {
-                              const updated = [...(sizePrices || [])]
-                              updated[i] = { ...updated[i], originalPrice: e.target.value ? Number(e.target.value) : null }
-                              form.setValue('sizePrices', updated)
-                            }} />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader><CardTitle>Attar / Oil Pricing</CardTitle></CardHeader>
-                  <CardContent>
-                    <p className="text-xs text-muted-foreground mb-4">For attar/oil products with different SKU-based pricing</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                      {['3ml', '6ml', '12ml', '50ml'].map((size) => {
-                        const physKey = `price${size}Physical` as keyof AdminProductFormValues
-                        const onlineKey = `price${size}Online` as keyof AdminProductFormValues
-                        return (
-                          <div key={size} className="space-y-2 p-3 border rounded-md">
-                            <Label className="text-xs font-medium">{size}</Label>
-                            <Input type="number" min="0" placeholder="Physical"
-                              value={(form.watch(physKey) as number | null) ?? ''}
-                              onChange={(e) => form.setValue(physKey, (e.target.value ? Number(e.target.value) : null) as number | null)} />
-                            <Input type="number" min="0" placeholder="Online"
-                              value={(form.watch(onlineKey) as number | null) ?? ''}
-                              onChange={(e) => form.setValue(onlineKey, (e.target.value ? Number(e.target.value) : null) as number | null)} />
+                {productType === 'perfume' && (
+                  <Card>
+                    <CardHeader><CardTitle>Size Prices</CardTitle></CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {sizePrices?.map((sp, i) => (
+                          <div key={sp.size} className="space-y-2 p-4 border rounded-md">
+                            <Label className="text-sm font-medium">{sp.size}</Label>
+                            <Input type="number" min="0" step="0.01" placeholder="Price"
+                              value={sp.price}
+                              onChange={(e) => {
+                                const updated = [...(sizePrices || [])]
+                                updated[i] = { ...updated[i], price: Number(e.target.value) }
+                                form.setValue('sizePrices', updated)
+                              }} />
+                            <Input type="number" min="0" step="0.01" placeholder="Original Price"
+                              value={sp.originalPrice ?? ''}
+                              onChange={(e) => {
+                                const updated = [...(sizePrices || [])]
+                                updated[i] = { ...updated[i], originalPrice: e.target.value ? Number(e.target.value) : null }
+                                form.setValue('sizePrices', updated)
+                              }} />
                           </div>
-                        )
-                      })}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="oilPricePer100g">Oil Price per 100g</Label>
-                        <Input id="oilPricePer100g" type="number" min="0"
-                          value={form.watch('oilPricePer100g') ?? ''}
-                          onChange={(e) => form.setValue('oilPricePer100g', e.target.value ? Number(e.target.value) : null)} />
+                        ))}
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="sizesAvailable">Available Sizes</Label>
-                        <Input id="sizesAvailable"
-                          value={form.watch('sizesAvailable') || ''}
-                          onChange={(e) => form.setValue('sizesAvailable', e.target.value)}
-                          placeholder="3ml,6ml,12ml,50ml" />
+                    </CardContent>
+                  </Card>
+                )}
+
+                {productType === 'attar' && (
+                  <Card>
+                    <CardHeader><CardTitle>Attar / Oil Pricing</CardTitle></CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground mb-4">For attar/oil products with different SKU-based pricing</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                        {['3ml', '6ml', '12ml', '50ml'].map((size) => {
+                          const physKey = `price${size}Physical` as keyof AdminProductFormValues
+                          const onlineKey = `price${size}Online` as keyof AdminProductFormValues
+                          return (
+                            <div key={size} className="space-y-2 p-3 border rounded-md">
+                              <Label className="text-xs font-medium">{size}</Label>
+                              <Input type="number" min="0" placeholder="Physical"
+                                value={(form.watch(physKey) as number | null) ?? ''}
+                                onChange={(e) => form.setValue(physKey, (e.target.value ? Number(e.target.value) : null) as number | null)} />
+                              <Input type="number" min="0" placeholder="Online"
+                                value={(form.watch(onlineKey) as number | null) ?? ''}
+                                onChange={(e) => form.setValue(onlineKey, (e.target.value ? Number(e.target.value) : null) as number | null)} />
+                            </div>
+                          )
+                        })}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="oilPricePer100g">Oil Price per 100g</Label>
+                          <Input id="oilPricePer100g" type="number" min="0"
+                            value={form.watch('oilPricePer100g') ?? ''}
+                            onChange={(e) => form.setValue('oilPricePer100g', e.target.value ? Number(e.target.value) : null)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="sizesAvailable">Available Sizes</Label>
+                          <Input id="sizesAvailable"
+                            value={form.watch('sizesAvailable') || ''}
+                            onChange={(e) => form.setValue('sizesAvailable', e.target.value)}
+                            placeholder="3ml,6ml,12ml,50ml" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 <Card>
                   <CardHeader><CardTitle>Size Configuration</CardTitle></CardHeader>

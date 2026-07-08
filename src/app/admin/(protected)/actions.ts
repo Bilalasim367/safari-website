@@ -40,6 +40,7 @@ export async function getAdminProducts() {
         stockStatus: true,
         isActive: true,
         isFeatured: true,
+        type: true,
         price50mlPhysical: true,
         price50mlOnline: true,
       },

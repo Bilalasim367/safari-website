@@ -1,28 +1,24 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import ProductTypeSelector, { type ProductType } from '@/components/admin/ProductTypeSelector'
-import ProductForm from '@/components/admin/ProductForm'
 
 export default function NewProductPage() {
+  const router = useRouter()
   const [productType, setProductType] = React.useState<ProductType | null>(null)
-  const [step, setStep] = React.useState<'select' | 'form'>('select')
-
-  if (step === 'select') {
-    return (
-      <div className="p-6">
-        <ProductTypeSelector
-          selected={productType}
-          onSelect={setProductType}
-          onContinue={() => setStep('form')}
-        />
-      </div>
-    )
-  }
 
   return (
     <div className="p-6">
-      <ProductForm mode="create" productType={productType || 'perfume'} />
+      <ProductTypeSelector
+        selected={productType}
+        onSelect={setProductType}
+        onContinue={() => {
+          if (productType) {
+            router.push(`/admin/products/${productType}/new`)
+          }
+        }}
+      />
     </div>
   )
 }

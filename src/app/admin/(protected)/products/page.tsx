@@ -28,6 +28,7 @@ interface Product {
   stockStatus?: string;
   isActive?: boolean;
   isFeatured?: boolean;
+  type?: string | null;
   price50mlPhysical?: number | null;
   price50mlOnline?: number | null;
   productId?: string | null;
@@ -152,9 +153,14 @@ export default function ProductsPage() {
               Bulk Upload
             </Button>
           </Link>
-          <Link href="/admin/products/new">
+          <Link href="/admin/products/perfume/new">
             <Button>
-              Add Product
+              + Perfume
+            </Button>
+          </Link>
+          <Link href="/admin/products/attar/new">
+            <Button variant="secondary">
+              + Attar
             </Button>
           </Link>
         </div>
@@ -219,6 +225,7 @@ export default function ProductsPage() {
             <TableRow>
               <TableHead>Product ID</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Gender</TableHead>
               <TableHead>Season</TableHead>
               <TableHead>50ml Physical</TableHead>
@@ -234,6 +241,11 @@ export default function ProductsPage() {
                   {product.productId || <span className="text-muted-foreground">—</span>}
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>
+                  <Badge variant={product.type?.toLowerCase().includes('perfume') ? 'default' : 'secondary'} className="text-xs">
+                    {product.type || 'Attar'}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <Badge variant="outline" className="text-xs">
                     {product.gender || 'Unisex'}
@@ -272,7 +284,7 @@ export default function ProductsPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Link href={`/admin/products/${product.id}/edit`}>
+                    <Link href={`/admin/products/${(product.type || '').toLowerCase().includes('perfume') ? 'perfume' : 'attar'}/${product.id}/edit`}>
                       <Button variant="outline" size="sm">
                         Edit
                       </Button>
