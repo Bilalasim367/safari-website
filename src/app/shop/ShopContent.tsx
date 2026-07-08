@@ -41,6 +41,15 @@ interface Product {
   type: ProductType;
 }
 
+const COLLECTION_MAP: Record<string, Partial<SearchParams & { gender?: string; isBestseller?: string; isNew?: string }>> = {
+  'for-him': { gender: 'Men' },
+  'for-her': { gender: 'Women' },
+  'unisex': { gender: 'Unisex' },
+  'attars': { type: 'attar' },
+  'signature': { isBestseller: 'true' },
+  'limited': { isNew: 'true' },
+}
+
 interface SearchParams {
   category?: string;
   size?: string;
@@ -50,6 +59,10 @@ interface SearchParams {
   page?: string;
   sort?: string;
   type?: string;
+  collection?: string;
+  gender?: string;
+  isBestseller?: string;
+  isNew?: string;
 }
 
 const PAGE_SIZE = 12;
@@ -68,6 +81,9 @@ export default async function ShopContent({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+  const rawCollection = Array.isArray(searchParams.collection) ? searchParams.collection[0] : searchParams.collection;
+  const collectionMap = rawCollection ? COLLECTION_MAP[rawCollection] : undefined;
+
   const params: SearchParams = {
     category: Array.isArray(searchParams.category) ? searchParams.category.join(',') : searchParams.category,
     size: Array.isArray(searchParams.size) ? searchParams.size.join(',') : searchParams.size,
@@ -77,7 +93,16 @@ export default async function ShopContent({
     page: searchParams.page as string,
     sort: searchParams.sort as string,
     type: Array.isArray(searchParams.type) ? searchParams.type.join(',') : searchParams.type,
+    collection: rawCollection,
+    gender: collectionMap?.gender,
+    isBestseller: collectionMap?.isBestseller,
+    isNew: collectionMap?.isNew,
   };
+
+  // Collection overrides: if user explicitly set type, keep it; otherwise use collection mapping
+  if (collectionMap?.type && !searchParams.type) {
+    params.type = collectionMap.type;
+  }
   
   const page = parseInt(params.page || '1');
   const skip = (page - 1) * PAGE_SIZE;
@@ -94,6 +119,15 @@ export default async function ShopContent({
   }
   if (params.fragranceFamily) {
     where.fragranceFamily = { in: params.fragranceFamily.split(',') };
+  }
+  if (params.gender) {
+    where.gender = params.gender;
+  }
+  if (params.isBestseller === 'true') {
+    where.isBestseller = true;
+  }
+  if (params.isNew === 'true') {
+    where.isNew = true;
   }
   if (params.minPrice || params.maxPrice) {
     where.price = {};

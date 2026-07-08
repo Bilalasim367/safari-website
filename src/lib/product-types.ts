@@ -7,7 +7,23 @@ export function classifyProductType(product: {
   sizesAvailable?: string | null
   sizePrices?: string | null
   size?: string | null
+  type?: string | null
+  price3mlPhysical?: number | null
+  price6mlPhysical?: number | null
+  applicatorType?: string | null
+  origin?: string | null
 }): ProductType {
+  // Direct type field takes priority
+  if (product.type === 'Perfume') return 'perfume'
+  if (product.type === 'Attar') return 'attar'
+  if (product.type && product.type.toLowerCase().includes('perfume')) return 'perfume'
+
+  // Attar-specific fields are strong signals
+  if (product.applicatorType || product.origin) return 'attar'
+
+  // Attar pricing fields
+  if (product.price3mlPhysical != null || product.price6mlPhysical != null) return 'attar'
+
   const sizes = new Set<string>()
 
   if (product.sizePrices) {
