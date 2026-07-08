@@ -149,17 +149,42 @@ export interface ProductFormData {
   ingredients?: string | null;
 }
 
+function makeProductId(id: string | null | undefined, index: number): string | null {
+  if (!id) return null;
+  return index > 0 ? `${id}-${index}` : id;
+}
+
 export async function createProduct(data: ProductFormData) {
   const auth = await getAuth();
   if (!auth || auth.role !== 'admin') {
     return { error: 'Unauthorized' };
   }
   
+  let productId = data.productId || null;
+  let slug = data.slug;
+
+  // Ensure unique productId
+  if (productId) {
+    let attempt = 0;
+    while (await prisma.product.findUnique({ where: { productId: productId } })) {
+      attempt++;
+      productId = makeProductId(data.productId!, attempt);
+    }
+  }
+
+  // Ensure unique slug
+  let attempt = 0;
+  const baseSlug = slug;
+  while (await prisma.product.findUnique({ where: { slug } })) {
+    attempt++;
+    slug = `${baseSlug}-${attempt}`;
+  }
+
   try {
     const product = await prisma.product.create({
       data: {
         name: data.name,
-        slug: data.slug,
+        slug,
         description: data.description || `${data.name} - Luxury fragrance`,
         price: data.price,
         originalPrice: data.originalPrice ?? null,
@@ -177,7 +202,7 @@ export async function createProduct(data: ProductFormData) {
         inStock: data.inStock ?? true,
         isBestseller: data.isBestseller ?? false,
         isNew: data.isNew ?? false,
-        productId: data.productId || null,
+        productId,
         gender: data.gender || 'Unisex',
         type: data.type || 'Attar & Spray',
         season: data.season || null,

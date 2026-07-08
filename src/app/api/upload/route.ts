@@ -3,6 +3,7 @@ import { put } from '@vercel/blob';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import path from 'path';
+import fs from 'fs/promises';
 
 export async function POST(request: Request) {
   try {
@@ -36,12 +37,25 @@ export async function POST(request: Request) {
     const ext = path.extname(file.name) || '.jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
 
-    const blob = await put(`products/${filename}`, buffer, {
-      contentType: file.type,
-      access: 'public',
-    });
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
-    return NextResponse.json({ url: blob.url });
+    if (blobToken) {
+      const blob = await put(`products/${filename}`, buffer, {
+        contentType: file.type,
+        access: 'public',
+        token: blobToken,
+      });
+      return NextResponse.json({ url: blob.url });
+    }
+
+    // Fallback: save to local public/uploads/
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+    await fs.mkdir(uploadDir, { recursive: true });
+    const localPath = path.join(uploadDir, filename);
+    await fs.writeFile(localPath, buffer);
+
+    const url = `/uploads/products/${filename}`;
+    return NextResponse.json({ url });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
