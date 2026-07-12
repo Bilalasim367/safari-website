@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
-import path from 'path';
-import fs from 'fs/promises';
 
 export async function POST(request: Request) {
   try {
@@ -34,28 +32,22 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const ext = path.extname(file.name) || '.jpg';
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+    const ext = file.name.split('.').pop() || 'jpg';
+    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
     const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
-    if (blobToken) {
-      const blob = await put(`products/${filename}`, buffer, {
-        contentType: file.type,
-        access: 'public',
-        token: blobToken,
-      });
-      return NextResponse.json({ url: blob.url });
+    if (!blobToken) {
+      return NextResponse.json({ error: 'Blob storage not configured. Set BLOB_READ_WRITE_TOKEN.' }, { status: 500 });
     }
 
-    // Fallback: save to local public/uploads/
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
-    await fs.mkdir(uploadDir, { recursive: true });
-    const localPath = path.join(uploadDir, filename);
-    await fs.writeFile(localPath, buffer);
+    const blob = await put(`products/${filename}`, buffer, {
+      contentType: file.type,
+      access: 'public',
+      token: blobToken,
+    });
 
-    const url = `/uploads/products/${filename}`;
-    return NextResponse.json({ url });
+    return NextResponse.json({ url: blob.url });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });

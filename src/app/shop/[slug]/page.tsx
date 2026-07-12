@@ -12,9 +12,19 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, Heart } from "lucide-react";
+import { Minus, Plus, Heart, Shield, RotateCcw, Lock, Truck } from "lucide-react";
 import { Rating } from "@/components/Rating";
 import { toast } from "sonner";
+
+// Fake reviews data for PDP
+const fakeReviews = [
+  { name: "Ahmed Hassan", location: "Karachi", rating: 5, text: "Bohot zabardast fragrance hai, poora din chalti hai. Packaging bhi premium lagi. Definitely recommend!", date: "2025-01-15" },
+  { name: "Fatima Ali", location: "Lahore", rating: 5, text: "Maine apni behen ke liye liya tha, usay bohot pasand aaya. Scent fresh hai aur long lasting bhi. Safari ka fan ban gaya hun.", date: "2025-01-10" },
+  { name: "Muhammad Usman", location: "Islamabad", rating: 5, text: "Price ke hisaab se best quality. Delivery bhi fast thi. Ab har baar Safari se hi order karunga.", date: "2025-01-05" },
+  { name: "Ayesha Khan", location: "Rawalpindi", rating: 4, text: "Fragrance achi hai lekin thora strong lagi pehle. Baad mein adjust ho gayi. Overall good experience.", date: "2025-01-02" },
+  { name: "Bilal Ahmed", location: "Faisalabad", rating: 5, text: "Original product mila, koi duplicate nahi. Box, bottle sab branded. Trustworthy seller.", date: "2024-12-28" },
+  { name: "Sana Malik", location: "Multan", rating: 5, text: "Gift ke liye liya tha, packing bohot premium thi. Recipient bohot khush hua. Safari team ka shukriya!", date: "2024-12-20" },
+];
 
 interface Product {
   id: string;
@@ -31,6 +41,7 @@ interface Product {
   rating: number;
   reviews: number;
   description: string;
+  shortDescription?: string;
   isBestseller: boolean;
   isNew: boolean;
   inStock: boolean;
@@ -146,6 +157,7 @@ export default function ProductDetailPage() {
   }, [product]);
 
   const isPerfume = product?.type === 'Perfume';
+  const isAttar = product?.type === 'Attar';
 
   const router = useRouter();
 
@@ -154,14 +166,16 @@ export default function ProductDetailPage() {
     if (isPerfume && product.sizePrices) {
       return product.sizePrices.find((s) => s.size === selectedSize) || null;
     }
-    if (!isPerfume) {
+    if (isAttar) {
       const sizeKey = selectedSize.toLowerCase().replace('ml', '');
       const physKey = `price${sizeKey}Physical` as keyof Product;
-      const price = product[physKey] as number | undefined;
-      if (price) return { size: selectedSize, price, originalPrice: undefined };
+      const onlineKey = `price${sizeKey}Online` as keyof Product;
+      const physicalPrice = product[physKey] as number | undefined;
+      const onlinePrice = product[onlineKey] as number | undefined;
+      if (physicalPrice || onlinePrice) return { size: selectedSize, price: physicalPrice || onlinePrice, originalPrice: undefined, physicalPrice, onlinePrice };
     }
     return null;
-  }, [product, selectedSize, isPerfume]);
+  }, [product, selectedSize, isPerfume, isAttar]);
 
   const displayPrice = priceData?.price ?? product?.price ?? 0;
   const displayOriginalPrice = priceData?.originalPrice ?? product?.originalPrice;
@@ -350,9 +364,11 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {(csvSizes.length > 0 || product.description) && (
+                {(csvSizes.length > 0 || product.description || product.shortDescription) && (
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    {csvSizes.length > 0 && !priceData ? (
+                    {product.shortDescription ? (
+                      product.shortDescription
+                    ) : csvSizes.length > 0 && !priceData ? (
                       (() => {
                         const prices = [product.price3mlPhysical, product.price6mlPhysical, product.price12mlPhysical, product.price50mlPhysical].filter((p): p is number => p != null);
                         return prices.length > 0 ? (
@@ -370,17 +386,35 @@ export default function ProductDetailPage() {
                 <div className="mb-6">
                   <label className="text-xs tracking-[0.2em] uppercase font-semibold text-foreground mb-3 block">Select Size</label>
                   <div className="flex gap-2 flex-wrap">
-                    {(csvSizes.length > 0 ? csvSizes : ["30ml", "50ml", "100ml"]).map((size) => (
-                      <Button
-                        key={size}
-                        variant={selectedSize === size ? "default" : "outline"}
-                        size="sm"
-                        className="rounded-none min-w-[70px]"
-                        onClick={() => setSelectedSize(size)}
-                      >
-                        {size}
-                      </Button>
-                    ))}
+                    {(csvSizes.length > 0 ? csvSizes : ["30ml", "50ml", "100ml"]).map((size) => {
+                      let sizePrice: number | undefined;
+                      if (isPerfume && product.sizePrices) {
+                        const sp = product.sizePrices.find((s) => s.size === size);
+                        sizePrice = sp?.price;
+                      } else if (isAttar) {
+                        const sizeKey = size.toLowerCase().replace('ml', '');
+                        const physKey = `price${sizeKey}Physical` as keyof Product;
+                        const onlineKey = `price${sizeKey}Online` as keyof Product;
+                        sizePrice = (product[physKey] as number | undefined) || (product[onlineKey] as number | undefined);
+                      }
+                      const displaySizePrice = sizePrice ?? product.price;
+                      return (
+                        <Button
+                          key={size}
+                          variant={selectedSize === size ? "default" : "outline"}
+                          size="sm"
+                          className="rounded-none min-w-[80px] relative"
+                          onClick={() => setSelectedSize(size)}
+                        >
+                          <span className="font-medium">{size}</span>
+                          {sizePrice && (
+                            <span className="block text-xs font-normal opacity-80 mt-0.5">
+                              {currencySymbol} {displaySizePrice.toLocaleString()}
+                            </span>
+                          )}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -405,6 +439,26 @@ export default function ProductDetailPage() {
                   </Button>
                 </div>
 
+                {/* Trust Badges Row */}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6 mb-8 text-xs sm:text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Shield className="w-4 h-4" />
+                    <span>100% Authentic</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RotateCcw className="w-4 h-4" />
+                    <span>Free Returns 30 Days</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Lock className="w-4 h-4" />
+                    <span>Secure Checkout</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Truck className="w-4 h-4" />
+                    <span>Fast Delivery</span>
+                  </div>
+                </div>
+
                 {tagList.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-6">
                     {tagList.map((tag: string) => (
@@ -421,96 +475,109 @@ export default function ProductDetailPage() {
 
                 <Separator className="my-8" />
                 <Accordion type="multiple" defaultValue={["description"]}>
-                  <AccordionItem value="description">
-                    <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Description</AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground leading-relaxed">
-                      {product.longDescription
-                        ? renderLongDescription(product.longDescription)
-                        : product.description}
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {product.notesTop?.length > 0 || product.notesHeart?.length > 0 || product.notesBase?.length > 0 ? (
-                    <AccordionItem value="notes">
-                      <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Fragrance Notes</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-4">
-                          {product.notesTop?.length > 0 && (
-                            <div>
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Top Notes</h4>
-                              <p className="text-muted-foreground">{product.notesTop.join(" • ")}</p>
-                            </div>
-                          )}
-                          {product.notesHeart?.length > 0 && (
-                            <div>
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Heart Notes</h4>
-                              <p className="text-muted-foreground">{product.notesHeart.join(" • ")}</p>
-                            </div>
-                          )}
-                          {product.notesBase?.length > 0 && (
-                            <div>
-                              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Base Notes</h4>
-                              <p className="text-muted-foreground">{product.notesBase.join(" • ")}</p>
-                            </div>
-                          )}
-                        </div>
+<AccordionItem value="description">
+                      <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Description</AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground leading-relaxed">
+                        {product.shortDescription && (
+                          <p className="mb-4 font-medium text-foreground">{product.shortDescription}</p>
+                        )}
+                        {product.longDescription
+                          ? renderLongDescription(product.longDescription)
+                          : product.description}
                       </AccordionContent>
                     </AccordionItem>
-                  ) : null}
 
-                  {(product.concentration || product.bottleStyle || product.longevity || product.sillage || product.applicatorType || product.origin || product.ingredients) ? (
-                    <AccordionItem value="details">
-                      <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Product Details</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-3">
-                          {isPerfume && product.concentration && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Concentration</span>
-                              <span className="text-sm font-medium text-foreground">{product.concentration}</span>
-                            </div>
-                          )}
-                          {isPerfume && product.bottleStyle && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Bottle Type</span>
-                              <span className="text-sm font-medium text-foreground text-capitalize">{product.bottleStyle}</span>
-                            </div>
-                          )}
-                          {isPerfume && product.longevity && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Longevity</span>
-                              <span className="text-sm font-medium text-foreground">{product.longevity}</span>
-                            </div>
-                          )}
-                          {isPerfume && product.sillage && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Sillage</span>
-                              <span className="text-sm font-medium text-foreground">{product.sillage}</span>
-                            </div>
-                          )}
-                          {!isPerfume && product.applicatorType && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Applicator</span>
-                              <span className="text-sm font-medium text-foreground text-capitalize">{product.applicatorType.replace('-', ' ')}</span>
-                            </div>
-                          )}
-                          {!isPerfume && product.origin && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Origin</span>
-                              <span className="text-sm font-medium text-foreground">{product.origin}</span>
-                            </div>
-                          )}
-                          {!isPerfume && product.ingredients && (
-                            <div className="flex justify-between py-1.5 border-b border-border/50">
-                              <span className="text-sm text-muted-foreground">Ingredients</span>
-                              <span className="text-sm font-medium text-foreground">{product.ingredients}</span>
-                            </div>
-                          )}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ) : null}
+                    {product.notesTop?.length > 0 || product.notesHeart?.length > 0 || product.notesBase?.length > 0 ? (
+                      <AccordionItem value="notes">
+                        <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Fragrance Notes</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4">
+                            {product.notesTop?.length > 0 && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Top Notes</h4>
+                                <p className="text-muted-foreground">{product.notesTop.join(" • ")}</p>
+                              </div>
+                            )}
+                            {product.notesHeart?.length > 0 && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Heart Notes</h4>
+                                <p className="text-muted-foreground">{product.notesHeart.join(" • ")}</p>
+                              </div>
+                            )}
+                            {product.notesBase?.length > 0 && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Base Notes</h4>
+                                <p className="text-muted-foreground">{product.notesBase.join(" • ")}</p>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ) : null}
 
-                  <AccordionItem value="shipping">
+                    {isPerfume && (product.concentration || product.bottleStyle || product.longevity || product.sillage) ? (
+                      <AccordionItem value="perfume-details">
+                        <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Perfume Details</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-3">
+                            {product.concentration && (
+                              <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="text-sm text-muted-foreground">Concentration</span>
+                                <span className="text-sm font-medium text-foreground">{product.concentration}</span>
+                              </div>
+                            )}
+                            {product.bottleStyle && (
+                              <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="text-sm text-muted-foreground">Bottle Type</span>
+                                <span className="text-sm font-medium text-foreground text-capitalize">{product.bottleStyle}</span>
+                              </div>
+                            )}
+                            {product.longevity && (
+                              <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="text-sm text-muted-foreground">Longevity</span>
+                                <span className="text-sm font-medium text-foreground">{product.longevity}</span>
+                              </div>
+                            )}
+                            {product.sillage && (
+                              <div className="flex justify-between py-1.5 border-b border-border/50">
+                                <span className="text-sm text-muted-foreground">Sillage</span>
+                                <span className="text-sm font-medium text-foreground">{product.sillage}</span>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ) : null}
+
+                    {isAttar && (product.applicatorType || product.origin || product.ingredients) ? (
+                      <AccordionItem value="attar-profile">
+                        <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Fragrance Profile</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4">
+                            {product.origin && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Sourcing Origin</h4>
+                                <p className="text-muted-foreground">{product.origin}</p>
+                              </div>
+                            )}
+                            {product.applicatorType && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Applicator Type</h4>
+                                <p className="text-muted-foreground text-capitalize">{product.applicatorType.replace('-', ' ')}</p>
+                              </div>
+                            )}
+                            {product.ingredients && (
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">Ingredients</h4>
+                                <p className="text-muted-foreground">{product.ingredients}</p>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ) : null}
+
+                    <AccordionItem value="shipping">
                     <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Shipping & Returns</AccordionTrigger>
                     <AccordionContent className="text-muted-foreground leading-relaxed">
                       Free shipping on orders over $100. Standard delivery 3-5 business days. Easy returns within 30 days of purchase.
@@ -521,6 +588,82 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Customer Reviews Section */}
+        <section className="py-10 lg:py-16 mt-12 lg:mt-16 bg-background border-y border-border">
+          <div className="container-custom">
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-10">
+                <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-4">Customer Reviews</h2>
+                <p className="text-muted-foreground">What our customers are saying</p>
+              </div>
+
+              {/* Rating Summary */}
+              <div className="bg-muted/50 rounded-xl p-6 md:p-8 mb-10">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 mb-8">
+<div className="text-center">
+                      <p className="text-6xl md:text-7xl font-bold text-foreground">4.8</p>
+                    <div className="flex items-center justify-center gap-1 mt-2">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="text-muted-foreground mt-2">Based on 127 reviews</p>
+                  </div>
+                  <div className="hidden md:flex flex-col gap-1.5 w-full max-w-xs">
+                    {[5, 4, 3, 2, 1].map((star) => (
+                      <div key={star} className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground w-8 text-right">{star}★</span>
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="bg-primary h-full rounded-full transition-all duration-500"
+                            style={{ width: `${star === 5 ? 92 : star === 4 ? 6 : star === 3 ? 2 : 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground w-10 text-right">
+                          {star === 5 ? '92%' : star === 4 ? '6%' : star === 3 ? '2%' : '0%'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Reviews List */}
+              <div className="space-y-6">
+                {fakeReviews.map((review, index) => (
+                  <article key={index} className="bg-card border border-border rounded-xl p-6">
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-foreground">{review.name}</span>
+                          <span className="text-xs text-muted-foreground">{review.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <svg key={i} className={`w-4 h-4 ${i < review.rating ? 'text-primary fill-current' : 'text-muted-foreground'}`} viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <time className="text-xs text-muted-foreground whitespace-nowrap">{new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">&ldquo;{review.text}&rdquo;</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="text-center mt-10">
+                <Button variant="outline" className="border-foreground/30 hover:bg-foreground hover:text-background px-10 py-4 tracking-[0.2em] uppercase text-sm">
+                  Write a Review
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section className="py-10 lg:py-24 mt-12 lg:mt-24 mb-10 lg:mb-16 bg-muted">
           <div className="container-custom">

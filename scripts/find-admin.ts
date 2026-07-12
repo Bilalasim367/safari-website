@@ -21,8 +21,8 @@ async function main() {
     } else {
       console.log('No admin found');
     }
-  } catch (e: any) {
-    console.error('Error:', e.message);
+  } catch (e: unknown) {
+    console.error('Error:', e instanceof Error ? e.message : String(e));
   }
   await prisma.$disconnect();
 }

@@ -166,7 +166,7 @@ export async function createProduct(data: ProductFormData) {
   // Ensure unique productId
   if (productId) {
     let attempt = 0;
-    while (await prisma.product.findUnique({ where: { productId: productId } })) {
+    while (await prisma.product.findUnique({ where: { productId: productId ?? undefined } })) {
       attempt++;
       productId = makeProductId(data.productId!, attempt);
     }

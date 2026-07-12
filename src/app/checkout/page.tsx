@@ -42,10 +42,6 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const shipping = subtotal >= 100 ? 0 : 15;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -403,24 +399,18 @@ export default function CheckoutPage() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
-                  <span>Shipping</span>
-                  <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                  <span>Delivery</span>
+                  <span className="text-green-600 font-medium">Free Delivery</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Tax (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>${(subtotal * 0.08).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-foreground font-semibold text-lg pt-3 border-t border-border">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>${(subtotal * 1.08).toFixed(2)}</span>
                 </div>
               </div>
-
-              {subtotal < 100 && (
-                <p className="text-muted-foreground text-sm mt-4 text-center">
-                  Add ${(100 - subtotal).toFixed(2)} more for free shipping!
-                </p>
-              )}
             </Card>
           </div>
         </div>

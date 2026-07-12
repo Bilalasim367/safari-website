@@ -75,7 +75,8 @@ export async function POST(request: Request) {
     const batchSize = 50;
     for (let i = 0; i < dedupedRows.length; i += batchSize) {
       const batch = dedupedRows.slice(i, i + batchSize);
-      const operations = batch.map(async (row) => {
+      
+      for (const row of batch) {
         const transformed = transformRow(row, existingSlugs);
         const isUpdate = existingProductIds.has(transformed.productId);
 
@@ -142,11 +143,9 @@ export async function POST(request: Request) {
             row: i + batch.indexOf(row) + 2,
             product_id: transformed.productId || `row ${i + batch.indexOf(row) + 2}`,
             reason: 'Operation failed',
-          });
+});
         }
-      });
-
-      await prisma.$transaction(operations as any);
+      }
     }
 
     return NextResponse.json({

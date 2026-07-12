@@ -107,9 +107,9 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
       >
         <div className='flex -ml-4'>
           {products.map((product) => (
-            <div
+<div
               key={product.id}
-              className='flex-[0_0_80%] md:flex-[0_0_50%] lg:flex-[0_0_33.33%] xl:flex-[0_0_25%] min-w-0 pl-4'
+              className='flex-[0_0_100%] sm:flex-[0_0_50%] md:flex-[0_0_50%] lg:flex-[0_0_33.33%] xl:flex-[0_0_25%] min-w-0 pl-4'
             >
               <ProductCard
                 id={product.id}

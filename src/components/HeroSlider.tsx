@@ -37,7 +37,7 @@ export default function HeroSlider({ banners, content }: HeroSliderProps) {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
 
-      <div className="relative z-10 text-center px-8 md:px-12 max-w-6xl mx-auto py-32 md:py-40 lg:py-48">
+      <div className="relative z-10 text-center px-8 md:px-12 max-w-6xl mx-auto py-16 md:py-24 lg:py-32">
         <p className="text-white/90 text-sm md:text-base tracking-[0.6em] uppercase mb-12 animate-fade-in">
           {content[currentSlide].subtitle}
         </p>

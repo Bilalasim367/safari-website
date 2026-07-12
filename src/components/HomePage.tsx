@@ -163,6 +163,53 @@ export default function HomePage({ bestsellers, newArrivals, bundles, allProduct
         <HeroSlider banners={HERO_BANNERS} content={HERO_CONTENT} />
       </section>
 
+      {/* BEST SELLERS SECTION */}
+      <section className='px-6 md:px-12 py-10 md:py-14 bg-background'>
+        <div className='container-custom'>
+          <div className='flex items-end justify-between mb-10'>
+            <div>
+              <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
+                Most Popular
+              </p>
+              <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
+                Best Sellers
+              </h2>
+            </div>
+            <Link
+              href='/shop?filter=bestseller'
+              className='hidden md:block text-sm text-muted-foreground hover:text-foreground transition-colors tracking-wider'
+            >
+              View All →
+            </Link>
+          </div>
+
+          <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+            {bestsellers.length > 0
+              ? bestsellers.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    id={String(product.id)}
+                    name={product.name}
+                    slug={product.slug}
+                    price={product.price}
+                    originalPrice={product.originalPrice ?? undefined}
+                    image={product.image}
+                    images={product.images}
+                    category={product.category?.name || 'Signature'}
+                    isNew={product.isNew}
+                    isBestseller={product.isBestseller}
+                    size={product.size}
+                    rating={product.rating}
+                    reviewCount={product.reviewCount}
+                  />
+                ))
+              : [...Array(4)].map((_, i) => (
+                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
+                ))}
+          </div>
+        </div>
+      </section>
+
       {/* TRUST & VALUE SECTION */}
       <section className='px-6 md:px-12 py-10 md:py-14 bg-background '>
         <div className='container-custom'>
@@ -287,7 +334,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles, allProduct
             </h2>
           </div>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
             {attarProducts.length > 0
               ? attarProducts.map((product) => (
                   <ProductCard
@@ -326,7 +373,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles, allProduct
             </h2>
           </div>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
             {perfumeProducts.length > 0
               ? perfumeProducts.map((product) => (
                   <ProductCard
@@ -365,7 +412,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles, allProduct
             </h2>
           </div>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
             {newArrivals.length > 0
               ? newArrivals.map((product) => (
                   <ProductCard
@@ -589,53 +636,6 @@ export default function HomePage({ bestsellers, newArrivals, bundles, allProduct
         </div>
       </section>
 
-      {/* BEST SELLERS SECTION */}
-      <section className='px-6 md:px-12 py-10 md:py-14 bg-background'>
-        <div className='container-custom'>
-          <div className='flex items-end justify-between mb-10'>
-            <div>
-              <p className='text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground'>
-                Most Popular
-              </p>
-              <h2 className='text-4xl md:text-5xl lg:text-6xl font-heading text-foreground'>
-                Best Sellers
-              </h2>
-            </div>
-            <Link
-              href='/shop?filter=bestseller'
-              className='hidden md:block text-sm text-muted-foreground hover:text-foreground transition-colors tracking-wider'
-            >
-              View All →
-            </Link>
-          </div>
-
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
-            {bestsellers.length > 0
-              ? bestsellers.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={String(product.id)}
-                    name={product.name}
-                    slug={product.slug}
-                    price={product.price}
-                    originalPrice={product.originalPrice ?? undefined}
-                    image={product.image}
-                    images={product.images}
-                    category={product.category?.name || 'Signature'}
-                    isNew={product.isNew}
-                    isBestseller={product.isBestseller}
-                    size={product.size}
-                    rating={product.rating}
-                    reviewCount={product.reviewCount}
-                  />
-                ))
-              : [...Array(4)].map((_, i) => (
-                  <div key={i} className='h-[400px] rounded-lg bg-muted animate-pulse' />
-                ))}
-          </div>
-        </div>
-      </section>
-
       {/* BUNDLES SECTION */}
       <section id='bundles' className='px-6 md:px-12 py-14 bg-background'>
         <div className='container-custom'>
@@ -648,7 +648,7 @@ export default function HomePage({ bestsellers, newArrivals, bundles, allProduct
             </h2>
           </div>
 
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
             {bundles.length > 0
               ? bundles.map((bundle) => (
                   <Link

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getAdminBundles, deleteBundle } from "../actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -22,12 +23,13 @@ interface Bundle {
 }
 
 export default function BundlesPage() {
+  const router = useRouter();
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadBundles = async () => {
+  const loadBundles = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -36,29 +38,18 @@ export default function BundlesPage() {
     if (result.error) {
       setError(result.error);
       if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
-        window.location.href = '/admin/login';
+        router.push('/admin/login');
       }
     } else {
       setBundles(result.bundles || []);
     }
     setLoading(false);
-  };
+  }, [router]);
 
-  React.useEffect(() => {
-    (async () => {
-      setLoading(true);
-      setError("");
-
-      const result = await getAdminBundles();
-
-      if (result.error) {
-        setError(result.error);
-      } else {
-        setBundles(result.bundles || []);
-      }
-      setLoading(false);
-    })();
-  }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadBundles();
+  }, [loadBundles]);
 
   const filteredBundles = bundles.filter((bundle) =>
     bundle.name.toLowerCase().includes(searchTerm.toLowerCase())

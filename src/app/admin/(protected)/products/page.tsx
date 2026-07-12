@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getAdminProducts, deleteProduct, updateProductPartial } from "../actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -35,6 +36,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,7 +46,7 @@ export default function ProductsPage() {
   const [stockFilter, setStockFilter] = useState<string>("all");
   const [activeFilter, setActiveFilter] = useState<string>("all");
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -53,32 +55,18 @@ export default function ProductsPage() {
     if (result.error) {
       setError(result.error);
       if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
-        window.location.href = '/admin/login';
+        router.push('/admin/login');
       }
     } else {
       setProducts(result.products || []);
     }
     setLoading(false);
-  };
+  }, [router]);
 
-  React.useEffect(() => {
-    (async () => {
-      setLoading(true);
-      setError("");
-
-      const result = await getAdminProducts();
-
-      if (result.error) {
-        setError(result.error);
-        if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
-          window.location.href = '/admin/login';
-        }
-      } else {
-        setProducts(result.products || []);
-      }
-      setLoading(false);
-    })();
-  }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadProducts();
+  }, [loadProducts]);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -113,7 +101,6 @@ export default function ProductsPage() {
       toast.error('Error toggling status');
     }
   };
-
   if (loading) {
     return (
       <div className="p-8">
