@@ -5,7 +5,8 @@ import ProductCard from '@/components/ProductCard';
 import SortSelect from './SortSelect';
 import MobileFilterDrawer from './MobileFilterDrawer';
 import FILTERS, { FilterSection } from './FilterSection';
-import { classifyProductType, type ProductType } from '@/lib/product-types';
+import { classifyProductType, type ProductCategoryType } from '@/lib/product-types';
+import { normalizeGender, normalizeType } from '@/lib/normalize';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +39,7 @@ interface Product {
   price50mlOnline?: number | null;
   currency?: string;
   lowestPhysicalPrice?: number | null;
-  type: ProductType;
+  type: ProductCategoryType;
 }
 
 const COLLECTION_MAP: Record<string, Partial<SearchParams & { gender?: string; isBestseller?: string; isNew?: string }>> = {
@@ -63,6 +64,7 @@ interface SearchParams {
   gender?: string;
   isBestseller?: string;
   isNew?: string;
+  q?: string;
 }
 
 const PAGE_SIZE = 12;
@@ -94,9 +96,10 @@ export default async function ShopContent({
     sort: searchParams.sort as string,
     type: Array.isArray(searchParams.type) ? searchParams.type.join(',') : searchParams.type,
     collection: rawCollection,
-    gender: collectionMap?.gender,
+    gender: Array.isArray(searchParams.gender) ? searchParams.gender.join(',') : (searchParams.gender || collectionMap?.gender),
     isBestseller: collectionMap?.isBestseller,
     isNew: collectionMap?.isNew,
+    q: Array.isArray(searchParams.q) ? searchParams.q.join(' ') : searchParams.q,
   };
 
   // Collection overrides: if user explicitly set type, keep it; otherwise use collection mapping
@@ -107,7 +110,6 @@ export default async function ShopContent({
   const page = parseInt(params.page || '1');
   const skip = (page - 1) * PAGE_SIZE;
   const sort = params.sort || 'featured';
-  const typeFilter = params.type as ProductType | undefined;
 
   const where: Record<string, unknown> = {};
 
@@ -121,7 +123,12 @@ export default async function ShopContent({
     where.fragranceFamily = { in: params.fragranceFamily.split(',') };
   }
   if (params.gender) {
-    where.gender = params.gender;
+    const genders = params.gender.split(',').map(g => normalizeGender(g));
+    where.gender = { in: genders };
+  }
+  if (params.type) {
+    const types = params.type.split(',').map(t => normalizeType(t));
+    where.type = { in: types };
   }
   if (params.isBestseller === 'true') {
     where.isBestseller = true;
@@ -135,6 +142,17 @@ export default async function ShopContent({
     if (params.maxPrice && params.maxPrice !== 'Infinity') {
       (where.price as Record<string, number>).lte = parseFloat(params.maxPrice);
     }
+  }
+  if (params.q) {
+    where.OR = [
+      { name: { contains: params.q } },
+      { description: { contains: params.q } },
+      { type: { contains: params.q } },
+      { gender: { contains: params.q } },
+      { categorySlug: { contains: params.q } },
+      { tags: { contains: params.q } },
+      { productId: { contains: params.q } },
+    ];
   }
 
   let orderBy: Record<string, string> = { createdAt: 'desc' };
@@ -199,18 +217,7 @@ export default async function ShopContent({
   let formattedProducts: Product[] = [];
   let total = 0;
 
-  try {
-    if (typeFilter) {
-      const allProducts = await prisma.product.findMany({
-        where,
-        include: { category: true },
-        orderBy,
-      });
-      const allFormatted = allProducts.map((p) => mapToFormattedProduct(p as Prisma.ProductGetPayload<{ include: { category: true } }>));
-      const filtered = allFormatted.filter((p) => p.type === typeFilter);
-      total = filtered.length;
-      formattedProducts = filtered.slice(skip, skip + PAGE_SIZE);
-    } else {
+try {
       const [products, count] = await Promise.all([
         prisma.product.findMany({
           where,
@@ -223,16 +230,16 @@ export default async function ShopContent({
       ]);
       total = count;
       formattedProducts = (products as Prisma.ProductGetPayload<{ include: { category: true } }>[]).map((p) => mapToFormattedProduct(p));
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-  } catch (error) {
-    console.error('Error fetching products:', error);
-  }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const selectedCategories = params.category?.split(',').filter(Boolean) || [];
   const selectedSizes = params.size?.split(',').filter(Boolean) || [];
   const selectedFamilies = params.fragranceFamily?.split(',').filter(Boolean) || [];
+  const selectedGenders = params.gender?.split(',').filter(Boolean) || [];
   const selectedPriceRanges: string[] = [];
   const selectedTypes = params.type ? [params.type] : [];
 
@@ -254,7 +261,7 @@ export default async function ShopContent({
               <div className="sticky top-24">
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
                   <h2 className="text-lg font-semibold text-foreground uppercase tracking-wider">Filters</h2>
-                  {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
+                  {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
                     <Link
                       href="/shop"
                       className="text-black text-sm hover:underline underline-offset-2 transition-all"
@@ -269,6 +276,14 @@ export default async function ShopContent({
                   options={FILTERS.categories}
                   selected={selectedCategories}
                   paramKey="category"
+                  currentParams={params}
+                />
+
+                <FilterSection
+                  title="Gender"
+                  options={FILTERS.categories}
+                  selected={selectedGenders}
+                  paramKey="gender"
                   currentParams={params}
                 />
 
@@ -316,7 +331,7 @@ export default async function ShopContent({
                   <div className="lg:hidden ml-auto">
                     <MobileFilterDrawer
                       filterCount={
-                        selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedPriceRanges.length + selectedTypes.length
+                        selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length
                       }
                     >
                       <FilterSection
@@ -324,6 +339,13 @@ export default async function ShopContent({
                         options={FILTERS.categories}
                         selected={selectedCategories}
                         paramKey="category"
+                        currentParams={params}
+                      />
+                      <FilterSection
+                        title="Gender"
+                        options={FILTERS.categories}
+                        selected={selectedGenders}
+                        paramKey="gender"
                         currentParams={params}
                       />
                       <FilterSection

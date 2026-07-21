@@ -1,118 +1,38 @@
 import React from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { Card } from '@/components/ui/card'
 
 export const metadata: Metadata = {
-  title: "Collections | SAFARI Luxury Fragrances",
-  description: "Browse our luxury fragrance collections. Discover perfumes for him, her, unisex scents, signature series, attars, and limited editions.",
-  keywords: "perfume collections, luxury fragrances, men's perfume, women's perfume, unisex scents",
+  title: "Coming Soon | SAFARI Luxury Fragrances",
+  description: "Our exclusive signature collection is being crafted with the finest ingredients.",
 }
-
-const collections = [
-  {
-    name: 'For Him',
-    slug: 'for-him',
-    desc: 'Bold, sophisticated scents crafted for the modern gentleman.',
-    image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&q=80',
-    count: 24,
-  },
-  {
-    name: 'For Her',
-    slug: 'for-her',
-    desc: 'Elegant, captivating fragrances that leave a lasting impression.',
-    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2c0ef40?w=600&q=80',
-    count: 28,
-  },
-  {
-    name: 'Unisex',
-    slug: 'unisex',
-    desc: 'Gender-neutral scents that transcend boundaries.',
-    image: 'https://images.unsplash.com/photo-1595425970377-c9706f1dce28?w=600&q=80',
-    count: 16,
-  },
-  {
-    name: 'Signature Series',
-    slug: 'signature',
-    desc: 'Our most beloved and iconic fragrances.',
-    image: 'https://images.unsplash.com/photo-1592945403244-b3fbab5dd54e?w=600&q=80',
-    count: 12,
-  },
-  {
-    name: 'Attars',
-    slug: 'attars',
-    desc: 'Pure, concentrated perfume oils for a subtle, personal scent.',
-    image: 'https://images.unsplash.com/photo-1541643600914-53b636c2076a?w=600&q=80',
-    count: 18,
-  },
-  {
-    name: 'Limited Edition',
-    slug: 'limited',
-    desc: 'Exclusive fragrances available for a limited time.',
-    image: 'https://images.unsplash.com/photo-1590736969955-71cc94933744?w=600&q=80',
-    count: 8,
-  },
-]
 
 export default function CollectionsPage() {
   return (
-    <>
-      <section className='relative h-[40vh] flex items-center justify-center overflow-hidden'>
-        <div className='absolute inset-0'>
-          <div className='absolute inset-0 bg-gradient-to-b from-background via-card to-background' />
-        </div>
-        <div className='relative z-10 text-center'>
-          <h1 className='text-4xl md:text-6xl font-semibold text-primary-foreground mb-4'>Collections</h1>
-          <p className='text-muted-foreground text-lg'>
-            <Link href='/' className='hover:text-foreground transition-colors'>Home</Link> / Collections
-          </p>
-        </div>
-      </section>
-
-      <section className='section-padding bg-background'>
-        <div className='container-custom'>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-            {collections.map((collection) => (
-              <Link
-                key={collection.slug}
-                href={`/shop?collection=${collection.slug}`}
-                className='group block'
-              >
-                <Card className='relative aspect-[3/4] rounded-2xl overflow-hidden border-0'>
-                  <div className='absolute inset-0'>
-                    {collection.image ? (
-                      <>
-                        <img
-                          src={collection.image}
-                          alt={collection.name}
-                          className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
-                        />
-                        <div className='absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent' />
-                      </>
-                    ) : (
-                      <div className='w-full h-full bg-muted flex items-center justify-center'>
-                        <span className='text-muted-foreground text-lg'>{collection.name}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className='absolute inset-0 p-8 flex flex-col justify-end'>
-                    <span className='text-primary text-sm uppercase tracking-wider mb-2'>
-                      {collection.count} Products
-                    </span>
-                    <h2 className='text-3xl font-semibold text-primary-foreground mb-2'>{collection.name}</h2>
-                    <p className='text-muted-foreground'>{collection.desc}</p>
-                  </div>
-                  <div className='absolute top-6 right-6 w-12 h-12 rounded-full bg-background/10 backdrop-blur-sm flex items-center justify-center opacity-0 transform translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0'>
-                    <svg className='w-6 h-6 text-primary-foreground' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                      <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M17 8l4 4m0 0l-4 4m4-4H3' />
-                    </svg>
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-    </>
+    <section className='relative min-h-[70vh] flex items-center justify-center overflow-hidden'>
+      <div className='absolute inset-0 bg-gradient-to-b from-background via-card to-background' />
+      <div className='relative z-10 text-center max-w-2xl px-4'>
+        <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-6'>
+          Our Collection
+        </p>
+        <h1 className='text-5xl md:text-7xl font-serif text-foreground mb-6'>
+          Coming Soon
+        </h1>
+        <p className='text-lg md:text-xl text-muted-foreground mb-4'>
+          Our exclusive signature collection is being crafted with the finest ingredients
+          and meticulous attention to detail.
+        </p>
+        <div className='w-16 h-0.5 bg-gold/50 mx-auto my-8' />
+        <p className='text-muted-foreground/70'>
+          Stay tuned for an extraordinary olfactory experience.
+        </p>
+        <Link
+          href='/shop'
+          className='inline-block mt-10 px-8 py-3 bg-foreground text-background rounded-lg hover:opacity-90 transition-opacity text-sm font-medium'
+        >
+          Browse Our Collections
+        </Link>
+      </div>
+    </section>
   )
 }

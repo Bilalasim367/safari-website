@@ -3,6 +3,7 @@
 import prisma from '@/lib/turso';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
+import { normalizeGender, normalizeType } from '@/lib/normalize';
 
 async function getAuth() {
   const cookieStore = await cookies();
@@ -20,7 +21,6 @@ export async function getAdminProducts() {
   try {
     const products = await prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 50,
       select: {
         id: true,
         name: true,
@@ -203,8 +203,8 @@ export async function createProduct(data: ProductFormData) {
         isBestseller: data.isBestseller ?? false,
         isNew: data.isNew ?? false,
         productId,
-        gender: data.gender || 'Unisex',
-        type: data.type || 'Attar & Spray',
+        gender: normalizeGender(data.gender),
+        type: normalizeType(data.type),
         season: data.season || null,
         bestTime: data.bestTime || null,
         impressionOf: data.impressionOf || null,
@@ -276,8 +276,8 @@ export async function updateProduct(id: string, data: ProductFormData) {
         isBestseller: data.isBestseller ?? false,
         isNew: data.isNew ?? false,
         productId: data.productId || null,
-        gender: data.gender || 'Unisex',
-        type: data.type || 'Attar & Spray',
+        gender: normalizeGender(data.gender),
+        type: normalizeType(data.type),
         season: data.season || null,
         bestTime: data.bestTime || null,
         impressionOf: data.impressionOf || null,
@@ -315,6 +315,7 @@ export async function updateProduct(id: string, data: ProductFormData) {
     });
     return { success: true };
   } catch (e) {
+    console.error('updateProduct error:', e);
     return { error: 'Failed to update product', detail: String(e) };
   }
 }

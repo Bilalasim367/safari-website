@@ -1,53 +1,116 @@
-"use client";
+"use client"
 
-import React from "react";
-import { testimonials } from "@/data/products";
-import { Separator } from "@/components/ui/separator";
+import React from "react"
+import Link from "next/link"
+import { Rating } from "@/components/Rating"
+import { cn } from "@/lib/utils"
+
+interface Testimonial {
+  id: string
+  name: string
+  location: string
+  rating: number
+  text: string
+  product: string
+  avatar?: string
+}
+
+const testimonials: Testimonial[] = [
+  {
+    id: "1",
+    name: "Ahmed Hassan",
+    location: "Karachi, Pakistan",
+    rating: 5,
+    text: "Safari Midnight has become my signature scent. The oud and amber blend is absolutely mesmerizing — I get compliments every single time I wear it. The longevity is incredible, lasting 12+ hours on my skin.",
+    product: "Safari Midnight",
+  },
+  {
+    id: "2",
+    name: "Fatima Ali",
+    location: "Lahore, Pakistan",
+    rating: 5,
+    text: "I was skeptical about buying perfume online, but the Discovery Set changed everything. Being able to sample before committing to a full bottle is brilliant. Safari Oud is now my go-to for evening events — sophisticated and unforgettable.",
+    product: "Safari Oud",
+  },
+  {
+    id: "3",
+    name: "Muhammad Usman",
+    location: "Islamabad, Pakistan",
+    rating: 5,
+    text: "The Attar collection is pure luxury in a bottle. I've never experienced such concentrated, long-lasting fragrance oils. A single drop of Safari Rose Attar stays with me all day. The packaging is also exquisite — makes gifting effortless.",
+    product: "Safari Rose Attar",
+  },
+]
 
 export default function Testimonials() {
   return (
-    <section className="py-20 md:py-28" style={{ backgroundColor: 'hsl(var(--background))' }}>
+    <section className="px-6 md:px-12 py-20 md:py-28 bg-muted/30">
       <div className="container-custom">
         <div className="text-center mb-16">
-          <p className="text-muted-foreground uppercase tracking-widest text-xs mb-3">Testimonials</p>
-          <h2 className="text-3xl md:text-4xl font-light text-foreground">What Our Clients Say</h2>
+          <p className="text-gold text-sm tracking-[0.5em] uppercase mb-4">
+            Testimonials
+          </p>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground">
+            Loved by Fragrance Connoisseurs
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {testimonials.map((testimonial) => (
+            <article
               key={testimonial.id}
-              className="p-10 shadow-sm fade-in opacity-0 border border-border rounded-xl"
-              style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
+              className={cn(
+                "relative bg-background border border-border rounded-2xl p-8 transition-all duration-300 hover:shadow-xl hover:border-gold/30"
+              )}
             >
-              <div className="flex gap-1 mb-6">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <svg
-                    key={i}
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-primary"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
+              <div className="flex items-center gap-2 mb-6">
+                <Rating rating={testimonial.rating} size="sm" color="gold" />
               </div>
-              <p className="text-muted-foreground mb-8 leading-relaxed font-light">&ldquo;{testimonial.text}&rdquo;</p>
-              <Separator className="mb-6" />
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-xs font-bold text-muted-foreground">{testimonial.name.charAt(0)}</span>
+
+              <blockquote className="text-foreground/90 text-base leading-relaxed mb-6">
+                &ldquo;{testimonial.text}&rdquo;
+              </blockquote>
+
+              <div className="border-t border-border pt-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center">
+                    <span className="text-gold font-heading font-medium text-lg">
+                      {testimonial.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-foreground font-medium">{testimonial.name}</h4>
-                  <p className="text-muted-foreground text-sm">{testimonial.location}</p>
-                </div>
+                <p className="text-gold text-sm mt-3 font-medium">{testimonial.product}</p>
               </div>
-            </div>
+            </article>
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link
+            href="/shop#reviews"
+            className="inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm"
+          >
+            Read All Reviews
+            <svg
+              className="w-4 h-4 transition-transform group-hover:translate-x-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>
-  );
+  )
 }

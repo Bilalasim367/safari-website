@@ -1,10 +1,11 @@
 import Link from 'next/link';
 
 const FILTERS = {
-  categories: ['Men', 'Women', 'Unisex'],
+  categories: ['men', 'women', 'unisex'],
+  genders: ['men', 'women', 'unisex'],
   sizes: ['30ml', '50ml', '100ml'],
   fragranceFamilies: ['Floral', 'Woody', 'Oriental', 'Fresh'],
-  productTypes: ['Attar', 'Perfume'],
+  productTypes: ['attar', 'perfume'],
   priceRanges: [
     { label: 'Under PKR 5,000', min: 0, max: 5000 },
     { label: 'PKR 5,000 - PKR 15,000', min: 5000, max: 15000 },
@@ -21,6 +22,11 @@ interface SearchParams {
   maxPrice?: string;
   page?: string;
   sort?: string;
+  type?: string;
+  collection?: string;
+  gender?: string;
+  isBestseller?: string;
+  isNew?: string;
 }
 
 export function FilterSection({
@@ -91,7 +97,7 @@ export function FilterSection({
                 )}
               </span>
               <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">
-                {option}
+                {option.charAt(0).toUpperCase() + option.slice(1)}
               </span>
             </Link>
           );

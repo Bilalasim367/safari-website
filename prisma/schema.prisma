@@ -32,42 +32,44 @@ model Product {
   image            String
   images           String
   categoryId       String?
-  category         Category? @relation(fields: [categoryId], references: [id])
-  categorySlug    String?
-  size             String    @default("50ml")
-  sizePrices      String    @default("[]")
-  fragranceFamily String?
-  rating           Float     @default(0)
-  reviewCount      Int       @default(0)
+  category         Category?    @relation(fields: [categoryId], references: [id])
+  categorySlug     String?      @default("unisex")
+  size             String       @default("50ml")
+  sizePrices       String       @default("[]")
+  fragranceFamily  String?
+  rating           Float        @default(0)
+  reviewCount      Int          @default(0)
   notesTop         String
   notesHeart       String
   notesBase        String
-  inStock          Boolean   @default(true)
-  isBestseller     Boolean   @default(false)
-  isNew            Boolean   @default(false)
+  inStock          Boolean      @default(true)
+  isBestseller     Boolean      @default(false)
+  isNew            Boolean      @default(false)
+  isHotSelling     Boolean      @default(false)
+  isTrending       Boolean      @default(false)
 
   // Bulk upload fields (additive, optional)
-  productId        String?   @unique
-  gender           String    @default("Unisex")
-  type             String    @default("Attar & Spray")
+  productId        String?      @unique
+  gender           String       @default("Unisex")
+  type             String       @default("Attar")
   season           String?
   bestTime         String?
   impressionOf     String?
   shortDescription String?
   longDescription  String?
   tags             String?
-  sizesAvailable   String    @default("3ml,6ml,12ml,50ml")
+  sizesAvailable   String       @default("3ml,6ml,12ml,50ml")
 
   // Perfume-specific attributes
-  concentration    String?   // EDP, EDT, Parfum, Extrait
-  bottleStyle      String?   // Spray, Atomizer, Splash, Decant
-  longevity        String?   // Very Long, Long, Moderate, Light
-  sillage          String?   // Heavy, Moderate, Soft, Intimate
+  concentration    String?      // EDP, EDT, Parfum, Extrait
+  bottleStyle      String?      // Spray, Atomizer, Splash, Decant
+  longevity        String?      // Very Long, Long, Moderate, Light
+  sillage          String?      // Heavy, Moderate, Soft, Intimate
 
   // Attar-specific attributes
-  applicatorType   String?   // roll-on, stick, premium-box
-  origin           String?   // Sourcing region e.g. Assam, India
-  ingredients      String?   // Ingredient list
+  applicatorType   String?      // roll-on, stick, premium-box
+  origin           String?      // Sourcing region e.g. Assam, India
+  ingredients      String?      // Ingredient list
   price3mlPhysical Int?
   price6mlPhysical Int?
   price12mlPhysical Int?
@@ -76,18 +78,18 @@ model Product {
   price6mlOnline   Int?
   price12mlOnline  Int?
   price50mlOnline  Int?
-  currency         String    @default("PKR")
+  currency         String       @default("PKR")
   oilPricePer100g  Int?
   supplier         String?
-  isFeatured       Boolean   @default(false)
-  isActive         Boolean   @default(true)
-  stockStatus      String    @default("in_stock")
+  isFeatured       Boolean      @default(false)
+  isActive         Boolean      @default(true)
+  stockStatus      String       @default("in_stock")
   imageFolder      String?
   metaTitle        String?
   metaDescription  String?
 
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   bundleItems BundleItem[]
 

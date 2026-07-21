@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
 import { verifyToken } from "@/lib/auth";
+import { normalizeGender, normalizeType } from "@/lib/normalize";
 import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
@@ -17,6 +18,8 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
+    const gender = searchParams.get("gender");
+    const type = searchParams.get("type");
 
     const where: Record<string, unknown> = {
       isActive: true,
@@ -35,6 +38,14 @@ export async function GET(request: Request) {
     if (isNew === "true") where.isNew = true;
     if (isBestseller === "true") where.isBestseller = true;
     if (slug) where.slug = slug;
+    if (gender) {
+      const genders = gender.split(",").map(g => normalizeGender(g));
+      where.gender = { in: genders };
+    }
+    if (type) {
+      const types = type.split(",").map(t => normalizeType(t));
+      where.type = { in: types };
+    }
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) (where.price as Record<string, number>).gte = parseFloat(minPrice);
@@ -193,8 +204,8 @@ export async function POST(request: Request) {
         origin: body.origin || null,
         ingredients: body.ingredients || null,
         productId: body.productId || null,
-        gender: body.gender || 'Unisex',
-        type: body.type || 'Attar & Spray',
+        gender: normalizeGender(body.gender),
+        type: normalizeType(body.type),
         season: body.season || null,
         bestTime: body.bestTime || null,
         impressionOf: body.impressionOf || null,

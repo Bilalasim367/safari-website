@@ -1,5 +1,23 @@
 # AGENTS.md
 
+## MANDATORY: Read Before Any Change
+Before writing or modifying any code, you MUST read, in this order:
+1. `.opencode/memory.md` — permanent project knowledge & current known issues
+2. `.opencode/rules.md` — 20 mandatory engineering rules (root-cause analysis, no hardcoding, data normalization, etc.)
+3. `.opencode/prd.md` — product requirements
+4. `.opencode/phases.md` — development phase plan
+
+Do not skip this. Do not guess architecture — verify against these files and the actual codebase.
+
+## Authentication (Critical)
+Custom JWT (jose) + bcryptjs + HttpOnly cookies. NEVER suggest, install, or migrate to NextAuth or Clerk.
+
+## Database (Critical)
+Prisma + Turso (libSQL). NEVER suggest MongoDB, PostgreSQL, or Supabase migrations unless explicitly asked.
+
+## State Management (Critical)
+React Context only (Auth/Cart/Wishlist/Admin Context). NEVER introduce Redux or Zustand.
+
 ## Project Overview
 - **Name**: Safari Perfumes E-commerce
 - **Stack**: Next.js 16.2.4 (beta), React 19.2.4, Prisma 5.22.0, Tailwind 3.4, Sass 1.99

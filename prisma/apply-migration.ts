@@ -58,7 +58,7 @@ async function main() {
     try { await turso.execute(colSql) } catch { /* column exists */ }
   }
 
-  // Add bulk upload columns to Product (idempotent)
+// Add bulk upload columns to Product (idempotent)
   const bulkColumns = [
     `ALTER TABLE "Product" ADD COLUMN "productId" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "gender" TEXT NOT NULL DEFAULT 'Unisex';`,
@@ -87,6 +87,9 @@ async function main() {
     `ALTER TABLE "Product" ADD COLUMN "imageFolder" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "metaTitle" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "metaDescription" TEXT;`,
+    // New flags for homepage sections
+    `ALTER TABLE "Product" ADD COLUMN "isHotSelling" INTEGER NOT NULL DEFAULT 0;`,
+    `ALTER TABLE "Product" ADD COLUMN "isTrending" INTEGER NOT NULL DEFAULT 0;`,
     // Perfume-specific attributes (Step 1 - admin/PDP sync)
     `ALTER TABLE "Product" ADD COLUMN "concentration" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "bottleStyle" TEXT;`,
@@ -96,6 +99,14 @@ async function main() {
     `ALTER TABLE "Product" ADD COLUMN "applicatorType" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "origin" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "ingredients" TEXT;`,
+    `ALTER TABLE "Product" ADD COLUMN "price3mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price6mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price12mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price50mlPhysical" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price3mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price6mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price12mlOnline" INTEGER;`,
+    `ALTER TABLE "Product" ADD COLUMN "price50mlOnline" INTEGER;`,
   ]
   for (const colSql of bulkColumns) {
     try { await turso.execute(colSql) } catch { /* column exists */ }

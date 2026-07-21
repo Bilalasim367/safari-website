@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
+import { normalizeGender, normalizeType } from "@/lib/normalize";
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
+    const gender = searchParams.get("gender");
     const limit = parseInt(searchParams.get("limit") || "4");
 
     const where: Record<string, unknown> = {};
@@ -12,6 +14,14 @@ export async function GET(request: Request) {
       where.isBestseller = true;
     } else if (type === "new") {
       where.isNew = true;
+    }
+    if (gender) {
+      const genders = gender.split(",").map(g => normalizeGender(g));
+      where.gender = { in: genders };
+    }
+    if (type && type !== "bestsellers" && type !== "new") {
+      const types = type.split(",").map(t => normalizeType(t));
+      where.type = { in: types };
     }
 
     const products = await prisma.product.findMany({

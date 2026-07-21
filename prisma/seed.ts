@@ -3,6 +3,7 @@ import { PrismaLibSQL } from '@prisma/adapter-libsql'
 import { createClient } from '@libsql/client'
 import { products } from '../src/data/products'
 import { classifyProductType } from '../src/lib/product-types'
+import { normalizeType } from '../src/lib/normalize'
 
 const libsql = createClient({
   url: process.env.TURSO_DATABASE_URL!,
@@ -44,14 +45,19 @@ async function main() {
     })
   }
 
-  // Create products
+// Create products
   for (const p of products) {
     const sizeList = (p.sizePrices || []).map((sp) => sp.size).join(',')
-    const type = sizeList ? classifyProductType({ sizesAvailable: sizeList }) : 'perfume'
+    const type = sizeList ? normalizeType(classifyProductType({ sizesAvailable: sizeList })) : 'Perfume'
+
+    // Set flags based on product data
+    const isHotSelling = p.isBestseller || p.name === 'Safari Midnight' || p.name === 'Safari Noir' || p.name === 'Safari Citrus'
+    const isTrending = p.isNew || p.name === 'Safari Rose' || p.name === 'Safari Oud' || p.name === 'Safari Vanilla' || p.name === 'Safari Bloom' || p.name === 'Safari Sand'
+    const gender = p.category || 'Unisex'
 
     await prisma.product.upsert({
       where: { slug: p.slug },
-      update: {},
+      update: { type, gender, categorySlug: p.category.toLowerCase(), isHotSelling, isTrending },
       create: {
         name: p.name,
         slug: p.slug,
@@ -67,13 +73,16 @@ async function main() {
         fragranceFamily: p.fragranceFamily,
         rating: p.rating,
         reviewCount: p.reviews,
-        notesTop: JSON.stringify(p.notes.top),
-        notesHeart: JSON.stringify(p.notes.heart),
-        notesBase: JSON.stringify(p.notes.base),
         inStock: p.inStock,
         isBestseller: p.isBestseller,
         isNew: p.isNew,
+        isHotSelling: isHotSelling,
+        isTrending: isTrending,
+        gender,
         type,
+        notesTop: JSON.stringify(p.notes.top),
+        notesHeart: JSON.stringify(p.notes.heart),
+        notesBase: JSON.stringify(p.notes.base),
       },
     })
   }
@@ -109,7 +118,7 @@ async function main() {
 
       await prisma.bundleItem.upsert({
         where: { bundleId_productId: { bundleId: bundle.id, productId: product.id } },
-        update: {},
+      update: {},
         create: {
           bundleId: bundle.id,
           productId: product.id,

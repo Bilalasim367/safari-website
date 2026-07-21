@@ -16,7 +16,10 @@ const createPrismaClient = () => {
     )
   }
 
-  const libsqlClient = createClient({ url, authToken })
+  const customFetch = (input: RequestInfo | URL, init?: RequestInit) =>
+    fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(60000) })
+
+  const libsqlClient = createClient({ url, authToken, fetch: customFetch })
 
   const adapter = new PrismaLibSQL(libsqlClient);
 

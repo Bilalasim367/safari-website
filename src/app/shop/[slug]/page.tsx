@@ -97,8 +97,17 @@ export default function ProductDetailPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("50ml");
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState('');
+
+  // Derive size from product type - fixed per type
+  useEffect(() => {
+    if (product?.type === 'Attar') {
+      setSelectedSize('12ml');
+    } else if (product?.type === 'Perfume') {
+      setSelectedSize('50ml');
+    }
+  }, [product?.type]);
 
   useEffect(() => {
     async function fetchData() {
@@ -119,7 +128,9 @@ export default function ProductDetailPage() {
 
         if (product?.sizesAvailable) {
           const sizes = product.sizesAvailable.split(',').map((s: string) => s.trim());
-          if (sizes.length > 0) setSelectedSize(sizes[0]);
+          if (sizes.length > 0) {
+            // sizes are handled by useEffect based on product type
+          }
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -151,34 +162,14 @@ export default function ProductDetailPage() {
       .slice(0, 4);
   }, [product, allProducts]);
 
-  const csvSizes = useMemo(() => {
-    if (!product?.sizesAvailable) return [];
-    return product.sizesAvailable.split(',').map((s: string) => s.trim()).filter(Boolean);
-  }, [product]);
-
   const isPerfume = product?.type === 'Perfume';
   const isAttar = product?.type === 'Attar';
 
   const router = useRouter();
 
-  const priceData = useMemo(() => {
-    if (!product) return null;
-    if (isPerfume && product.sizePrices) {
-      return product.sizePrices.find((s) => s.size === selectedSize) || null;
-    }
-    if (isAttar) {
-      const sizeKey = selectedSize.toLowerCase().replace('ml', '');
-      const physKey = `price${sizeKey}Physical` as keyof Product;
-      const onlineKey = `price${sizeKey}Online` as keyof Product;
-      const physicalPrice = product[physKey] as number | undefined;
-      const onlinePrice = product[onlineKey] as number | undefined;
-      if (physicalPrice || onlinePrice) return { size: selectedSize, price: physicalPrice || onlinePrice, originalPrice: undefined, physicalPrice, onlinePrice };
-    }
-    return null;
-  }, [product, selectedSize, isPerfume, isAttar]);
-
-  const displayPrice = priceData?.price ?? product?.price ?? 0;
-  const displayOriginalPrice = priceData?.originalPrice ?? product?.originalPrice;
+  // Use base price/originalPrice directly - no size-specific pricing
+  const displayPrice = product?.price ?? 0;
+  const displayOriginalPrice = product?.originalPrice;
   const currencySymbol = product?.currency || 'PKR';
 
   const handleAddToCart = () => {
@@ -283,7 +274,7 @@ export default function ProductDetailPage() {
           <div className="container-custom py-8 md:py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 lg:gap-24">
               <div className="space-y-4">
-                <div className="relative bg-muted overflow-hidden rounded-lg border border-border min-h-[300px] lg:min-h-[400px]">
+                <div className="relative bg-muted overflow-hidden rounded-lg border border-border min-h-[400px] lg:min-h-[650px]">
                   {productImages[selectedImage] ? (
                     <img
                       src={productImages[selectedImage]}
@@ -352,6 +343,10 @@ export default function ProductDetailPage() {
                   <span className="text-4xl font-bold text-foreground tracking-tight">
                     {currencySymbol} {displayPrice.toLocaleString()}
                   </span>
+                  {/* Static size label */}
+                  <span className="text-lg text-muted-foreground">
+                    {isAttar ? '12ml' : '50ml'}
+                  </span>
                   {displayOriginalPrice && (
                     <>
                       <span className="text-lg text-muted-foreground line-through ml-3">
@@ -364,59 +359,15 @@ export default function ProductDetailPage() {
                   )}
                 </div>
 
-                {(csvSizes.length > 0 || product.description || product.shortDescription) && (
+                {(product.description || product.shortDescription) && (
                   <p className="text-muted-foreground leading-relaxed mb-6">
                     {product.shortDescription ? (
                       product.shortDescription
-                    ) : csvSizes.length > 0 && !priceData ? (
-                      (() => {
-                        const prices = [product.price3mlPhysical, product.price6mlPhysical, product.price12mlPhysical, product.price50mlPhysical].filter((p): p is number => p != null);
-                        return prices.length > 0 ? (
-                          <span>From {currencySymbol} {Math.min(...prices).toLocaleString()}</span>
-                        ) : (
-                          <span>{currencySymbol} {product.price.toLocaleString()}</span>
-                        );
-                      })()
                     ) : (
                       product.description
                     )}
                   </p>
                 )}
-
-                <div className="mb-6">
-                  <label className="text-xs tracking-[0.2em] uppercase font-semibold text-foreground mb-3 block">Select Size</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {(csvSizes.length > 0 ? csvSizes : ["30ml", "50ml", "100ml"]).map((size) => {
-                      let sizePrice: number | undefined;
-                      if (isPerfume && product.sizePrices) {
-                        const sp = product.sizePrices.find((s) => s.size === size);
-                        sizePrice = sp?.price;
-                      } else if (isAttar) {
-                        const sizeKey = size.toLowerCase().replace('ml', '');
-                        const physKey = `price${sizeKey}Physical` as keyof Product;
-                        const onlineKey = `price${sizeKey}Online` as keyof Product;
-                        sizePrice = (product[physKey] as number | undefined) || (product[onlineKey] as number | undefined);
-                      }
-                      const displaySizePrice = sizePrice ?? product.price;
-                      return (
-                        <Button
-                          key={size}
-                          variant={selectedSize === size ? "default" : "outline"}
-                          size="sm"
-                          className="rounded-none min-w-[80px] relative"
-                          onClick={() => setSelectedSize(size)}
-                        >
-                          <span className="font-medium">{size}</span>
-                          {sizePrice && (
-                            <span className="block text-xs font-normal opacity-80 mt-0.5">
-                              {currencySymbol} {displaySizePrice.toLocaleString()}
-                            </span>
-                          )}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center mb-8">
                   <div className="flex items-center justify-center sm:justify-start border border-border rounded-none w-full sm:w-fit">

@@ -1,7 +1,31 @@
 const ATTAR_SIZES = new Set(['3ml', '4ml', '6ml'])
 const PERFUME_SIZES = new Set(['30ml', '50ml', '100ml'])
 
-export type ProductType = 'attar' | 'perfume'
+export type ProductCategoryType = 'attar' | 'perfume'
+
+export interface ProductCategory {
+  id: string
+  name: string
+  slug: string
+  price: number
+  originalPrice?: number | null | undefined
+  image: string
+  images: string[]
+  categorySlug?: string | null
+  category?: { name: string } | null
+  description?: string | null
+  isBestseller: boolean
+  isNew: boolean
+  isHotSelling?: boolean
+  isTrending?: boolean
+  size: string
+  inStock: boolean
+  rating: number
+  reviewCount: number
+  gender?: string | null
+  fragranceFamily?: string | null
+  type: ProductCategoryType
+}
 
 export function classifyProductType(product: {
   sizesAvailable?: string | null
@@ -12,7 +36,7 @@ export function classifyProductType(product: {
   price6mlPhysical?: number | null
   applicatorType?: string | null
   origin?: string | null
-}): ProductType {
+}): ProductCategoryType {
   // Direct type field takes priority
   if (product.type === 'Perfume') return 'perfume'
   if (product.type === 'Attar') return 'attar'

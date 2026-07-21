@@ -14,7 +14,7 @@ interface ProductCardProps {
   name: string;
   slug: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   image: string;
   images?: string[];
   category: string;
@@ -30,16 +30,34 @@ interface ProductCardProps {
   currency?: string;
 }
 
-export default function ProductCard({ id, name, slug, price, originalPrice, image, images, category, isNew, isBestseller, size, rating, reviewCount, gender, season, impressionOf, lowestPrice, currency }: ProductCardProps) {
+export default function ProductCard({
+  id,
+  name,
+  slug,
+  price,
+  originalPrice,
+  image,
+  images,
+  category,
+  isNew,
+  isBestseller,
+  size,
+  rating,
+  reviewCount,
+  gender,
+  season,
+  impressionOf,
+  lowestPrice,
+  currency,
+}: ProductCardProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [added, setAdded] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
 
-  const hasValidImage = image && image.trim() !== '';
-  const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  const hasValidImage = image && image.trim() !== "";
+  const discount = originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const badge = isBestseller ? "Bestseller" : isNew ? "New" : "";
-  const wishlisted = isWishlisted(id);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,24 +74,12 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleWishlist(id);
-  };
-
-  const handleQuickView = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowQuickView(true);
-  };
-
   return (
-    <Link href={`/shop/${slug}`} className="h-full">
-      <div
-        className="group relative w-full overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full bg-card rounded-xl border border-border hover:-translate-y-1 hover:shadow-lg"
-      >
-        {/* Image Area */}
+    <Link
+      href={`/shop/${slug}`}
+      className="group relative w-full overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full bg-card rounded-xl border border-border hover:-translate-y-1 hover:shadow-lg"
+    >
+      <div className="flex flex-col h-full">
         <div className="relative overflow-hidden bg-muted aspect-[3/4]">
           {hasValidImage ? (
             <>
@@ -96,13 +102,7 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <svg
-                width="72"
-                height="72"
-                viewBox="0 0 72 72"
-                fill="none"
-                style={{ opacity: 0.18 }}
-              >
+              <svg width="72" height="72" viewBox="0 0 72 72" fill="none" style={{ opacity: 0.18 }}>
                 <rect x="8" y="16" width="56" height="40" rx="4" stroke="currentColor" strokeWidth="2.5" />
                 <circle cx="26" cy="30" r="5" stroke="currentColor" strokeWidth="2.5" />
                 <path d="M8 46 L22 34 L32 44 L44 30 L64 50" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -110,7 +110,6 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             </div>
           )}
 
-          {/* Discount badge - top left */}
           {discount > 0 && (
             <span className="absolute top-3 left-3 flex items-center gap-1 bg-foreground text-background text-xs font-medium px-2 py-1 rounded-full z-10">
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-primary">
@@ -120,53 +119,31 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             </span>
           )}
 
-          {/* Category badge */}
           {badge && (
             <span className="absolute bottom-3 left-3 bg-secondary text-secondary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm z-10">
               {badge}
             </span>
           )}
 
-          {/* Icon buttons - stacked top right */}
           <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
             <button
-              onClick={handleQuickView}
+              onClick={(e) => { e.stopPropagation(); setShowQuickView(true); }}
               aria-label="Quick view"
               className="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
             >
               <Eye className="w-5 h-5 md:w-4 md:h-4 text-muted-foreground" />
             </button>
             <button
-              onClick={handleWishlist}
-              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              onClick={(e) => { e.stopPropagation(); toggleWishlist(id); }}
+              aria-label={isWishlisted(id) ? "Remove from wishlist" : "Add to wishlist"}
               className="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors"
             >
-              <Heart
-                className={`w-5 h-5 md:w-4 md:h-4 ${wishlisted ? 'fill-destructive text-destructive' : 'text-muted-foreground'}`}
-              />
+              <Heart className={`w-5 h-5 md:w-4 md:h-4 ${isWishlisted(id) ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
             </button>
           </div>
         </div>
 
-        {showQuickView && (
-          <QuickViewModal
-            id={id}
-            name={name}
-            slug={slug}
-            price={price}
-            originalPrice={originalPrice}
-            image={image}
-            images={images}
-            category={category}
-            size={size}
-            rating={rating}
-            reviewCount={reviewCount}
-            onClose={() => setShowQuickView(false)}
-          />
-        )}
-
         <div className="flex-1 px-5 pb-3 pt-4">
-          {/* Category + Gender badge + Season chip */}
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em]">{category}</p>
             {gender && (
@@ -181,56 +158,49 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             )}
           </div>
 
-          {/* Product Name */}
           <h3 className="text-base font-semibold text-foreground leading-tight mb-1">
             {name}
           </h3>
 
-          {/* Impression label */}
           {impressionOf && (
             <p className="text-[11px] text-muted-foreground italic mb-1">
               Impression of {impressionOf}
             </p>
           )}
 
-          {/* Rating */}
           {rating !== undefined && (
             <div className="mb-2">
               <Rating rating={rating} reviews={reviewCount} size="sm" />
             </div>
           )}
 
-          {/* Pricing Row */}
           <div className="flex items-center gap-2 mb-4">
             {lowestPrice != null ? (
               <span className="text-2xl font-bold text-foreground tracking-tight">
-                {currency || 'PKR'} {lowestPrice.toLocaleString()}
+                {currency || "PKR"} {lowestPrice.toLocaleString()}
               </span>
             ) : (
               <span className="text-2xl font-bold text-foreground tracking-tight">
-                {currency || 'PKR'} {price.toFixed(2)}
+                {currency || "PKR"} {price.toFixed(2)}
               </span>
             )}
             {originalPrice && !lowestPrice && (
               <>
                 <span className="text-sm text-muted-foreground line-through">
-                  {currency || 'PKR'} {originalPrice.toFixed(2)}
+                  {currency || "PKR"} {originalPrice.toFixed(2)}
                 </span>
                 <span className="ml-auto bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full">
-                  Save {(currency || 'PKR') + ' ' + (originalPrice - price).toFixed(2)}
+                  Save {(currency || "PKR") + " " + (originalPrice - price).toFixed(2)}
                 </span>
               </>
             )}
             {lowestPrice != null && lowestPrice !== price && (
-              <span className="text-sm text-muted-foreground">
-                From
-              </span>
+              <span className="text-sm text-muted-foreground">From</span>
             )}
           </div>
         </div>
 
         <div className="px-5 pb-5 pt-0">
-          {/* Add to Cart Button */}
           <button
             onClick={handleAdd}
             aria-label={`Add ${name} to cart`}
@@ -241,37 +211,50 @@ export default function ProductCard({ id, name, slug, price, originalPrice, imag
             }}
           >
             {added ? (
-              <>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'inline', marginRight: '8px' }}>
+              <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: "inline", marginRight: "8px" }}>
                   <path d="M3 8L6.5 11.5L13 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Added
-              </>
+              </span>
             ) : (
-              <>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: 'inline', marginRight: '8px' }}>
+              <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ display: "inline", marginRight: "8px" }}>
                   <path d="M2 2h1.5l2 8h7l1.5-5H5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   <circle cx="7.5" cy="12.5" r="1" fill="currentColor" />
                   <circle cx="11.5" cy="12.5" r="1" fill="currentColor" />
                 </svg>
                 Add to Cart
-              </>
+              </span>
             )}
           </button>
 
-          {/* Trust signals - hidden on mobile */}
           <div className="hidden sm:flex items-center justify-center gap-4 mt-3">
             {["Free Returns", "Secure Pay", "Fast Ship"].map((txt) => (
-              <span
-                key={txt}
-                className="text-xs text-muted-foreground font-medium tracking-wide"
-              >
+              <span key={txt} className="text-xs text-muted-foreground font-medium tracking-wide">
                 {txt}
               </span>
             ))}
           </div>
         </div>
       </div>
+
+      {showQuickView && (
+        <QuickViewModal
+          id={id}
+          name={name}
+          slug={slug}
+          price={price}
+          originalPrice={originalPrice ?? undefined}
+          image={image}
+          images={images}
+          category={category}
+          size={size}
+          rating={rating}
+          reviewCount={reviewCount}
+          onClose={() => setShowQuickView(false)}
+        />
+      )}
     </Link>
   );
 }

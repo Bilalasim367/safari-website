@@ -156,6 +156,15 @@ export default function AccountPage() {
                       {tab.label}
                     </Button>
                   ))}
+                  {user?.role === 'admin' && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => router.push('/admin/dashboard')}
+                      className="w-full justify-start text-gold hover:text-gold-light hover:bg-gold/5"
+                    >
+                      Admin Panel
+                    </Button>
+                  )}
                 </nav>
                 <div className="mt-6 pt-6 border-t border-border">
                   <Button

@@ -88,6 +88,8 @@ export const AdminProductSchema = z.object({
   inStock: z.boolean().default(true),
   isBestseller: z.boolean().default(false),
   isNew: z.boolean().default(false),
+  isTrending: z.boolean().default(false),
+  isHotSelling: z.boolean().default(false),
   productId: z.string().nullable().optional(),
   gender: z.string().nullable().optional(),
   type: z.string().nullable().optional(),

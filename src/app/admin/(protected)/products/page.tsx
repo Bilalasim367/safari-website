@@ -42,9 +42,12 @@ export default function ProductsPage() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [seasonFilter, setSeasonFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("all");
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [bestsellerFilter, setBestsellerFilter] = useState<string>("all");
+  const [newFilter, setNewFilter] = useState<string>("all");
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -70,11 +73,14 @@ export default function ProductsPage() {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGender = genderFilter === "all" || (product.gender || "").toLowerCase() === genderFilter;
+    const matchesGender = genderFilter === "all" || (product.gender || "").toLowerCase() === genderFilter.toLowerCase();
+    const matchesType = typeFilter === "all" || (product.type || "").toLowerCase().includes(typeFilter.toLowerCase());
     const matchesSeason = seasonFilter === "all" || (product.season || "").toLowerCase() === seasonFilter;
     const matchesStock = stockFilter === "all" || (product.stockStatus || (product.inStock ? "in_stock" : "out_of_stock")) === stockFilter;
     const matchesActive = activeFilter === "all" || (product.isActive === true).toString() === activeFilter;
-    return matchesSearch && matchesGender && matchesSeason && matchesStock && matchesActive;
+    const matchesBestseller = bestsellerFilter === "all" || (product.isBestseller === true).toString() === bestsellerFilter;
+    const matchesNew = newFilter === "all" || (product.isNew === true).toString() === newFilter;
+    return matchesSearch && matchesGender && matchesType && matchesSeason && matchesStock && matchesActive && matchesBestseller && matchesNew;
   });
 
   const handleDelete = async (id: string) => {
@@ -172,6 +178,16 @@ export default function ProductsPage() {
             <SelectItem value="unisex">Unisex</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={typeFilter} onValueChange={(v) => v !== null && setTypeFilter(v)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="attar">Attar</SelectItem>
+            <SelectItem value="perfume">Perfume</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={seasonFilter} onValueChange={(v) => v !== null && setSeasonFilter(v)}>
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="Season" />
@@ -202,6 +218,26 @@ export default function ProductsPage() {
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="true">Active</SelectItem>
             <SelectItem value="false">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={bestsellerFilter} onValueChange={(v) => v !== null && setBestsellerFilter(v)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="Bestseller" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="true">Yes</SelectItem>
+            <SelectItem value="false">No</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={newFilter} onValueChange={(v) => v !== null && setNewFilter(v)}>
+          <SelectTrigger className="w-[130px]">
+            <SelectValue placeholder="New" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="true">Yes</SelectItem>
+            <SelectItem value="false">No</SelectItem>
           </SelectContent>
         </Select>
       </div>

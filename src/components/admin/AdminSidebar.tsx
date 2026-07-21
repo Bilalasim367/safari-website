@@ -30,11 +30,26 @@ const navItems = [
 function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
 
   const handleSignOut = async () => {
     await logout()
     router.push('/')
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center p-6">
+        <div className="animate-pulse space-y-4 w-full">
+          <div className="h-10 bg-sidebar-accent/20 rounded-lg" />
+          <div className="h-8 bg-sidebar-accent/20 rounded-lg" />
+          <div className="h-8 bg-sidebar-accent/20 rounded-lg" />
+          <div className="h-8 bg-sidebar-accent/20 rounded-lg" />
+          <div className="h-8 bg-sidebar-accent/20 rounded-lg" />
+          <div className="h-8 bg-sidebar-accent/20 rounded-lg" />
+        </div>
+      </div>
+    )
   }
 
   return (

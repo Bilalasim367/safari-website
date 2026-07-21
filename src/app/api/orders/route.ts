@@ -62,9 +62,9 @@ export async function POST(request: Request) {
     }
 
     const subtotal = items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0);
-    const shipping = subtotal >= 100 ? 0 : 15;
+    const shipping = 0;
     const tax = subtotal * 0.08;
-    const total = subtotal + shipping + tax;
+    const total = subtotal + tax;
 
     const orderNumber = generateOrderNumber();
 
