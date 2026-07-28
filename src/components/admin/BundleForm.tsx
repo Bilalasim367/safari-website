@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
+import { useImageUpload } from '@/hooks/useImageUpload'
 
 interface BundleFormData {
   name: string
@@ -50,7 +51,7 @@ export default function BundleForm({ initialData, mode, bundleId }: BundleFormPr
   const [form, setForm] = useState<BundleFormData>(initialData || { ...defaultFormState })
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [uploadingImage, setUploadingImage] = useState(false)
+  const { uploadMainImage, isUploading: uploadingImage } = useImageUpload()
 
   const set = useCallback(<K extends keyof BundleFormData>(key: K, value: BundleFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -72,24 +73,14 @@ export default function BundleForm({ initialData, mode, bundleId }: BundleFormPr
     const file = e.target.files?.[0]
     if (!file) return
 
-    setUploadingImage(true)
     if (imagePreview) URL.revokeObjectURL(imagePreview)
     setImagePreview(URL.createObjectURL(file))
 
-    const body = new FormData()
-    body.append('file', file)
-
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body })
-      const data = await res.json()
-      if (data.url) {
-        set('image', data.url)
-      }
+      const url = await uploadMainImage(file)
+      if (url) set('image', url)
     } catch {
       setImagePreview(null)
-      toast.error('Failed to upload image')
-    } finally {
-      setUploadingImage(false)
     }
   }
 

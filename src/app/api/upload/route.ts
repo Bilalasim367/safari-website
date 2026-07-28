@@ -1,55 +1,42 @@
 import { NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
-export async function POST(request: Request) {
+export const maxDuration = 30;
+export const runtime = 'nodejs';
+
+export async function POST(request: Request): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('access_token')?.value;
-    const auth = token ? await verifyToken(token) : null;
-    if (!auth || auth.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => {
+        const cookieStore = await cookies();
+        const token = cookieStore.get('access_token')?.value;
+        const auth = token ? await verifyToken(token) : null;
+        if (!auth || auth.role !== 'admin') {
+          throw new Error('Unauthorized');
+        }
 
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF allowed.' }, { status: 400 });
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 });
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const ext = file.name.split('.').pop() || 'jpg';
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-
-    if (!blobToken) {
-      return NextResponse.json({ error: 'Blob storage not configured. Set BLOB_READ_WRITE_TOKEN.' }, { status: 500 });
-    }
-
-    const blob = await put(`products/${filename}`, buffer, {
-      contentType: file.type,
-      access: 'public',
-      token: blobToken,
+        return {
+          allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+          maximumSizeInBytes: 5 * 1024 * 1024,
+          addRandomSuffix: true,
+        };
+      },
+      onUploadCompleted: async () => {
+        // No-op — client receives URL directly from upload()
+      },
     });
 
-    return NextResponse.json({ url: blob.url });
+    return NextResponse.json(jsonResponse);
   } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Upload failed' },
+      { status: 400 },
+    );
   }
 }

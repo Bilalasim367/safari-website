@@ -33,14 +33,14 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
   const showFallback = hotSelling.length === 0
 
   return (
-    <section className="px-6 md:px-12 py-16 md:py-20 bg-background">
+    <section className="px-4 md:px-12 py-6 md:py-20 bg-background">
       <div className="container-custom">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+        <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
           <div>
-            <p className="text-gold text-sm tracking-[0.5em] uppercase mb-4">
+            <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
               Hot Selling
             </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground">
+            <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
               Trending This Week
             </h2>
           </div>
@@ -67,7 +67,7 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
 
         <div className="relative">
           <div
-            className="flex gap-6 lg:gap-8 overflow-x-auto snap-x scrollbar-hide pb-8 -mx-6 md:-mx-12 px-6 md:px-12"
+            className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 md:pb-8 -mx-4 md:-mx-12 px-4 md:px-12"
             role="region"
             aria-label="Hot selling products carousel"
           >
@@ -75,7 +75,7 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
               Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={`fallback-${i}`}
-                  className="flex-none w-full sm:w-[calc(50%-1.5rem)] md:w-[calc(33.333%-2rem)] lg:w-[calc(25%-2.25rem)] snap-center"
+                  className="flex-none w-[75vw] md:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-2rem)] xl:w-[calc(25%-2.25rem)] snap-start"
                 >
                   <div className="group bg-muted rounded-xl overflow-hidden">
                     <div className="relative aspect-[3/4] overflow-hidden bg-muted">
@@ -101,20 +101,20 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
               hotSelling.map((product) => (
                 <div
                   key={product.id}
-                  className="flex-none w-full sm:w-[calc(50%-1.5rem)] md:w-[calc(33.333%-2rem)] lg:w-[calc(25%-2.25rem)] snap-center"
+                  className="flex-none w-[75vw] md:w-[calc(50%-1.5rem)] lg:w-[calc(33.333%-2rem)] xl:w-[calc(25%-2.25rem)] snap-start"
                 >
                   <Link
                     href={`/shop/${product.slug}`}
                     className="block group"
                   >
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-xl mb-4">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-xl mb-3 md:mb-4">
                       {product.image ? (
                         <Image
                           src={product.image}
                           alt={product.name}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                          sizes="(max-width: 640px) 75vw, (max-width: 1024px) 33vw, 25vw"
                           onError={(e) => { e.currentTarget.src = '/placeholder-product.jpg'; }}
                         />
                       ) : (
@@ -127,19 +127,19 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
                         </div>
                       )}
                       {(product.isHotSelling || product.isBestseller || product.isNew) && (
-                        <div className="absolute top-3 left-3 flex gap-2">
+                        <div className="absolute top-2 md:top-3 left-2 md:left-3 flex gap-1 md:gap-2">
                           {product.isHotSelling && (
-                            <span className="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-none">
+                            <span className="bg-red-500 text-white text-[10px] md:text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-none">
                               Hot
                             </span>
                           )}
                           {product.isBestseller && (
-                            <span className="bg-gold text-black text-xs font-medium px-2 py-1 rounded-none">
+                            <span className="bg-gold text-black text-[10px] md:text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-none">
                               Bestseller
                             </span>
                           )}
                           {product.isNew && (
-                            <span className="bg-white text-black text-xs font-medium px-2 py-1 rounded-none">
+                            <span className="bg-white text-black text-[10px] md:text-xs font-medium px-1.5 md:px-2 py-0.5 md:py-1 rounded-none">
                               New
                             </span>
                           )}
@@ -147,23 +147,23 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <p className="text-gold text-xs tracking-[0.1em] uppercase">
+                    <div className="space-y-1 md:space-y-2">
+                      <p className="text-gold text-[10px] md:text-xs tracking-[0.1em] uppercase">
                         {typeof product.category === 'string' ? product.category : product.category?.name || "Signature"}
                       </p>
-                      <h3 className="font-heading text-lg font-semibold text-foreground group-hover:text-gold transition-colors">
+                      <h3 className="font-heading text-base md:text-lg font-semibold text-foreground group-hover:text-gold transition-colors leading-tight">
                         {product.name}
                       </h3>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 md:gap-2">
                         <Rating rating={product.rating} size="sm" color="gold" />
-                        <span className="text-muted-foreground text-sm">({product.reviewCount})</span>
+                        <span className="text-muted-foreground text-[11px] md:text-sm">({product.reviewCount})</span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold text-foreground">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <span className="text-xl md:text-2xl font-bold text-foreground">
                           ${product.price}
                         </span>
                         {product.originalPrice && product.originalPrice > product.price && (
-                          <span className="text-muted-foreground line-through text-lg">
+                          <span className="text-muted-foreground line-through text-sm md:text-lg">
                             ${product.originalPrice}
                           </span>
                         )}
@@ -175,12 +175,12 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
             )}
           </div>
 
-          <div className="flex justify-center gap-2 mt-6" role="tablist" aria-label="Hot selling pagination">
+          <div className="flex justify-center gap-2 mt-4 md:mt-6" role="tablist" aria-label="Hot selling pagination">
             {showFallback ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <button
                   key={i}
-                  className={`w-2 h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-6" : "bg-white/30 hover:bg-white/50"}`}
+                  className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-4 md:w-6" : "bg-white/30 hover:bg-white/50"}`}
                   role="tab"
                   aria-label={`Go to slide ${i + 1}`}
                 />
@@ -189,7 +189,7 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
               hotSelling.slice(0, 8).map((_, i) => (
                 <button
                   key={i}
-                  className={`w-2 h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-6" : "bg-white/30 hover:bg-white/50"}`}
+                  className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-4 md:w-6" : "bg-white/30 hover:bg-white/50"}`}
                   role="tab"
                   aria-label={`Go to product ${i + 1}`}
                 />

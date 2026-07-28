@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen md:min-h-[85vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
           src="/banner1.png"
@@ -23,37 +23,37 @@ export default function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 z-10" />
 
-      <div className="relative z-20 text-center px-6 md:px-12 py-16 md:py-24 lg:py-32 max-w-6xl mx-auto">
-        <p className="text-white/90 text-sm md:text-base tracking-[0.6em] uppercase mb-8 animate-fade-in">
+      <div className="relative z-20 text-center px-4 md:px-12 py-16 md:py-24 lg:py-32 max-w-6xl mx-auto">
+        <p className="text-white/80 text-[10px] md:text-base tracking-[0.6em] uppercase mb-4 md:mb-8 animate-fade-in">
           Luxury Fragrance House
         </p>
 
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-extrabold text-white mb-10 animate-fade-in tracking-tight leading-tight">
+        <h1 className="text-[42px] leading-[1.1] md:text-7xl lg:text-8xl font-serif font-extrabold text-white mb-6 md:mb-10 animate-fade-in tracking-tight">
           Discover Your
           <br />
-          <span className="text-white italic block pb-8">
+          <span className="text-white italic block pt-2 md:pb-8">
             Signature Scent
           </span>
         </h1>
 
-        <p className="text-white/80 text-lg md:text-2xl font-light max-w-3xl mx-auto mb-16 animate-fade-in delay-100 leading-relaxed">
+        <p className="hidden md:block text-white/80 text-lg md:text-2xl font-light max-w-3xl mx-auto mb-16 animate-fade-in delay-100 leading-relaxed">
           Crafted with passion, designed to captivate your senses. Explore our
           exclusive range of captivating fragrances.
         </p>
 
         <div className="animate-fade-in delay-200 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/shop">
+          <Link href="/shop" className="w-full sm:w-auto">
             <Button
               variant="outline"
               className={cn(
                 "border-white text-white bg-transparent hover:bg-white hover:text-black",
-                "transition-all duration-300 rounded-none px-8 py-6 text-sm tracking-[0.3em] uppercase"
+                "transition-all duration-300 rounded-none px-8 py-5 md:py-6 text-sm tracking-[0.3em] uppercase w-full sm:w-auto"
               )}
             >
               Shop Now
             </Button>
           </Link>
-          <Link href="/about">
+          <Link href="/about" className="hidden sm:block">
             <Button
               variant="ghost"
               className={cn(
@@ -67,7 +67,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+      <div className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
         <div className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "0ms" }} />
         <div className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "150ms" }} />
         <div className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "300ms" }} />

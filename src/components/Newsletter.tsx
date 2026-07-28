@@ -37,24 +37,24 @@ export default function Newsletter() {
   }
 
   return (
-    <section className="px-6 md:px-12 py-20 md:py-28 bg-black relative overflow-hidden">
+    <section className="px-4 md:px-12 py-6 md:py-28 bg-black relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]" />
 
       <div className="container-custom relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-gold text-sm tracking-[0.5em] uppercase mb-4">
+          <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
             Join the Safari Circle
           </p>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-white mb-6">
+          <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-white mb-3 md:mb-6">
             Unlock Exclusive Access
           </h2>
-          <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+          <p className="text-white/70 text-base md:text-xl leading-relaxed mb-6 md:mb-10 max-w-2xl mx-auto">
             Be the first to discover new releases, enjoy members-only pricing,
             and receive a <span className="text-gold font-medium">15% welcome discount</span> on your first order.
           </p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 md:gap-4 max-w-md mx-auto">
             <div className="relative flex-1">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
               <Input
@@ -65,7 +65,7 @@ export default function Newsletter() {
                 disabled={status === "loading" || status === "success"}
                 className={cn(
                   "bg-white/5 border-white/20 text-white placeholder-white/40 hover:border-white/40 focus:border-gold focus:ring-gold/20",
-                  "pl-12 pr-4 py-4 rounded-none"
+                  "pl-12 pr-4 py-5 md:py-4 rounded-none text-base md:text-sm"
                 )}
                 required
                 autoComplete="email"
@@ -75,7 +75,7 @@ export default function Newsletter() {
             <Button
               type="submit"
               disabled={status === "loading" || status === "success"}
-              className="bg-gold text-black hover:bg-gold-light transition-all duration-300 px-8 py-4 text-sm tracking-[0.2em] uppercase rounded-none whitespace-nowrap"
+              className="bg-gold text-black hover:bg-gold-light transition-all duration-300 px-8 py-5 md:py-4 text-sm tracking-[0.2em] uppercase rounded-none whitespace-nowrap"
             >
               {status === "loading" ? (
                 <span className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function Newsletter() {
             </p>
           )}
 
-          <p className="text-white/40 text-xs mt-8 max-w-sm mx-auto">
+          <p className="text-white/40 text-[10px] md:text-xs mt-6 md:mt-8 max-w-sm mx-auto">
             By subscribing, you agree to our <a href="/privacy" className="underline hover:text-gold">Privacy Policy</a>. Unsubscribe anytime.
           </p>
         </div>

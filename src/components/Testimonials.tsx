@@ -44,18 +44,52 @@ const testimonials: Testimonial[] = [
 
 export default function Testimonials() {
   return (
-    <section className="px-6 md:px-12 py-20 md:py-28 bg-muted/30">
+    <section className="px-4 md:px-12 py-6 md:py-28 bg-muted/30">
       <div className="container-custom">
-        <div className="text-center mb-16">
-          <p className="text-gold text-sm tracking-[0.5em] uppercase mb-4">
+        <div className="text-center mb-6 md:mb-16">
+          <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
             Testimonials
           </p>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground">
+          <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
             Loved by Fragrance Connoisseurs
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        {/* Mobile: Horizontal scroll carousel */}
+        <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-4 px-4">
+          {testimonials.map((testimonial) => (
+            <article
+              key={testimonial.id}
+              className="flex-none w-[80vw] snap-start relative bg-background border border-border rounded-2xl p-6 transition-all duration-300"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Rating rating={testimonial.rating} size="sm" color="gold" />
+              </div>
+
+              <blockquote className="text-foreground/90 text-sm leading-relaxed mb-4 line-clamp-4">
+                &ldquo;{testimonial.text}&rdquo;
+              </blockquote>
+
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                    <span className="text-gold font-heading font-medium text-base">
+                      {testimonial.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground text-sm">{testimonial.name}</p>
+                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                  </div>
+                </div>
+                <p className="text-gold text-xs mt-2 font-medium">{testimonial.product}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Desktop: Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8">
           {testimonials.map((testimonial) => (
             <article
               key={testimonial.id}
@@ -89,7 +123,7 @@ export default function Testimonials() {
           ))}
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-6 md:mt-12">
           <Link
             href="/shop#reviews"
             className="inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm"

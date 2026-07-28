@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { useImageUpload } from '@/hooks/useImageUpload'
 import { ArrowLeft, Plus, X, Trash2, Upload } from 'lucide-react'
 
 const defaultFormState: AdminProductFormValues = {
@@ -140,35 +141,28 @@ function TagInput({ label, tags, onChange, placeholder }: TagInputProps) {
 interface GalleryUploadProps {
   images: string[]
   onChange: (images: string[]) => void
+  uploadImage: (file: File) => Promise<string>
+  isUploading: boolean
+  progress: number
 }
 
-function GalleryUpload({ images, onChange }: GalleryUploadProps) {
-  const [uploading, setUploading] = useState(false)
-
+function GalleryUpload({ images, onChange, uploadImage, isUploading, progress }: GalleryUploadProps) {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
 
-    setUploading(true)
     const uploaded: string[] = []
 
     for (const file of files) {
-      const body = new FormData()
-      body.append('file', file)
       try {
-        const res = await fetch('/api/upload', { method: 'POST', body })
-        const data = await res.json()
-        if (!res.ok) {
-          throw new Error(data.error || 'Upload failed')
-        }
-        if (data.url) uploaded.push(data.url)
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : `Failed to upload ${file.name}`)
+        const url = await uploadImage(file)
+        if (url) uploaded.push(url)
+      } catch {
+        // error already handled in hook
       }
     }
 
     onChange([...images, ...uploaded])
-    setUploading(false)
   }
 
   const removeImage = (index: number) => {
@@ -205,8 +199,8 @@ function GalleryUpload({ images, onChange }: GalleryUploadProps) {
         ))}
         <label className="aspect-[3/4] rounded-md border-2 border-dashed border-muted-foreground/30 flex items-center justify-center cursor-pointer hover:border-gold/50 transition-colors">
           <div className="text-center p-2">
-            {uploading ? (
-              <span className="text-xs text-muted-foreground">Uploading...</span>
+            {isUploading ? (
+              <span className="text-xs text-muted-foreground">Uploading... {Math.round(progress)}%</span>
             ) : (
               <>
                 <Upload className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
@@ -214,7 +208,7 @@ function GalleryUpload({ images, onChange }: GalleryUploadProps) {
               </>
             )}
           </div>
-          <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={uploading} />
+          <input type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} disabled={isUploading} />
         </label>
       </div>
     </div>
@@ -231,9 +225,9 @@ interface ProductFormProps {
 export default function ProductForm({ initialData, mode, productId, productType }: ProductFormProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState('pricing')
+  const { uploadMainImage, uploadGalleryImage, isUploading: uploadingImage, progress } = useImageUpload()
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [uploadingImage, setUploadingImage] = useState(false)
 
   const form = useForm<AdminProductFormValues>({
     resolver: zodResolver(AdminProductSchema),
@@ -260,30 +254,17 @@ export default function ProductForm({ initialData, mode, productId, productType 
     const file = e.target.files?.[0]
     if (!file) return
 
-    setUploadingImage(true)
     if (imagePreview) URL.revokeObjectURL(imagePreview)
     const objectUrl = URL.createObjectURL(file)
     setImagePreview(objectUrl)
 
-    const body = new FormData()
-    body.append('file', file)
-
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body })
-      const data = await res.json()
-      if (!res.ok) {
-        throw new Error(data.error || 'Upload failed')
-      }
-      if (data.url) {
-        form.setValue('image', data.url)
-        setImagePreview(data.url)
-        URL.revokeObjectURL(objectUrl)
-      }
-    } catch (err) {
+      const url = await uploadMainImage(file)
+      form.setValue('image', url)
+      setImagePreview(url)
+      URL.revokeObjectURL(objectUrl)
+    } catch {
       setImagePreview(null)
-      toast.error(err instanceof Error ? err.message : 'Failed to upload image')
-    } finally {
-      setUploadingImage(false)
     }
   }
 
@@ -461,7 +442,7 @@ export default function ProductForm({ initialData, mode, productId, productType 
                 <Card>
                   <CardHeader><CardTitle>Gallery Images</CardTitle></CardHeader>
                   <CardContent>
-                    <GalleryUpload images={galleryImages || []} onChange={(images) => form.setValue('images', images)} />
+                    <GalleryUpload images={galleryImages || []} onChange={(images) => form.setValue('images', images)} uploadImage={uploadGalleryImage} isUploading={uploadingImage} progress={progress} />
                   </CardContent>
                 </Card>
 

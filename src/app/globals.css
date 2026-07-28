@@ -99,7 +99,7 @@
 
 @layer components {
   .container-custom {
-    @apply max-w-[1280px] mx-auto px-5;
+    @apply max-w-[1280px] mx-auto px-4 md:px-5;
   }
 
   .btn-primary {
@@ -138,4 +138,18 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-mandatory {
+    --tw-scroll-snap-strictness: mandatory;
+  }
 }

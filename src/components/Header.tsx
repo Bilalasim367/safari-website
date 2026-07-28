@@ -8,7 +8,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import SearchOverlay from './SearchOverlay';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
 
 interface NavItem {
   label: string;
@@ -117,7 +117,7 @@ export default function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className='bg-primary text-primary-foreground h-10 md:h-12 flex items-center'>
+      <div className='bg-primary text-primary-foreground h-7 md:h-12 flex items-center'>
         <div className='w-full container-custom'>
           <div className='flex items-center justify-between text-sm'>
             <nav className='hidden md:flex items-center gap-5'>
@@ -155,7 +155,7 @@ export default function Header() {
       </div>
 
       {/* Scrolling Announcement Bar */}
-      <div className='bg-primary text-primary-foreground py-4 md:py-5 px-4 overflow-hidden'>
+      <div className='bg-primary text-primary-foreground py-1.5 md:py-5 px-4 overflow-hidden'>
         <div className='relative flex whitespace-nowrap animate-marquee'>
           {[
             'FREE SHIPPING ON ORDERS OVER PKR 15,000',
@@ -176,7 +176,7 @@ export default function Header() {
       </div>
 
 {/* TIER 1: TOP HEADER - Sticky */}
-      <header className={`sticky top-0 z-50 h-32 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-sm' : 'bg-black'} border-b border-white/10`}>
+      <header className={`sticky top-0 z-50 h-28 md:h-40 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-sm' : 'bg-black'} border-b border-white/10`}>
         <div className='container-custom grid grid-cols-[1fr_auto_1fr] items-center h-full px-4 md:px-8'>
           {/* LEFT: Search - Desktop Input / Mobile Button */}
           <div className='flex items-center justify-start'>
@@ -218,7 +218,7 @@ export default function Header() {
               width={352}
               height={128}
                 priority
-              className='h-32 w-auto object-contain'
+              className='h-20 md:h-40 w-auto object-contain'
             />
           </Link>
 
@@ -265,8 +265,8 @@ export default function Header() {
         </div>
       </header>
 
-      {/* TIER 2: NAV BAR - Fixed Height, Not Sticky */}
-      <nav className='bg-black border-b border-white/10' aria-label="Main navigation">
+      {/* TIER 2: NAV BAR - Fixed Height, Not Sticky (hidden on mobile, links are in hamburger drawer) */}
+      <nav className='hidden md:block bg-black border-b border-white/10' aria-label="Main navigation">
         <div className='container-custom flex items-center justify-center gap-2 md:gap-4 px-4 md:px-8 py-2'>
           {navItems.map((item) => {
             if (item.hasDropdown && item.children) {
@@ -334,13 +334,6 @@ export default function Header() {
 
       {/* MOBILE DRAWER */}
 <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className='md:hidden' aria-label='Menu'>
-              <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M4 6h16M4 12h16M4 18h16' />
-              </svg>
-            </Button>
-          </SheetTrigger>
         <SheetContent side="left" className="w-[350px] max-w-[90vw] p-0 bg-black">
           <div className='flex flex-col h-full'>
             {/* Drawer Header */}

@@ -54,18 +54,18 @@ export default function FeaturedCollections() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
 
   return (
-    <section className="px-6 md:px-12 py-16 md:py-20 bg-background">
+    <section className="px-4 md:px-12 py-6 md:py-20 bg-background">
       <div className="container-custom">
-        <div className="text-center mb-12">
-          <p className="text-gold text-sm tracking-[0.5em] uppercase mb-3">
+        <div className="text-center mb-6 md:mb-12">
+          <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-3">
             Featured Collections
           </p>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading text-foreground">
+          <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
             Discover Our Fragrance Collection
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           {featuredCategories.map((category) => (
             <article
               key={category.id}
