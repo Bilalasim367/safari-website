@@ -3,11 +3,22 @@ import bcrypt from 'bcryptjs';
 import prisma from '@/lib/turso';
 import { validateRegistration } from '@/lib/validation';
 import { createAccessToken } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const rateLimitKey = `register:${ip}`;
+
+    if (!checkRateLimit(rateLimitKey)) {
+      return NextResponse.json(
+        { success: false, message: 'Too many attempts. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email, password, confirmPassword, firstName, lastName, phone, adminKey } = body;
 

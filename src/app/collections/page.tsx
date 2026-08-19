@@ -1,38 +1,50 @@
 import React from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import ShopContent from '@/app/shop/ShopContent'
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb'
 
 export const metadata: Metadata = {
-  title: "Coming Soon | SAFARI Luxury Fragrances",
-  description: "Our exclusive signature collection is being crafted with the finest ingredients.",
+  title: "Our Collection | SAFARI Luxury Fragrances",
+  description: "Discover our complete collection of luxury fragrances. Shop perfumes and attars for men, women, and unisex.",
 }
 
-export default function CollectionsPage() {
+export default async function CollectionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+
   return (
-    <section className='relative min-h-[70vh] flex items-center justify-center overflow-hidden'>
-      <div className='absolute inset-0 bg-gradient-to-b from-background via-card to-background' />
-      <div className='relative z-10 text-center max-w-2xl px-4'>
-        <p className='text-foreground text-sm tracking-[0.5em] uppercase mb-6'>
-          Our Collection
-        </p>
-        <h1 className='text-5xl md:text-7xl font-serif text-foreground mb-6'>
-          Coming Soon
-        </h1>
-        <p className='text-lg md:text-xl text-muted-foreground mb-4'>
-          Our exclusive signature collection is being crafted with the finest ingredients
-          and meticulous attention to detail.
-        </p>
-        <div className='w-16 h-0.5 bg-gold/50 mx-auto my-8' />
-        <p className='text-muted-foreground/70'>
-          Stay tuned for an extraordinary olfactory experience.
-        </p>
-        <Link
-          href='/shop'
-          className='inline-block mt-10 px-8 py-3 bg-foreground text-background rounded-lg hover:opacity-90 transition-opacity text-sm font-medium'
-        >
-          Browse Our Collections
-        </Link>
+    <div className="pt-16 md:pt-20">
+      <div className="bg-background border-b border-border py-16 md:py-20">
+        <div className="container-custom">
+          <div className="max-w-2xl">
+            <p className="text-muted-foreground text-sm tracking-[0.3em] uppercase mb-4">Our Collection</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-foreground mb-6">Our Collection</h1>
+            <p className="text-muted-foreground text-lg max-w-md">
+              Explore our complete range of luxury fragrances, crafted with rare ingredients for every occasion.
+            </p>
+          </div>
+          <div className="mt-8">
+            <Breadcrumb>
+              <BreadcrumbList className="text-sm">
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-foreground">Our Collection</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </div>
       </div>
-    </section>
+      <ShopContent searchParams={params} />
+    </div>
   )
 }

@@ -87,6 +87,11 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, message: 'User ID required' }, { status: 400 });
     }
 
+    const USER_STATUSES = ['active', 'blocked'];
+    if (!status || !USER_STATUSES.includes(status)) {
+      return NextResponse.json({ success: false, message: 'Invalid user status' }, { status: 400 });
+    }
+
     const user = await prisma.user.update({
       where: { id },
       data: { status },

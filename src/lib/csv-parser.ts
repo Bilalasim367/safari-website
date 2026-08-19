@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { normalizeGender, normalizeTypeLoose } from './normalize';
 
 export interface CsvRow {
   product_id: string;
@@ -140,7 +141,7 @@ export function parseCsv(text: string): { rows: CsvRow[]; errors: ValidationErro
       errors.push({ row: rowNum, product_id: row.product_id || `row ${rowNum}`, reason: 'No valid price field' });
       continue;
     }
-    if (row.gender && !['Men', 'Women', 'Unisex'].includes(row.gender)) {
+    if (row.gender && !['men', 'women', 'unisex'].includes(row.gender.toLowerCase())) {
       errors.push({ row: rowNum, product_id: row.product_id || `row ${rowNum}`, reason: `Invalid gender "${row.gender}"` });
       continue;
     }
@@ -170,7 +171,7 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
   }
   existingSlugs.add(slug);
 
-  const gender = ['Men', 'Women', 'Unisex'].includes(row.gender) ? row.gender : 'Unisex';
+  const gender = normalizeGender(row.gender);
   const sizesAvailable = row.sizes_available?.trim() || '3ml,6ml,12ml,50ml';
 
   const p3p = toInt(row.price_3ml_physical);
@@ -195,9 +196,9 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
     productId: row.product_id?.trim() || '',
     name: row.name.trim(),
     slug,
-    categorySlug: (row.category?.trim().toLowerCase() || 'unisex'),
+    categorySlug: gender.toLowerCase(),
     gender,
-    type: row.type?.trim() || 'Attar & Spray',
+    type: normalizeTypeLoose(row.type),
     season: row.season?.trim() || null,
     bestTime: row.best_time?.trim() || null,
     impressionOf: row.impression_of?.trim() || null,

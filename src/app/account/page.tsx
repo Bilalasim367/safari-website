@@ -253,7 +253,7 @@ export default function AccountPage() {
                               <div>
                                 <span className="font-semibold text-foreground">{order.orderNumber}</span>
                                 <p className="text-muted-foreground text-sm mt-0.5">
-                                  {new Date(order.createdAt).toLocaleDateString()} &bull; ${order.total.toFixed(2)}
+                                  {new Date(order.createdAt).toLocaleDateString()} &bull; PKR {order.total.toLocaleString()}
                                 </p>
                               </div>
                               <span className={`text-xs font-medium px-3 py-1 rounded-full capitalize ${STATUS_STYLES[order.status] || 'bg-muted text-muted-foreground'}`}>

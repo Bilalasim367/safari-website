@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 
 interface Category {
-  _id: string;
+  id: string;
   name: string;
   slug: string;
   description: string;
@@ -35,8 +35,8 @@ export default function CategoriesPage() {
     try {
       const res = await fetch('/api/categories');
       const data = await res.json();
-      if (data.categories) {
-        setCategories(data.categories);
+      if (Array.isArray(data)) {
+        setCategories(data);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -52,8 +52,8 @@ export default function CategoriesPage() {
       try {
         const res = await fetch('/api/categories');
         const data = await res.json();
-        if (!cancelled && data.categories) {
-          setCategories(data.categories);
+        if (!cancelled && Array.isArray(data)) {
+          setCategories(data);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -91,12 +91,12 @@ export default function CategoriesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = '/api/admin/products';
+      const url = '/api/categories';
       const method = editingCategory ? 'PUT' : 'POST';
-      
-      const payload = editingCategory 
-        ? { ...formData, id: editingCategory._id, categorySlug: editingCategory.slug }
-        : { ...formData, categorySlug: formData.slug };
+
+      const payload = editingCategory
+        ? { ...formData, id: editingCategory.id }
+        : formData;
 
       const res = await fetch(url, {
         method,
@@ -104,9 +104,13 @@ export default function CategoriesPage() {
         body: JSON.stringify(payload),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         fetchCategories();
         handleCloseModal();
+      } else {
+        console.error('Error saving category:', data.error || 'Unknown error');
       }
     } catch (error) {
       console.error('Error saving category:', error);
@@ -116,8 +120,13 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this category?")) {
       try {
-        await fetch(`/api/admin/products?id=${id}`, { method: 'DELETE' });
-        fetchCategories();
+        const res = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          fetchCategories();
+        } else {
+          const data = await res.json();
+          console.error('Error deleting category:', data.error || 'Unknown error');
+        }
       } catch (error) {
         console.error('Error deleting category:', error);
       }
@@ -174,7 +183,7 @@ export default function CategoriesPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {categories.map((category) => (
           <div 
-            key={category._id} 
+            key={category.id} 
             className="bg-white rounded-xl shadow-sm border border-muted overflow-hidden hover:shadow-lg transition-all group"
           >
             <div className="relative h-40 bg-muted">
@@ -215,7 +224,7 @@ export default function CategoriesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(category._id)}
+                    onClick={() => handleDelete(category.id)}
                     className="h-8 w-8 text-destructive hover:bg-destructive/10"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

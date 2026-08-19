@@ -10,7 +10,7 @@ export default function BrandStory() {
         <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-center">
           {/* Mobile: Premium OUD-style banner */}
           <div className="relative md:rounded-2xl overflow-hidden -mx-4 md:mx-0">
-            <div className="aspect-[3/4] md:aspect-[4/5] overflow-hidden md:rounded-2xl">
+            <div className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden md:rounded-2xl">
               <Image
                 src="/story.png"
                 alt="Safari Perfumes - Crafting luxury fragrances"

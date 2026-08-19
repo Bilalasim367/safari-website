@@ -30,20 +30,21 @@ interface Product {
 export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [productCount, setProductCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const headers = { 'x-api-key': 'safari-admin-api-key-secure-2024' };
         const [ordersRes, productsRes] = await Promise.all([
-          fetch('/api/admin/orders', { headers }),
-          fetch('/api/admin/products', { headers }),
+          fetch('/api/admin/orders'),
+          fetch('/api/admin/products'),
         ]);
         const ordersData = await ordersRes.json();
         const productsData = await productsRes.json();
-        setOrders(ordersData.orders?.slice(0, 5) || []);
-        setProducts(productsData.products?.slice(0, 5) || []);
+        setOrders(ordersData.orders || []);
+        setProducts((productsData.products || []).slice(0, 5));
+        setProductCount(productsData.total ?? (productsData.products || []).length);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -57,9 +58,9 @@ export default function DashboardPage() {
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
 
   const stats = [
-    { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, subtext: "This month", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+    { label: "Total Revenue", value: `PKR ${totalRevenue.toLocaleString()}`, subtext: "All orders", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
     { label: "Total Orders", value: orders.length.toString(), subtext: "All time", icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" },
-    { label: "Products", value: products.length.toString(), subtext: "In catalog", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
+    { label: "Products", value: productCount.toString(), subtext: "In catalog", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
     { label: "Pending", value: pendingOrders.toString(), subtext: "Awaiting action", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
 
@@ -139,7 +140,7 @@ export default function DashboardPage() {
                       <p className="text-muted-foreground text-sm">{order.customerName}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">${order.total.toFixed(2)}</p>
+                      <p className="font-semibold">PKR {order.total.toLocaleString()}</p>
                       <Badge 
                         variant={
                           order.status === 'pending' ? 'default' :
@@ -191,7 +192,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <span className="text-sm font-semibold shrink-0">${product.price}</span>
+                    <span className="text-sm font-semibold shrink-0">PKR {product.price.toLocaleString()}</span>
                   </div>
                 ))
               )}

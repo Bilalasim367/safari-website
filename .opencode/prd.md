@@ -70,7 +70,7 @@ isBestseller = true
 
 Show only products where:
 
-isNewArrival = true
+isNew = true
 
 ### Attar Collection
 
@@ -125,7 +125,7 @@ Review all product fields:
 * type
 * collection
 * isBestseller
-* isNewArrival
+* isNew
 * offer
 * bundle
 * slug
@@ -278,7 +278,7 @@ must appear in Bestsellers.
 
 Only products with:
 
-isNewArrival = true
+isNew = true
 
 must appear in New Arrival.
 

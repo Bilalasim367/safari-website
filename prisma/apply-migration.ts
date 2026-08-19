@@ -62,7 +62,7 @@ async function main() {
   const bulkColumns = [
     `ALTER TABLE "Product" ADD COLUMN "productId" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "gender" TEXT NOT NULL DEFAULT 'Unisex';`,
-    `ALTER TABLE "Product" ADD COLUMN "type" TEXT NOT NULL DEFAULT 'Attar & Spray';`,
+    `ALTER TABLE "Product" ADD COLUMN "type" TEXT NOT NULL DEFAULT 'Attar';`,
     `ALTER TABLE "Product" ADD COLUMN "season" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "bestTime" TEXT;`,
     `ALTER TABLE "Product" ADD COLUMN "impressionOf" TEXT;`,
@@ -115,6 +115,39 @@ async function main() {
   try {
     await turso.execute(`CREATE UNIQUE INDEX IF NOT EXISTS "Product_productId_key" ON "Product"("productId");`)
   } catch { /* index exists */ }
+
+  // Index for categorySlug + isActive filtering (category pages, shop filters)
+  try {
+    await turso.execute(`CREATE INDEX IF NOT EXISTS "Product_categorySlug_isActive_idx" ON "Product"("categorySlug", "isActive");`)
+  } catch { /* index exists */ }
+
+  // Data normalization (idempotent) - align legacy values with the app standard:
+  // gender: Men/Women/Unisex | type: Attar/Perfume | categorySlug derived from gender
+  console.log('Normalizing legacy product values...')
+  const normalizeSql = [
+    `UPDATE "Product" SET "type" = 'Perfume' WHERE LOWER("type") LIKE '%perfume%' OR LOWER("type") LIKE '%edp%' OR LOWER("type") LIKE '%eau%';`,
+    `UPDATE "Product" SET "type" = 'Attar' WHERE "type" NOT IN ('Attar', 'Perfume');`,
+    `UPDATE "Product" SET "gender" = 'Men' WHERE LOWER("gender") = 'men';`,
+    `UPDATE "Product" SET "gender" = 'Women' WHERE LOWER("gender") = 'women';`,
+    `UPDATE "Product" SET "gender" = 'Unisex' WHERE "gender" IS NULL OR "gender" = '' OR LOWER("gender") = 'unisex';`,
+    `UPDATE "Product" SET "categorySlug" = 'men' WHERE "gender" = 'Men';`,
+    `UPDATE "Product" SET "categorySlug" = 'women' WHERE "gender" = 'Women';`,
+    `UPDATE "Product" SET "categorySlug" = 'unisex' WHERE "gender" = 'Unisex';`,
+  ]
+  for (const sql of normalizeSql) {
+    try { await turso.execute(sql) } catch (e) { console.error('Normalization statement failed:', sql, e) }
+  }
+
+  // Ensure a Settings row exists (checkout reads taxRate/shippingFee/freeShippingThreshold from here)
+  try {
+    await turso.execute(`
+      INSERT OR IGNORE INTO "Settings" ("id", "storeName", "currency", "timezone", "taxRate", "shippingFee", "freeShippingThreshold", "emailNotifications", "orderEmails", "marketingEmails", "updatedAt")
+      VALUES ('settings-default', 'Safari Perfumes', 'PKR', 'Asia/Karachi', 0, 0, 0, 1, 1, 0, CURRENT_TIMESTAMP);
+    `)
+    console.log('Settings row ensured (default).')
+  } catch (e) {
+    console.error('Failed to ensure Settings row:', e)
+  }
 
   console.log('Migration applied successfully!')
 }

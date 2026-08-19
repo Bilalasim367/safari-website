@@ -20,11 +20,15 @@ export async function GET(request: Request) {
     const maxPrice = searchParams.get("maxPrice");
     const gender = searchParams.get("gender");
     const type = searchParams.get("type");
+    const includeOutOfStock = searchParams.get("includeOutOfStock") === "true";
 
     const where: Record<string, unknown> = {
       isActive: true,
-      inStock: true,
     };
+
+    if (!includeOutOfStock) {
+      where.inStock = true;
+    }
 
     if (category) {
       where.categorySlug = { in: category.split(",") };

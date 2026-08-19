@@ -133,15 +133,23 @@ Examples:
 
 Wrong:
 
-Men
+```text
 men
 MEN
+wOmEn
+```
 
-Correct:
+Correct (canonical, DB standard):
 
-men
+```text
+Men
+Women
+Unisex
+Attar
+Perfume
+```
 
-Use one consistent format.
+Use one consistent format. Normalize via `src/lib/normalize.ts` (`normalizeGender`, `normalizeType`, `normalizeTypeLoose`).
 
 ---
 
@@ -153,14 +161,14 @@ Examples:
 
 Gender:
 
-* men
-* women
-* unisex
+* Men
+* Women
+* Unisex
 
 Type:
 
-* attar
-* perfume
+* Attar
+* Perfume
 
 Booleans:
 

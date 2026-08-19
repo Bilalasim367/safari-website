@@ -14,3 +14,9 @@ export function normalizeType(t: string | null | undefined): string {
   if (lower === 'perfume') return 'Perfume';
   return 'Attar';
 }
+
+export function normalizeTypeLoose(t: string | null | undefined): string {
+  const lower = (t || '').toLowerCase().trim();
+  if (lower.includes('perfume') || lower.includes('edp') || lower.includes('eau de')) return 'Perfume';
+  return 'Attar';
+}

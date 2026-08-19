@@ -54,7 +54,7 @@ export function FilterSection({
       const range = priceRanges.find((r) => r.label === option);
       const newMin = range?.min ?? '';
       const newMax = range?.max === Infinity ? '' : range?.max ?? '';
-      if (newMin) sp.set('minPrice', String(newMin));
+      if (newMin !== '') sp.set('minPrice', String(newMin));
       if (newMax) sp.set('maxPrice', String(newMax));
       return `/shop?${sp.toString()}`;
     }

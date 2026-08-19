@@ -188,11 +188,11 @@ export default function UnisexTrend({ products }: UnisexTrendProps) {
                     </div>
                     <div className="flex items-center gap-2 md:gap-3">
                       <span className="text-xl md:text-2xl font-bold text-foreground">
-                        ${product.price}
+                        PKR {product.price.toLocaleString()}
                       </span>
                       {product.originalPrice && product.originalPrice > product.price && (
                         <span className="text-muted-foreground line-through text-sm md:text-lg">
-                          ${product.originalPrice}
+                          PKR {product.originalPrice.toLocaleString()}
                         </span>
                       )}
                     </div>

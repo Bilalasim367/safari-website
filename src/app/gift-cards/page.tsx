@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 
-const denominations = [25, 50, 100, 150, 200, 500]
+const denominations = [500, 1000, 2000, 3000, 5000, 10000]
 
 export default function GiftCardsPage() {
   const [selected, setSelected] = useState(100)
@@ -83,7 +83,7 @@ export default function GiftCardsPage() {
                         onClick={() => { setSelected(amt); setCustomAmount('') }}
                         className='py-4 text-lg font-semibold'
                       >
-                        ${amt}
+                        PKR {amt.toLocaleString()}
                       </Button>
                     ))}
                   </div>
@@ -94,8 +94,8 @@ export default function GiftCardsPage() {
                       value={customAmount}
                       onChange={(e) => { setCustomAmount(e.target.value); setSelected(0) }}
                       placeholder='Enter amount'
-                      min='10'
-                      max='1000'
+                      min='500'
+                      max='100000'
                       className='text-xl text-center'
                     />
                   </div>
@@ -136,7 +136,7 @@ export default function GiftCardsPage() {
                     <div className='flex items-center justify-between mb-6'>
                       <span className='text-foreground'>Total</span>
                       <span className='text-3xl font-bold text-primary'>
-                        ${customAmount || selected}
+                        PKR {(customAmount ? Number(customAmount) : selected).toLocaleString()}
                       </span>
                     </div>
                     <Button

@@ -57,7 +57,6 @@ export default function ProductCard({
 
   const hasValidImage = image && image.trim() !== "";
   const discount = originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-  const badge = isBestseller ? "Bestseller" : isNew ? "New" : "";
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -119,10 +118,19 @@ export default function ProductCard({
             </span>
           )}
 
-          {badge && (
-            <span className="absolute bottom-3 left-3 bg-secondary text-secondary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm z-10">
-              {badge}
-            </span>
+          {(isBestseller || isNew) && (
+            <div className="absolute bottom-3 left-3 flex flex-col gap-1 z-10">
+              {isBestseller && (
+                <span className="bg-secondary text-secondary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm">
+                  Bestseller
+                </span>
+              )}
+              {isNew && (
+                <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm">
+                  New
+                </span>
+              )}
+            </div>
           )}
 
           <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">

@@ -253,25 +253,25 @@ export default function TrackPage() {
                       {order.items.map((item, i) => (
                         <div key={i} className='flex justify-between text-sm'>
                           <span>{item.name} ({item.size}) &times; {item.quantity}</span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          <span>PKR {(item.price * item.quantity).toLocaleString()}</span>
                         </div>
                       ))}
                       <div className='pt-2 border-t border-border' />
                       <div className='flex justify-between text-sm'>
                         <span>Subtotal</span>
-                        <span>${order.subtotal.toFixed(2)}</span>
+                        <span>PKR {order.subtotal.toLocaleString()}</span>
                       </div>
                       <div className='flex justify-between text-sm'>
                         <span>Shipping</span>
-                        <span>{order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}</span>
+                        <span>{order.shipping === 0 ? 'Free' : `PKR ${order.shipping.toLocaleString()}`}</span>
                       </div>
                       <div className='flex justify-between text-sm'>
                         <span>Tax</span>
-                        <span>${order.tax.toFixed(2)}</span>
+                        <span>PKR {order.tax.toLocaleString()}</span>
                       </div>
                       <div className='flex justify-between font-medium text-lg text-foreground pt-2 border-t border-border'>
                         <span>Total</span>
-                        <span>${order.total.toFixed(2)}</span>
+                        <span>PKR {order.total.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>

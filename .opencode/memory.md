@@ -43,11 +43,11 @@ E-Commerce Store
 
 ## Database
 
-* MongoDB or PostgreSQL (verify current implementation before changes)
+* Turso (libSQL) via Prisma ORM (driver adapter) — NOT MongoDB/PostgreSQL
 
 ## Deployment
 
-* Vercel
+* cPanel (Phusion Passenger, Node 20.x) — `output: 'standalone'` + `server.js`
 
 ---
 
@@ -99,7 +99,7 @@ isBestseller = true
 Contains only products marked:
 
 ```text
-isNewArrival = true
+isNew = true
 ```
 
 ---
@@ -150,39 +150,47 @@ All products must follow the same standards.
 
 ## Gender
 
-Allowed values:
-
-```text
-men
-women
-unisex
-```
-
-Do not use:
+Allowed values (canonical, DB standard):
 
 ```text
 Men
-MEN
 Women
-WOMEN
 Unisex
-UNISEX
 ```
 
-Normalize values.
+Normalize via `normalizeGender()` in `src/lib/normalize.ts`.
+
+Do not store:
+
+```text
+men
+MEN
+women
+WOMEN
+unisex
+UNISEX
+```
 
 ---
 
 ## Product Type
 
-Allowed values:
+Allowed values (canonical, DB standard):
 
 ```text
-attar
-perfume
+Attar
+Perfume
 ```
 
-Do not use mixed casing.
+Normalize via `normalizeType()` / `normalizeTypeLoose()` in `src/lib/normalize.ts`.
+
+Do not store legacy values like:
+
+```text
+Attar & Spray
+Perfume Spray
+EDP
+```
 
 ---
 
@@ -199,10 +207,10 @@ Examples:
 
 ```text
 isBestseller
-isNewArrival
+isNew
 isFeatured
-bundle
-offer
+isHotSelling
+isTrending
 ```
 
 ---
@@ -495,5 +503,58 @@ Client (React) → API Route (Next.js) → Prisma → Turso (SQL) → back up th
 ✅ Production-ready solution delivered
 
 Anything less is incomplete.
+
+---
+
+# PHASE 4-6 COMPLETION LOG
+
+## Phase 4 — Admin Dashboard UI (COMPLETED)
+- `api/categories/route.ts`: added admin-guarded PUT + DELETE (slug-uniqueness, 404s)
+- `admin/categories/page.tsx`: bare-array guard (`Array.isArray`), `_id`→`id`, save/delete wired to real `/api/categories` (previously hit `/api/admin/products`)
+- `admin/settings/page.tsx`: full rewrite — loads GET `/api/settings`, real PUT save (toast + saving state), PKR default, SMTP fields, honest payment-methods card (Card = "Not integrated")
+- `admin/dashboard/page.tsx`: stats from full orders array + `productsData.total`; `$`→`PKR`
+- `api/admin/products/route.ts` GET: returns `{ products, total }`
+- `admin/orders/page.tsx`: openOrder helper (no setState-in-effect), paymentStatus Select (pending/paid/failed/refunded) → PUT `/api/admin/orders`
+- `admin/users/page.tsx`: `inactive`→`blocked` (stat card, filter, dialog buttons)
+- `admin/login/page.tsx`: Remember me wired to `rememberMe`
+- `admin/products` + `admin/bundles`: in-effect IIFE loaders with `cancelled` flag (react-compiler lint rule can't trace component-scope loaders)
+
+## Phase 5 — Storefront (COMPLETED)
+- `collections/page.tsx`: real "Our Collection" page (ShopContent + searchParams + COLLECTION_MAP: for-him/for-her/unisex/attars/signature/limited)
+- `Footer.tsx`: `filter=new`→`isNew=true`, `filter=bestseller`→`isBestseller=true`
+- Home components (HotSellingCarousel, MenCollection, WomenCollection, UnisexTrend): `$`→`PKR {toLocaleString()}`
+- `bundles` list+detail: PKR incl. "Save PKR X"
+- `track` + `account`: PKR order totals
+- `gift-cards`: PKR denominations [500..10000], custom min 500 / max 100000
+- `shipping`: full rewrite — PKR rates, DYNAMIC from Settings DB (`standardShippingFee`, `freeShippingThreshold` via `prisma.settings.findFirst()`), Pakistan regions
+- `shop/[slug]`: free-shipping accordion line dynamic from `/api/settings`
+
+## Phase 6 — Testing & Data Verification (COMPLETED)
+- `scripts/data-audit.ts` (read-only, safe): audited LIVE production Turso DB — 339 products, gender/type canonical; found 330 legacy `categorySlug="attar & perfume"` + missing Settings row
+- `prisma/apply-migration.ts`: now also inserts Settings row (`INSERT OR IGNORE 'settings-default'`, PKR/Asia/Karachi/0 fees) + normalizes categorySlug — RUN SUCCESSFULLY on live DB (2026-08-19). Re-audit: 0 mismatches, Settings row live
+- **Read-only Playwright suite (shop/homepage/product-detail/search-api): 59/59 PASSING** (chromium, `--workers=1`)
+- **Mutation-heavy specs (cart-checkout, admin, comprehensive) MUST NOT run against the LIVE production DB** (.env points to `perfume-store-bilalasim.aws-ap-northeast-1.turso.io`)
+
+### Test-suite learnings (important)
+- `waitForLoadState('networkidle')` RACES with Next.js App Router soft navigations (RSC fetch can start after networkidle fires). Post-click waits must be URL-based: `await expect(page).toHaveURL(/pattern/, { timeout: 30000 })`.
+- `toHaveURL` regexes are matched against the FULL URL (`http://localhost:3000/...`) — do NOT anchor with `^\/shop`; use `expect.poll(() => new URL(page.url()).pathname)` for path checks.
+- `page.click(sel).first()` is invalid — `page.click` returns a Promise; use `page.locator(sel).first().click()`.
+- Dev-server cold compiles can exceed default 5s assertion timeouts — bump URL assertions to 30s.
+- `playwright.config.ts`: `workers: process.env.CI ? 1 : 3` (was `undefined` = unlimited; caused severe contention with the dev server + live Turso).
+
+### Bugs fixed during Phase 6
+1. **ProductCard badge bug (P1, real)**: `badge = isBestseller ? "Bestseller" : isNew ? "New" : ""` (else-if) meant products both bestseller AND new never showed "New". Now renders independent badges (both can appear). Fix in `src/components/ProductCard.tsx:121-134`.
+2. **FilterSection minPrice=0 bug (P1, real)**: `if (newMin) sp.set('minPrice', ...)` dropped `minPrice=0` from "Under PKR 5,000" URLs (and broke selected-state). Now `if (newMin !== '')`. `src/app/shop/FilterSection.tsx:53-59`.
+3. **BrandStory fill warning**: `fill` image's immediate parent lacked `relative` (next/image console warning on every homepage load). Fixed `src/components/BrandStory.tsx:13`.
+4. **Stale test selectors**: 18 tests in `tests/shop.spec.ts` rewritten to match real UI (filters are `<Link>` elements with lowercase query values like `gender=men`/`type=attar`/`fragranceFamily=Woody`/`minPrice=0`; product cards are `<Link href="/shop/{slug}">` inside `div.grid` — NOT `<article>`/`.product-card`; badges are plain `span` with text "Bestseller"/"New", no `.bestseller-badge`/`.new-badge` classes).
+
+## Lint/build status
+- `npm run lint`: 0 errors, 34 pre-existing warnings (unused vars in `tests/*.spec.ts`)
+- `npm run build`: ✓ Compiled successfully (~24s)
+- NOTE: dev server must be stopped before `npm run build` (Prisma `query_engine-windows.dll.node` is locked by dev process → EPERM rename error)
+
+## Open items
+- 34 lint warnings (pre-existing unused vars in test files) — out of scope
+- Remaining eslint-disable setState-in-effect in storefront contexts (WishlistContext:24, CartContext:118, Header:76, account:61, track:97) — pre-existing, out of scope
 
 

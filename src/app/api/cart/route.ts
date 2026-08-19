@@ -79,25 +79,20 @@ export async function POST(request: Request) {
 
     await prisma.$transaction([
       prisma.cartItem.deleteMany({ where: { userId: payload.userId } }),
+      ...(cart.length > 0
+        ? [prisma.cartItem.createMany({
+            data: cart.filter(item => item?.id).map(item => ({
+              userId: payload.userId,
+              productId: item.id,
+              name: item.name || 'Unknown',
+              price: Number(item.price) || 0,
+              image: item.image || '',
+              size: item.size || '',
+              quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
+            })),
+          })]
+        : []),
     ]);
-
-    if (cart.length > 0) {
-      const cartItemsData = cart.filter(item => item?.id).map(item => ({
-        userId: payload.userId,
-        productId: item.id,
-        name: item.name || 'Unknown',
-        price: Number(item.price) || 0,
-        image: item.image || '',
-        size: item.size || '',
-        quantity: Number(item.quantity) || 1,
-      }));
-
-      if (cartItemsData.length > 0) {
-        await prisma.cartItem.createMany({
-          data: cartItemsData,
-        });
-      }
-    }
 
     return NextResponse.json({ success: true, message: 'Cart saved' });
   } catch (error) {

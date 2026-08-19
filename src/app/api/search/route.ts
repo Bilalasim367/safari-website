@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
-import { normalizeGender } from "@/lib/normalize";
+import { normalizeGender, normalizeType } from "@/lib/normalize";
 
 export async function GET(request: Request) {
   try {
@@ -33,12 +33,7 @@ export async function GET(request: Request) {
       where.gender = { in: genders };
     }
     if (type) {
-      const types = type.split(",").map(t => {
-        const lower = t.toLowerCase();
-        if (lower === "attar") return "Attar";
-        if (lower === "perfume") return "Perfume";
-        return t;
-      });
+      const types = type.split(",").map(t => normalizeType(t));
       where.type = { in: types };
     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,31 +8,137 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+
+interface SettingsData {
+  storeName: string;
+  storeEmail: string;
+  storePhone: string;
+  storeAddress: string | null;
+  currency: string;
+  timezone: string;
+  taxRate: number;
+  shippingFee: number;
+  freeShippingThreshold: number;
+  emailNotifications: boolean;
+  orderEmails: boolean;
+  marketingEmails: boolean;
+  smtpHost: string | null;
+  smtpPort: number | null;
+  smtpUser: string | null;
+  smtpPassword: string | null;
+}
+
+const DEFAULT_SETTINGS: SettingsData = {
+  storeName: "Safari Perfumes",
+  storeEmail: "",
+  storePhone: "",
+  storeAddress: null,
+  currency: "PKR",
+  timezone: "Asia/Karachi",
+  taxRate: 0,
+  shippingFee: 0,
+  freeShippingThreshold: 0,
+  emailNotifications: true,
+  orderEmails: true,
+  marketingEmails: false,
+  smtpHost: null,
+  smtpPort: null,
+  smtpUser: null,
+  smtpPassword: null,
+};
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
-  const [saved, setSaved] = useState(false);
-  const [settings, setSettings] = useState({
-    storeName: "Safari Perfumes",
-    storeEmail: "hello@safariperfumes.com",
-    storePhone: "+1 (800) 555-0123",
-    currency: "USD",
-    shippingFee: "15",
-    freeShippingThreshold: "100",
-    taxRate: "8",
-  });
+  const [settings, setSettings] = useState<SettingsData>(DEFAULT_SETTINGS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (!cancelled && !data.error) {
+          setSettings({
+            storeName: data.storeName || "Safari Perfumes",
+            storeEmail: data.storeEmail || "",
+            storePhone: data.storePhone || "",
+            storeAddress: data.storeAddress || null,
+            currency: data.currency || "PKR",
+            timezone: data.timezone || "Asia/Karachi",
+            taxRate: data.taxRate ?? 0,
+            shippingFee: data.shippingFee ?? 0,
+            freeShippingThreshold: data.freeShippingThreshold ?? 0,
+            emailNotifications: data.emailNotifications ?? true,
+            orderEmails: data.orderEmails ?? true,
+            marketingEmails: data.marketingEmails ?? false,
+            smtpHost: data.smtpHost || null,
+            smtpPort: data.smtpPort ?? null,
+            smtpUser: data.smtpUser || null,
+            smtpPassword: data.smtpPassword || null,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+        toast.error('Failed to load settings');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, []);
+
+  const update = (patch: Partial<SettingsData>) => {
+    setSettings((prev) => ({ ...prev, ...patch }));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...settings,
+          taxRate: Number(settings.taxRate) || 0,
+          shippingFee: Number(settings.shippingFee) || 0,
+          freeShippingThreshold: Number(settings.freeShippingThreshold) || 0,
+          smtpPort: settings.smtpPort ? Number(settings.smtpPort) : null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && !data.error) {
+        toast.success('Settings saved');
+      } else {
+        toast.error(data.error || 'Failed to save settings');
+      }
+    } catch {
+      toast.error('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const tabs = [
-    { id: "general", label: "General", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" },
-    { id: "shipping", label: "Shipping", icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" },
-    { id: "email", label: "Notifications", icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
-    { id: "payment", label: "Payment", icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" },
+    { id: "general", label: "General" },
+    { id: "shipping", label: "Shipping & Tax" },
+    { id: "email", label: "Notifications & SMTP" },
+    { id: "payment", label: "Payment Methods" },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -50,14 +156,9 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 variant={activeTab === tab.id ? "default" : "ghost"}
                 className={`w-full justify-start gap-3 ${
-                  activeTab === tab.id
-                    ? ""
-                    : "text-muted-foreground"
+                  activeTab === tab.id ? "" : "text-muted-foreground"
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={tab.icon} />
-                </svg>
                 <span className="font-medium">{tab.label}</span>
               </Button>
             ))}
@@ -70,197 +171,231 @@ export default function SettingsPage() {
             {activeTab === "general" && (
               <div className="space-y-5">
                 <h2 className="text-lg font-semibold">General Settings</h2>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-muted rounded-xl p-4">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Store Name</Label>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Store Name</Label>
                     <Input
                       type="text"
                       value={settings.storeName}
-                      onChange={(e) => setSettings({ ...settings, storeName: e.target.value })}
-                      className="bg-transparent"
+                      onChange={(e) => update({ storeName: e.target.value })}
                     />
                   </div>
-                  <div className="bg-muted rounded-xl p-4">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Email</Label>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Email</Label>
                     <Input
                       type="email"
                       value={settings.storeEmail}
-                      onChange={(e) => setSettings({ ...settings, storeEmail: e.target.value })}
-                      className="bg-transparent"
+                      onChange={(e) => update({ storeEmail: e.target.value })}
                     />
                   </div>
-                  <div className="bg-muted rounded-xl p-4">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Phone</Label>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Phone</Label>
                     <Input
                       type="text"
                       value={settings.storePhone}
-                      onChange={(e) => setSettings({ ...settings, storePhone: e.target.value })}
-                      className="bg-transparent"
+                      onChange={(e) => update({ storePhone: e.target.value })}
                     />
                   </div>
-                  <div className="bg-muted rounded-xl p-4">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-1">Currency</Label>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Currency</Label>
                     <Select
                       value={settings.currency}
-                      onValueChange={(value) => setSettings({ ...settings, currency: value || "USD" })}
+                      onValueChange={(value) => update({ currency: value || "PKR" })}
                     >
-                      <SelectTrigger className="bg-transparent">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="PKR">PKR (₨)</SelectItem>
                         <SelectItem value="USD">USD ($)</SelectItem>
                         <SelectItem value="EUR">EUR (€)</SelectItem>
                         <SelectItem value="GBP">GBP (£)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Store Address</Label>
+                    <Input
+                      type="text"
+                      value={settings.storeAddress || ""}
+                      onChange={(e) => update({ storeAddress: e.target.value })}
+                    />
+                  </div>
                 </div>
 
-                <Button onClick={handleSave}>
-                  {saved ? "Saved!" : "Save Changes"}
-                </Button>
+                <div className="bg-muted rounded-xl p-4 text-sm text-muted-foreground">
+                  Tax rate, shipping fees and free-shipping threshold are configured under
+                  {" "}<Button variant="link" className="p-0 h-auto text-primary" onClick={() => setActiveTab("shipping")}>Shipping &amp; Tax</Button>.
+                  They are applied automatically when customers place orders.
+                </div>
               </div>
             )}
 
             {activeTab === "shipping" && (
               <div className="space-y-5">
-                <h2 className="text-lg font-semibold">Shipping Settings</h2>
-                
+                <h2 className="text-lg font-semibold">Shipping &amp; Tax</h2>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="p-5">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-2">Standard Shipping</Label>
-                    <p className="text-2xl font-serif font-bold">${settings.shippingFee}</p>
-                    <p className="text-muted-foreground text-sm mt-1">Flat rate</p>
-                  </Card>
-                  <Card className="p-5">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-2">Free Shipping</Label>
-                    <p className="text-2xl font-serif font-bold">${settings.freeShippingThreshold}</p>
-                    <p className="text-muted-foreground text-sm mt-1">Minimum order</p>
-                  </Card>
-                  <Card className="p-5">
-                    <Label className="text-muted-foreground text-xs uppercase tracking-wide block mb-2">Tax Rate</Label>
-                    <p className="text-2xl font-serif font-bold">{settings.taxRate}%</p>
-                    <p className="text-muted-foreground text-sm mt-1">Per order</p>
-                  </Card>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Standard Shipping Fee ({settings.currency})</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={settings.shippingFee}
+                      onChange={(e) => update({ shippingFee: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Free Shipping Threshold ({settings.currency})</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={settings.freeShippingThreshold}
+                      onChange={(e) => update({ freeShippingThreshold: Number(e.target.value) })}
+                    />
+                    <p className="text-xs text-muted-foreground">Orders at or above this amount ship free. 0 disables free shipping.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">Tax Rate (%)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={settings.taxRate}
+                      onChange={(e) => update({ taxRate: Number(e.target.value) })}
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-3 pt-3">
-                  <div className="flex items-center justify-between py-3 border-b">
-                    <div>
-                      <p className="font-medium">Free Shipping</p>
-                      <p className="text-muted-foreground text-sm">Orders over ${settings.freeShippingThreshold}</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b">
-                    <div>
-                      <p className="font-medium">Express Shipping</p>
-                      <p className="text-muted-foreground text-sm">1-2 business days</p>
-                    </div>
-                    <Switch />
-                  </div>
+                <div className="bg-muted rounded-xl p-4 text-sm text-muted-foreground">
+                  Current values:
+                  <span className="font-medium text-foreground"> {settings.shippingFee} {settings.currency}</span> shipping ·{" "}
+                  <span className="font-medium text-foreground"> {settings.taxRate}%</span> tax · free shipping over{" "}
+                  <span className="font-medium text-foreground"> {settings.freeShippingThreshold} {settings.currency}</span>
                 </div>
-
-                <Button onClick={handleSave}>
-                  {saved ? "Saved!" : "Save Changes"}
-                </Button>
               </div>
             )}
 
             {activeTab === "email" && (
               <div className="space-y-5">
                 <h2 className="text-lg font-semibold">Email Notifications</h2>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium">New Order Alerts</p>
-                      <p className="text-muted-foreground text-sm">Get notified when a new order is placed</p>
+                      <p className="font-medium">Email Notifications Enabled</p>
+                      <p className="text-muted-foreground text-sm">Master switch for all customer emails</p>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={settings.emailNotifications}
+                      onCheckedChange={(checked) => update({ emailNotifications: checked })}
+                    />
                   </div>
                   <div className="flex items-center justify-between py-3 border-b">
                     <div>
                       <p className="font-medium">Order Confirmation</p>
-                      <p className="text-muted-foreground text-sm">Email customers order confirmation</p>
+                      <p className="text-muted-foreground text-sm">Email customers when an order is placed</p>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={settings.orderEmails}
+                      onCheckedChange={(checked) => update({ orderEmails: checked })}
+                    />
                   </div>
                   <div className="flex items-center justify-between py-3 border-b">
                     <div>
-                      <p className="font-medium">Shipping Updates</p>
-                      <p className="text-muted-foreground text-sm">Notify on status changes</p>
+                      <p className="font-medium">Marketing Emails</p>
+                      <p className="text-muted-foreground text-sm">Promotional and newsletter emails</p>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch
+                      checked={settings.marketingEmails}
+                      onCheckedChange={(checked) => update({ marketingEmails: checked })}
+                    />
                   </div>
                 </div>
 
-                <Button onClick={handleSave}>
-                  {saved ? "Saved!" : "Save Changes"}
-                </Button>
+                <h2 className="text-lg font-semibold pt-3">SMTP Server</h2>
+                <p className="text-sm text-muted-foreground">Used to send order confirmations, shipment updates and password reset codes.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">SMTP Host</Label>
+                    <Input
+                      type="text"
+                      placeholder="smtp.example.com"
+                      value={settings.smtpHost || ""}
+                      onChange={(e) => update({ smtpHost: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">SMTP Port</Label>
+                    <Input
+                      type="number"
+                      placeholder="465"
+                      value={settings.smtpPort || ""}
+                      onChange={(e) => update({ smtpPort: e.target.value ? Number(e.target.value) : null })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">SMTP Username</Label>
+                    <Input
+                      type="text"
+                      value={settings.smtpUser || ""}
+                      onChange={(e) => update({ smtpUser: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs uppercase tracking-wide">SMTP Password</Label>
+                    <Input
+                      type="password"
+                      value={settings.smtpPassword || ""}
+                      onChange={(e) => update({ smtpPassword: e.target.value })}
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
             {activeTab === "payment" && (
               <div className="space-y-5">
                 <h2 className="text-lg font-semibold">Payment Methods</h2>
-                
+
                 <div className="space-y-3">
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
-                          <span className="text-black text-xs font-bold">VISA</span>
-                        </div>
+                  {[
+                    { name: 'Cash on Delivery', note: 'Pay when you receive your order', enabled: true },
+                    { name: 'Bank Transfer', note: 'Manual transfer, confirmed by admin', enabled: true },
+                    { name: 'JazzCash', note: 'JazzCash mobile wallet', enabled: true },
+                    { name: 'EasyPaisa', note: 'EasyPaisa mobile wallet', enabled: true },
+                    { name: 'Credit/Debit Card', note: 'Online card payments (not integrated yet)', enabled: false },
+                  ].map((method) => (
+                    <Card key={method.name} className="p-4">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium">Credit/Debit Cards</p>
-                          <p className="text-muted-foreground text-sm">Visa, Mastercard, Amex</p>
+                          <p className="font-medium">{method.name}</p>
+                          <p className="text-muted-foreground text-sm">{method.note}</p>
                         </div>
+                        {method.enabled ? (
+                          <Badge className="bg-green-100 text-green-800">Enabled</Badge>
+                        ) : (
+                          <Badge variant="secondary">Not integrated</Badge>
+                        )}
                       </div>
-                      <Badge variant="default" className="bg-green-100 text-green-800">Enabled</Badge>
-                    </div>
-                  </Card>
-                  
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
-                          <span className="text-black text-xs font-bold">PayPal</span>
-                        </div>
-                        <div>
-                          <p className="font-medium">PayPal</p>
-                          <p className="text-muted-foreground text-sm">Pay with PayPal</p>
-                        </div>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </Card>
-
-                  <Card className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-8 bg-white rounded-lg flex items-center justify-center">
-                          <span className="text-black text-xs font-bold">COD</span>
-                        </div>
-                        <div>
-                          <p className="font-medium">Cash on Delivery</p>
-                          <p className="text-muted-foreground text-sm">Pay when you receive</p>
-                        </div>
-                      </div>
-                      <Switch />
-                    </div>
-                  </Card>
+                    </Card>
+                  ))}
                 </div>
-
-                <Button onClick={handleSave}>
-                  {saved ? "Saved!" : "Save Changes"}
-                </Button>
               </div>
-             )}
-           </CardContent>
-         </Card>
-         </div>
+            )}
+
+            <div className="pt-6">
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

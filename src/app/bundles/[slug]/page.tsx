@@ -58,7 +58,7 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
           {
             icon: 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6',
             title: `Save ${bundle.save}`,
-            desc: `Save $${savings} compared to buying individually`,
+            desc: `Save PKR ${savings.toLocaleString()} compared to buying individually`,
           },
         ]
       : []),
@@ -142,12 +142,12 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
 
             <div className="flex items-baseline gap-3 mb-8">
               <span className="text-4xl font-bold text-foreground tracking-tight">
-                ${bundle.price}
+                PKR {bundle.price.toLocaleString()}
               </span>
               {bundle.originalPrice && (
                 <>
                   <span className="text-lg text-muted-foreground line-through">
-                    ${bundle.originalPrice}
+                    PKR {bundle.originalPrice.toLocaleString()}
                   </span>
                   {discountPercent > 0 && (
                     <Badge variant="secondary" className="text-xs">
@@ -270,15 +270,15 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
               <div className="bg-background rounded-xl p-8 border border-border">
                 <div className="flex justify-between items-center py-3 border-b border-border">
                   <span className="text-muted-foreground">Individual Value</span>
-                  <span className="text-lg font-semibold text-muted-foreground line-through">${bundle.originalPrice}</span>
+                  <span className="text-lg font-semibold text-muted-foreground line-through">PKR {bundle.originalPrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-border">
                   <span className="text-muted-foreground">Bundle Price</span>
-                  <span className="text-2xl font-bold text-foreground">${bundle.price}</span>
+                  <span className="text-2xl font-bold text-foreground">PKR {bundle.price.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-3">
                   <span className="text-muted-foreground">You Save</span>
-                  <span className="text-lg font-bold text-primary">${savings}</span>
+                  <span className="text-lg font-bold text-primary">PKR {savings.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -326,9 +326,9 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
                       <h3 className="font-heading text-foreground text-lg mb-1 group-hover:text-primary transition-colors">{ob.name}</h3>
                       <p className="text-sm text-muted-foreground mb-3">{ob.description}</p>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-bold text-foreground">${ob.price}</span>
+                        <span className="text-xl font-bold text-foreground">PKR {ob.price.toLocaleString()}</span>
                         {ob.originalPrice && (
-                          <span className="text-sm text-muted-foreground line-through">${ob.originalPrice}</span>
+                          <span className="text-sm text-muted-foreground line-through">PKR {ob.originalPrice.toLocaleString()}</span>
                         )}
                       </div>
                     </CardContent>

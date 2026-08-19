@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (user.status === 'blocked') {
+    if (user.status !== 'active') {
       return NextResponse.json(
         { success: false, errors: { email: 'This account has been suspended' } },
         { status: 403 }
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       userId: user.id,
       email: user.email,
       role: user.role as 'customer' | 'admin',
-    });
+    }, refreshExpiry);
 
     const response = NextResponse.json({
       success: true,

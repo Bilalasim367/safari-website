@@ -127,8 +127,8 @@ export default function UsersPage() {
               </svg>
             </div>
             <div>
-              <p className="text-2xl font-serif font-bold text-yellow-600">{users.filter(u => u.status === 'inactive').length}</p>
-              <p className="text-muted-foreground text-sm">Inactive</p>
+              <p className="text-2xl font-serif font-bold text-yellow-600">{users.filter(u => u.status === 'blocked').length}</p>
+              <p className="text-muted-foreground text-sm">Blocked</p>
             </div>
           </div>
         </Card>
@@ -153,7 +153,7 @@ export default function UsersPage() {
             <SelectContent>
               <SelectItem value="">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="blocked">Blocked</SelectItem>
               <SelectItem value="blocked">Blocked</SelectItem>
             </SelectContent>
           </Select>
@@ -182,7 +182,7 @@ export default function UsersPage() {
             </div>
             <div className="flex items-center justify-between pt-3 border-t">
               <div>
-                <p className="text-lg font-serif font-bold">${user.totalSpent.toFixed(2)}</p>
+                <p className="text-lg font-serif font-bold">PKR {user.totalSpent.toLocaleString()}</p>
                 <p className="text-muted-foreground text-xs">{user.orders} orders</p>
               </div>
               <Badge 
@@ -250,7 +250,7 @@ export default function UsersPage() {
                   <p className="text-muted-foreground text-xs">Orders</p>
                 </Card>
                 <Card className="p-4 text-center">
-                  <p className="text-2xl font-serif font-bold">${selectedUser.totalSpent.toFixed(2)}</p>
+                  <p className="text-2xl font-serif font-bold">PKR {selectedUser.totalSpent.toLocaleString()}</p>
                   <p className="text-muted-foreground text-xs">Total Spent</p>
                 </Card>
               </div>
@@ -268,7 +268,7 @@ export default function UsersPage() {
               <div className="pt-3 border-t">
                 <p className="text-muted-foreground text-sm mb-3">Update Status</p>
                 <div className="flex gap-2">
-                  {['active', 'inactive', 'blocked'].map((status) => (
+                  {['active', 'blocked'].map((status) => (
                     <Button
                       key={status}
                       onClick={() => updateUserStatus(selectedUser.id, status)}

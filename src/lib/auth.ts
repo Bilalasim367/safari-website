@@ -10,7 +10,6 @@ if (!JWT_SECRET) {
 const encoder = new TextEncoder().encode(JWT_SECRET);
 
 const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY = '7d';
 
 export interface TokenPayload {
   userId: string;
@@ -27,11 +26,14 @@ export async function createAccessToken(payload: TokenPayload): Promise<string> 
     .sign(encoder);
 }
 
-export async function createRefreshToken(payload: TokenPayload): Promise<string> {
+export async function createRefreshToken(
+  payload: TokenPayload,
+  expiresIn: string | number = '7d'
+): Promise<string> {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(REFRESH_TOKEN_EXPIRY)
+    .setExpirationTime(expiresIn)
     .sign(encoder);
 }
 

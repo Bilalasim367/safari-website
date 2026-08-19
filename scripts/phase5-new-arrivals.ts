@@ -35,7 +35,7 @@ async function main() {
     const isKeepNew = keepNewSet.has(name);
     
     // Should only be new if it's in the keep list
-    let shouldBeNew = isKeepNew;
+    const shouldBeNew = isKeepNew;
     
     if (shouldBeNew && !isNew) {
       updatesList.push({ id: product.id, name: product.name });

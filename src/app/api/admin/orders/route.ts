@@ -81,6 +81,16 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, message: 'Order ID required' }, { status: 400 });
     }
 
+    const ORDER_STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    const PAYMENT_STATUSES = ['pending', 'paid', 'failed', 'refunded'];
+
+    if (status !== undefined && !ORDER_STATUSES.includes(status)) {
+      return NextResponse.json({ success: false, message: 'Invalid order status' }, { status: 400 });
+    }
+    if (paymentStatus !== undefined && !PAYMENT_STATUSES.includes(paymentStatus)) {
+      return NextResponse.json({ success: false, message: 'Invalid payment status' }, { status: 400 });
+    }
+
     const updateData: Record<string, unknown> = {};
     if (status) updateData.status = status;
     if (paymentStatus) updateData.paymentStatus = paymentStatus;

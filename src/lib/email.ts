@@ -99,6 +99,62 @@ export async function sendOrderShippedEmail(
   }
 }
 
+export async function sendPasswordResetEmail(
+  customerEmail: string,
+  customerName: string,
+  resetCode: string
+) {
+  try {
+    const settings = await prisma.settings.findFirst()
+    const transporter = await getTransporter()
+    if (!transporter) {
+      console.warn('SMTP not configured — password reset email not sent to', customerEmail)
+      return { sent: false, reason: 'SMTP not configured' }
+    }
+
+    const storeName = settings?.storeName || 'Safari Perfumes'
+    const storeEmail = settings?.storeEmail || 'noreply@safariperfumes.com'
+
+    await transporter.sendMail({
+      from: `"${storeName}" <${storeEmail}>`,
+      to: customerEmail,
+      subject: `Password Reset Code — ${storeName}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #0D0D0D; padding: 24px; text-align: center;">
+            <h1 style="color: #C9A962; margin: 0; font-size: 24px;">${storeName}</h1>
+          </div>
+          <div style="padding: 32px 24px; background: #fff;">
+            <h2 style="color: #0D0D0D; margin-top: 0;">Password Reset Request</h2>
+            <p style="color: #555; line-height: 1.6;">Hi ${customerName},</p>
+            <p style="color: #555; line-height: 1.6;">
+              We received a request to reset your password. Use the code below to set a new one.
+              This code expires in 15 minutes.
+            </p>
+            <div style="background: #f5f5f5; border-radius: 8px; padding: 24px; margin: 24px 0; text-align: center;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #0D0D0D;">${resetCode}</span>
+            </div>
+            <p style="color: #999; font-size: 14px; margin-top: 24px;">
+              If you did not request this, you can safely ignore this email.
+            </p>
+          </div>
+          <div style="background: #0D0D0D; padding: 16px; text-align: center;">
+            <p style="color: #666; font-size: 12px; margin: 0;">
+              ${storeName} &mdash; Luxury Fragrances
+            </p>
+          </div>
+        </div>
+      `,
+    })
+
+    console.log('Password reset email sent to', customerEmail)
+    return { sent: true }
+  } catch (e) {
+    console.error('Failed to send password reset email:', e)
+    return { sent: false, reason: 'Failed to send password reset email' }
+  }
+}
+
 export async function sendOrderConfirmationEmail(
   customerEmail: string,
   customerName: string,

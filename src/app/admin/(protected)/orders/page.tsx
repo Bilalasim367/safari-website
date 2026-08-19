@@ -72,12 +72,10 @@ export default function OrdersPage() {
     })();
   }, []);
 
-  useEffect(() => {
-    if (selectedOrder) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTrackingInput(selectedOrder.trackingNumber || "");
-    }
-  }, [selectedOrder]);
+  const openOrder = (order: Order) => {
+    setTrackingInput(order.trackingNumber || "");
+    setSelectedOrder(order);
+  };
 
   const updateOrderStatus = async (id: string, status: string | null) => {
     if (!status) return;
@@ -104,6 +102,25 @@ export default function OrdersPage() {
       }
     } catch (err) {
       console.error('Error updating order:', err);
+    }
+  };
+
+  const updatePaymentStatus = async (id: string, paymentStatus: string) => {
+    try {
+      const res = await fetch('/api/admin/orders', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, paymentStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders(orders.map(o => o.id === id ? { ...o, paymentStatus } : o));
+        if (selectedOrder && selectedOrder.id === id) {
+          setSelectedOrder({ ...selectedOrder, paymentStatus });
+        }
+      }
+    } catch (err) {
+      console.error('Error updating payment status:', err);
     }
   };
 
@@ -176,7 +193,7 @@ export default function OrdersPage() {
           <div 
             key={order.id} 
             className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => setSelectedOrder(order)}
+            onClick={() => openOrder(order)}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -192,7 +209,7 @@ export default function OrdersPage() {
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className="font-medium text-black">${order.total.toFixed(2)}</p>
+                  <p className="font-medium text-black">PKR {order.total.toLocaleString()}</p>
                   <p className="text-gray-400 text-sm">{order.items.length} items</p>
                 </div>
                 <span className={`px-3 py-1 text-xs rounded-full capitalize ${
@@ -226,12 +243,12 @@ export default function OrdersPage() {
 
             <div className="space-y-5">
               <div className="space-y-3">
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center">
                   <Select
                     value={selectedOrder.status}
                     onValueChange={(value) => updateOrderStatus(selectedOrder.id, value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="flex-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -240,6 +257,25 @@ export default function OrdersPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 space-y-1">
+                    <label className="text-xs text-muted-foreground">Payment Status</label>
+                    <Select
+                      value={selectedOrder.paymentStatus}
+                      onValueChange={(value) => updatePaymentStatus(selectedOrder.id, value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['pending', 'paid', 'failed', 'refunded'].map((s) => (
+                          <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Badge 
                     variant={selectedOrder.paymentStatus === 'paid' ? 'default' : 'secondary'}
                     className={selectedOrder.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
@@ -288,7 +324,7 @@ export default function OrdersPage() {
                 {selectedOrder.items.map((item, i) => (
                   <div key={i} className="flex justify-between py-2 border-b border-muted last:border-0">
                     <span className="text-foreground">{item.name} ({item.size}) x{item.quantity}</span>
-                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium">PKR {(item.price * item.quantity).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
@@ -296,19 +332,19 @@ export default function OrdersPage() {
               <div className="pt-3 border-t border-muted">
                 <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Subtotal</span>
-                  <span>${selectedOrder.subtotal.toFixed(2)}</span>
+                  <span>PKR {selectedOrder.subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Shipping</span>
-                  <span>{selectedOrder.shipping === 0 ? 'Free' : `$${selectedOrder.shipping.toFixed(2)}`}</span>
+                  <span>{selectedOrder.shipping === 0 ? 'Free' : `PKR ${selectedOrder.shipping.toLocaleString()}`}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Tax</span>
-                  <span>${selectedOrder.tax.toFixed(2)}</span>
+                  <span>PKR {selectedOrder.tax.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-medium text-lg mt-2">
                   <span>Total</span>
-                  <span>${selectedOrder.total.toFixed(2)}</span>
+                  <span>PKR {selectedOrder.total.toLocaleString()}</span>
                 </div>
               </div>
             </div>

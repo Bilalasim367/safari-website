@@ -21,6 +21,8 @@ interface OrderItem {
   image: string;
 }
 
+const VALID_PAYMENT_METHODS = ['cod', 'bank_transfer', 'card', 'jazzcash', 'easypaisa'];
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { items, shippingAddress, paymentMethod } = body;
 
-    if (!items || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, message: 'Cart is empty' },
         { status: 400 }
@@ -61,10 +63,61 @@ export async function POST(request: Request) {
       );
     }
 
-    const subtotal = items.reduce((sum: number, item: OrderItem) => sum + item.price * item.quantity, 0);
-    const shipping = 0;
-    const tax = subtotal * 0.08;
-    const total = subtotal + tax;
+    if (!paymentMethod || !VALID_PAYMENT_METHODS.includes(paymentMethod)) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid payment method' },
+        { status: 400 }
+      );
+    }
+
+    // Server-side pricing: never trust client-supplied prices
+    const productIds = [...new Set(items.map((item: OrderItem) => item.id).filter(Boolean))];
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds }, isActive: true },
+    });
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    const validatedItems: OrderItem[] = [];
+    for (const item of items as OrderItem[]) {
+      const product = productMap.get(item.id);
+      if (!product) {
+        return NextResponse.json(
+          { success: false, message: `Invalid item in cart: ${item.name || item.id}` },
+          { status: 400 }
+        );
+      }
+      const quantity = Math.min(Math.max(parseInt(String(item.quantity)) || 1, 1), 99);
+      let price = product.price;
+      if (item.size && product.sizePrices) {
+        try {
+          const sizePrices = JSON.parse(product.sizePrices);
+          const match = Array.isArray(sizePrices)
+            ? sizePrices.find((sp: { size?: string; price?: number }) => sp.size === item.size)
+            : null;
+          if (match && typeof match.price === 'number' && match.price > 0) price = match.price;
+        } catch {
+          // fall back to base price
+        }
+      }
+      validatedItems.push({
+        id: product.id,
+        name: product.name,
+        price,
+        quantity,
+        size: item.size || product.size || '',
+        image: item.image || product.image || '',
+      });
+    }
+
+    const settings = await prisma.settings.findFirst();
+    const taxRate = settings?.taxRate ?? 0;
+    const shippingFee = settings?.shippingFee ?? 0;
+    const freeShippingThreshold = settings?.freeShippingThreshold ?? 0;
+
+    const subtotal = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shipping = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee;
+    const tax = Math.round(subtotal * (taxRate / 100) * 100) / 100;
+    const total = Math.round((subtotal + shipping + tax) * 100) / 100;
 
     const orderNumber = generateOrderNumber();
 
@@ -87,10 +140,10 @@ export async function POST(request: Request) {
         tax,
         total,
         status: 'pending',
-        paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',
+        paymentStatus: 'pending',
         shippingAddress: JSON.stringify(shippingAddress),
         items: {
-          create: items.map((item: OrderItem) => ({
+          create: validatedItems.map((item) => ({
             productId: item.id,
             name: item.name,
             price: item.price,
@@ -119,7 +172,7 @@ export async function POST(request: Request) {
       customerEmail,
       customerName,
       orderNumber,
-      items,
+      validatedItems,
       subtotal,
       shipping,
       tax,
@@ -133,7 +186,10 @@ export async function POST(request: Request) {
       order: {
         id: order.id,
         orderNumber: order.orderNumber,
-        total: order.total,
+        subtotal,
+        shipping,
+        tax,
+        total,
       },
     });
   } catch (error) {

@@ -156,13 +156,13 @@ async function main() {
     let newGender = currentGender;
     
     // Check men keywords first
-    let isMen = menKeywords.some(kw => name.includes(kw));
+    const isMen = menKeywords.some(kw => name.includes(kw));
     
     // Check women keywords
-    let isWomen = womenKeywords.some(kw => name.includes(kw));
+    const isWomen = womenKeywords.some(kw => name.includes(kw));
     
     // Check unisex keywords
-    let isUnisex = unisexKeywords.some(kw => name.includes(kw));
+    const isUnisex = unisexKeywords.some(kw => name.includes(kw));
     
     // Determine gender
     if (isMen && !isWomen) {

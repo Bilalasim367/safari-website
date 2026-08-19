@@ -30,9 +30,6 @@ export default function BundlesPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const loadBundles = useCallback(async () => {
-    setLoading(true);
-    setError("");
-
     const result = await getAdminBundles();
 
     if (result.error) {
@@ -47,9 +44,22 @@ export default function BundlesPage() {
   }, [router]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadBundles();
-  }, [loadBundles]);
+    let cancelled = false;
+    (async () => {
+      const result = await getAdminBundles();
+      if (cancelled) return;
+      if (result.error) {
+        setError(result.error);
+        if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
+          router.push('/admin/login');
+        }
+      } else {
+        setBundles(result.bundles || []);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [router]);
 
   const filteredBundles = bundles.filter((bundle) =>
     bundle.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -140,7 +150,7 @@ export default function BundlesPage() {
                   </div>
                 </TableCell>
                 <TableCell className="font-medium">{bundle.name}</TableCell>
-                <TableCell>${bundle.price}</TableCell>
+                <TableCell>PKR {bundle.price.toLocaleString()}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     {!bundle.isActive && (

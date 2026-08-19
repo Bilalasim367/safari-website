@@ -43,13 +43,23 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    
+
+    if (!body.name || !body.slug) {
+      return NextResponse.json({ error: "Name and slug are required" }, { status: 400 });
+    }
+
+    const slug = String(body.slug).toLowerCase().trim();
+    const existing = await prisma.category.findUnique({ where: { slug } });
+    if (existing) {
+      return NextResponse.json({ error: "Category slug already exists" }, { status: 400 });
+    }
+
     const category = await prisma.category.create({
       data: {
         name: body.name,
-        slug: body.slug,
-        description: body.description,
-        image: body.image,
+        slug,
+        description: body.description || null,
+        image: body.image || null,
       },
     });
 
@@ -57,5 +67,70 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating category:", error);
     return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const auth = await requireAdmin();
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    if (!body.id || !body.name || !body.slug) {
+      return NextResponse.json({ error: "ID, name and slug are required" }, { status: 400 });
+    }
+
+    const slug = String(body.slug).toLowerCase().trim();
+    const existing = await prisma.category.findFirst({
+      where: { slug, NOT: { id: body.id } },
+    });
+    if (existing) {
+      return NextResponse.json({ error: "Category slug already exists" }, { status: 400 });
+    }
+
+    const category = await prisma.category.update({
+      where: { id: body.id },
+      data: {
+        name: body.name,
+        slug,
+        description: body.description || null,
+        image: body.image || null,
+      },
+    });
+
+    return NextResponse.json(category);
+  } catch (error) {
+    console.error("Error updating category:", error);
+    return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const auth = await requireAdmin();
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "Category ID required" }, { status: 400 });
+    }
+
+    const category = await prisma.category.findUnique({ where: { id } });
+    if (!category) {
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    }
+
+    await prisma.category.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
   }
 }

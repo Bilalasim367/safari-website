@@ -50,3 +50,10 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Deployment bundles (may contain secrets)
+/deploy-staging/
+*.zip
+
+# local dev logs
+dev-server.log

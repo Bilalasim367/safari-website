@@ -1,6 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
+  binaryTargets   = ["native", "rhel-openssl-3.0.x", "debian-openssl-3.0.x", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
@@ -30,12 +31,12 @@ model Product {
   price            Float
   originalPrice   Float?
   image            String
-  images           String
+  images           String   // JSON array of image URLs
   categoryId       String?
   category         Category?    @relation(fields: [categoryId], references: [id])
   categorySlug     String?      @default("unisex")
   size             String       @default("50ml")
-  sizePrices       String       @default("[]")
+  sizePrices       String       @default("[]") // JSON array of { size, price, originalPrice }
   fragranceFamily  String?
   rating           Float        @default(0)
   reviewCount      Int          @default(0)
@@ -50,8 +51,8 @@ model Product {
 
   // Bulk upload fields (additive, optional)
   productId        String?      @unique
-  gender           String       @default("Unisex")
-  type             String       @default("Attar")
+  gender           String       @default("Unisex") // Men, Women, Unisex
+  type             String       @default("Attar")  // Attar, Perfume
   season           String?
   bestTime         String?
   impressionOf     String?
@@ -83,7 +84,7 @@ model Product {
   supplier         String?
   isFeatured       Boolean      @default(false)
   isActive         Boolean      @default(true)
-  stockStatus      String       @default("in_stock")
+  stockStatus      String       @default("in_stock") // in_stock, out_of_stock, backorder
   imageFolder      String?
   metaTitle        String?
   metaDescription  String?
@@ -92,9 +93,19 @@ model Product {
   updatedAt        DateTime     @updatedAt
 
   bundleItems BundleItem[]
+  reviews     Review[]
 
   @@index([categorySlug, isBestseller])
   @@index([categorySlug, isNew])
+  @@index([categorySlug, isActive])
+  @@index([gender, isActive])
+  @@index([type, isActive])
+  @@index([isBestseller, isActive])
+  @@index([isNew, isActive])
+  @@index([isTrending, isActive])
+  @@index([isHotSelling, isActive])
+  @@index([isFeatured, isActive])
+  @@index([isActive])
 }
 
 model Bundle {
@@ -135,8 +146,8 @@ model User {
   password  String
   phone     String?
   avatar    String?
-  role      String   @default("customer")
-  status    String   @default("active")
+  role      String   @default("customer") // customer, admin, superadmin
+  status    String   @default("active") // active, blocked
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   lastLogin DateTime?
@@ -161,12 +172,14 @@ model Address {
   city     String?
   state    String?
   zipCode  String?
-  country  String  @default("US")
+  country  String  @default("PK")
   phone    String?
   isDefault Boolean @default(false)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model CartItem {
@@ -180,6 +193,8 @@ model CartItem {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model WishlistItem {
@@ -188,31 +203,40 @@ model WishlistItem {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
 }
 
 model Order {
-  id             String   @id @default(cuid())
-  orderNumber    String   @unique
-  userId         String?
-  user           User?     @relation(fields: [userId], references: [id])
-  customerName  String
-  customerEmail String
-  items         OrderItem[]
-  subtotal      Float
-  shipping     Float     @default(0)
-  tax          Float     @default(0)
-  total        Float
-  status       String    @default("pending")
-  paymentStatus String @default("pending")
-  shippingAddress String?
-  trackingNumber String?
-  shippedAt      DateTime?
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
+  customerName   String
+  customerEmail  String
+  customerPhone  String?
+  items          OrderItem[]
+  subtotal       Float
+  shipping       Float     @default(0)
+  tax           Float     @default(0)
+  discount       Float     @default(0)
+  total          Float
+  status         String    @default("pending")     // pending, processing, shipped, delivered, cancelled
+  paymentStatus  String    @default("pending")     // pending, paid, failed, refunded
+  paymentMethod  String    @default("cod")         // cod, bank_transfer, card, jazzcash, easypaisa
+  shippingAddress String?                          // JSON string or formatted address
+  billingAddress  String?
+  notes           String?
+  trackingNumber  String?
+  shippedAt       DateTime?
   estimatedDelivery DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
+  @@index([orderNumber])
 }
 
 model OrderItem {
@@ -226,40 +250,45 @@ model OrderItem {
 
   orderId String
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
 }
 
 model Notification {
   id        String   @id @default(cuid())
-  type      String   @default("system")
+  type      String   @default("system") // order, inventory, system, promo
   title     String
   message   String
   read      Boolean  @default(false)
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([userId, read])
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  productId String
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   customerName  String
-  rating    Int
-  text      String
-  date      DateTime @default(now())
-  isApproved Boolean @default(true)
+  customerEmail String?
+  rating        Int
+  text          String
+  date          DateTime @default(now())
+  isApproved    Boolean  @default(true)
 
-  @@index([productId])
-  @@index([isApproved])
+  @@index([productId, isApproved])
 }
 
 model Settings {
   id                   String   @id @default(cuid())
-  storeName            String   @default("My Store")
+  storeName            String   @default("Safari Perfumes")
   storeEmail           String?
   storePhone          String?
   storeAddress        String?
   currency            String   @default("PKR")
-  timezone            String   @default("America/New_York")
+  timezone            String   @default("Asia/Karachi")
   taxRate             Float    @default(0)
   shippingFee         Float    @default(0)
   freeShippingThreshold Float  @default(0)

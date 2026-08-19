@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/turso";
 import { verifyToken } from "@/lib/auth";
+import { normalizeGender, normalizeType } from "@/lib/normalize";
 import { cookies } from "next/headers";
+
+function jsonOrUndefined(val: unknown): string | undefined {
+  if (val === undefined || val === null) return undefined;
+  if (typeof val === "string") return val;
+  return JSON.stringify(val);
+}
 
 async function getAuth() {
   const cookieStore = await cookies();
@@ -63,16 +70,19 @@ export async function PUT(
         price: body.price,
         originalPrice: body.originalPrice,
         image: body.image,
-        images: body.images,
+        images: jsonOrUndefined(body.images),
         categoryId: categoryId ?? null,
         size: body.size,
+        sizePrices: jsonOrUndefined(body.sizePrices),
         fragranceFamily: body.fragranceFamily,
-        notesTop: body.notesTop,
-        notesHeart: body.notesHeart,
-        notesBase: body.notesBase,
+        notesTop: jsonOrUndefined(body.notesTop),
+        notesHeart: jsonOrUndefined(body.notesHeart),
+        notesBase: jsonOrUndefined(body.notesBase),
         inStock: body.inStock,
         isBestseller: body.isBestseller,
         isNew: body.isNew,
+        gender: body.gender ? normalizeGender(body.gender) : undefined,
+        type: body.type ? normalizeType(body.type) : undefined,
       },
       include: { category: true },
     });

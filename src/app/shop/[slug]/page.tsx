@@ -99,39 +99,30 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
-
-  // Derive size from product type - fixed per type
-  useEffect(() => {
-    if (product?.type === 'Attar') {
-      setSelectedSize('12ml');
-    } else if (product?.type === 'Perfume') {
-      setSelectedSize('50ml');
-    }
-  }, [product?.type]);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [productRes, productsRes] = await Promise.all([
-          fetch(`/api/products?slug=${params.slug}`),
+        const [productRes, productsRes, settingsRes] = await Promise.all([
+          fetch(`/api/products?slug=${params.slug}&includeOutOfStock=true`),
           fetch("/api/products"),
+          fetch("/api/settings"),
         ]);
 
         const productData = await productRes.json();
         const productsData = await productsRes.json();
+        const settingsData = await settingsRes.json();
 
         const product = productData.products?.[0] || productData;
         const allProducts = productsData.products || [];
 
         setProduct(product);
         setAllProducts(Array.isArray(allProducts) ? allProducts : []);
-
-        if (product?.sizesAvailable) {
-          const sizes = product.sizesAvailable.split(',').map((s: string) => s.trim());
-          if (sizes.length > 0) {
-            // sizes are handled by useEffect based on product type
-          }
-        }
+        setFreeShippingThreshold(settingsData.freeShippingThreshold ?? null);
+        setSelectedSize(
+          product?.type === 'Attar' ? '12ml' : product?.type === 'Perfume' ? '50ml' : ''
+        );
       } catch (error) {
         console.error("Error fetching product:", error);
       } finally {
@@ -531,7 +522,7 @@ export default function ProductDetailPage() {
                     <AccordionItem value="shipping">
                     <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Shipping & Returns</AccordionTrigger>
                     <AccordionContent className="text-muted-foreground leading-relaxed">
-                      Free shipping on orders over $100. Standard delivery 3-5 business days. Easy returns within 30 days of purchase.
+                      {freeShippingThreshold ? `Free shipping on orders over PKR ${freeShippingThreshold.toLocaleString()}. ` : ''}Standard delivery 3-5 business days. Easy returns within 30 days of purchase.
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

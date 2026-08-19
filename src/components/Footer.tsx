@@ -111,8 +111,8 @@ export default function Footer() {
             <ul className='space-y-5'>
               {[
                 { label: 'Shop All', href: '/shop' },
-                { label: 'New Arrivals', href: '/shop?filter=new' },
-                { label: 'Best Sellers', href: '/shop?filter=bestseller' },
+{ label: 'New Arrivals', href: '/shop?isNew=true' },
+{ label: 'Best Sellers', href: '/shop?isBestseller=true' },
                 { label: 'Collections', href: '/collections' },
                 { label: 'Bundles & Gift Sets', href: '/bundles' },
                 { label: 'Gift Cards', href: '/gift-cards' },

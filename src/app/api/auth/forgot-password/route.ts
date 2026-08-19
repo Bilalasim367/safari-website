@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/turso';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { sendPasswordResetEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,21 @@ export async function POST(request: Request) {
         resetCodeExpiry: new Date(Date.now() + 15 * 60 * 1000),
       },
     });
+
+    sendPasswordResetEmail(user.email, user.name, resetCodeStr)
+      .then((result) => {
+        if (!result.sent) console.warn('Reset email not delivered:', result.reason);
+      })
+      .catch((e) => console.error('Reset email failed:', e));
+
+    // Dev convenience: echo the code locally, never in production
+    if (process.env.NODE_ENV !== 'production') {
+      return NextResponse.json({
+        success: true,
+        message: 'If an account exists with this email, a reset code has been sent',
+        devResetCode: resetCodeStr,
+      });
+    }
 
     return NextResponse.json({
       success: true,

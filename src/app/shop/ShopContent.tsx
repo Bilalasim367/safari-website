@@ -49,7 +49,7 @@ const COLLECTION_MAP: Record<string, Partial<SearchParams & { gender?: string; i
   'attars': { type: 'attar' },
   'signature': { isBestseller: 'true' },
   'limited': { isNew: 'true' },
-}
+};
 
 interface SearchParams {
   category?: string;
@@ -94,24 +94,25 @@ export default async function ShopContent({
     maxPrice: searchParams.maxPrice as string,
     page: searchParams.page as string,
     sort: searchParams.sort as string,
-    type: Array.isArray(searchParams.type) ? searchParams.type.join(',') : searchParams.type,
+    type: Array.isArray(searchParams.type) ? searchParams.type.join(',') : (searchParams.type || collectionMap?.type),
     collection: rawCollection,
     gender: Array.isArray(searchParams.gender) ? searchParams.gender.join(',') : (searchParams.gender || collectionMap?.gender),
-    isBestseller: collectionMap?.isBestseller,
-    isNew: collectionMap?.isNew,
+    isBestseller: (typeof searchParams.isBestseller === 'string' ? searchParams.isBestseller : Array.isArray(searchParams.isBestseller) ? searchParams.isBestseller[0] : undefined) || collectionMap?.isBestseller,
+    isNew: (typeof searchParams.isNew === 'string' ? searchParams.isNew : Array.isArray(searchParams.isNew) ? searchParams.isNew[0] : undefined) || collectionMap?.isNew,
     q: Array.isArray(searchParams.q) ? searchParams.q.join(' ') : searchParams.q,
   };
 
-  // Collection overrides: if user explicitly set type, keep it; otherwise use collection mapping
-  if (collectionMap?.type && !searchParams.type) {
+  if (collectionMap?.type && !params.type) {
     params.type = collectionMap.type;
   }
-  
+
   const page = parseInt(params.page || '1');
   const skip = (page - 1) * PAGE_SIZE;
   const sort = params.sort || 'featured';
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = {
+    isActive: true,
+  };
 
   if (params.category) {
     where.categorySlug = { in: params.category.split(',') };
@@ -217,22 +218,22 @@ export default async function ShopContent({
   let formattedProducts: Product[] = [];
   let total = 0;
 
-try {
-      const [products, count] = await Promise.all([
-        prisma.product.findMany({
-          where,
-          include: { category: true },
-          orderBy,
-          skip,
-          take: PAGE_SIZE,
-        }),
-        prisma.product.count({ where }),
-      ]);
-      total = count;
-      formattedProducts = (products as Prisma.ProductGetPayload<{ include: { category: true } }>[]).map((p) => mapToFormattedProduct(p));
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
+  try {
+    const [products, count] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: { category: true },
+        orderBy,
+        skip,
+        take: PAGE_SIZE,
+      }),
+      prisma.product.count({ where }),
+    ]);
+    total = count;
+    formattedProducts = (products as Prisma.ProductGetPayload<{ include: { category: true } }>[]).map((p) => mapToFormattedProduct(p));
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
@@ -255,203 +256,201 @@ try {
 
   return (
     <div className="bg-white">
-        <div className="container-custom py-12 lg:py-16">
-          <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
-            <aside className="lg:w-72 flex-shrink-0 hidden lg:block">
-              <div className="sticky top-24">
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
-                  <h2 className="text-lg font-semibold text-foreground uppercase tracking-wider">Filters</h2>
-                  {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
-                    <Link
-                      href="/shop"
-                      className="text-black text-sm hover:underline underline-offset-2 transition-all"
-                    >
-                      Clear All
-                    </Link>
-                  )}
-                </div>
-
-                <FilterSection
-                  title="Category"
-                  options={FILTERS.categories}
-                  selected={selectedCategories}
-                  paramKey="category"
-                  currentParams={params}
-                />
-
-                <FilterSection
-                  title="Gender"
-                  options={FILTERS.categories}
-                  selected={selectedGenders}
-                  paramKey="gender"
-                  currentParams={params}
-                />
-
-                <FilterSection
-                  title="Size"
-                  options={FILTERS.sizes}
-                  selected={selectedSizes}
-                  paramKey="size"
-                  currentParams={params}
-                />
-
-                <FilterSection
-                  title="Fragrance Family"
-                  options={FILTERS.fragranceFamilies}
-                  selected={selectedFamilies}
-                  paramKey="fragranceFamily"
-                  currentParams={params}
-                />
-
-                <FilterSection
-                  title="Price"
-                  options={FILTERS.priceRanges.map((r) => r.label)}
-                  selected={selectedPriceRanges}
-                  paramKey="price"
-                  priceRanges={FILTERS.priceRanges}
-                  currentParams={params}
-                />
-
-                <FilterSection
-                  title="Product Type"
-                  options={FILTERS.productTypes}
-                  selected={selectedTypes}
-                  paramKey="type"
-                  currentParams={params}
-                />
-              </div>
-            </aside>
-
-            <div className="flex-1">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-border">
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <p className="text-muted-foreground text-sm">
-                    {total} Product{total !== 1 ? 's' : ''}
-                  </p>
-                  <div className="lg:hidden ml-auto">
-                    <MobileFilterDrawer
-                      filterCount={
-                        selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length
-                      }
-                    >
-                      <FilterSection
-                        title="Category"
-                        options={FILTERS.categories}
-                        selected={selectedCategories}
-                        paramKey="category"
-                        currentParams={params}
-                      />
-                      <FilterSection
-                        title="Gender"
-                        options={FILTERS.categories}
-                        selected={selectedGenders}
-                        paramKey="gender"
-                        currentParams={params}
-                      />
-                      <FilterSection
-                        title="Size"
-                        options={FILTERS.sizes}
-                        selected={selectedSizes}
-                        paramKey="size"
-                        currentParams={params}
-                      />
-                      <FilterSection
-                        title="Fragrance Family"
-                        options={FILTERS.fragranceFamilies}
-                        selected={selectedFamilies}
-                        paramKey="fragranceFamily"
-                        currentParams={params}
-                      />
-                      <FilterSection
-                        title="Price"
-                        options={FILTERS.priceRanges.map((r) => r.label)}
-                        selected={selectedPriceRanges}
-                        paramKey="price"
-                        priceRanges={FILTERS.priceRanges}
-                        currentParams={params}
-                      />
-                      <FilterSection
-                        title="Product Type"
-                        options={FILTERS.productTypes}
-                        selected={selectedTypes}
-                        paramKey="type"
-                        currentParams={params}
-                      />
-                    </MobileFilterDrawer>
-                  </div>
-                </div>
-                <SortSelect currentSort={sort} />
-              </div>
-
-              {formattedProducts.length === 0 ? (
-                <div className="text-center py-20 bg-muted/50">
-                  <div className="mb-6">
-                    <svg className="w-16 h-16 mx-auto text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <p className="text-muted-foreground mb-6">No products found matching your filters.</p>
-                  <Link href="/shop" className="text-sm border-b border-foreground pb-1 hover:opacity-60 transition-opacity">
-                    Clear All Filters
+      <div className="container-custom py-12 lg:py-16">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+          <aside className="lg:w-72 flex-shrink-0 hidden lg:block">
+            <div className="sticky top-24">
+              <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
+                <h2 className="text-lg font-semibold text-foreground uppercase tracking-wider">Filters</h2>
+                {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
+                  <Link
+                    href="/shop"
+                    className="text-black text-sm hover:underline underline-offset-2 transition-all"
+                  >
+                    Clear All
                   </Link>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                    {formattedProducts.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        id={product.id}
-                        name={product.name}
-                        slug={product.slug}
-                        price={product.price}
-                        originalPrice={product.originalPrice ?? undefined}
-                        image={product.image}
-                        images={product.images}
-                        category={product.category?.name || 'Unisex'}
-                        isNew={product.isNew}
-                        isBestseller={product.isBestseller}
-                        size={product.size}
-                        rating={product.rating}
-                        reviewCount={product.reviewCount}
-                        gender={product.gender}
-                        season={product.season}
-                        impressionOf={product.impressionOf}
-                        lowestPrice={product.lowestPhysicalPrice ?? undefined}
-                        currency={product.currency}
-                      />
-                    ))}
-                  </div>
-                  {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 mt-12">
-                      {page > 1 && (
-                        <Link
-                          href={`/shop?page=${page - 1}${buildParamString(params)}`}
-                      className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
-                    >
-                      Previous
-                        </Link>
-                      )}
-                      <span className="px-4 py-2 text-sm text-muted-foreground">
-                        Page {page} of {totalPages}
-                      </span>
-                      {page < totalPages && (
-                        <Link
-                          href={`/shop?page=${page + 1}${buildParamString(params)}`}
-                          className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
-                        >
-                          Next
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
+                )}
+              </div>
+
+              <FilterSection
+                title="Category"
+                options={FILTERS.categories}
+                selected={selectedCategories}
+                paramKey="category"
+                currentParams={params}
+              />
+
+              <FilterSection
+                title="Gender"
+                options={FILTERS.categories}
+                selected={selectedGenders}
+                paramKey="gender"
+                currentParams={params}
+              />
+
+              <FilterSection
+                title="Size"
+                options={FILTERS.sizes}
+                selected={selectedSizes}
+                paramKey="size"
+                currentParams={params}
+              />
+
+              <FilterSection
+                title="Fragrance Family"
+                options={FILTERS.fragranceFamilies}
+                selected={selectedFamilies}
+                paramKey="fragranceFamily"
+                currentParams={params}
+              />
+
+              <FilterSection
+                title="Price"
+                options={FILTERS.priceRanges.map((r) => r.label)}
+                selected={selectedPriceRanges}
+                paramKey="price"
+                priceRanges={FILTERS.priceRanges}
+                currentParams={params}
+              />
+
+              <FilterSection
+                title="Product Type"
+                options={FILTERS.productTypes}
+                selected={selectedTypes}
+                paramKey="type"
+                currentParams={params}
+              />
             </div>
+          </aside>
+
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-border">
+              <div className="flex items-center gap-4 w-full sm:w-auto">
+                <p className="text-muted-foreground text-sm">
+                  {total} Product{total !== 1 ? 's' : ''}
+                </p>
+                <div className="lg:hidden ml-auto">
+                  <MobileFilterDrawer
+                    filterCount={
+                      selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length
+                    }
+                  >
+                    <FilterSection
+                      title="Category"
+                      options={FILTERS.categories}
+                      selected={selectedCategories}
+                      paramKey="category"
+                      currentParams={params}
+                    />
+                    <FilterSection
+                      title="Gender"
+                      options={FILTERS.categories}
+                      selected={selectedGenders}
+                      paramKey="gender"
+                      currentParams={params}
+                    />
+                    <FilterSection
+                      title="Size"
+                      options={FILTERS.sizes}
+                      selected={selectedSizes}
+                      paramKey="size"
+                      currentParams={params}
+                    />
+                    <FilterSection
+                      title="Fragrance Family"
+                      options={FILTERS.fragranceFamilies}
+                      selected={selectedFamilies}
+                      paramKey="fragranceFamily"
+                      currentParams={params}
+                    />
+                    <FilterSection
+                      title="Price"
+                      options={FILTERS.priceRanges.map((r) => r.label)}
+                      selected={selectedPriceRanges}
+                      paramKey="price"
+                      priceRanges={FILTERS.priceRanges}
+                      currentParams={params}
+                    />
+                    <FilterSection
+                      title="Product Type"
+                      options={FILTERS.productTypes}
+                      selected={selectedTypes}
+                      paramKey="type"
+                      currentParams={params}
+                    />
+                  </MobileFilterDrawer>
+                </div>
+              </div>
+              <SortSelect currentSort={sort} />
+            </div>
+
+            {formattedProducts.length === 0 ? (
+              <div className="text-center py-20 bg-muted/50">
+                <div className="mb-6">
+                  <svg className="w-16 h-16 mx-auto text-muted-foreground/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-muted-foreground mb-6">No products found matching your filters.</p>
+                <Link href="/shop" className="text-sm border-b border-foreground pb-1 hover:opacity-60 transition-opacity">
+                  Clear All Filters
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                  {formattedProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      slug={product.slug}
+                      price={product.price}
+                      originalPrice={product.originalPrice ?? undefined}
+                      image={product.image}
+                      images={product.images}
+                      category={product.category?.name || 'Unisex'}
+                      isNew={product.isNew}
+                      isBestseller={product.isBestseller}
+                      size={product.size}
+                      rating={product.rating}
+                      reviewCount={product.reviewCount}
+                      gender={product.gender}
+                      season={product.season}
+                      impressionOf={product.impressionOf}
+                      lowestPrice={product.lowestPhysicalPrice ?? undefined}
+                      currency={product.currency}
+                    />
+                  ))}
+                </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-12">
+                    {page > 1 && (
+                      <Link
+                        href={`/shop?page=${page - 1}${buildParamString(params)}`}
+                        className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
+                      >
+                        Previous
+                      </Link>
+                    )}
+                    <span className="px-4 py-2 text-sm text-muted-foreground">
+                      Page {page} of {totalPages}
+                    </span>
+                    {page < totalPages && (
+                      <Link
+                        href={`/shop?page=${page + 1}${buildParamString(params)}`}
+                        className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
+                      >
+                        Next
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
 }
-
-

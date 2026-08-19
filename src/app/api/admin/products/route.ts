@@ -22,23 +22,26 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const products = await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        price: true,
-        image: true,
-        categorySlug: true,
-        inStock: true,
-        isBestseller: true,
-        isNew: true,
-      },
-    });
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          image: true,
+          categorySlug: true,
+          inStock: true,
+          isBestseller: true,
+          isNew: true,
+        },
+      }),
+      prisma.product.count(),
+    ]);
 
-    return NextResponse.json({ products }, {
+    return NextResponse.json({ products, total }, {
       headers: {
         'Cache-Control': 'no-store',
         'X-Content-Type-Options': 'nosniff',

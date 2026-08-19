@@ -70,10 +70,10 @@ export default async function BundlesPage() {
                     <CardFooter>
                       <div className="w-full">
                         <p className="text-2xl font-bold text-foreground tracking-tight">
-                          ${bundle.price}
+                          PKR {bundle.price.toLocaleString()}
                           {bundle.originalPrice && (
                             <span className="text-sm text-muted-foreground line-through ml-2">
-                              ${bundle.originalPrice}
+                              PKR {bundle.originalPrice.toLocaleString()}
                             </span>
                           )}
                         </p>

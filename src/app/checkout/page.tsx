@@ -33,7 +33,7 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     zipCode: "",
-    country: "US",
+    country: "PK",
     phone: "",
     paymentMethod: "cod",
   });
@@ -119,7 +119,7 @@ export default function CheckoutPage() {
 
       <div className="container-custom py-12">
         {/* Steps */}
-          <div className="flex items-center justify-center mb-12">
+        <div className="flex items-center justify-center mb-12">
           {[
             { num: 1, label: "Shipping" },
             { num: 2, label: "Payment" },
@@ -201,18 +201,18 @@ export default function CheckoutPage() {
                       required
                       value={formData.address1}
                       onChange={handleInputChange}
-                      placeholder="123 Main Street"
+                      placeholder="House/Street address"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Apartment, suite, etc. (optional)</label>
+                    <label className="text-sm text-muted-foreground">Apartment, suite, area (optional)</label>
                     <Input
                       type="text"
                       name="address2"
                       value={formData.address2}
                       onChange={handleInputChange}
-                      placeholder="Apt 4B"
+                      placeholder="Sector, Block, Phase"
                     />
                   </div>
 
@@ -225,42 +225,42 @@ export default function CheckoutPage() {
                         required
                         value={formData.city}
                         onChange={handleInputChange}
-                        placeholder="New York"
+                        placeholder="Karachi, Lahore, Islamabad..."
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm text-muted-foreground">State</label>
+                      <label className="text-sm text-muted-foreground">Province / State</label>
                       <Input
                         type="text"
                         name="state"
                         required
                         value={formData.state}
                         onChange={handleInputChange}
-                        placeholder="NY"
+                        placeholder="Sindh, Punjab, etc."
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm text-muted-foreground">ZIP Code</label>
+                      <label className="text-sm text-muted-foreground">Postal Code</label>
                       <Input
                         type="text"
                         name="zipCode"
                         required
                         value={formData.zipCode}
                         onChange={handleInputChange}
-                        placeholder="10001"
+                        placeholder="75500"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Phone</label>
+                    <label className="text-sm text-muted-foreground">Phone Number</label>
                     <Input
                       type="tel"
                       name="phone"
                       required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="(555) 123-4567"
+                      placeholder="03001234567"
                     />
                   </div>
 
@@ -285,24 +285,23 @@ export default function CheckoutPage() {
                         className="w-4 h-4" 
                       />
                       <div>
-                        <span className="font-medium text-foreground">Cash on Delivery</span>
-                        <p className="text-muted-foreground text-sm">Pay when you receive your order</p>
+                        <span className="font-medium text-foreground">Cash on Delivery (COD)</span>
+                        <p className="text-muted-foreground text-sm">Pay cash when courier delivers to your doorstep</p>
                       </div>
                     </label>
 
-                    <label className="flex items-center gap-4 p-4 border border-input cursor-pointer opacity-50">
+                    <label className="flex items-center gap-4 p-4 border border-input cursor-pointer hover:border-foreground transition-colors">
                       <input 
                         type="radio" 
                         name="paymentMethod" 
-                        value="card"
-                        checked={formData.paymentMethod === "card"}
+                        value="bank_transfer"
+                        checked={formData.paymentMethod === "bank_transfer"}
                         onChange={handleInputChange}
                         className="w-4 h-4" 
-                        disabled
                       />
                       <div>
-                        <span className="font-medium text-foreground">Credit Card</span>
-                        <p className="text-muted-foreground text-sm">Stripe integration coming soon</p>
+                        <span className="font-medium text-foreground">Direct Bank Transfer / Online</span>
+                        <p className="text-muted-foreground text-sm">Transfer to our official account after order placement</p>
                       </div>
                     </label>
                   </div>
@@ -335,7 +334,7 @@ export default function CheckoutPage() {
                   <Card className="p-6">
                     <h3 className="font-medium text-foreground mb-3">Payment Method</h3>
                     <p className="text-muted-foreground">
-                      {formData.paymentMethod === "cod" ? "Cash on Delivery" : "Credit Card"}
+                      {formData.paymentMethod === "cod" ? "Cash on Delivery" : "Bank Transfer / Online"}
                     </p>
                   </Card>
 
@@ -351,7 +350,7 @@ export default function CheckoutPage() {
                             <h4 className="text-foreground font-medium">{item.name}</h4>
                             <p className="text-muted-foreground text-sm">{item.size} × {item.quantity}</p>
                           </div>
-                          <p className="text-foreground font-medium">${item.price * item.quantity}</p>
+                          <p className="text-foreground font-medium">PKR {(item.price * item.quantity).toLocaleString()}</p>
                         </div>
                       ))}
                     </div>
@@ -388,7 +387,7 @@ export default function CheckoutPage() {
                       <h4 className="text-foreground text-sm font-medium truncate">{item.name}</h4>
                       <p className="text-muted-foreground text-xs">{item.size}</p>
                     </div>
-                    <p className="text-foreground text-sm font-medium">${item.price * item.quantity}</p>
+                    <p className="text-foreground text-sm font-medium">PKR {(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
@@ -396,19 +395,15 @@ export default function CheckoutPage() {
               <div className="border-t border-border pt-4 space-y-3">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>PKR {subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Delivery</span>
                   <span className="text-green-600 font-medium">Free Delivery</span>
                 </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Tax (8%)</span>
-                  <span>${(subtotal * 0.08).toFixed(2)}</span>
-                </div>
                 <div className="flex justify-between text-foreground font-semibold text-lg pt-3 border-t border-border">
                   <span>Total</span>
-                  <span>${(subtotal * 1.08).toFixed(2)}</span>
+                  <span>PKR {subtotal.toLocaleString()}</span>
                 </div>
               </div>
             </Card>

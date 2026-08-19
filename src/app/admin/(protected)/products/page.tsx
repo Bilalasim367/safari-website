@@ -50,9 +50,6 @@ export default function ProductsPage() {
   const [newFilter, setNewFilter] = useState<string>("all");
 
   const loadProducts = useCallback(async () => {
-    setLoading(true);
-    setError("");
-
     const result = await getAdminProducts();
 
     if (result.error) {
@@ -67,9 +64,22 @@ export default function ProductsPage() {
   }, [router]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadProducts();
-  }, [loadProducts]);
+    let cancelled = false;
+    (async () => {
+      const result = await getAdminProducts();
+      if (cancelled) return;
+      if (result.error) {
+        setError(result.error);
+        if (result.error === 'Unauthorized' || result.error === 'Not authenticated') {
+          router.push('/admin/login');
+        }
+      } else {
+        setProducts(result.products || []);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [router]);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());

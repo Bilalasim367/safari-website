@@ -1,8 +1,21 @@
 import React from 'react'
 import Link from 'next/link'
+import prisma from '@/lib/turso'
 import { Card } from '@/components/ui/card'
 
-export default function ShippingPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function ShippingPage() {
+  let settings = null
+  try {
+    settings = await prisma.settings.findFirst()
+  } catch (e) {
+    console.error('Error fetching settings:', e)
+  }
+
+  const freeShippingThreshold = settings?.freeShippingThreshold ?? 0
+  const standardShippingFee = settings?.shippingFee ?? 0
+
   return (
     <>
       <section className='relative h-[40vh] flex items-center justify-center overflow-hidden'>
@@ -24,9 +37,9 @@ export default function ShippingPage() {
               <h2 className='text-2xl font-semibold text-foreground mb-6'>Shipping Options</h2>
               <div className='space-y-4'>
                 {[
-                  { method: 'Standard Shipping', time: '5-7 business days', price: 'Free', note: 'On all orders' },
-                  { method: 'Express Shipping', time: '2-3 business days', price: '$12.99', note: 'Order before 2PM EST' },
-                  { method: 'Next Day Delivery', time: '1 business day', price: '$24.99', note: 'Order before 2PM EST' },
+                  { method: 'Standard Shipping', time: '5-7 business days', price: standardShippingFee > 0 ? `PKR ${standardShippingFee.toLocaleString()}` : 'Free', note: freeShippingThreshold > 0 ? `Free on orders over PKR ${freeShippingThreshold.toLocaleString()}` : 'On all orders' },
+                  { method: 'Express Shipping', time: '2-3 business days', price: 'PKR 1,299', note: 'Order before 2PM for same-day dispatch' },
+                  { method: 'Next Day Delivery', time: '1 business day', price: 'PKR 2,499', note: 'Order before 2PM for next-day delivery' },
                 ].map((option, i) => (
                   <div key={i} className='bg-card rounded-xl p-6 flex flex-wrap items-center justify-between gap-4 border border-border'>
                     <div>
@@ -44,15 +57,15 @@ export default function ShippingPage() {
 
             <Card className='p-8 md:p-12 mb-12'>
               <h2 className='text-2xl font-semibold text-foreground mb-6'>Where We Ship</h2>
-              <p className='text-muted-foreground mb-6'>We offer worldwide shipping to bring our fragrances to your door.</p>
+              <p className='text-muted-foreground mb-6'>We deliver nationwide with fast, reliable courier service.</p>
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                {['United States', 'Canada', 'United Kingdom', 'European Union', 'Australia', 'Japan', 'UAE', 'Singapore'].map((country) => (
-                  <div key={country} className='bg-card rounded-lg p-4 text-center border border-border'>
-                    <span className='text-muted-foreground text-sm'>{country}</span>
+                {['Punjab', 'Sindh', 'Khyber Pakhtunkhwa', 'Balochistan', 'Islamabad', 'Gilgit-Baltistan', 'Azad Kashmir', 'Major Cities Nationwide'].map((region) => (
+                  <div key={region} className='bg-card rounded-lg p-4 text-center border border-border'>
+                    <span className='text-muted-foreground text-sm'>{region}</span>
                   </div>
                 ))}
               </div>
-              <p className='text-muted-foreground/60 text-sm mt-4'>Shipping to other countries available upon request. Contact us for details.</p>
+              <p className='text-muted-foreground/60 text-sm mt-4'>International shipping available upon request. Contact us for details.</p>
             </Card>
 
             <Card className='p-8 md:p-12 mb-12'>
@@ -98,7 +111,7 @@ export default function ShippingPage() {
               <h2 className='text-2xl font-semibold text-foreground mb-6'>Free Shipping Threshold</h2>
               <div className='bg-card rounded-xl p-8 text-center border border-primary/30'>
                 <p className='text-muted-foreground mb-2'>Spend over</p>
-                <p className='text-5xl md:text-6xl font-bold text-primary mb-2'>$75</p>
+                <p className='text-5xl md:text-6xl font-bold text-primary mb-2'>PKR {freeShippingThreshold.toLocaleString()}</p>
                 <p className='text-muted-foreground'>and get FREE Standard Shipping!</p>
               </div>
               <div className='mt-6 text-center'>
