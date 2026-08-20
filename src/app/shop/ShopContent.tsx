@@ -1,5 +1,4 @@
 import prisma from '@/lib/turso';
-import { Prisma } from '@prisma/client';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import SortSelect from './SortSelect';
@@ -177,7 +176,42 @@ export default async function ShopContent({
     try { return JSON.parse(val); } catch { return []; }
   }
 
-  function mapToFormattedProduct(p: Prisma.ProductGetPayload<{ include: { category: true } }>): Product {
+  interface ShopProductRow {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    originalPrice: number | null;
+    image: string;
+    images: string;
+    categorySlug: string | null;
+    size: string;
+    isBestseller: boolean;
+    isNew: boolean;
+    rating: number;
+    reviewCount: number;
+    gender: string | null;
+    season: string | null;
+    impressionOf: string | null;
+    tags: string | null;
+    price3mlPhysical: number | null;
+    price6mlPhysical: number | null;
+    price12mlPhysical: number | null;
+    price50mlPhysical: number | null;
+    price3mlOnline: number | null;
+    price6mlOnline: number | null;
+    price12mlOnline: number | null;
+    price50mlOnline: number | null;
+    currency: string | null;
+    type: string | null;
+    applicatorType: string | null;
+    origin: string | null;
+    sizesAvailable: string | null;
+    sizePrices: string | null;
+    category: { name: string; slug: string } | null;
+  }
+
+  function mapToFormattedProduct(p: ShopProductRow): Product {
     const physicalPrices = [p.price3mlPhysical, p.price6mlPhysical, p.price12mlPhysical, p.price50mlPhysical]
       .filter((pr): pr is number => pr !== null);
     const lowestPhysicalPrice = physicalPrices.length > 0 ? Math.min(...physicalPrices) : null;
@@ -222,7 +256,40 @@ export default async function ShopContent({
     const [products, count] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: { category: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          originalPrice: true,
+          image: true,
+          images: true,
+          categorySlug: true,
+          size: true,
+          isBestseller: true,
+          isNew: true,
+          rating: true,
+          reviewCount: true,
+          gender: true,
+          season: true,
+          impressionOf: true,
+          tags: true,
+          price3mlPhysical: true,
+          price6mlPhysical: true,
+          price12mlPhysical: true,
+          price50mlPhysical: true,
+          price3mlOnline: true,
+          price6mlOnline: true,
+          price12mlOnline: true,
+          price50mlOnline: true,
+          currency: true,
+          type: true,
+          applicatorType: true,
+          origin: true,
+          sizesAvailable: true,
+          sizePrices: true,
+          category: { select: { name: true, slug: true } },
+        },
         orderBy,
         skip,
         take: PAGE_SIZE,
@@ -230,7 +297,7 @@ export default async function ShopContent({
       prisma.product.count({ where }),
     ]);
     total = count;
-    formattedProducts = (products as Prisma.ProductGetPayload<{ include: { category: true } }>[]).map((p) => mapToFormattedProduct(p));
+    formattedProducts = products.map((p) => mapToFormattedProduct(p));
   } catch (error) {
     console.error('Error fetching products:', error);
   }

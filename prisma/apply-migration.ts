@@ -53,6 +53,12 @@ async function main() {
     `ALTER TABLE "Order" ADD COLUMN "trackingNumber" TEXT;`,
     `ALTER TABLE "Order" ADD COLUMN "shippedAt" DATETIME;`,
     `ALTER TABLE "Order" ADD COLUMN "estimatedDelivery" DATETIME;`,
+    // Schema-parity columns (missing in live DB → caused /api/admin/orders 500)
+    `ALTER TABLE "Order" ADD COLUMN "customerPhone" TEXT;`,
+    `ALTER TABLE "Order" ADD COLUMN "discount" REAL NOT NULL DEFAULT 0;`,
+    `ALTER TABLE "Order" ADD COLUMN "paymentMethod" TEXT NOT NULL DEFAULT 'cod';`,
+    `ALTER TABLE "Order" ADD COLUMN "billingAddress" TEXT;`,
+    `ALTER TABLE "Order" ADD COLUMN "notes" TEXT;`,
   ]
   for (const colSql of orderColumns) {
     try { await turso.execute(colSql) } catch { /* column exists */ }
@@ -120,6 +126,32 @@ async function main() {
   try {
     await turso.execute(`CREATE INDEX IF NOT EXISTS "Product_categorySlug_isActive_idx" ON "Product"("categorySlug", "isActive");`)
   } catch { /* index exists */ }
+
+  // Schema-parity indexes missing from live DB (created by `prisma db push` locally, never applied to Turso).
+  // These back the most common storefront filter/order-by paths.
+  const schemaIndexes = [
+    // Product
+    `CREATE INDEX IF NOT EXISTS "Product_gender_isActive_idx" ON "Product"("gender", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_type_isActive_idx" ON "Product"("type", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_isBestseller_isActive_idx" ON "Product"("isBestseller", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_isNew_isActive_idx" ON "Product"("isNew", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_isHotSelling_isActive_idx" ON "Product"("isHotSelling", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_isTrending_isActive_idx" ON "Product"("isTrending", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_isFeatured_isActive_idx" ON "Product"("isFeatured", "isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_isActive_idx" ON "Product"("isActive");`,
+    `CREATE INDEX IF NOT EXISTS "Product_createdAt_idx" ON "Product"("createdAt");`,
+    // OrderItem (joined for every order detail/listing)
+    `CREATE INDEX IF NOT EXISTS "OrderItem_orderId_idx" ON "OrderItem"("orderId");`,
+    // CartItem / WishlistItem (per-user reads)
+    `CREATE INDEX IF NOT EXISTS "CartItem_userId_idx" ON "CartItem"("userId");`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS "WishlistItem_userId_productId_key" ON "WishlistItem"("userId", "productId");`,
+    `CREATE INDEX IF NOT EXISTS "WishlistItem_userId_idx" ON "WishlistItem"("userId");`,
+    // Notification (admin/user reads)
+    `CREATE INDEX IF NOT EXISTS "Notification_userId_read_idx" ON "Notification"("userId", "read");`,
+  ]
+  for (const idxSql of schemaIndexes) {
+    try { await turso.execute(idxSql) } catch (e) { console.error('Index statement failed:', idxSql, e) }
+  }
 
   // Data normalization (idempotent) - align legacy values with the app standard:
   // gender: Men/Women/Unisex | type: Attar/Perfume | categorySlug derived from gender

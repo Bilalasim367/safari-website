@@ -20,7 +20,32 @@ export async function GET(
 
     const order = await prisma.order.findUnique({
       where: { orderNumber },
-      include: { items: true },
+      select: {
+        id: true,
+        orderNumber: true,
+        customerName: true,
+        customerEmail: true,
+        status: true,
+        paymentStatus: true,
+        trackingNumber: true,
+        shippedAt: true,
+        estimatedDelivery: true,
+        shippingAddress: true,
+        subtotal: true,
+        shipping: true,
+        tax: true,
+        total: true,
+        createdAt: true,
+        items: {
+          select: {
+            name: true,
+            price: true,
+            quantity: true,
+            size: true,
+            image: true,
+          },
+        },
+      },
     });
 
     if (!order) {

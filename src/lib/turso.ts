@@ -28,6 +28,12 @@ const createPrismaClient = () => {
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   });
 
+  client.$on('query', (e: { query: string; params: string; duration: number }) => {
+    if (e.duration >= 200) {
+      console.warn(`[prisma:slow] ${Math.round(e.duration)}ms ${e.query} ${e.params}`)
+    }
+  });
+
   return client;
 };
 

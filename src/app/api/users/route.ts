@@ -18,32 +18,37 @@ export async function GET(request: Request) {
     const where: Record<string, unknown> = { role: "customer" };
     if (status) where.status = status;
 
-    const users = await prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        avatar: true,
-        role: true,
-        status: true,
-        createdAt: true,
-        lastLogin: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const [users, orderGroups] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          avatar: true,
+          role: true,
+          status: true,
+          createdAt: true,
+          lastLogin: true,
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.order.groupBy({
+        by: ["userId"],
+        _count: true,
+      }),
+    ]);
 
-    const result = await Promise.all(
-      users.map(async (user) => {
-        const orderCount = await prisma.order.count({ where: { userId: user.id } });
-        return {
-          ...user,
-          orders: orderCount,
-          totalSpent: 0,
-        };
-      })
+    const countMap = new Map(
+      orderGroups.filter((g) => g.userId).map((g) => [g.userId as string, g._count])
     );
+
+    const result = users.map((user) => ({
+      ...user,
+      orders: countMap.get(user.id) ?? 0,
+      totalSpent: 0,
+    }));
 
     return NextResponse.json(result);
   } catch (error) {

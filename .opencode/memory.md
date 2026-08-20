@@ -508,6 +508,62 @@ Anything less is incomplete.
 
 # PHASE 4-6 COMPLETION LOG
 
+## Performance Optimization Pass — 2026-08-20 (Turso + Prisma)
+
+### Context
+DB: Turso (libSQL) via Prisma 5.22 driver adapter. Live DB was missing several indexes the schema declares (created via `prisma db push` locally, never applied to Turso).
+
+### Indexes applied to live DB (idempotent, in `prisma/apply-migration.ts`)
+- Product: `gender+isActive`, `type+isActive`, `isBestseller+isActive`, `isNew+isActive`, `isHotSelling+isActive`, `isTrending+isActive`, `isFeatured+isActive`, `isActive`, `createdAt` (added to schema too)
+- OrderItem: `orderId`; CartItem: `userId`; WishlistItem: unique `userId+productId` + `userId`; Notification: `userId+read`
+- Verified via `PRAGMA index_list` — all present.
+
+### Select tightening (payload + DB read reduction)
+- `src/app/page.tsx` — 4 homepage queries: full fetch → explicit `select` (~24 cols + `category{name}`), was ~45 cols × 4 queries.
+- `src/app/shop/ShopContent.tsx` — grid query → explicit `select` (~30 cols + `category{name,slug}`), removed `include: category` full.
+- `src/app/api/admin/orders/route.ts` GET — `include items` → `select` order scalars + `items{id,name,price,quantity,size,image}`.
+- `src/app/api/orders/route.ts` GET — `include items` (itemCount via items.length) → `select` + `_count.items`.
+- `src/app/api/orders/by-number/[orderNumber]` — full include → `select` + `items` select.
+- `src/app/bundles/page.tsx` + `bundles/[slug]` — bundle/items/product selects (product pruned to display fields only).
+- `src/app/api/admin/users/route.ts` — users findMany → select of mapped fields.
+- Flagged (shape must not change; consumers need full object): `/api/products` GET (PDP consumes full object), `/api/products/home` (dead route, no consumers).
+
+### N+1 fixes
+- `api/categories/route.ts` — per-category `product.count` loop → single `groupBy([categorySlug], _count)`.
+- `api/users/route.ts` — per-user `order.count` loop → single `groupBy([userId], _count)`.
+
+### Parallelization
+- `bundles/[slug]` — `getBundle` + `getOtherBundles` → `Promise.all`.
+- `api/orders/route.ts` POST — products + settings + user lookups → `Promise.all`.
+
+### Caching / ISR
+- Homepage, `/bundles`, `/bundles/[slug]`, `/shipping`: removed `force-dynamic`, set `revalidate = 300`.
+- ⚠️ BLOCKER: `src/app/layout.tsx` calls `await headers()` (isAdmin detection) → forces the whole app dynamic → page-level ISR is currently inert. Real cache wins are route-level: `/api/products` (s-maxage 300 + SWR 600) and `/api/search` (s-maxage 60 + SWR 120). To activate page ISR: move admin detection out of the root layout (e.g. middleware/Proxy already sets `x-pathname`; or a nested layout) — deferred, needs UI regression check.
+- NOT cached (deliberate): cart, wishlist, orders, admin, settings, categories (admin edit→reload would serve stale).
+
+### Pagination gaps (flagged, NOT changed — frontends lack paging)
+- `api/admin/orders` GET, `api/admin/users` GET, `api/users` GET, `api/notifications` GET, `admin actions getAdminProducts` — unbounded.
+- OK: `/api/products` (page/limit), shop grid (PAGE_SIZE 12), `/api/search` (take 10), `/api/products/home` (take limit), `getAdminBundles` (take 50).
+
+### Embedded replicas — DEFERRED
+Deployment is Vercel serverless (vercel.json, Fluid, ephemeral FS) → libSQL embedded replicas won't persist between invocations; net overhead. Real levers: Vercel function region colocation with Turso (ap-northeast-1 → set `regions: ["hnd1"]`) or Turso region move to the primary traffic region; plus the CDN caching above.
+
+### Slow query visibility
+- `src/lib/turso.ts` — added `client.$on('query')` logging queries ≥ 200ms (`[prisma:slow]`).
+
+### Verification
+- `npm run lint`: 0 errors, 34 pre-existing warnings.
+- `npm run build`: ✓ compiled (dev server must be stopped first).
+- Live-DB smoke tests passed: orders `select`+`_count`, homepage selects (8/51/65/223 rows), `groupBy`.
+
+### Related fix (previous session, 2026-08-20)
+- Order table missing 5 columns (`customerPhone`, `discount`, `paymentMethod`, `billingAddress`, `notes`) → added idempotently in `prisma/apply-migration.ts`, ran on live DB.
+- Product delete now soft-deletes (`isActive: false`) in `admin/(protected)/actions.ts` + `api/admin/products/route.ts` (was hard delete → FK RESTRICT on BundleItem).
+
+---
+
+# PHASE 4-6 COMPLETION LOG
+
 ## Phase 4 — Admin Dashboard UI (COMPLETED)
 - `api/categories/route.ts`: added admin-guarded PUT + DELETE (slug-uniqueness, 404s)
 - `admin/categories/page.tsx`: bare-array guard (`Array.isArray`), `_id`→`id`, save/delete wired to real `/api/categories` (previously hit `/api/admin/products`)

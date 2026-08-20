@@ -14,19 +14,22 @@ async function requireAdmin() {
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      orderBy: { name: "asc" }
-    });
+    const [categories, counts] = await Promise.all([
+      prisma.category.findMany({
+        orderBy: { name: "asc" }
+      }),
+      prisma.product.groupBy({
+        by: ["categorySlug"],
+        _count: true,
+      }),
+    ]);
 
-    const result = await Promise.all(
-      categories.map(async (cat) => {
-        const productCount = await prisma.product.count({ where: { categorySlug: cat.slug } });
-        return {
-          ...cat,
-          productCount,
-        };
-      })
-    );
+    const countMap = new Map(counts.map((c) => [c.categorySlug, c._count]));
+
+    const result = categories.map((cat) => ({
+      ...cat,
+      productCount: countMap.get(cat.slug) ?? 0,
+    }));
 
     return NextResponse.json(result);
   } catch (error) {

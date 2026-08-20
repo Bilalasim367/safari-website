@@ -5,15 +5,38 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import AddBundleToCart from '@/components/AddBundleToCart'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 async function getBundle(slug: string) {
   try {
     return await prisma.bundle.findUnique({
       where: { slug },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+        image: true,
+        save: true,
+        size: true,
+        inStock: true,
         items: {
-          include: { product: true },
+          select: {
+            id: true,
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                slug: true,
+                image: true,
+                fragranceFamily: true,
+                categorySlug: true,
+                size: true,
+              },
+            },
+          },
         },
       },
     })
@@ -29,6 +52,17 @@ async function getOtherBundles(currentSlug: string) {
       where: { isActive: true, slug: { not: currentSlug } },
       orderBy: { createdAt: 'desc' },
       take: 3,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+        image: true,
+        save: true,
+        size: true,
+      },
     })
   } catch (e) {
     console.error('Error fetching other bundles:', e)
@@ -39,10 +73,11 @@ async function getOtherBundles(currentSlug: string) {
 export default async function BundleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const bundle = await getBundle(slug)
+  const [bundle, otherBundles] = await Promise.all([
+    getBundle(slug),
+    getOtherBundles(slug),
+  ])
   if (!bundle) notFound()
-
-  const otherBundles = await getOtherBundles(slug)
 
   const savings = bundle.originalPrice ? bundle.originalPrice - bundle.price : 0
   const discountPercent = bundle.originalPrice ? Math.round((savings / bundle.originalPrice) * 100) : 0

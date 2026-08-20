@@ -20,8 +20,39 @@ export async function GET() {
 
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: "desc" },
-      include: { items: true },
+      select: {
+        id: true,
+        orderNumber: true,
+        customerName: true,
+        customerEmail: true,
+        subtotal: true,
+        shipping: true,
+        tax: true,
+        total: true,
+        status: true,
+        paymentStatus: true,
+        trackingNumber: true,
+        shippedAt: true,
+        shippingAddress: true,
+        createdAt: true,
+        updatedAt: true,
+        items: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            quantity: true,
+            size: true,
+            image: true,
+          },
+        },
+      },
     });
+
+    const parseAddress = (raw: string | null) => {
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return raw; }
+    };
 
     return NextResponse.json({
       success: true,
@@ -46,7 +77,7 @@ export async function GET() {
         paymentStatus: order.paymentStatus,
         trackingNumber: order.trackingNumber,
         shippedAt: order.shippedAt,
-        shippingAddress: order.shippingAddress,
+        shippingAddress: parseAddress(order.shippingAddress),
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
       })),

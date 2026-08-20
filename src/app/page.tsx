@@ -3,7 +3,6 @@ import HomePage from "@/components/HomePage"
 import { classifyProductType } from "@/lib/product-types"
 
 export const revalidate = 300
-export const dynamic = "force-dynamic"
 
 function mapProduct(p: {
   id: string
@@ -56,26 +55,55 @@ function mapProduct(p: {
 
 async function getProducts() {
   try {
+    const select = {
+      id: true,
+      name: true,
+      slug: true,
+      price: true,
+      originalPrice: true,
+      image: true,
+      images: true,
+      categorySlug: true,
+      description: true,
+      isBestseller: true,
+      isNew: true,
+      isHotSelling: true,
+      isTrending: true,
+      size: true,
+      inStock: true,
+      rating: true,
+      reviewCount: true,
+      gender: true,
+      fragranceFamily: true,
+      sizesAvailable: true,
+      sizePrices: true,
+      type: true,
+      applicatorType: true,
+      origin: true,
+      price3mlPhysical: true,
+      price6mlPhysical: true,
+    } as const
+
     const [hotSelling, menProducts, womenProducts, unisexProducts] = await Promise.all([
       prisma.product.findMany({
         where: { isHotSelling: true, isActive: true },
-        include: { category: true },
+        select: { ...select, category: { select: { name: true } } },
         take: 8,
         orderBy: { createdAt: "desc" },
       }),
       prisma.product.findMany({
         where: { gender: 'Men', isActive: true },
-        include: { category: true },
+        select: { ...select, category: { select: { name: true } } },
         orderBy: { createdAt: "desc" },
       }),
       prisma.product.findMany({
         where: { gender: 'Women', isActive: true },
-        include: { category: true },
+        select: { ...select, category: { select: { name: true } } },
         orderBy: { createdAt: "desc" },
       }),
       prisma.product.findMany({
         where: { gender: 'Unisex', isActive: true },
-        include: { category: true },
+        select: { ...select, category: { select: { name: true } } },
         orderBy: { createdAt: "desc" },
       }),
     ])

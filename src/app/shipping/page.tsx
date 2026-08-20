@@ -3,7 +3,7 @@ import Link from 'next/link'
 import prisma from '@/lib/turso'
 import { Card } from '@/components/ui/card'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export default async function ShippingPage() {
   let settings = null

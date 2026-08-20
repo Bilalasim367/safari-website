@@ -106,6 +106,7 @@ model Product {
   @@index([isHotSelling, isActive])
   @@index([isFeatured, isActive])
   @@index([isActive])
+  @@index([createdAt])
 }
 
 model Bundle {

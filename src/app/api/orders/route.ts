@@ -72,9 +72,13 @@ export async function POST(request: Request) {
 
     // Server-side pricing: never trust client-supplied prices
     const productIds = [...new Set(items.map((item: OrderItem) => item.id).filter(Boolean))];
-    const products = await prisma.product.findMany({
-      where: { id: { in: productIds }, isActive: true },
-    });
+    const [products, settings, user] = await Promise.all([
+      prisma.product.findMany({
+        where: { id: { in: productIds }, isActive: true },
+      }),
+      prisma.settings.findFirst(),
+      userId ? prisma.user.findUnique({ where: { id: userId } }) : Promise.resolve(null),
+    ]);
     const productMap = new Map(products.map((p) => [p.id, p]));
 
     const validatedItems: OrderItem[] = [];
@@ -109,7 +113,6 @@ export async function POST(request: Request) {
       });
     }
 
-    const settings = await prisma.settings.findFirst();
     const taxRate = settings?.taxRate ?? 0;
     const shippingFee = settings?.shippingFee ?? 0;
     const freeShippingThreshold = settings?.freeShippingThreshold ?? 0;
@@ -122,10 +125,7 @@ export async function POST(request: Request) {
     const orderNumber = generateOrderNumber();
 
     let customerEmail = shippingAddress.email || 'guest@example.com';
-    if (userId) {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-      if (user) customerEmail = user.email;
-    }
+    if (user) customerEmail = user.email;
 
     const customerName = shippingAddress.firstName + ' ' + shippingAddress.lastName
 
@@ -218,7 +218,15 @@ export async function GET() {
     const orders = await prisma.order.findMany({
       where: { userId: payload.userId },
       orderBy: { createdAt: "desc" },
-      include: { items: true },
+      select: {
+        id: true,
+        orderNumber: true,
+        status: true,
+        total: true,
+        trackingNumber: true,
+        createdAt: true,
+        _count: { select: { items: true } },
+      },
     });
 
     return NextResponse.json({
@@ -228,7 +236,7 @@ export async function GET() {
         orderNumber: order.orderNumber,
         status: order.status,
         total: order.total,
-        itemCount: order.items.length,
+        itemCount: order._count.items,
         trackingNumber: order.trackingNumber,
         createdAt: order.createdAt,
       })),

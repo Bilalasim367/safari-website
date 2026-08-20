@@ -52,7 +52,11 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json(products);
+    return NextResponse.json(products, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    });
   } catch (error) {
     console.error("Search error:", error);
     return NextResponse.json([]);

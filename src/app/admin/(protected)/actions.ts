@@ -327,9 +327,13 @@ export async function deleteProduct(id: string) {
   }
   
   try {
-    await prisma.product.delete({ where: { id } });
+    await prisma.product.update({
+      where: { id },
+      data: { isActive: false },
+    });
     return { success: true };
-  } catch {
+  } catch (e) {
+    console.error('deleteProduct error:', e);
     return { error: 'Failed to delete product' };
   }
 }

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export default async function BundlesPage() {
   let bundles: Awaited<ReturnType<typeof prisma.bundle.findMany>> = []
@@ -12,6 +12,17 @@ export default async function BundlesPage() {
     bundles = await prisma.bundle.findMany({
       where: { isActive: true },
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        originalPrice: true,
+        image: true,
+        save: true,
+        size: true,
+      },
     })
   } catch (e) {
     console.error('Error fetching bundles:', e)

@@ -20,6 +20,17 @@ export async function GET() {
     const users = await prisma.user.findMany({
       where: { role: 'customer' },
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        avatar: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        lastLogin: true,
+      },
     });
 
     const userIds = users.map(u => u.id);
