@@ -1,15 +1,13 @@
 import type { Metadata } from 'next'
-import { headers } from 'next/headers'
 import { Playfair_Display, Montserrat } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import CartSidebar from '@/components/CartSidebar'
+import SiteShell from '@/components/SiteShell'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { WishlistProvider } from '@/context/WishlistContext'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { SITE_URL, SITE_NAME } from '@/lib/site'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -26,39 +24,68 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'SAFARI | Luxury Fragrances',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan',
+    template: '%s | Safari Perfumes',
+  },
   description:
-    'Discover exceptional fragrances crafted with passion. SAFARI - Luxury perfumes for men, women, and unisex. Shop signature scents, best sellers, and exclusive bundles.',
-  keywords:
-    'luxury perfume, fragrance, mens perfume, womens perfume, unisex fragrance, attar, signature scent, best sellers, new arrivals',
+    'Shop designer-inspired attars and perfumes in Pakistan at affordable PKR prices. 330+ fragrances for men, women, and unisex with fast delivery across Pakistan.',
+  keywords: [
+    'perfume in Pakistan',
+    'attar in Pakistan',
+    'designer perfume impressions',
+    'perfume dupes Pakistan',
+    'attar online Pakistan',
+    'fragrance Pakistan',
+    'gift perfume Pakistan',
+  ],
+  alternates: {
+    canonical: SITE_URL,
+  },
   openGraph: {
-    title: 'SAFARI | Luxury Fragrances',
+    title: 'Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan',
     description:
-      'Discover exceptional fragrances crafted with passion. Shop our exclusive collection of luxury perfumes.',
-    siteName: 'SAFARI',
+      'Shop designer-inspired attars and perfumes in Pakistan at affordable PKR prices. 330+ fragrances with fast delivery across Pakistan.',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan',
+    description:
+      'Shop designer-inspired attars and perfumes in Pakistan at affordable PKR prices.',
   },
 }
 
-export default async function RootLayout({
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
+  // Contact details (address, phone, sameAs) intentionally omitted until
+  // real business information is confirmed — never ship placeholder NAP data.
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') || ''
-  const isAdmin = pathname.startsWith('/admin')
-
   return (
     <html lang='en' className={`${playfair.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
-      <body className={isAdmin ? 'h-screen overflow-hidden' : 'min-h-full flex flex-col'}>
+      <body className='min-h-full flex flex-col'>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <TooltipProvider>
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                {!isAdmin && <Header />}
-                {isAdmin ? children : <main className="flex-1">{children}</main>}
-                {!isAdmin && <Footer />}
-                {!isAdmin && <CartSidebar />}
+                <SiteShell>{children}</SiteShell>
                 <Toaster />
               </WishlistProvider>
             </CartProvider>

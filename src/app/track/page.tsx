@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
@@ -65,6 +65,14 @@ function formatDate(dateStr: string) {
 }
 
 export default function TrackPage() {
+  return (
+    <Suspense fallback={null}>
+      <TrackContent />
+    </Suspense>
+  )
+}
+
+function TrackContent() {
   const searchParams = useSearchParams()
   const [orderId, setOrderId] = useState('')
   const [order, setOrder] = useState<OrderData | null>(null)

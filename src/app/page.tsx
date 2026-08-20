@@ -1,8 +1,25 @@
 import prisma from "@/lib/turso"
 import HomePage from "@/components/HomePage"
 import { classifyProductType } from "@/lib/product-types"
+import { SITE_URL } from "@/lib/site"
+import type { Metadata } from "next"
 
 export const revalidate = 300
+
+export const metadata: Metadata = {
+  title: "Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan",
+  description:
+    "Shop 330+ designer-inspired attars and perfumes in Pakistan at affordable PKR prices. Long-lasting fragrances for men, women, and unisex with fast delivery across Pakistan.",
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    title: "Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan",
+    description:
+      "Shop 330+ designer-inspired attars and perfumes in Pakistan at affordable PKR prices. Fast delivery across Pakistan.",
+    url: SITE_URL,
+    siteName: "Safari Perfumes",
+    type: "website",
+  },
+}
 
 function mapProduct(p: {
   id: string
