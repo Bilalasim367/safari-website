@@ -1,4 +1,4 @@
-﻿import { Card } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
