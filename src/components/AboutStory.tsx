@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Image from "next/image"
@@ -11,7 +11,7 @@ export default function AboutStory() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative aspect-[4/5] lg:aspect-[3/4] overflow-hidden rounded-2xl">
             <Image
-              src="/story.png"
+              src="/safari-brand-story.png"
               alt="Safari Perfumes - Our Story"
               fill
               className="object-cover"
@@ -33,7 +33,7 @@ export default function AboutStory() {
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
                 Founded in 2018, Safari Perfumes was born from a passion for
                 the extraordinary. We believe that fragrance is the invisible
-                accessory that completes your presence — a silent storyteller
+                accessory that completes your presence â€” a silent storyteller
                 that lingers long after you&rsquo;ve left the room.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">

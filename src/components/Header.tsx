@@ -40,6 +40,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: 'Bundles/Offers', href: '/bundles' },
+  { label: 'Blog', href: '/blog' },
 ];
 
 const topLinks = [

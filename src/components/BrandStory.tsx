@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Image from "next/image"
@@ -12,7 +12,7 @@ export default function BrandStory() {
           <div className="relative md:rounded-2xl overflow-hidden -mx-4 md:mx-0">
             <div className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden md:rounded-2xl">
               <Image
-                src="/story.png"
+                src="/safari-brand-story.png"
                 alt="Safari Perfumes - Crafting luxury fragrances"
                 fill
                 className="object-cover"
@@ -48,11 +48,11 @@ export default function BrandStory() {
               <p>
                 Founded in the heart of Dubai, Safari Perfumes was born from a passion
                 for the art of perfumery. Our journey began with a simple belief: that
-                a fragrance should be more than a scent — it should be a memory, a
+                a fragrance should be more than a scent â€” it should be a memory, a
                 moment, a signature.
               </p>
               <p>
-                We source the finest ingredients from around the world — rare oud from
+                We source the finest ingredients from around the world â€” rare oud from
                 Assam, Bulgarian roses, Madagascan vanilla, and Calabrian bergamot.
                 Each bottle is a testament to our commitment to quality, authenticity,
                 and the timeless art of fragrance creation.

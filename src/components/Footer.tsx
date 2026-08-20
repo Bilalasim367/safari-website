@@ -116,6 +116,7 @@ export default function Footer() {
                 { label: 'Collections', href: '/collections' },
                 { label: 'Bundles & Gift Sets', href: '/bundles' },
                 { label: 'Gift Cards', href: '/gift-cards' },
+                { label: 'Fragrance Guides', href: '/blog' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

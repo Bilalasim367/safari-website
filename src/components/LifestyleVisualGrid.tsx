@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Image from "next/image"
@@ -14,42 +14,42 @@ interface LifestyleImage {
 const lifestyleImages: LifestyleImage[] = [
   {
     id: 1,
-    src: "/sents1.png",
+    src: "/safari-lifestyle-1.png",
     alt: "Premium oud wood chips",
     title: "Rare Oud Wood",
     description: "Sourced from ancient Assam forests",
   },
   {
     id: 2,
-    src: "/sents2.png",
+    src: "/safari-lifestyle-2.png",
     alt: "Fresh Bulgarian rose petals",
     title: "Bulgarian Roses",
     description: "Hand-picked at dawn for peak fragrance",
   },
   {
     id: 3,
-    src: "/sents3.png",
+    src: "/safari-lifestyle-3.png",
     alt: "Mysore sandalwood heartwood",
     title: "Mysore Sandalwood",
     description: "Creamy, rich heartwood from Karnataka",
   },
   {
     id: 4,
-    src: "/sents4.png",
+    src: "/safari-lifestyle-4.png",
     alt: "Golden amber resin",
     title: "Golden Amber",
     description: "Fossilized tree resin for warm depth",
   },
   {
     id: 5,
-    src: "/sents5.png",
+    src: "/safari-lifestyle-5.png",
     alt: "Luxury perfume bottles on velvet",
     title: "Artisan Craftsmanship",
     description: "Each bottle filled by hand in small batches",
   },
   {
     id: 6,
-    src: "/sents6.png",
+    src: "/safari-lifestyle-6.png",
     alt: "Raw ingredients on marble",
     title: "Raw Ingredients",
     description: "Nature's finest essences, unadulterated",
@@ -68,7 +68,7 @@ export default function LifestyleVisualGrid() {
             The Art of Scent
           </h2>
           <p className="hidden md:block text-muted-foreground text-lg md:text-xl mt-4 max-w-2xl mx-auto">
-            From rare ingredients to artisanal craftsmanship — discover the world behind every bottle
+            From rare ingredients to artisanal craftsmanship â€” discover the world behind every bottle
           </p>
         </div>
 

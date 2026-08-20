@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React from "react"
 import Link from "next/link"
@@ -11,7 +11,7 @@ export default function Hero() {
     <section className="relative min-h-screen md:min-h-[85vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/banner1.png"
+          src="/safari-hero-banner.png"
           alt="Safari Perfumes - Luxury fragrances"
           fill
           className="object-cover"

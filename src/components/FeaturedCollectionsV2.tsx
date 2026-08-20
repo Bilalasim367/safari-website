@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useState } from "react"
 import Link from "next/link"
@@ -19,7 +19,7 @@ const featuredCategories: CollectionCategory[] = [
     id: "attar",
     name: "Attar Collection",
     description: "Pure, concentrated perfume oils for lasting intensity",
-    image: "/Attarcollection.jpg",
+    image: "/safari-attar-collection.jpg",
     subItems: [
       { label: "Men", href: "/shop?type=attar&gender=men" },
       { label: "Women", href: "/shop?type=attar&gender=women" },
@@ -30,7 +30,7 @@ const featuredCategories: CollectionCategory[] = [
     id: "perfume",
     name: "Perfumes Collection",
     description: "Luxury interpretations of iconic designer fragrances",
-    image: "/perfume%20collection.jpg",
+    image: "/safari-perfume-collection.jpg",
     subItems: [
       { label: "Men", href: "/shop?type=perfume&gender=men" },
       { label: "Women", href: "/shop?type=perfume&gender=women" },
@@ -41,7 +41,7 @@ const featuredCategories: CollectionCategory[] = [
     id: "our-collection",
     name: "Our Collection",
     description: "Exclusive signature blends coming soon",
-    image: "/ourcollection.jpg",
+    image: "/safari-our-collection.jpg",
     subItems: [
       { label: "Notify Me", href: "/contact?notify=our-collection" },
     ],
