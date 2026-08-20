@@ -1,30 +1,23 @@
-const { createServer } = require('http')
-const { parse } = require('url')
-const next = require('next')
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { spawn } = require('child_process')
 
-const dev = process.env.NODE_ENV !== 'production'
-// cPanel Passenger requires no hardcoded hostname
-const app = next({ dev })
-const handle = app.getRequestHandler()
+const port = process.env.NODE_PORT || process.env.PORT || 3000
 
-const port = process.env.PORT || 3000
+const child = spawn(
+  'node',
+  ['node_modules/next/dist/bin/next', 'start', '-p', String(port), '-H', '0.0.0.0'],
+  { stdio: 'inherit', env: { ...process.env } }
+)
 
-app.prepare().then(() => {
-    createServer((req, res) => {
-        try {
-            const parsedUrl = parse(req.url, true)
-            handle(req, res, parsedUrl)
-        } catch (err) {
-            console.error('Error handling URL:', req.url, err)
-            res.statusCode = 500
-            res.end('Internal Server Error')
-        }
-    })
-    .listen(port, (err) => {
-        if (err) throw err
-        console.log(`> Ready on port ${port}`)
-    })
-}).catch((ex) => {
-    console.error(ex.stack)
-    process.exit(1)
+child.on('exit', (code, signal) => {
+  if (signal) process.kill(process.pid, signal)
+  process.exit(code)
 })
+
+child.on('error', (err) => {
+  console.error('Failed to start Next.js server:', err)
+  process.exit(1)
+})
+
+process.on('SIGTERM', () => child.kill('SIGTERM'))
+process.on('SIGINT', () => child.kill('SIGINT'))
