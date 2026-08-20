@@ -2,6 +2,12 @@
 
 # Safari Perfumes E-Commerce Development Rules
 
+## CRITICAL: Never use PowerShell 5.1 `Set-Content -Encoding UTF8` on code files
+It writes a UTF-8 BOM (EF BB BF) which breaks `prisma generate`/`prisma validate`
+(P1012 "This line is invalid") and can trip other tooling. Use the write/edit
+tools or Node (`fs.writeFileSync`) for file changes. If you must use PowerShell,
+use `-Encoding utf8NoBOM` (PS7) or strip the BOM afterwards with Node.
+
 These rules must be followed before making ANY code changes.
 
 Failure to follow these rules may introduce bugs, break filtering, create data inconsistencies, or cause production issues.
