@@ -1,9 +1,11 @@
 import prisma from '@/lib/turso'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import AddBundleToCart from '@/components/AddBundleToCart'
+import { SITE_URL } from '@/lib/site'
 
 export const revalidate = 300
 
@@ -70,6 +72,36 @@ async function getOtherBundles(currentSlug: string) {
   }
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const bundle = await getBundle(slug)
+  if (!bundle) {
+    return { title: 'Bundle Not Found | Safari Perfumes' }
+  }
+  const url = `${SITE_URL}/bundles/${bundle.slug}`
+  const price = Math.round(bundle.price).toLocaleString()
+  const description =
+    bundle.description ||
+    `${bundle.name} — premium fragrance bundle at PKR ${price} with fast delivery across Pakistan.`
+  return {
+    title: `${bundle.name} | PKR ${price} | Safari Perfumes Pakistan`,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${bundle.name} | Safari Perfumes`,
+      description,
+      url,
+      siteName: 'Safari Perfumes',
+      type: 'website',
+      images: bundle.image ? [{ url: bundle.image, alt: bundle.name }] : undefined,
+    },
+  }
+}
+
 export default async function BundleDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
@@ -78,6 +110,25 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
     getOtherBundles(slug),
   ])
   if (!bundle) notFound()
+
+  const bundleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: bundle.name,
+    description: bundle.description || undefined,
+    image: bundle.image || undefined,
+    brand: { '@type': 'Brand', name: 'Safari Perfumes' },
+    sku: bundle.slug,
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE_URL}/bundles/${bundle.slug}`,
+      priceCurrency: 'PKR',
+      price: String(Math.round(bundle.price)),
+      availability: bundle.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+    },
+  }
 
   const savings = bundle.originalPrice ? bundle.originalPrice - bundle.price : 0
   const discountPercent = bundle.originalPrice ? Math.round((savings / bundle.originalPrice) * 100) : 0
@@ -115,6 +166,10 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
 
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(bundleJsonLd) }}
+      />
       <div className="max-w-[1280px] mx-auto px-6 py-6">
         <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-8">
           <Link href="/" className="hover:text-foreground transition-colors">Home</Link>

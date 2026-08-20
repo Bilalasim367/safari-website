@@ -3,7 +3,6 @@
 import React from "react"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
-import { cn } from "@/lib/utils"
 
 interface Testimonial {
   id: string
@@ -55,69 +54,34 @@ export default function Testimonials() {
           </h2>
         </div>
 
-        {/* Mobile: Horizontal scroll carousel */}
-        <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-4 px-4">
+        {/* Single responsive layout: one DOM instance, carousel on mobile, grid on desktop */}
+        <div className="grid grid-flow-col md:grid-flow-row auto-cols-[80vw] md:auto-cols-auto snap-x snap-mandatory md:snap-none scrollbar-hide gap-4 md:gap-6 lg:gap-8 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-4 md:mx-0 px-4 md:px-0">
           {testimonials.map((testimonial) => (
             <article
               key={testimonial.id}
-              className="flex-none w-[80vw] snap-start relative bg-background border border-border rounded-2xl p-6 transition-all duration-300"
+              className="snap-start relative bg-background border border-border rounded-2xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:border-gold/30"
             >
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-4 md:mb-6">
                 <Rating rating={testimonial.rating} size="sm" color="gold" />
               </div>
 
-              <blockquote className="text-foreground/90 text-sm leading-relaxed mb-4 line-clamp-4">
+              <blockquote className="text-foreground/90 text-sm md:text-base leading-relaxed mb-4 md:mb-6 line-clamp-4 md:line-clamp-none">
                 &ldquo;{testimonial.text}&rdquo;
               </blockquote>
 
-              <div className="border-t border-border pt-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                    <span className="text-gold font-heading font-medium text-base">
+              <div className="border-t border-border pt-4 md:pt-6">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                    <span className="text-gold font-heading font-medium text-base md:text-lg">
                       {testimonial.name.charAt(0)}
                     </span>
                   </div>
                   <div>
                     <p className="font-medium text-foreground text-sm">{testimonial.name}</p>
-                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">{testimonial.location}</p>
                   </div>
                 </div>
-                <p className="text-gold text-xs mt-2 font-medium">{testimonial.product}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {/* Desktop: Grid */}
-        <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8">
-          {testimonials.map((testimonial) => (
-            <article
-              key={testimonial.id}
-              className={cn(
-                "relative bg-background border border-border rounded-2xl p-8 transition-all duration-300 hover:shadow-xl hover:border-gold/30"
-              )}
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <Rating rating={testimonial.rating} size="sm" color="gold" />
-              </div>
-
-              <blockquote className="text-foreground/90 text-base leading-relaxed mb-6">
-                &ldquo;{testimonial.text}&rdquo;
-              </blockquote>
-
-              <div className="border-t border-border pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center">
-                    <span className="text-gold font-heading font-medium text-lg">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
-                  </div>
-                </div>
-                <p className="text-gold text-sm mt-3 font-medium">{testimonial.product}</p>
+                <p className="text-gold text-xs md:text-sm mt-2 md:mt-3 font-medium">{testimonial.product}</p>
               </div>
             </article>
           ))}

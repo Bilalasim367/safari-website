@@ -1,6 +1,14 @@
-import React from 'react'
+﻿import React from 'react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import prisma from '@/lib/turso'
+import { SITE_URL } from '@/lib/site'
+
+export const metadata: Metadata = {
+  title: 'Shipping & Delivery | Safari Perfumes Pakistan',
+  description: 'Fast, reliable delivery across Pakistan. Learn about shipping times, fees, and free shipping thresholds for Safari Perfumes orders.',
+  alternates: { canonical: `${SITE_URL}/shipping` },
+}
 import { Card } from '@/components/ui/card'
 
 export const revalidate = 300

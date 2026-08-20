@@ -1,6 +1,14 @@
-import React from 'react'
+﻿import React from 'react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
+import { SITE_URL } from '@/lib/site'
+
+export const metadata: Metadata = {
+  title: 'Returns & Exchange | Safari Perfumes Pakistan',
+  description: 'Easy returns and exchanges within 30 days of purchase. Learn how to return or exchange your Safari Perfumes order in Pakistan.',
+  alternates: { canonical: `${SITE_URL}/returns` },
+}
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'

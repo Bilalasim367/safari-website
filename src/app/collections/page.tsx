@@ -3,10 +3,12 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import ShopContent from '@/app/shop/ShopContent'
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb'
+import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: "Our Collection | SAFARI Luxury Fragrances",
-  description: "Discover our complete collection of luxury fragrances. Shop perfumes and attars for men, women, and unisex.",
+  title: "Our Collection | Safari Perfumes Pakistan",
+  description: "Explore our complete collection of designer-inspired perfumes and attars for men, women, and unisex at affordable PKR prices.",
+  alternates: { canonical: `${SITE_URL}/collections` },
 }
 
 export default async function CollectionsPage({

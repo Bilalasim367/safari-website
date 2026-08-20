@@ -1,4 +1,11 @@
-import { Card } from "@/components/ui/card"
+﻿import { Card } from "@/components/ui/card"
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Cookies Policy | Safari Perfumes',
+  robots: { index: false },
+}
+
 
 export default function CookiesPage() {
   return (

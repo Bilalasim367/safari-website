@@ -1,9 +1,18 @@
 import prisma from '@/lib/turso'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { SITE_URL } from '@/lib/site'
 
 export const revalidate = 300
+
+export const metadata: Metadata = {
+  title: 'Bundles & Gift Sets | Safari Perfumes Pakistan',
+  description:
+    'Shop curated perfume and attar bundles & gift sets at Safari Perfumes. Premium fragrance sets at discounted PKR prices — perfect for gifting in Pakistan.',
+  alternates: { canonical: `${SITE_URL}/bundles` },
+}
 
 export default async function BundlesPage() {
   let bundles: Awaited<ReturnType<typeof prisma.bundle.findMany>> = []

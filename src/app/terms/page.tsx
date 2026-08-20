@@ -1,4 +1,11 @@
-import { Card } from "@/components/ui/card"
+﻿import { Card } from "@/components/ui/card"
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service | Safari Perfumes',
+  robots: { index: false },
+}
+
 
 export default function TermsPage() {
   return (
