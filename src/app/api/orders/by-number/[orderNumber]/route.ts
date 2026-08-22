@@ -52,7 +52,9 @@ export async function GET(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    if (!auth || (auth.role !== 'admin' && order.userId !== auth.userId)) {
+    // Guest orders (userId null) are publicly trackable by orderNumber;
+    // registered users' orders require matching auth or admin.
+    if (order.userId && (!auth || (auth.role !== 'admin' && order.userId !== auth.userId))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
