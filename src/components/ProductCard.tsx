@@ -151,7 +151,7 @@ export default function ProductCard({
           </div>
         </div>
 
-        <div className="flex-1 px-5 pb-3 pt-4">
+        <div className="flex-1 px-3 pb-3 pt-3 sm:px-5 sm:pb-3 sm:pt-4">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <p className="text-[10px] text-muted-foreground uppercase tracking-[0.25em]">{category}</p>
             {gender && (
@@ -182,13 +182,13 @@ export default function ProductCard({
             </div>
           )}
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             {lowestPrice != null ? (
-              <span className="text-2xl font-bold text-foreground tracking-tight">
+              <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
                 {currency || "PKR"} {lowestPrice.toLocaleString()}
               </span>
             ) : (
-              <span className="text-2xl font-bold text-foreground tracking-tight">
+              <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
                 {currency || "PKR"} {price.toFixed(2)}
               </span>
             )}
@@ -208,11 +208,11 @@ export default function ProductCard({
           </div>
         </div>
 
-        <div className="px-5 pb-5 pt-0">
+        <div className="px-3 pb-5 pt-0 sm:px-5">
           <button
             onClick={handleAdd}
             aria-label={`Add ${name} to cart`}
-            className="w-full py-2 px-4 border border-border rounded-lg transition-all duration-300 bg-background hover:bg-accent hover:text-accent-foreground sm:opacity-0 sm:translate-y-2 sm:group-hover:opacity-100 sm:group-hover:translate-y-0"
+            className="w-full py-2 px-2 sm:px-4 whitespace-nowrap text-xs sm:text-sm border border-border rounded-lg transition-all duration-300 bg-background hover:bg-accent hover:text-accent-foreground sm:opacity-0 sm:translate-y-2 sm:group-hover:opacity-100 sm:group-hover:translate-y-0"
             style={{
               backgroundColor: added ? "hsl(var(--primary))" : undefined,
               color: added ? "hsl(var(--primary-foreground))" : undefined,

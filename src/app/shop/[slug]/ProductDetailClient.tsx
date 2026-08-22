@@ -242,7 +242,9 @@ export default function ProductDetailClient({
 
               <div>
                 <div className="flex items-center gap-2 flex-wrap mb-6">
-                  <Badge variant="secondary" className="text-xs tracking-widest uppercase">{product.category?.name}</Badge>
+                  {product.category?.name && (
+                    <Badge variant="secondary" className="text-xs tracking-widest uppercase">{product.category.name}</Badge>
+                  )}
                   {product.gender && (
                     <Badge variant="outline" className="text-xs">{product.gender}</Badge>
                   )}
@@ -268,7 +270,7 @@ export default function ProductDetailClient({
                   </div>
                 )}
 
-                <div className="flex items-baseline gap-3 mb-6">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 mb-6">
                   <span className="text-4xl font-bold text-foreground tracking-tight">
                     {currencySymbol} {displayPrice.toLocaleString()}
                   </span>
@@ -355,18 +357,6 @@ export default function ProductDetailClient({
 
                 <Separator className="my-8" />
                 <Accordion type="multiple" defaultValue={["description"]}>
-                  <AccordionItem value="description">
-                    <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Description</AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground leading-relaxed">
-                      {product.shortDescription && (
-                        <p className="mb-4 font-medium text-foreground">{product.shortDescription}</p>
-                      )}
-                      {product.longDescription
-                        ? renderLongDescription(product.longDescription)
-                        : product.description}
-                    </AccordionContent>
-                  </AccordionItem>
-
                   {product.notesTop?.length > 0 || product.notesHeart?.length > 0 || product.notesBase?.length > 0 ? (
                     <AccordionItem value="notes">
                       <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Fragrance Notes</AccordionTrigger>
@@ -394,6 +384,18 @@ export default function ProductDetailClient({
                       </AccordionContent>
                     </AccordionItem>
                   ) : null}
+
+                  <AccordionItem value="description">
+                    <AccordionTrigger className="text-xs tracking-[0.2em] uppercase font-semibold py-5">Description</AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground leading-relaxed">
+                      {product.shortDescription && (
+                        <p className="mb-4 font-medium text-foreground">{product.shortDescription}</p>
+                      )}
+                      {product.longDescription
+                        ? renderLongDescription(product.longDescription)
+                        : product.description}
+                    </AccordionContent>
+                  </AccordionItem>
 
                   {isPerfume && (product.concentration || product.bottleStyle || product.longevity || product.sillage) ? (
                     <AccordionItem value="perfume-details">

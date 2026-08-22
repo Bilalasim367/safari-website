@@ -27,7 +27,10 @@ export function Rating({ rating, reviews, size = "default", color = "primary" }:
         ))}
       </div>
       {reviews !== undefined && (
-        <span className="text-sm text-muted-foreground">({reviews} reviews)</span>
+        <span className="whitespace-nowrap text-muted-foreground">
+          <span className="sm:hidden text-xs">({reviews})</span>
+          <span className="hidden sm:inline text-sm">({reviews} reviews)</span>
+        </span>
       )}
     </div>
   );
