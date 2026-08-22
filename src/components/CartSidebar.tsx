@@ -4,7 +4,6 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -12,7 +11,6 @@ import { products } from "@/data/products";
 
 export default function CartSidebar() {
   const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen } = useCart();
-  const { user } = useAuth();
   const router = useRouter();
   const shipping = 0;
   const total = subtotal + shipping;
@@ -36,11 +34,7 @@ export default function CartSidebar() {
 
   const handleCheckout = () => {
     setIsCartOpen(false);
-    if (user) {
-      router.push('/checkout');
-    } else {
-      router.push('/login?redirect=/checkout');
-    }
+    router.push('/checkout');
   };
 
   return (

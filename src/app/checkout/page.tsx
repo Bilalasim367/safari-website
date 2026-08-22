@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -12,18 +12,12 @@ import { Card } from "@/components/ui/card";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
-  
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login?redirect=/checkout');
-    }
-  }, [authLoading, user, router]);
-  
+
   const [formData, setFormData] = useState({
     email: user?.email || "",
     firstName: "",

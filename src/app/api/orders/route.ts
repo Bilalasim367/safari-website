@@ -28,24 +28,15 @@ export async function POST(request: Request) {
     const cookieStore = await cookies();
     const token = cookieStore.get('access_token')?.value;
     let userId: string | null = null;
-    
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: 'Please login to place an order' },
-        { status: 401 }
-      );
+
+    // Guest checkout allowed: auth is optional
+    if (token) {
+      const payload = await verifyToken(token);
+      if (payload?.userId) {
+        userId = payload.userId;
+      }
     }
-    
-    const payload = await verifyToken(token);
-    if (!payload || !payload.userId) {
-      return NextResponse.json(
-        { success: false, message: 'Please login to place an order' },
-        { status: 401 }
-      );
-    }
-    
-    userId = payload.userId;
-    
+
     const body = await request.json();
     const { items, shippingAddress, paymentMethod } = body;
 
@@ -59,6 +50,13 @@ export async function POST(request: Request) {
     if (!shippingAddress) {
       return NextResponse.json(
         { success: false, message: 'Shipping address is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!userId && !shippingAddress.email) {
+      return NextResponse.json(
+        { success: false, message: 'Email address is required to place an order' },
         { status: 400 }
       );
     }
