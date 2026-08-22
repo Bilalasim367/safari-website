@@ -65,7 +65,7 @@ export default function TermsPage() {
             <Card className="p-8">
               <h2 className="text-2xl font-heading text-foreground mb-4">Contact</h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>For questions about these Terms of Service, please contact us at legal@safariperfumes.com or write to SAFARI Perfumes, 123 Luxury Lane, New York, NY 10001.</p>
+                <p>For questions about these Terms of Service, please contact us at legal@safariperfumes.com or write to Safari Perfumes, Online store — nationwide delivery across Pakistan, No physical storefront.</p>
                 <p>These terms were last updated on January 1, 2026.</p>
               </div>
             </Card>

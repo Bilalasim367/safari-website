@@ -173,9 +173,27 @@ export async function generateMetadata({
     ? `Impression of ${product.impressionOf}`
     : product.type || 'Fragrance'
 
-  const title =
-    `${product.name} | ${impression} | PKR ${price.toLocaleString()} | Safari Perfumes Pakistan`
-  const description = buildDescription(product)
+  // SEO-optimized title: {fragranceName} Impression — {type} | Safari Perfumes (under ~65 chars)
+  const fragranceName = product.name
+  const typeLabel = product.type === 'Attar' ? 'Attar' : product.type === 'Perfume' ? 'Perfume' : 'Fragrance'
+  let title = `${fragranceName} Impression — ${typeLabel} | Safari Perfumes`
+  if (title.length > 65) {
+    title = `${fragranceName.substring(0, 65 - (' Impression — '.length + typeLabel.length + ' | Safari Perfumes'.length))}… Impression — ${typeLabel} | Safari Perfumes`
+  }
+
+  // SEO-optimized description with notes (under ~155 chars)
+  const notesTop = product.notesTop ? JSON.parse(product.notesTop) : []
+  const notesBase = product.notesBase ? JSON.parse(product.notesBase) : []
+  const topNoteStr = notesTop.slice(0, 3).join(', ')
+  const baseNoteStr = notesBase.slice(0, 2).join(', ')
+  let description = `Shop our ${fragranceName} impression`
+  if (topNoteStr) description += ` — ${topNoteStr} top notes`
+  if (baseNoteStr) description += `, ${baseNoteStr} base`
+  description += '. Alcohol-free attar & EDP spray. Free delivery across Pakistan.'
+  if (description.length > 155) {
+    description = description.substring(0, 152) + '...'
+  }
+
   const url = `${SITE_URL}/shop/${product.slug}`
   const image = product.image?.trim()
 

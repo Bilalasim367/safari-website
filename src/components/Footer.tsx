@@ -54,7 +54,7 @@ export default function Footer() {
               <ul className='space-y-5 text-base'>
                 <li>
                   <a
-                    href='mailto:hello@SAFARI.com'
+                    href='mailto:support@safari-perfumes.com'
                     className='hover:text-primary-foreground transition-colors flex items-center gap-3'
                   >
                     <svg
@@ -70,12 +70,12 @@ export default function Footer() {
                         d='M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
                       />
                     </svg>
-                    hello@SAFARI.com
+                    support@safari-perfumes.com
                   </a>
                 </li>
                 <li>
                   <a
-                    href='tel:+15551234567'
+                    href='tel:+923247277489'
                     className='hover:text-primary-foreground transition-colors flex items-center gap-3'
                   >
                     <svg
@@ -91,13 +91,13 @@ export default function Footer() {
                         d='M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z'
                       />
                     </svg>
-                    +1 (555) 123-4567
+                    +92 324 7277489
                   </a>
                 </li>
                 <li className='leading-relaxed'>
-                  123 Luxury Lane
+                  Online store — nationwide delivery across Pakistan
                   <br />
-                  New York, NY 10001
+                  No physical storefront
                 </li>
               </ul>
             </div>
@@ -188,40 +188,29 @@ export default function Footer() {
               <p className='text-green-500 text-sm mt-2'>Thanks for subscribing!</p>
             )}
 
-            <div className='flex gap-4'>
-              {[
-                {
-                  name: 'Instagram',
-                  icon: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z',
-                },
-                {
-                  name: 'Facebook',
-                  icon: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
-                },
-                {
-                  name: 'Twitter',
-                  icon: 'M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z',
-                },
-                {
-                  name: 'YouTube',
-                  icon: 'M23.498 6.187a3.015 3.015 0 00-2.131-2.227C19.552 3.67 12 3.67 12 3.67s-7.552 0-9.367.29a3.015 3.015 0 00-2.131 2.227C0 8.775 0 12 0 12s0 3.225.962 5.813a3.015 3.015 0 002.131 2.227c1.815.29 9.367.29 9.367.29s7.552 0 9.367-.29a3.015 3.015 0 002.131-2.227C24 15.225 24 12 24 12s0-3.225-.962-5.813zM9.545 15.568V8.432L15.818 12l-6.273 3.568z',
-                },
-              ].map((social) => (
-                <button
-                  key={social.name}
-                  onClick={() => alert('Coming soon!')}
-                  className="w-12 h-12 rounded-full border border-primary-foreground/20 flex items-center justify-center text-primary-foreground/60 hover:border-primary-foreground hover:text-primary-foreground transition-all cursor-not-allowed"
-                  aria-label={`${social.name} - Coming soon`}
-                >
-                  <svg
-                    className='w-5 h-5'
-                    fill='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path d={social.icon} />
-                  </svg>
-                </button>
-              ))}
+<div className='flex gap-4'>
+              <a
+                href="https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-full border border-primary-foreground/20 flex items-center justify-center text-primary-foreground/60 hover:border-primary-foreground hover:text-primary-foreground transition-all"
+                aria-label="TikTok"
+              >
+                <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 24 24'>
+                  <path d="M12.548.497c-4.833 0-8.731 3.898-8.731 8.731 0 3.426 2.18 6.337 5.168 7.913v-6.291h-2.148v-3.038h2.148V9.35c0-3.007 1.792-4.669 4.533-4.669 1.313 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385c0 4.827-3.898 8.732-8.732 8.732-4.832 0-8.731-3.898-8.731-8.732zm4.865 3.23c0-1.141-.418-2.084-1.254-2.717 0 0-1.031-.388-2.485-.388-2.493 0-3.168 1.552-3.168 3.777 0 1.294.66 2.42 1.565 2.836-.038.057-.048.117-.048.178 0 .549.076 1.089.438 1.44l.795.795c.594.594 1.49.82 2.32.82.74 0 1.51-.19 2.12-.572l.52-.52c.02-.02.04-.03.06-.05.71-.59 1.25-1.42 1.25-2.43v-.08c0-.01.001-.02.001-.03zm-4.865-3.23h-4.865v4.865h4.865v-4.865z"/>
+                </svg>
+              </a>
+              <a
+                href="https://www.facebook.com/share/19G8xxiTP7/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 rounded-full border border-primary-foreground/20 flex items-center justify-center text-primary-foreground/60 hover:border-primary-foreground hover:text-primary-foreground transition-all"
+                aria-label="Facebook"
+              >
+                <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 24 24'>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>

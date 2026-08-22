@@ -21,7 +21,7 @@ export default function AboutPage() {
         <div className="relative z-10 text-center">
           <h1 className="text-4xl md:text-6xl font-semibold text-white mb-4">Our Story</h1>
           <p className="text-white/70 text-lg max-w-2xl mx-auto px-4">
-            Crafting luxury fragrances since 2015
+            Crafting luxury fragrances since 2015 — Pakistan&apos;s trusted impression house
           </p>
         </div>
       </section>
@@ -143,7 +143,7 @@ export default function AboutPage() {
         <div className="container-custom text-center">
           <h2 className="text-3xl md:text-4xl font-semibold text-card-foreground mb-6">Experience Safari</h2>
           <p className="text-card-foreground/60 max-w-2xl mx-auto mb-8">
-            Visit our flagship stores or explore our collection online to discover your perfect fragrance.
+            Explore our collection online to discover your perfect fragrance — nationwide delivery across Pakistan.
           </p>
           <Link href="/shop" className="btn-primary">
             Shop Now

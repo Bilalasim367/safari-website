@@ -23,7 +23,7 @@ export default function BrandStory() {
             </div>
             <div className="md:absolute md:-bottom-8 md:-right-8 lg:-bottom-12 lg:-right-12 bg-white p-5 md:p-6 lg:p-8 shadow-2xl max-w-sm">
               <p className="text-gold text-xs tracking-[0.2em] uppercase mb-2">
-                Since 2019
+                Since 2015
               </p>
               <h3 className="font-heading text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-1 md:mb-2">
                 500+
@@ -46,9 +46,9 @@ export default function BrandStory() {
 
             <div className="space-y-4 md:space-y-6 text-base md:text-lg leading-relaxed text-muted-foreground">
               <p>
-                Founded in the heart of Dubai, Safari Perfumes was born from a passion
+                Founded in Pakistan, Safari Perfumes was born from a passion
                 for the art of perfumery. Our journey began with a simple belief: that
-                a fragrance should be more than a scent â€” it should be a memory, a
+                a fragrance should be more than a scent — it should be a memory, a
                 moment, a signature.
               </p>
               <p>

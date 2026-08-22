@@ -26,11 +26,11 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan',
+    default: 'Safari Perfumes — Designer-Inspired Attars & Perfumes in Pakistan',
     template: '%s | Safari Perfumes',
   },
   description:
-    'Shop designer-inspired attars and perfumes in Pakistan at affordable PKR prices. 330+ fragrances for men, women, and unisex with fast delivery across Pakistan.',
+    'Shop 330+ designer-inspired attars & perfumes in Pakistan. Alcohol-free, long-lasting fragrances with free delivery nationwide.',
   keywords: [
     'perfume in Pakistan',
     'attar in Pakistan',
@@ -44,18 +44,18 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: 'Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan',
+    title: 'Safari Perfumes — Designer-Inspired Attars & Perfumes in Pakistan',
     description:
-      'Shop designer-inspired attars and perfumes in Pakistan at affordable PKR prices. 330+ fragrances with fast delivery across Pakistan.',
+      'Shop 330+ designer-inspired attars & perfumes in Pakistan. Alcohol-free, long-lasting fragrances with free delivery nationwide.',
     url: SITE_URL,
     siteName: SITE_NAME,
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan',
+    title: 'Safari Perfumes — Designer-Inspired Attars & Perfumes in Pakistan',
     description:
-      'Shop designer-inspired attars and perfumes in Pakistan at affordable PKR prices.',
+      'Shop 330+ designer-inspired attars & perfumes in Pakistan. Alcohol-free, long-lasting fragrances with free delivery nationwide.',
   },
 }
 
@@ -65,8 +65,16 @@ const organizationJsonLd = {
   name: SITE_NAME,
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
-  // Contact details (address, phone, sameAs) intentionally omitted until
-  // real business information is confirmed — never ship placeholder NAP data.
+  email: 'support@safari-perfumes.com',
+  telephone: '+92 324 7277489',
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'PK',
+  },
+  sameAs: [
+    'https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv',
+    'https://www.facebook.com/share/19G8xxiTP7/',
+  ],
 }
 
 export default function RootLayout({

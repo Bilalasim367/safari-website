@@ -8,6 +8,14 @@ export const metadata: Metadata = {
   description:
     'Practical fragrance guides for Pakistan: designer perfume impressions explained, oud vs attar, and how to make your perfume last longer.',
   alternates: { canonical: `${SITE_URL}/blog` },
+  openGraph: {
+    title: 'Fragrance Guides & Tips | Safari Perfumes Blog',
+    description:
+      'Practical fragrance guides for Pakistan: designer perfume impressions explained, oud vs attar, and how to make your perfume last longer.',
+    url: `${SITE_URL}/blog`,
+    siteName: 'Safari Perfumes',
+    type: 'website',
+  },
 }
 
 export default function BlogPage() {

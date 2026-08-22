@@ -50,8 +50,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-foreground font-medium mb-1">Email</h3>
-                    <p className="text-muted-foreground">hello@safariperfumes.com</p>
-                    <p className="text-muted-foreground">support@safariperfumes.com</p>
+                    <p className="text-muted-foreground">support@safari-perfumes.com</p>
                   </div>
                 </div>
 
@@ -63,8 +62,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-foreground font-medium mb-1">Phone</h3>
-                    <p className="text-muted-foreground">+1 (800) 555-0123</p>
-                    <p className="text-muted-foreground text-sm">Mon-Fri: 9AM - 6PM EST</p>
+                    <p className="text-muted-foreground">+92 324 7277489</p>
+                    <p className="text-muted-foreground text-sm">Mon-Fri: 9AM - 6PM PKT</p>
                   </div>
                 </div>
 
@@ -77,8 +76,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-foreground font-medium mb-1">Address</h3>
-                    <p className="text-muted-foreground">123 Luxury Lane</p>
-                    <p className="text-muted-foreground">New York, NY 10001</p>
+                    <p className="text-muted-foreground">Online store — nationwide delivery across Pakistan</p>
+                    <p className="text-muted-foreground">No physical storefront</p>
                   </div>
                 </div>
               </div>
@@ -86,11 +85,12 @@ export default function ContactPage() {
               <div className="mt-10">
                 <h3 className="text-foreground font-medium mb-4">Follow Us</h3>
                 <div className="flex gap-4">
-                  {['Instagram', 'Facebook', 'Twitter'].map((social) => (
-                    <Button key={social} variant="outline" size="icon" onClick={() => alert('Coming soon!')} aria-label={`${social} - Coming soon`}>
-                      <span className="text-xs">{social[0]}</span>
-                    </Button>
-                  ))}
+                  <a href="https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors" aria-label="TikTok">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.548.497c-4.833 0-8.731 3.898-8.731 8.731 0 3.426 2.18 6.337 5.168 7.913v-6.291h-2.148v-3.038h2.148V9.35c0-3.007 1.792-4.669 4.533-4.669 1.313 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385c0 4.827-3.898 8.732-8.732 8.732-4.832 0-8.731-3.898-8.731-8.732zm4.865 3.23c0-1.141-.418-2.084-1.254-2.717 0 0-1.031-.388-2.485-.388-2.493 0-3.168 1.552-3.168 3.777 0 1.294.66 2.42 1.565 2.836-.038.057-.048.117-.048.178 0 .549.076 1.089.438 1.44l.795.795c.594.594 1.49.82 2.32.82.74 0 1.51-.19 2.12-.572l.52-.52c.02-.02.04-.03.06-.05.71-.59 1.25-1.42 1.25-2.43v-.08c0-.01.001-.02.001-.03zm-4.865-3.23h-4.865v4.865h4.865v-4.865z"/></svg>
+                  </a>
+                  <a href="https://www.facebook.com/share/19G8xxiTP7/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors" aria-label="Facebook">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  </a>
                 </div>
               </div>
             </div>

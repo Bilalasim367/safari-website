@@ -31,9 +31,9 @@ export default function AboutStory() {
                 <span className="text-gold italic">Tell Your Story</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                Founded in 2018, Safari Perfumes was born from a passion for
+                Founded in 2015, Safari Perfumes was born from a passion for
                 the extraordinary. We believe that fragrance is the invisible
-                accessory that completes your presence â€” a silent storyteller
+                accessory that completes your presence — a silent storyteller
                 that lingers long after you&rsquo;ve left the room.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">

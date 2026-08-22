@@ -217,7 +217,7 @@ export default function AccountPage() {
                         type="tel"
                         value={profileData.phone}
                         onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                        placeholder="+1 (555) 123-4567"
+                        placeholder="+92 3XX XXXXXXX"
                       />
                     </div>
                     <Button
