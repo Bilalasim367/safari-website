@@ -9,7 +9,7 @@ if (!JWT_SECRET) {
 
 const encoder = new TextEncoder().encode(JWT_SECRET);
 
-const ACCESS_TOKEN_EXPIRY = '15m';
+const ACCESS_TOKEN_EXPIRY = '30d';
 
 export interface TokenPayload {
   userId: string;
@@ -64,7 +64,7 @@ export function setAuthCookies(token: string, refreshToken: string, rememberMe =
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax' as const,
       path: '/',
-      maxAge: 15 * 60,
+      maxAge: 30 * 24 * 60 * 60,
     },
     refresh_token: {
       name: 'refresh_token',
