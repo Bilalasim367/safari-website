@@ -1,4 +1,4 @@
-import prisma from '../src/lib/turso'
+import prisma from '@/lib/prisma'
 
 async function main() {
   const [dupSlugs, noImpression, sampleNames, total] = await Promise.all([

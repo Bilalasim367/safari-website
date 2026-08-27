@@ -1,4 +1,4 @@
-import prisma from '@/lib/turso';
+import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import SortSelect from './SortSelect';
@@ -6,6 +6,7 @@ import MobileFilterDrawer from './MobileFilterDrawer';
 import FILTERS, { FilterSection } from './FilterSection';
 import { classifyProductType, type ProductCategoryType } from '@/lib/product-types';
 import { normalizeGender, normalizeType } from '@/lib/normalize';
+import { debugLog } from '@/lib/debugLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -299,7 +300,13 @@ export default async function ShopContent({
     total = count;
     formattedProducts = products.map((p) => mapToFormattedProduct(p));
   } catch (error) {
-    console.error('Error fetching products:', error);
+    debugLog('ShopContent:prisma.product.findMany', error);
+    // Log the where clause that caused the failure for query debugging
+    try {
+      debugLog('ShopContent:where-clause', JSON.stringify(where, null, 2));
+    } catch {
+      // JSON.stringify may fail on circular refs — swallow
+    }
   }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);

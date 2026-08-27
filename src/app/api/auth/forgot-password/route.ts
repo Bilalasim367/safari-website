@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/turso';
+import prisma from '@/lib/prisma';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { sendPasswordResetEmail } from '@/lib/email';
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import prisma from '@/lib/turso'
+import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {

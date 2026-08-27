@@ -1,8 +1,16 @@
-import { createClient } from '@libsql/client'
+import { PrismaClient } from '@prisma/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 
-const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+})
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMySQL(pool),
 })
 
 function parseTags(tags: string | null): Record<string, string> {
@@ -24,58 +32,35 @@ function parseTags(tags: string | null): Record<string, string> {
 async function main() {
   console.log('Backfilling product attributes from tags...')
 
-  const rows = await turso.execute('SELECT id, tags, type FROM Product WHERE tags IS NOT NULL AND tags != \'\'')
+  const products = await prisma.product.findMany({
+    where: { tags: { not: null, not: '' } },
+    select: { id: true, tags: true, type: true },
+  })
 
   let updatedCount = 0
 
-  for (const row of rows.rows) {
-    const id = row.id as string
-    const tags = row.tags as string | null
-    const type = row.type as string | null
-    const parsed = parseTags(tags)
+  for (const row of products) {
+    const parsed = parseTags(row.tags)
 
     if (Object.keys(parsed).length === 0) continue
 
-    const updates: string[] = []
-    const values: (string | null)[] = []
+    const updateData: Record<string, string | null> = {}
 
-    // Perfume fields
-    if (parsed.concentration) {
-      updates.push(`"concentration" = ?`)
-      values.push(parsed.concentration)
-    }
-    // Note: tags use "bottle" key, column is "bottleStyle"
-    if (parsed.bottle) {
-      updates.push(`"bottleStyle" = ?`)
-      values.push(parsed.bottle)
-    }
+    if (parsed.concentration) updateData.concentration = parsed.concentration
+    if (parsed.bottle) updateData.bottleStyle = parsed.bottle
+    if (parsed.applicator) updateData.applicatorType = parsed.applicator
+    if (parsed.origin) updateData.origin = parsed.origin
+    if (parsed.ingredients) updateData.ingredients = parsed.ingredients
 
-    // Attar fields
-    if (parsed.applicator) {
-      updates.push(`"applicatorType" = ?`)
-      values.push(parsed.applicator)
-    }
-    if (parsed.origin) {
-      updates.push(`"origin" = ?`)
-      values.push(parsed.origin)
-    }
-    if (parsed.ingredients) {
-      updates.push(`"ingredients" = ?`)
-      values.push(parsed.ingredients)
-    }
+    if (Object.keys(updateData).length === 0) continue
 
-    if (updates.length === 0) continue
-
-    values.push(id)
-    const sql = `UPDATE Product SET ${updates.join(', ')} WHERE id = ?`
-
-    await turso.execute({
-      sql,
-      args: values,
+    await prisma.product.update({
+      where: { id: row.id },
+      data: updateData,
     })
 
     updatedCount++
-    console.log(`  Updated product ${id} (type: ${type || 'unknown'}): ${updates.join(', ')}`)
+    console.log(`  Updated product ${row.id} (type: ${row.type || 'unknown'}): ${Object.keys(updateData).join(', ')}`)
   }
 
   console.log(`\nDone! Updated ${updatedCount} products.`)
@@ -84,4 +69,7 @@ async function main() {
 main().catch((e) => {
   console.error('Backfill failed:', e)
   process.exit(1)
+}).finally(async () => {
+  await prisma.$disconnect()
+  await pool.end()
 })

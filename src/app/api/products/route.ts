@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/turso";
+import prisma from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 import { normalizeGender, normalizeType } from "@/lib/normalize";
 import { cookies } from "next/headers";

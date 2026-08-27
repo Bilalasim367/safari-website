@@ -1,17 +1,19 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSQL } from '@prisma/adapter-libsql'
-import { createClient } from '@libsql/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 import { products } from '../src/data/products'
 import { classifyProductType } from '../src/lib/product-types'
 import { normalizeType } from '../src/lib/normalize'
 
-const libsql = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 })
 
 const prisma = new PrismaClient({
-  adapter: new PrismaLibSQL(libsql),
+  adapter: new PrismaMySQL(pool),
 })
 
 const BUNDLES = [
@@ -45,7 +47,7 @@ async function main() {
     })
   }
 
-// Create products
+  // Create products
   for (const p of products) {
     const sizeList = (p.sizePrices || []).map((sp) => sp.size).join(',')
     const type = sizeList ? normalizeType(classifyProductType({ sizesAvailable: sizeList })) : 'Perfume'
@@ -138,4 +140,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
+    await pool.end()
   })

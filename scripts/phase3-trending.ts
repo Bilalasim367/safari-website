@@ -1,18 +1,28 @@
-import { createClient } from '@libsql/client';
+import { PrismaClient } from '@prisma/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-});
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+})
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMySQL(pool),
+})
 
 async function main() {
-  console.log('=== PHASE 3: Set Trending Flags ===');
-  
+  console.log('=== PHASE 3: Set Trending Flags ===')
+
   // Get all active products
-  const result = await client.execute('SELECT id, name, gender, isTrending, isNew FROM Product WHERE isActive = 1');
-  const products = result.rows;
-  console.log(`Total active products: ${products.length}`);
-  
+  const products = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, gender: true, isTrending: true, isNew: true },
+  })
+  console.log(`Total active products: ${products.length}`)
+
   // Define trending products (viral/social media popular + new arrivals)
   const trendingNames = [
     // New arrivals (existing)
@@ -39,12 +49,12 @@ async function main() {
     'Maison Francis Kurkdjian', 'MFK', 'Maison Francis Kurkdjian',
     'MFK Baccarat Rouge 540', 'MFK Grand Soir', 'MFK Petit Matin',
     'MFK Aqua Universalis', 'MFK Aqua Celestia', 'MFK Aqua Vitae',
-  ];
-  
+  ]
+
   // Normalize names for matching
-  const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim();
-  const trendingSet = new Set(trendingNames.map(normalizeName));
-  
+  const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim()
+  const trendingSet = new Set(trendingNames.map(normalizeName))
+
   // Trending keywords for partial matching
   const trendingKeywords = [
     'baccarat rouge', 'baccarat rouge 540', 'maison francis kurkdjian', 'mfk',
@@ -68,73 +78,81 @@ async function main() {
     'ysl y', 'ysl y eau de parfum', 'ysl y le parfum', 'ysl y eau de toilette',
     'initio atomic rose', 'initio oud for greatness', 'initio side effect',
     'initio absolute aphrodisiac', 'initio musk therapy',
-  ];
+  ]
 
-  const trendingKeywordSet = new Set(trendingKeywords.map(k => k.toLowerCase().trim()));
-  
-  let updates = 0;
-  let alreadyTrending = 0;
-  const updatesList = [];
-  
+  const trendingKeywordSet = new Set(trendingKeywords.map(k => k.toLowerCase().trim()))
+
+  let updates = 0
+  let alreadyTrending = 0
+  const updatesList: { id: string; name: string }[] = []
+
   for (const product of products) {
-    const name = product.name.toLowerCase().trim();
-    const isTrending = product.isTrending === 1;
-    const isNew = product.isNew === 1;
-    
+    const name = product.name.toLowerCase().trim()
+    const isTrending = product.isTrending
+    const isNew = product.isNew
+
     // Check if it matches trending criteria
-    let shouldBeTrending = isNew;
-    
+    let shouldBeTrending = isNew
+
     if (!shouldBeTrending) {
       // Check exact name match
       if (trendingSet.has(normalizeName(product.name))) {
-        shouldBeTrending = true;
+        shouldBeTrending = true
       }
       // Check keyword match
       else {
         for (const keyword of trendingKeywordSet) {
           if (name.includes(keyword)) {
-            shouldBeTrending = true;
-            break;
+            shouldBeTrending = true
+            break
           }
         }
       }
     }
-    
+
     if (shouldBeTrending && !isTrending) {
-      updatesList.push({ id: product.id, name: product.name });
-      updates++;
+      updatesList.push({ id: product.id, name: product.name })
+      updates++
     } else if (isTrending) {
-      alreadyTrending++;
+      alreadyTrending++
     }
   }
-  
-  console.log(`\nProducts to update: ${updates}`);
-  console.log(`Already trending: ${alreadyTrending}`);
-  
+
+  console.log(`\nProducts to update: ${updates}`)
+  console.log(`Already trending: ${alreadyTrending}`)
+
   // Show sample
-  console.log('\nSample updates:');
-  updatesList.slice(0, 30).forEach(u => console.log(`  ${u.name}`));
-  
+  console.log('\nSample updates:')
+  updatesList.slice(0, 30).forEach(u => console.log(`  ${u.name}`))
+
   // Execute updates
   if (updates > 0) {
-    console.log('\nExecuting updates...');
+    console.log('\nExecuting updates...')
     for (const update of updatesList) {
-      await client.execute({
-        sql: 'UPDATE Product SET isTrending = 1 WHERE id = ?',
-        args: [update.id]
-      });
+      await prisma.product.update({
+        where: { id: update.id },
+        data: { isTrending: true }
+      })
     }
-    console.log('Trending updates complete!');
+    console.log('Trending updates complete!')
   }
-  
+
   // Verify
-  const verify = await client.execute('SELECT COUNT(*) as count FROM Product WHERE isTrending = 1 AND isActive = 1');
-  console.log(`\nTotal trending products: ${verify.rows[0].count}`);
-  
+  const verify = await prisma.product.count({
+    where: { isTrending: true, isActive: true }
+  })
+  console.log(`\nTotal trending products: ${verify}`)
+
   // Show trending products
-  const trendingProducts = await client.execute('SELECT name, gender FROM Product WHERE isTrending = 1 AND isActive = 1');
-  console.log('\nTrending products:');
-  trendingProducts.rows.forEach(r => console.log(`  ${r.name} (${r.gender})`));
+  const trendingProducts = await prisma.product.findMany({
+    where: { isTrending: true, isActive: true },
+    select: { name: true, gender: true }
+  })
+  console.log('\nTrending products:')
+  trendingProducts.forEach(r => console.log(`  ${r.name} (${r.gender})`))
 }
 
-main().catch(console.error);
+main().catch(console.error).finally(async () => {
+  await prisma.$disconnect()
+  await pool.end()
+})

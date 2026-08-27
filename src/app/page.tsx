@@ -1,4 +1,4 @@
-import prisma from "@/lib/turso"
+import prisma from "@/lib/prisma"
 import HomePage from "@/components/HomePage"
 import { classifyProductType } from "@/lib/product-types"
 import { SITE_URL } from "@/lib/site"

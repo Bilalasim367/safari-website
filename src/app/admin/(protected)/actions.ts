@@ -1,6 +1,6 @@
 'use server'
 
-import prisma from '@/lib/turso';
+import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { normalizeGender, normalizeType } from '@/lib/normalize';

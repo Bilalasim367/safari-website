@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import prisma from '@/lib/turso'
+import prisma from '@/lib/prisma'
 
 interface ConfirmationItem {
   name: string

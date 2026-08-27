@@ -57,3 +57,7 @@ node_modules/
 
 # local dev logs
 dev-server.log
+debug-errors.log
+*.db
+*.db-shm
+*.db-wal

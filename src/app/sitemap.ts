@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import prisma from '@/lib/turso'
+import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 
 export const revalidate = 300

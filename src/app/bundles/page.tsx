@@ -1,4 +1,4 @@
-import prisma from '@/lib/turso'
+import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Button } from '@/components/ui/button'

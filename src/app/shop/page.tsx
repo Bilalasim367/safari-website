@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import ShopContent from './ShopContent';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { SITE_URL } from '@/lib/site';
+import { debugLog } from '@/lib/debugLog';
+
+export const dynamic = 'force-dynamic';
 
 export function getShopLabel(params: Record<string, string | string[] | undefined>): string {
   const gender = typeof params.gender === 'string' ? params.gender.toLowerCase() : '';
@@ -36,14 +39,22 @@ export async function generateMetadata({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
-  const params = await searchParams;
-  const label = getShopLabel(params);
+  try {
+    const params = await searchParams;
+    const label = getShopLabel(params);
 
-  return {
-    title: `${label} | Safari Perfumes Pakistan`,
-    description: `Shop ${label.toLowerCase()} at Safari Perfumes — designer-inspired fragrances at affordable PKR prices with fast delivery across Pakistan.`,
-    alternates: { canonical: `${SITE_URL}/shop` },
-  };
+    return {
+      title: `${label} | Safari Perfumes Pakistan`,
+      description: `Shop ${label.toLowerCase()} at Safari Perfumes — designer-inspired fragrances at affordable PKR prices with fast delivery across Pakistan.`,
+      alternates: { canonical: `${SITE_URL}/shop` },
+    };
+  } catch (error) {
+    debugLog('ShopPage:generateMetadata', error);
+    return {
+      title: 'Shop | Safari Perfumes Pakistan',
+      description: 'Shop designer-inspired fragrances at Safari Perfumes.',
+    };
+  }
 }
 
 export default async function ShopPage({
@@ -51,8 +62,15 @@ export default async function ShopPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
-  const label = getShopLabel(params);
+  let params: Record<string, string | string[] | undefined> = {};
+  let label = 'Shop All';
+
+  try {
+    params = (await searchParams) || {};
+    label = getShopLabel(params);
+  } catch (error) {
+    debugLog('ShopPage:searchParams', error);
+  }
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -63,7 +81,7 @@ export default async function ShopPage({
         '@type': 'ListItem',
         position: 2,
         name: label,
-        item: label === 'Shop All' ? `${SITE_URL}/shop` : `${SITE_URL}/shop`,
+        item: `${SITE_URL}/shop`,
       },
     ],
   };
@@ -101,7 +119,13 @@ export default async function ShopPage({
             </div>
           </div>
         </div>
-        <ShopContent searchParams={params} />
+        <Suspense fallback={
+          <div className="container-custom py-16 text-center text-muted-foreground">
+            Loading products...
+          </div>
+        }>
+          <ShopContent searchParams={params} />
+        </Suspense>
       </div>
     </>
   );

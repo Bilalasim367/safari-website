@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/turso";
+import prisma from "@/lib/prisma";
 import { normalizeGender, normalizeType } from "@/lib/normalize";
 
 export async function GET(request: Request) {

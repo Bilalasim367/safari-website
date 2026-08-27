@@ -1,18 +1,28 @@
-import { createClient } from '@libsql/client';
+import { PrismaClient } from '@prisma/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-});
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+})
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMySQL(pool),
+})
 
 async function main() {
-  console.log('=== PHASE 2: Set Hot Selling Flags ===');
-  
+  console.log('=== PHASE 2: Set Hot Selling Flags ===')
+
   // Get all active products
-  const result = await client.execute('SELECT id, name, gender, isHotSelling, isBestseller FROM Product WHERE isActive = 1');
-  const products = result.rows;
-  console.log(`Total active products: ${products.length}`);
-  
+  const products = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, gender: true, isHotSelling: true, isBestseller: true },
+  })
+  console.log(`Total active products: ${products.length}`)
+
   // Define hot selling products (well-known popular fragrances)
   const hotSellingNames = [
     // Existing bestsellers
@@ -25,8 +35,7 @@ async function main() {
     'Versace Eros', 'Versace Eros', 'Versace Eros Flame', 'Versace Eros Eau De Parfum',
     'Tom Ford Tobacco Oud', 'Tom Ford Tobacco Vanille', 'Tom Ford Lost Cherry',
     'Tom Ford Tobacco Vanille', 'Tom Ford Oud Wood', 'Tom Ford Noir', 'Tom Ford Noir Extreme',
-    'Acqua Di Gio', 'Acqua Di Gio Profumo', 'Acqua Di Gio Profondo', 'Acqua Di Gio Absolu',
-    'Cool Water', 'Cool Water', 'Davidoff Cool Water',
+    'Acqua Di Gio', 'Acqua Di Gio', 'Davidoff Cool Water',
     'Acqua Di Gio Profumo', 'Acqua Di Gio Profondo',
     'Terre D\'Hermes', 'Terre D\'Hermes', 'Hermes Terre',
     'Creed Aventus', 'Creed Aventus', 'Creed Green Irish Tweed', 'Creed Silver Mountain Water',
@@ -67,12 +76,12 @@ async function main() {
     'Versace Eros', 'Versace Eros Flame', 'Versace Eros Eau De Parfum',
     'Tom Ford Tobacco Vanille', 'Tom Ford Tobacco Oud', 'Tom Ford Lost Cherry',
     'Tom Ford Oud Wood', 'Tom Ford Noir', 'Tom Ford Noir Extreme'
-  ];
-  
+  ]
+
   // Normalize names for matching (lowercase, remove extra spaces)
-  const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim();
-  const hotSellingSet = new Set(hotSellingNames.map(normalizeName));
-  
+  const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim()
+  const hotSellingSet = new Set(hotSellingNames.map(normalizeName))
+
   // Also include products with specific keywords that indicate popularity
   const hotKeywords = [
     'sauvage', 'aventus', 'bleu de chanel', 'creed aventus', 'dior sauvage',
@@ -95,73 +104,81 @@ async function main() {
     'versace eros', 'versace eros flame', 'versace eros eau de parfum',
     'tom ford tobacco vanille', 'tom ford tobacco oud', 'tom ford lost cherry',
     'tom ford oud wood', 'tom ford noir', 'tom ford noir extreme'
-  ];
-  
-  const hotKeywordSet = new Set(hotKeywords.map(k => k.toLowerCase().trim()));
-  
-  let updates = 0;
-  let alreadyHot = 0;
-  const updatesList = [];
-  
+  ]
+
+  const hotKeywordSet = new Set(hotKeywords.map(k => k.toLowerCase().trim()))
+
+  let updates = 0
+  let alreadyHot = 0
+  const updatesList: { id: string; name: string }[] = []
+
   for (const product of products) {
-    const name = product.name.toLowerCase().trim();
-    const isHot = product.isHotSelling === 1;
-    const isBestseller = product.isBestseller === 1;
-    
+    const name = product.name.toLowerCase().trim()
+    const isHot = product.isHotSelling
+    const isBestseller = product.isBestseller
+
     // Check if it matches hot selling criteria
-    let shouldBeHot = isBestseller;
-    
+    let shouldBeHot = isBestseller
+
     if (!shouldBeHot) {
       // Check exact name match
       if (hotSellingSet.has(product.name.toLowerCase().trim())) {
-        shouldBeHot = true;
+        shouldBeHot = true
       }
       // Check keyword match
       else if (!shouldBeHot) {
         for (const keyword of hotKeywordSet) {
           if (name.includes(keyword)) {
-            shouldBeHot = true;
-            break;
+            shouldBeHot = true
+            break
           }
         }
       }
     }
-    
+
     if (shouldBeHot && !isHot) {
-      updatesList.push({ id: product.id, name: product.name });
-      updates++;
+      updatesList.push({ id: product.id, name: product.name })
+      updates++
     } else if (isHot) {
-      alreadyHot++;
+      alreadyHot++
     }
   }
-  
-  console.log(`\nProducts to update: ${updates}`);
-  console.log(`Already hot selling: ${alreadyHot}`);
-  
+
+  console.log(`\nProducts to update: ${updates}`)
+  console.log(`Already hot selling: ${alreadyHot}`)
+
   // Show sample
-  console.log('\nSample updates:');
-  updatesList.slice(0, 20).forEach(u => console.log(`  ${u.name}`));
-  
+  console.log('\nSample updates:')
+  updatesList.slice(0, 20).forEach(u => console.log(`  ${u.name}`))
+
   // Execute updates
   if (updates > 0) {
-    console.log('\nExecuting updates...');
+    console.log('\nExecuting updates...')
     for (const update of updatesList) {
-      await client.execute({
-        sql: 'UPDATE Product SET isHotSelling = 1 WHERE id = ?',
-        args: [update.id]
-      });
+      await prisma.product.update({
+        where: { id: update.id },
+        data: { isHotSelling: true }
+      })
     }
-    console.log('Hot selling updates complete!');
+    console.log('Hot selling updates complete!')
   }
-  
+
   // Verify
-  const verify = await client.execute('SELECT COUNT(*) as count FROM Product WHERE isHotSelling = 1 AND isActive = 1');
-  console.log(`\nTotal hot selling products: ${verify.rows[0].count}`);
-  
+  const verify = await prisma.product.count({
+    where: { isHotSelling: true, isActive: true }
+  })
+  console.log(`\nTotal hot selling products: ${verify}`)
+
   // Show hot selling products
-  const hotProducts = await client.execute('SELECT name, gender FROM Product WHERE isHotSelling = 1 AND isActive = 1');
-  console.log('\nHot selling products:');
-  hotProducts.rows.forEach(r => console.log(`  ${r.name} (${r.gender})`));
+  const hotProducts = await prisma.product.findMany({
+    where: { isHotSelling: true, isActive: true },
+    select: { name: true, gender: true }
+  })
+  console.log('\nHot selling products:')
+  hotProducts.forEach(r => console.log(`  ${r.name} (${r.gender})`))
 }
 
-main().catch(console.error);
+main().catch(console.error).finally(async () => {
+  await prisma.$disconnect()
+  await pool.end()
+})

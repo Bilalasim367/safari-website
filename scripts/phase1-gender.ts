@@ -1,24 +1,34 @@
-import { createClient } from '@libsql/client';
+import { PrismaClient } from '@prisma/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-});
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+})
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMySQL(pool),
+})
 
 async function main() {
-  console.log('=== PHASE 1: Fix Gender Categories ===');
-  
+  console.log('=== PHASE 1: Fix Gender Categories ===')
+
   // Get all active products
-  const result = await client.execute('SELECT id, name, gender FROM Product WHERE isActive = 1');
-  const products = result.rows;
-  console.log(`Total active products: ${products.length}`);
-  
+  const products = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, gender: true },
+  })
+  console.log(`Total active products: ${products.length}`)
+
   // Define categorization rules
   const menKeywords = [
-    'for men', 'pour homme', 'homme', 'eros', 'sauvage', 'eternity men', 
+    'for men', 'pour homme', 'homme', 'eros', 'sauvage', 'eternity men',
     '212 vip men', 'cool water', 'silver scent', 'desire blue', 'desire red',
     'havoc gold', 'eternity men', '212 vip men', 'lacoste essential',
-    'boss bottled', 'acqua di gio', 'bleu de chanel', 'dior homme', 
+    'boss bottled', 'acqua di gio', 'bleu de chanel', 'dior homme',
     'terre d\'hermes', 'aventus', 'creed aventus', 'dior sauvage',
     'sauvage by dior', 'versace eros', 'boss', 'armani code',
     'paco rabanne', 'invictus', '1 million', 'la nuit de l\'homme',
@@ -26,11 +36,11 @@ async function main() {
     'eau de parfum homme', 'eau de toilette homme', 'pour homme',
     'eau de toilette pour homme', 'eau de parfum pour homme',
     'men\'s', 'mens', 'man\'s', 'for man', 'pour hommes'
-  ];
-  
+  ]
+
   const womenKeywords = [
     'for women', 'pour femme', 'femme', 'eros pour femme', 'eternity women',
-    'chance', 'coco mademoiselle', 'flowerbomb', 'black opium', 
+    'chance', 'coco mademoiselle', 'flowerbomb', 'black opium',
     'la vie est belle', 'j\'adore', 'flower by kenzo', 'daisy',
     'light blue women', 'pure seduction', 'dark kiss', 'sunset glow',
     'rose vanille', 'secret charm', 'victoria secret', 'victoria\'s secret',
@@ -129,10 +139,10 @@ async function main() {
     'lovage', 'lovage root', 'lovage leaf', 'lovage seed',
     'angelica', 'angelica root', 'angelica seed', 'angelica archangelica',
     'carrot', 'carrot seed', 'carrot seed oil', 'carrot root',
-  ];
-  
+  ]
+
   const unisexKeywords = [
-    'unisex', 'shared', 'couple', 'white musk', 'black Afgano', 'black afgano',
+    'unisex', 'shared', 'couple', 'white musk', 'black afgano',
     'rose istanbul', 'rose istanbul', 'full', 'motia vip', 'aseel',
     'husan-e-yousaf', 'husan e yousaf', 'rat ki rani', 'rat ki rani',
     'ck gold', 'ck gold', 'rose vanille', 'rose vanille', 'rose istanbul',
@@ -145,34 +155,34 @@ async function main() {
     'white musk', 'white musk', 'white musk', 'white musk',
     'musk', 'musk', 'musk', 'musk', 'musk', 'musk', 'musk', 'musk',
     'musk', 'musk', 'musk', 'musk', 'musk', 'musk', 'musk', 'musk'
-  ];
-  
-  let menCount = 0, womenCount = 0, unisexCount = 0;
-  const updates = [];
-  
+  ]
+
+  let menCount = 0, womenCount = 0, unisexCount = 0
+  const updates: { id: string; name: string; oldGender: string | null; newGender: string }[] = []
+
   for (const product of products) {
-    const name = product.name.toLowerCase();
-    const currentGender = product.gender;
-    let newGender = currentGender;
-    
+    const name = product.name.toLowerCase()
+    const currentGender = product.gender
+    let newGender = currentGender
+
     // Check men keywords first
-    const isMen = menKeywords.some(kw => name.includes(kw));
-    
+    const isMen = menKeywords.some(kw => name.includes(kw))
+
     // Check women keywords
-    const isWomen = womenKeywords.some(kw => name.includes(kw));
-    
+    const isWomen = womenKeywords.some(kw => name.includes(kw))
+
     // Check unisex keywords
-    const isUnisex = unisexKeywords.some(kw => name.includes(kw));
-    
+    const isUnisex = unisexKeywords.some(kw => name.includes(kw))
+
     // Determine gender
     if (isMen && !isWomen) {
-      newGender = 'Men';
+      newGender = 'Men'
     } else if (isWomen && !isMen) {
-      newGender = 'Women';
+      newGender = 'Women'
     } else if (isUnisex || (!isMen && !isWomen)) {
-      newGender = 'Unisex';
+      newGender = 'Unisex'
     }
-    
+
     // Only update if gender changes
     if (newGender !== currentGender) {
       updates.push({
@@ -180,39 +190,46 @@ async function main() {
         name: product.name,
         oldGender: currentGender,
         newGender: newGender
-      });
-      
-      if (newGender === 'Men') menCount++;
-      else if (newGender === 'Women') womenCount++;
-      else unisexCount++;
+      })
+
+      if (newGender === 'Men') menCount++
+      else if (newGender === 'Women') womenCount++
+      else unisexCount++
     }
   }
-  
-  console.log(`\nUpdates needed: ${updates.length}`);
-  console.log(`Men: ${menCount}, Women: ${womenCount}, Unisex: ${unisexCount}`);
-  
+
+  console.log(`\nUpdates needed: ${updates.length}`)
+  console.log(`Men: ${menCount}, Women: ${womenCount}, Unisex: ${unisexCount}`)
+
   // Show sample updates
-  console.log('\nSample updates:');
+  console.log('\nSample updates:')
   updates.slice(0, 20).forEach(u => {
-    console.log(`${u.name}: ${u.oldGender} -> ${u.newGender}`);
-  });
-  
+    console.log(`${u.name}: ${u.oldGender} -> ${u.newGender}`)
+  })
+
   // Execute updates
   if (updates.length > 0) {
-    console.log('\nExecuting updates...');
+    console.log('\nExecuting updates...')
     for (const update of updates) {
-      await client.execute({
-        sql: 'UPDATE Product SET gender = ? WHERE id = ?',
-        args: [update.newGender, update.id]
-      });
+      await prisma.product.update({
+        where: { id: update.id },
+        data: { gender: update.newGender }
+      })
     }
-    console.log('Gender updates complete!');
+    console.log('Gender updates complete!')
   }
-  
+
   // Verify
-  const verify = await client.execute('SELECT gender, COUNT(*) as count FROM Product WHERE isActive = 1 GROUP BY gender');
-  console.log('\nFinal gender distribution:');
-  verify.rows.forEach(r => console.log(`${r.gender}: ${r.count}`));
+  const verify = await prisma.product.groupBy({
+    by: ['gender'],
+    where: { isActive: true },
+    _count: true,
+  })
+  console.log('\nFinal gender distribution:')
+  verify.forEach(r => console.log(`${r.gender}: ${r._count}`))
 }
 
-main().catch(console.error);
+main().catch(console.error).finally(async () => {
+  await prisma.$disconnect()
+  await pool.end()
+})

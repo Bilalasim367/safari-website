@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import prisma from '@/lib/turso';
+import prisma from '@/lib/prisma';
 import { validateLogin } from '@/lib/validation';
 import { createAccessToken, createRefreshToken } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { debugLog } from '@/lib/debugLog';
 
 export async function POST(request: Request) {
   try {
@@ -32,7 +33,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    } catch (dbError) {
+      debugLog('login:prisma.user.findUnique', dbError);
+      return NextResponse.json(
+        { success: false, message: 'Database error. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -48,7 +58,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    let isValidPassword: boolean;
+    try {
+      isValidPassword = await bcrypt.compare(password, user.password);
+    } catch (bcryptError) {
+      debugLog('login:bcrypt.compare', bcryptError);
+      return NextResponse.json(
+        { success: false, message: 'An error occurred verifying your password.' },
+        { status: 500 }
+      );
+    }
 
     if (!isValidPassword) {
       return NextResponse.json(
@@ -57,22 +76,36 @@ export async function POST(request: Request) {
       );
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() },
-    });
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+    } catch (updateError) {
+      // Non-fatal: log but don't fail the login
+      debugLog('login:prisma.user.update(lastLogin)', updateError);
+    }
 
-    const accessToken = await createAccessToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role as 'customer' | 'admin',
-    });
-
-    const refreshToken = await createRefreshToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role as 'customer' | 'admin',
-    }, refreshExpiry);
+    let accessToken: string;
+    let refreshToken: string;
+    try {
+      accessToken = await createAccessToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role as 'customer' | 'admin',
+      });
+      refreshToken = await createRefreshToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role as 'customer' | 'admin',
+      }, refreshExpiry);
+    } catch (jwtError) {
+      debugLog('login:createToken', jwtError);
+      return NextResponse.json(
+        { success: false, message: 'Failed to create session. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     const response = NextResponse.json({
       success: true,
@@ -105,7 +138,7 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    debugLog('login:unhandled', error);
     return NextResponse.json(
       { success: false, message: 'An error occurred. Please try again.' },
       { status: 500 }

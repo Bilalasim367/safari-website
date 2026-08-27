@@ -1,14 +1,16 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSQL } from '@prisma/adapter-libsql'
-import { createClient } from '@libsql/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 
-const libsql = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 })
 
 const prisma = new PrismaClient({
-  adapter: new PrismaLibSQL(libsql),
+  adapter: new PrismaMySQL(pool),
 })
 
 async function main() {
@@ -77,4 +79,7 @@ main()
     console.error(e)
     process.exit(1)
   })
-  .finally(() => prisma.$disconnect())
+  .finally(async () => {
+    await prisma.$disconnect()
+    await pool.end()
+  })

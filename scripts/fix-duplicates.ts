@@ -1,4 +1,4 @@
-import prisma from '../src/lib/turso'
+import prisma from '@/lib/prisma'
 
 const duplicatePairs = [
   { delete: 'tobacco-oud-by-tom-ford-2', keep: 'tobacco-oud-by-tom-ford' },

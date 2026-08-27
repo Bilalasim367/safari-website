@@ -1,22 +1,49 @@
-import { createClient } from '@libsql/client';
+import { PrismaClient } from '@prisma/client'
+import { PrismaMySQL } from '@prisma/adapter-mysql'
+import mysql from 'mysql2/promise'
 
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-});
+const pool = mysql.createPool({
+  uri: process.env.DATABASE_URL!,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+})
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMySQL(pool),
+})
 
 async function main() {
-  const r1 = await client.execute('SELECT isBestseller, COUNT(*) as cnt FROM Product WHERE isActive=1 GROUP BY isBestseller');
-  console.log('Bestseller:', r1.rows);
-  
-  const r2 = await client.execute('SELECT isNew, COUNT(*) as cnt FROM Product WHERE isActive=1 GROUP BY isNew');
-  console.log('New:', r2.rows);
-  
-  const r3 = await client.execute('SELECT isHotSelling, COUNT(*) as cnt FROM Product WHERE isActive=1 GROUP BY isHotSelling');
-  console.log('Hot Selling:', r3.rows);
-  
-  const r4 = await client.execute('SELECT isTrending, COUNT(*) as cnt FROM Product WHERE isActive=1 GROUP BY isTrending');
-  console.log('Trending:', r4.rows);
+  const r1 = await prisma.product.groupBy({
+    by: ['isBestseller'],
+    where: { isActive: true },
+    _count: true,
+  })
+  console.log('Bestseller:', r1)
+
+  const r2 = await prisma.product.groupBy({
+    by: ['isNew'],
+    where: { isActive: true },
+    _count: true,
+  })
+  console.log('New:', r2)
+
+  const r3 = await prisma.product.groupBy({
+    by: ['isHotSelling'],
+    where: { isActive: true },
+    _count: true,
+  })
+  console.log('Hot Selling:', r3)
+
+  const r4 = await prisma.product.groupBy({
+    by: ['isTrending'],
+    where: { isActive: true },
+    _count: true,
+  })
+  console.log('Trending:', r4)
 }
 
-main().catch(console.error);
+main().catch(console.error).finally(async () => {
+  await prisma.$disconnect()
+  await pool.end()
+})

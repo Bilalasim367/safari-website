@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import prisma from '@/lib/turso'
+import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 import ProductDetailClient, { type RelatedProduct } from './ProductDetailClient'
 
