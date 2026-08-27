@@ -1,49 +1,30 @@
 import { PrismaClient } from '@prisma/client'
 import { debugLog, debugLogMessage } from '@/lib/debugLog'
+import { createClient } from '@libsql/client'
+import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
 declare global {
   var __prisma: PrismaClient | undefined
 }
 
-function sanitizeDatabaseUrl(rawUrl: string): string {
-  try {
-    // If url contains an unencoded password with special chars (like = or @),
-    // normalize the password portion safely
-    const match = rawUrl.match(/^(mysql:\/\/)([^:]+):([^@]+)@([^:/]+)(:\d+)?(\/.*)?$/)
-    if (match) {
-      const [, proto, user, pass, host, port, rest] = match
-      const encodedPass = encodeURIComponent(decodeURIComponent(pass))
-      return `${proto}${user}:${encodedPass}@${host}${port || ':3306'}${rest || ''}`
-    }
-  } catch {
-    // fallback to original
-  }
-  return rawUrl
-}
-
 const createPrismaClient = () => {
-  const rawUrl = process.env.DATABASE_URL
+  const url = process.env.TURSO_DATABASE_URL
+  const authToken = process.env.TURSO_AUTH_TOKEN
 
-  if (!rawUrl) {
+  if (!url) {
     const err = new Error(
-      'Missing DATABASE_URL environment variable. Set DATABASE_URL in your environment.'
+      'Missing TURSO_DATABASE_URL environment variable. Set TURSO_DATABASE_URL in your environment.'
     )
     debugLog('prisma:init', err)
     throw err
   }
 
-  const url = sanitizeDatabaseUrl(rawUrl)
   debugLogMessage('prisma:init', `Connecting to DB (url prefix: ${url.slice(0, 30)}...)`)
 
   try {
-    const client = new PrismaClient({
-      datasources: {
-        db: {
-          url,
-        },
-      },
-      log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
-    })
+    const libsql = createClient({ url, authToken })
+    const adapter = new PrismaLibSQL(libsql)
+    const client = new PrismaClient({ adapter })
 
     debugLogMessage('prisma:init', 'PrismaClient created successfully')
     return client

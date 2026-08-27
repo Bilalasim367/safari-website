@@ -1,18 +1,19 @@
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "rhel-openssl-3.0.x", "rhel-openssl-1.0.x", "rhel-openssl-1.1.x", "debian-openssl-3.0.x", "debian-openssl-1.1.x"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("TURSO_DATABASE_URL")
 }
 
 model Category {
   id          String   @id @default(cuid())
   name        String   @unique
   slug        String   @unique
-  description String?  @db.Text
+  description String?  
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -26,16 +27,16 @@ model Product {
   id               String   @id @default(cuid())
   name             String
   slug             String   @unique
-  description      String?  @db.Text
+  description      String?  
   price            Float
   originalPrice    Float?
   image            String
-  images           String   @db.Text // JSON array of image URLs
+  images           String    // JSON array of image URLs
   categoryId       String?
   category         Category?    @relation(fields: [categoryId], references: [id])
   categorySlug     String?      @default("unisex")
   size             String       @default("50ml")
-  sizePrices       String       @db.Text // JSON array of { size, price, originalPrice }
+  sizePrices       String        // JSON array of { size, price, originalPrice }
   fragranceFamily  String?
   rating           Float        @default(0)
   reviewCount      Int          @default(0)
@@ -55,8 +56,8 @@ model Product {
   season           String?
   bestTime         String?
   impressionOf     String?
-  shortDescription String?      @db.Text
-  longDescription  String?      @db.Text
+  shortDescription String?      
+  longDescription  String?      
   tags             String?
   sizesAvailable   String       @default("3ml,6ml,12ml,50ml")
 
@@ -69,7 +70,7 @@ model Product {
   // Attar-specific attributes
   applicatorType   String?      // roll-on, stick, premium-box
   origin           String?      // Sourcing region e.g. Assam, India
-  ingredients      String?      @db.Text // Ingredient list
+  ingredients      String?       // Ingredient list
   price3mlPhysical Int?
   price6mlPhysical Int?
   price12mlPhysical Int?
@@ -86,7 +87,7 @@ model Product {
   stockStatus      String       @default("in_stock") // in_stock, out_of_stock, backorder
   imageFolder      String?
   metaTitle        String?
-  metaDescription  String?      @db.Text
+  metaDescription  String?      
 
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -112,7 +113,7 @@ model Bundle {
   id            String   @id @default(cuid())
   name          String
   slug          String   @unique
-  description   String?  @db.Text
+  description   String?  
   price         Float
   originalPrice Float?
   image         String?
@@ -225,9 +226,9 @@ model Order {
   status         String    @default("pending")     // pending, processing, shipped, delivered, cancelled
   paymentStatus  String    @default("pending")     // pending, paid, failed, refunded
   paymentMethod  String    @default("cod")         // cod, bank_transfer, card, jazzcash, easypaisa
-  shippingAddress String?  @db.Text // JSON string or formatted address
-  billingAddress  String?  @db.Text
-  notes           String?   @db.Text
+  shippingAddress String?   // JSON string or formatted address
+  billingAddress  String?  
+  notes           String?   
   trackingNumber  String?
   shippedAt       DateTime?
   estimatedDelivery DateTime?
@@ -258,7 +259,7 @@ model Notification {
   id        String   @id @default(cuid())
   type      String   @default("system") // order, inventory, system, promo
   title     String
-  message   String   @db.Text
+  message   String   
   read      Boolean  @default(false)
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
@@ -274,7 +275,7 @@ model Review {
   customerName  String
   customerEmail String?
   rating        Int
-  text          String   @db.Text
+  text          String   
   date          DateTime @default(now())
   isApproved    Boolean  @default(true)
 
@@ -286,7 +287,7 @@ model Settings {
   storeName            String   @default("Safari Perfumes")
   storeEmail           String?
   storePhone          String?
-  storeAddress        String?  @db.Text
+  storeAddress        String?  
   currency            String   @default("PKR")
   timezone            String   @default("Asia/Karachi")
   taxRate             Float    @default(0)
@@ -300,7 +301,7 @@ model Settings {
   smtpUser            String?
   smtpPassword        String?
   metaTitle           String?
-  metaDescription     String?  @db.Text
+  metaDescription     String?  
   metaKeywords       String?
   updatedAt           DateTime @updatedAt
 }
