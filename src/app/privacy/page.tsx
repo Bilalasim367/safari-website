@@ -57,7 +57,7 @@ export default function PrivacyPage() {
             <Card className="p-8">
               <h2 className="text-2xl font-heading text-foreground mb-4">Contact Us</h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>If you have questions about this Privacy Policy or how we handle your data, please contact us at privacy@safariperfumes.com or write to Safari Perfumes, Online store — nationwide delivery across Pakistan, No physical storefront.</p>
+                <p>If you have questions about this Privacy Policy or how we handle your data, please contact us at privacy@safari-perfumes.com or write to Safari Perfumes, Online store — nationwide delivery across Pakistan, No physical storefront.</p>
                 <p>This policy was last updated on January 1, 2026. We reserve the right to update this policy and will notify you of material changes.</p>
               </div>
             </Card>

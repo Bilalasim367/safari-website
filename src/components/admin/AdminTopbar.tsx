@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from '@/components/ui/button'
-import { Menu, ChevronDown } from 'lucide-react'
+import { Menu, ChevronDown } from '@/lib/lucide-icons'
 import {
   DropdownMenu,
   DropdownMenuTrigger,

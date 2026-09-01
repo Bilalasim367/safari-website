@@ -73,7 +73,7 @@ export default function CookiesPage() {
               <h2 className="text-2xl font-heading text-foreground mb-4">Updates & Contact</h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>We may update this Cookies Policy from time to time. Changes will be posted on this page with an updated effective date. We encourage you to review this policy periodically.</p>
-                <p>If you have any questions about our use of cookies, please contact us at privacy@safariperfumes.com.</p>
+                <p>If you have any questions about our use of cookies, please contact us at privacy@safari-perfumes.com.</p>
                 <p>This policy was last updated on January 1, 2026.</p>
               </div>
             </Card>

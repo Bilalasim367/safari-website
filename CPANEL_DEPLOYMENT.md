@@ -11,15 +11,15 @@
 
 2. **MySQL Database** in cPanel → "MySQL Databases"
    - Database: `safariperfumes_perfume_db`
-   - User: `safariperfumes_perfume_user`
-   - Password: (your password from .env)
+   - User: `safariperfumes`
+   - Password: `Hassan224266`
 
 3. **Environment Variables** in cPanel → "Setup Node.js App" → Your App → Environment Variables:
    ```
    NODE_ENV=production
-   NEXT_PUBLIC_BASE_URL=https://safariperfumes.com
+   NEXT_PUBLIC_BASE_URL=https://safari-perfumes.com
    NEXT_PUBLIC_API_URL=
-   DATABASE_URL=mysql://safariperfumes_perfume_user:YOUR_PASSWORD@localhost:3306/safariperfumes_perfume_db
+   DATABASE_URL=mysql://safariperfumes:Hassan224266@localhost:3306/safariperfumes_perfume_db
    JWT_SECRET=dwmRO--RV-caZhYpfaczKAKIUFVNjTb19ejo3KCARz8dLnfnn02SUjSUpbaefKY1
    ADMIN_SECRET_KEY=RIlr2T54aedWFyxLsb_76yZTbRLpzMabnwnJkC3ud6I
    BLOB_READ_WRITE_TOKEN=vercel_blob_rw_X52lACMLpQhUxQcX_rb9KXH4c2cUfApnC65KAZHIMtT8FrZ
@@ -55,30 +55,28 @@ npx prisma generate
 # 5. Push schema to MySQL (creates all tables)
 npx prisma db push
 
-# 6. Run data migration from Turso → MySQL
-npx tsx scripts/migrate-turso-to-mysql.ts
-
-# 7. Verify migration
-npx tsx scripts/verify-migration.ts
-
-# 8. Seed any missing data (bundles, etc.)
+# 6. Seed any missing data (bundles, settings, etc.)
 npm run db:seed
 
-# 9. Build for production
+# 7. Build for production
 npm run build
 
-# 10. Restart Node.js app in cPanel UI
+# 8. Restart Node.js app in cPanel UI
 # (Go to "Setup Node.js App" → Click "Restart" on your app)
 ```
 
+> Note: The legacy Turso → MySQL data migration (previously steps 6–7) has already
+> been completed. The one-off migration scripts (`scripts/migrate-turso-to-mysql.ts`
+> and `scripts/verify-migration.ts`) have been removed; do not attempt to run them.
+
 ---
 
-## 📋 Migration Scripts Created
+## ⚠️ Prisma Driver Adapter Note
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/migrate-turso-to-mysql.ts` | **Main migration** - Reads all data from Turso, writes to MySQL preserving IDs & relationships |
-| `scripts/verify-migration.ts` | **Verification** - Compares row counts between Turso and MySQL |
+Prisma 5.x ships **no MySQL driver adapter** (`@prisma/adapter-mysql` and
+`@prisma/adapter-mariadb@5.x` do not exist on npm). All runtime code and maintenance
+scripts (`prisma/seed.ts`, `prisma/apply-migration.ts`, all `scripts/*.ts`) use plain
+`new PrismaClient()` against `DATABASE_URL` (MySQL). This is correct for cPanel.
 
 ---
 
@@ -102,9 +100,8 @@ npm run build
 
 ## 🔍 Verification Checklist
 
-After migration, verify:
+After deployment, verify:
 
-- [ ] `npx tsx scripts/verify-migration.ts` shows ALL MATCH
 - [ ] Products load on homepage
 - [ ] Product search works
 - [ ] Category filtering (Men/Women/Unisex) works
@@ -168,14 +165,14 @@ npm run build
 | `package.json` | Removed `@libsql/client`, `@prisma/adapter-libsql`; Added `mysql2` |
 | 9 API routes | Import: `@/lib/turso` → `@/lib/prisma` |
 | 2 scripts | Import: `../src/lib/turso` → `@/lib/prisma` |
-| `scripts/migrate-turso-to-mysql.ts` | **NEW** - Migration script |
-| `scripts/verify-migration.ts` | **NEW** - Verification script |
+| `scripts/migrate-turso-to-mysql.ts` | **DELETED** (one-time migration complete) |
+| `scripts/verify-migration.ts` | **DELETED** (one-time migration complete) |
 
 ---
 
 ## 🎯 Next Steps After Deployment
 
-1. **Test the live site** at https://safariperfumes.com
+1. **Test the live site** at https://safari-perfumes.com
 2. **Create admin user** if needed: `npx tsx scripts/reset-admin.ts`
 3. **Monitor logs** in cPanel → "Setup Node.js App" → View Logs
 4. **Set up SSL** if not already done

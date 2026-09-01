@@ -1,17 +1,6 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaMySQL } from '@prisma/adapter-mysql'
-import mysql from 'mysql2/promise'
 
-const pool = mysql.createPool({
-  uri: process.env.DATABASE_URL!,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-})
-
-const prisma = new PrismaClient({
-  adapter: new PrismaMySQL(pool),
-})
+const prisma = new PrismaClient()
 
 async function main() {
   const r1 = await prisma.product.groupBy({

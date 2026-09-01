@@ -50,7 +50,7 @@ export async function sendOrderShippedEmail(
 
     const settings = await prisma.settings.findFirst()
     const storeName = settings?.storeName || 'Safari Perfumes'
-    const storeEmail = settings?.storeEmail || 'noreply@safariperfumes.com'
+    const storeEmail = settings?.storeEmail || 'noreply@safari-perfumes.com'
 
     await transporter.sendMail({
       from: `"${storeName}" <${storeEmail}>`,
@@ -113,7 +113,7 @@ export async function sendPasswordResetEmail(
     }
 
     const storeName = settings?.storeName || 'Safari Perfumes'
-    const storeEmail = settings?.storeEmail || 'noreply@safariperfumes.com'
+    const storeEmail = settings?.storeEmail || 'noreply@safari-perfumes.com'
 
     await transporter.sendMail({
       from: `"${storeName}" <${storeEmail}>`,
@@ -180,7 +180,7 @@ export async function sendOrderConfirmationEmail(
     }
 
     const storeName = settings?.storeName || 'Safari Perfumes'
-    const storeEmail = settings?.storeEmail || 'noreply@safariperfumes.com'
+    const storeEmail = settings?.storeEmail || 'noreply@safari-perfumes.com'
 
     const itemsHtml = items.map(item => `
       <tr>

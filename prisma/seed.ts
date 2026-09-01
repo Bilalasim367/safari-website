@@ -1,20 +1,9 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaMySQL } from '@prisma/adapter-mysql'
-import mysql from 'mysql2/promise'
 import { products } from '../src/data/products'
 import { classifyProductType } from '../src/lib/product-types'
 import { normalizeType } from '../src/lib/normalize'
 
-const pool = mysql.createPool({
-  uri: process.env.DATABASE_URL!,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-})
-
-const prisma = new PrismaClient({
-  adapter: new PrismaMySQL(pool),
-})
+const prisma = new PrismaClient()
 
 const BUNDLES = [
   { name: 'Signature Trio', slug: 'signature-trio', description: 'Three distinct fragrances', price: 199, originalPrice: 279, save: '28%', size: '3 x 30ml', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&h=600&fit=crop' },

@@ -20,7 +20,7 @@ Disallow: /checkout/
 Disallow: /account/
 
 # Allow search engines to crawl sitemap
-Sitemap: ${process.env.NEXT_PUBLIC_BASE_URL || 'https://safariperfumes.com'}/api/sitemap
+  Sitemap: ${process.env.NEXT_PUBLIC_BASE_URL || 'https://safari-perfumes.com'}/api/sitemap
 
 # Crawl delay (optional, uncomment if needed)
 # Crawl-delay: 1

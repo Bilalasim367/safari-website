@@ -6,7 +6,7 @@ import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
-import { ArrowLeft, Upload, Download, CheckCircle, AlertCircle, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, Upload, Download, CheckCircle, AlertCircle, Loader2, FileText } from '@/lib/lucide-icons';
 
 
 

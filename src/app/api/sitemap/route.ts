@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { products } from '@/data/products';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://safariperfumes.com';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://safari-perfumes.com';
 
 interface SitemapRoute {
   loc: string;

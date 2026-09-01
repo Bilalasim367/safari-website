@@ -16,7 +16,7 @@ import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useImageUpload } from '@/hooks/useImageUpload'
-import { ArrowLeft, Plus, X, Trash2, Upload } from 'lucide-react'
+import { ArrowLeft, Plus, X, Trash2, Upload } from '@/lib/lucide-icons'
 
 const defaultFormState: AdminProductFormValues = {
   name: '',

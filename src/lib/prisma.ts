@@ -1,19 +1,16 @@
 import { PrismaClient } from '@prisma/client'
 import { debugLog, debugLogMessage } from '@/lib/debugLog'
-import { createClient } from '@libsql/client'
-import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
 declare global {
   var __prisma: PrismaClient | undefined
 }
 
 const createPrismaClient = () => {
-  const url = process.env.TURSO_DATABASE_URL
-  const authToken = process.env.TURSO_AUTH_TOKEN
+  const url = process.env.DATABASE_URL
 
   if (!url) {
     const err = new Error(
-      'Missing TURSO_DATABASE_URL environment variable. Set TURSO_DATABASE_URL in your environment.'
+      'Missing DATABASE_URL environment variable. Set DATABASE_URL in your environment.'
     )
     debugLog('prisma:init', err)
     throw err
@@ -22,9 +19,9 @@ const createPrismaClient = () => {
   debugLogMessage('prisma:init', `Connecting to DB (url prefix: ${url.slice(0, 30)}...)`)
 
   try {
-    const libsql = createClient({ url, authToken })
-    const adapter = new PrismaLibSQL(libsql)
-    const client = new PrismaClient({ adapter })
+    const client = new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    })
 
     debugLogMessage('prisma:init', 'PrismaClient created successfully')
     return client

@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from '@/lib/lucide-icons'
 import { useImageUpload } from '@/hooks/useImageUpload'
 
 interface BundleFormData {

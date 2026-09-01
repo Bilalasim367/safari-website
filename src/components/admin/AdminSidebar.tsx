@@ -12,7 +12,7 @@ import {
   Gift,
   ExternalLink,
   LogOut,
-} from 'lucide-react'
+} from '@/lib/lucide-icons'
 import {
   Sheet,
   SheetContent,

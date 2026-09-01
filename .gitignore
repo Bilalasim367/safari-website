@@ -53,6 +53,7 @@ node_modules/
 
 # Deployment bundles (may contain secrets)
 /deploy-staging/
+/deploy-app/
 *.zip
 
 # local dev logs

@@ -61,10 +61,11 @@ Use `@/*` to import from `./src/*` (e.g., `@/components/Header`).
 - Fonts: Playfair Display (heading), Montserrat (body), Lato (secondary)
 
 ## Database
-- **Turso (libSQL)** via Prisma driver adapter
-- Requires `.env` with `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
+- **MySQL** via Prisma ORM (`provider = "mysql"`) — deployed on cPanel
+- Requires `DATABASE_URL` (e.g. `mysql://user:pass@localhost:3306/db_name`) in env / cPanel
 - Run `npm run db:seed` to seed product data
-- Schema pushes use `npx tsx --env-file=.env prisma/apply-migration.ts` (or Turso CLI for production)
+- `src/lib/prisma.ts` uses plain `new PrismaClient()` against `DATABASE_URL`
+- Schema pushes use `npx tsx --env-file=.env prisma/apply-migration.ts`
 
 ## Entry Points
 - Homepage: `src/app/page.tsx`
