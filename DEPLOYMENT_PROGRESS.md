@@ -22,8 +22,15 @@ New 4-step workflow (domain, build, git, cPanel) in progress. See bottom of file
       DATABASE_URL=mysql://safariperfumes:Hassan224266@localhost:3306/safariperfumes_perfume_db
 - [x] `npm run lint` = 0 errors / 37 pre-existing warnings (test unused-vars only)
 
-### Step 3 (git) — PENDING
-### Step 4 (cPanel guide) — PENDING
+### Step 3 (git) — DONE 2026-09-02
+- [x] Committed as e06231f; pushed to `origin/main`
+      (https://github.com/Bilalasim367/safari-website.git) : b955f48..e06231f
+- [x] NOTE: second remote `deploy` (ssh safari-perfumes.git) is STALE at 41f3da7 and
+      NOT the push target. If cPanel clones from `deploy`, re-push there before Step 4.
+
+### Step 4 (cPanel guide) — PROVIDED in chat; CPANEL_DEPLOYMENT.md already has the
+manual-upload variant. Suggest adding a Git-clone variant to CPANEL_DEPLOYMENT.md next
+session if cPanel uses Git Version Control.
 
 Status legend: [ ] pending | [x] done | [~] in progress
 
