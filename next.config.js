@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // CRITICAL for cPanel/Passenger deployment: bundles everything the custom
-  // server.js needs into .next/standalone so dynamic RSC routes work correctly.
-  output: 'standalone',
   reactStrictMode: true,
   reactCompiler: true,
   typescript: {

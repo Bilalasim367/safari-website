@@ -20,6 +20,7 @@ model Category {
   products Product[]
 
   @@index([slug])
+  @@map("category")
 }
 
 model Product {
@@ -106,6 +107,7 @@ model Product {
   @@index([isFeatured, isActive])
   @@index([isActive])
   @@index([createdAt])
+  @@map("product")
 }
 
 model Bundle {
@@ -126,6 +128,7 @@ model Bundle {
   items BundleItem[]
 
   @@index([isActive])
+  @@map("bundle")
 }
 
 model BundleItem {
@@ -137,6 +140,7 @@ model BundleItem {
   quantity  Int      @default(1)
 
   @@unique([bundleId, productId])
+  @@map("bundleitem")
 }
 
 model User {
@@ -161,6 +165,7 @@ model User {
   notifications Notification[]
 
   @@index([email, role])
+  @@map("user")
 }
 
 model Address {
@@ -180,6 +185,7 @@ model Address {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("address")
 }
 
 model CartItem {
@@ -195,6 +201,7 @@ model CartItem {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("cartitem")
 }
 
 model WishlistItem {
@@ -206,6 +213,7 @@ model WishlistItem {
 
   @@unique([userId, productId])
   @@index([userId])
+  @@map("wishlistitem")
 }
 
 model Order {
@@ -237,6 +245,7 @@ model Order {
   @@index([userId, createdAt])
   @@index([status, createdAt])
   @@index([orderNumber])
+  @@map("order")
 }
 
 model OrderItem {
@@ -252,6 +261,7 @@ model OrderItem {
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
+  @@map("orderitem")
 }
 
 model Notification {
@@ -265,6 +275,7 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, read])
+  @@map("notification")
 }
 
 model Review {
@@ -279,6 +290,7 @@ model Review {
   isApproved    Boolean  @default(true)
 
   @@index([productId, isApproved])
+  @@map("review")
 }
 
 model Settings {
@@ -303,4 +315,6 @@ model Settings {
   metaDescription     String?  
   metaKeywords       String?
   updatedAt           DateTime @updatedAt
+
+  @@map("settings")
 }
