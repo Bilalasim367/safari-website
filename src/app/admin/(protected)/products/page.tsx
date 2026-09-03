@@ -30,8 +30,6 @@ interface Product {
   isActive?: boolean;
   isFeatured?: boolean;
   type?: string | null;
-  price50mlPhysical?: number | null;
-  price50mlOnline?: number | null;
   productId?: string | null;
 }
 
@@ -261,8 +259,6 @@ export default function ProductsPage() {
               <TableHead>Type</TableHead>
               <TableHead>Gender</TableHead>
               <TableHead>Season</TableHead>
-              <TableHead>50ml Physical</TableHead>
-              <TableHead>50ml Online</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -286,12 +282,6 @@ export default function ProductsPage() {
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
                   {product.season || '—'}
-                </TableCell>
-                <TableCell className="font-mono text-sm">
-                  {product.price50mlPhysical != null ? `PKR ${product.price50mlPhysical}` : (product.inStock ? <span className="text-muted-foreground">—</span> : '—')}
-                </TableCell>
-                <TableCell className="font-mono text-sm">
-                  {product.price50mlOnline != null ? `PKR ${product.price50mlOnline}` : '—'}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">

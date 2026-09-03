@@ -27,7 +27,7 @@ export default function CartSidebar() {
       name: product.name,
       price: product.price,
       image: product.image,
-      size: product.size || "50ml",
+      size: "12ml",
       quantity: 1,
     });
   };

@@ -29,16 +29,7 @@ interface Product {
   season?: string | null;
   impressionOf?: string | null;
   tags?: string | null;
-  price3mlPhysical?: number | null;
-  price6mlPhysical?: number | null;
-  price12mlPhysical?: number | null;
-  price50mlPhysical?: number | null;
-  price3mlOnline?: number | null;
-  price6mlOnline?: number | null;
-  price12mlOnline?: number | null;
-  price50mlOnline?: number | null;
   currency?: string;
-  lowestPhysicalPrice?: number | null;
   type: ProductCategoryType;
 }
 
@@ -117,9 +108,6 @@ export default async function ShopContent({
   if (params.category) {
     where.categorySlug = { in: params.category.split(',') };
   }
-  if (params.size) {
-    where.size = { in: params.size.split(',') };
-  }
   if (params.fragranceFamily) {
     where.fragranceFamily = { in: params.fragranceFamily.split(',') };
   }
@@ -195,28 +183,14 @@ export default async function ShopContent({
     season: string | null;
     impressionOf: string | null;
     tags: string | null;
-    price3mlPhysical: number | null;
-    price6mlPhysical: number | null;
-    price12mlPhysical: number | null;
-    price50mlPhysical: number | null;
-    price3mlOnline: number | null;
-    price6mlOnline: number | null;
-    price12mlOnline: number | null;
-    price50mlOnline: number | null;
     currency: string | null;
     type: string | null;
     applicatorType: string | null;
     origin: string | null;
-    sizesAvailable: string | null;
-    sizePrices: string | null;
     category: { name: string; slug: string } | null;
   }
 
   function mapToFormattedProduct(p: ShopProductRow): Product {
-    const physicalPrices = [p.price3mlPhysical, p.price6mlPhysical, p.price12mlPhysical, p.price50mlPhysical]
-      .filter((pr): pr is number => pr !== null);
-    const lowestPhysicalPrice = physicalPrices.length > 0 ? Math.min(...physicalPrices) : null;
-
     return {
       id: p.id,
       name: p.name,
@@ -236,16 +210,7 @@ export default async function ShopContent({
       season: p.season ?? undefined,
       impressionOf: p.impressionOf ?? undefined,
       tags: p.tags ?? undefined,
-      price3mlPhysical: p.price3mlPhysical ?? undefined,
-      price6mlPhysical: p.price6mlPhysical ?? undefined,
-      price12mlPhysical: p.price12mlPhysical ?? undefined,
-      price50mlPhysical: p.price50mlPhysical ?? undefined,
-      price3mlOnline: p.price3mlOnline ?? undefined,
-      price6mlOnline: p.price6mlOnline ?? undefined,
-      price12mlOnline: p.price12mlOnline ?? undefined,
-      price50mlOnline: p.price50mlOnline ?? undefined,
       currency: p.currency ?? undefined,
-      lowestPhysicalPrice,
       type: classifyProductType(p),
     } as Product;
   }
@@ -275,20 +240,10 @@ export default async function ShopContent({
           season: true,
           impressionOf: true,
           tags: true,
-          price3mlPhysical: true,
-          price6mlPhysical: true,
-          price12mlPhysical: true,
-          price50mlPhysical: true,
-          price3mlOnline: true,
-          price6mlOnline: true,
-          price12mlOnline: true,
-          price50mlOnline: true,
           currency: true,
           type: true,
           applicatorType: true,
           origin: true,
-          sizesAvailable: true,
-          sizePrices: true,
           category: { select: { name: true, slug: true } },
         },
         orderBy,
@@ -312,7 +267,6 @@ export default async function ShopContent({
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const selectedCategories = params.category?.split(',').filter(Boolean) || [];
-  const selectedSizes = params.size?.split(',').filter(Boolean) || [];
   const selectedFamilies = params.fragranceFamily?.split(',').filter(Boolean) || [];
   const selectedGenders = params.gender?.split(',').filter(Boolean) || [];
   const selectedPriceRanges: string[] = [];
@@ -336,7 +290,7 @@ export default async function ShopContent({
             <div className="sticky top-24">
               <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
                 <h2 className="text-lg font-semibold text-foreground uppercase tracking-wider">Filters</h2>
-                {(selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
+                {(selectedCategories.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
                   <Link
                     href="/shop"
                     className="text-black text-sm hover:underline underline-offset-2 transition-all"
@@ -359,14 +313,6 @@ export default async function ShopContent({
                 options={FILTERS.categories}
                 selected={selectedGenders}
                 paramKey="gender"
-                currentParams={params}
-              />
-
-              <FilterSection
-                title="Size"
-                options={FILTERS.sizes}
-                selected={selectedSizes}
-                paramKey="size"
                 currentParams={params}
               />
 
@@ -406,7 +352,7 @@ export default async function ShopContent({
                 <div className="lg:hidden ml-auto">
                   <MobileFilterDrawer
                     filterCount={
-                      selectedCategories.length + selectedSizes.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length
+                      selectedCategories.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length
                     }
                   >
                     <FilterSection
@@ -421,13 +367,6 @@ export default async function ShopContent({
                       options={FILTERS.categories}
                       selected={selectedGenders}
                       paramKey="gender"
-                      currentParams={params}
-                    />
-                    <FilterSection
-                      title="Size"
-                      options={FILTERS.sizes}
-                      selected={selectedSizes}
-                      paramKey="size"
                       currentParams={params}
                     />
                     <FilterSection
@@ -486,13 +425,11 @@ export default async function ShopContent({
                       category={product.category?.name || 'Unisex'}
                       isNew={product.isNew}
                       isBestseller={product.isBestseller}
-                      size={product.size}
                       rating={product.rating}
                       reviewCount={product.reviewCount}
                       gender={product.gender}
                       season={product.season}
                       impressionOf={product.impressionOf}
-                      lowestPrice={product.lowestPhysicalPrice ?? undefined}
                       currency={product.currency}
                     />
                   ))}

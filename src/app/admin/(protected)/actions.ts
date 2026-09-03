@@ -357,6 +357,32 @@ export async function updateProductPartial(id: string, data: Record<string, unkn
 
 // ─── Bundle Actions ───────────────────────────────────────────────
 
+export async function getBundlePickerProducts() {
+  const auth = await getAuth();
+  if (!auth || auth.role !== 'admin') {
+    return { error: 'Unauthorized', products: [] };
+  }
+
+  try {
+    const products = await prisma.product.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        originalPrice: true,
+        productId: true,
+        type: true,
+      },
+    });
+    return { success: true, products };
+  } catch {
+    return { error: 'Failed to fetch products', products: [] };
+  }
+}
+
 export async function getAdminBundles() {
   const auth = await getAuth();
   if (!auth || auth.role !== 'admin') {
@@ -395,7 +421,22 @@ export async function getBundleById(id: string) {
   try {
     const bundle = await prisma.bundle.findUnique({
       where: { id },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                price: true,
+                productId: true,
+                type: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!bundle) {
@@ -419,6 +460,7 @@ export async function createBundle(data: {
   size?: string;
   inStock?: boolean;
   isActive?: boolean;
+  productIds?: string[];
 }) {
   const auth = await getAuth();
   if (!auth || auth.role !== 'admin') {
@@ -438,6 +480,12 @@ export async function createBundle(data: {
         size: data.size || null,
         inStock: data.inStock ?? true,
         isActive: data.isActive ?? true,
+        items: {
+          create: (data.productIds || []).map((productId) => ({
+            productId,
+            quantity: 1,
+          })),
+        },
       },
     });
     return { success: true, bundle };
@@ -453,10 +501,28 @@ export async function updateBundle(id: string, data: Record<string, unknown>) {
   }
 
   try {
-    await prisma.bundle.update({
-      where: { id },
-      data,
+    const { productIds, ...rest } = data as Record<string, unknown> & { productIds?: string[] };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.bundle.update({
+        where: { id },
+        data: rest,
+      });
+
+      if (Array.isArray(productIds)) {
+        await tx.bundleItem.deleteMany({ where: { bundleId: id } });
+        if (productIds.length > 0) {
+          await tx.bundleItem.createMany({
+            data: productIds.map((productId) => ({
+              bundleId: id,
+              productId: String(productId),
+              quantity: 1,
+            })),
+          });
+        }
+      }
     });
+
     return { success: true };
   } catch {
     return { error: 'Failed to update bundle' };

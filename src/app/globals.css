@@ -149,6 +149,10 @@
     display: none;
   }
 
+  .animate-fade-in {
+    animation: fadeIn 0.9s ease-out both;
+  }
+
   .snap-mandatory {
     --tw-scroll-snap-strictness: mandatory;
   }

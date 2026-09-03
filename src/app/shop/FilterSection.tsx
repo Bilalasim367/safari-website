@@ -3,7 +3,6 @@ import Link from 'next/link';
 const FILTERS = {
   categories: ['men', 'women', 'unisex'],
   genders: ['men', 'women', 'unisex'],
-  sizes: ['30ml', '50ml', '100ml'],
   fragranceFamilies: ['Floral', 'Woody', 'Oriental', 'Fresh'],
   productTypes: ['attar', 'perfume'],
   priceRanges: [
@@ -16,7 +15,6 @@ const FILTERS = {
 
 interface SearchParams {
   category?: string;
-  size?: string;
   fragranceFamily?: string;
   minPrice?: string;
   maxPrice?: string;

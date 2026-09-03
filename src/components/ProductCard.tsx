@@ -20,13 +20,11 @@ interface ProductCardProps {
   category: string;
   isNew?: boolean;
   isBestseller?: boolean;
-  size?: string;
   rating?: number;
   reviewCount?: number;
   gender?: string;
   season?: string | null;
   impressionOf?: string | null;
-  lowestPrice?: number | null;
   currency?: string;
 }
 
@@ -41,13 +39,11 @@ export default function ProductCard({
   category,
   isNew,
   isBestseller,
-  size,
   rating,
   reviewCount,
   gender,
   season,
   impressionOf,
-  lowestPrice,
   currency,
 }: ProductCardProps) {
   const { addItem } = useCart();
@@ -66,7 +62,7 @@ export default function ProductCard({
       name,
       price,
       image,
-      size: size || "Default",
+      size: "12ml",
       quantity: 1,
     });
     setAdded(true);
@@ -76,7 +72,7 @@ export default function ProductCard({
   return (
     <Link
       href={`/shop/${slug}`}
-      className="group relative w-full overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full bg-card rounded-xl border border-border hover:-translate-y-1 hover:shadow-lg"
+      className="group relative w-full overflow-hidden cursor-pointer transition-all duration-300 flex flex-col h-full bg-card rounded-xl border border-border hover:-translate-y-1 hover:shadow-xl hover:border-gold/40"
     >
       <div className="flex flex-col h-full">
         <div className="relative overflow-hidden bg-muted aspect-[3/4]">
@@ -110,11 +106,8 @@ export default function ProductCard({
           )}
 
           {discount > 0 && (
-            <span className="absolute top-3 left-3 flex items-center gap-1 bg-foreground text-background text-xs font-medium px-2 py-1 rounded-full z-10">
-              <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-primary">
-                <circle cx="4" cy="4" r="3" fill="currentColor" />
-              </svg>
-              {discount}% Off
+            <span className="absolute top-3 left-3 flex items-center gap-1 bg-gradient-to-br from-gold to-gold-hover text-charcoal-dark text-xs font-bold px-2.5 py-1 rounded-full z-10 shadow-md">
+              -{discount}%
             </span>
           )}
 
@@ -183,27 +176,18 @@ export default function ProductCard({
           )}
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            {lowestPrice != null ? (
-              <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
-                {currency || "PKR"} {lowestPrice.toLocaleString()}
-              </span>
-            ) : (
-              <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
-                {currency || "PKR"} {price.toFixed(2)}
-              </span>
-            )}
-            {originalPrice && !lowestPrice && (
+            <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
+              {currency || "PKR"} {price.toLocaleString()}
+            </span>
+            {originalPrice && originalPrice > price && (
               <>
                 <span className="text-sm text-muted-foreground line-through">
-                  {currency || "PKR"} {originalPrice.toFixed(2)}
+                  {currency || "PKR"} {originalPrice.toLocaleString()}
                 </span>
                 <span className="ml-auto bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full">
-                  Save {(currency || "PKR") + " " + (originalPrice - price).toFixed(2)}
+                  Save {(currency || "PKR") + " " + (originalPrice - price).toLocaleString()}
                 </span>
               </>
-            )}
-            {lowestPrice != null && lowestPrice !== price && (
-              <span className="text-sm text-muted-foreground">From</span>
             )}
           </div>
         </div>
@@ -257,7 +241,6 @@ export default function ProductCard({
           image={image}
           images={images}
           category={category}
-          size={size}
           rating={rating}
           reviewCount={reviewCount}
           onClose={() => setShowQuickView(false)}

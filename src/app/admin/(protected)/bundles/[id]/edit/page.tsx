@@ -21,6 +21,7 @@ export default function EditBundlePage() {
     inStock: boolean
     isActive: boolean
   } | null>(null)
+  const [initialProductIds, setInitialProductIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -45,6 +46,7 @@ export default function EditBundlePage() {
           inStock: b.inStock,
           isActive: b.isActive,
         })
+        setInitialProductIds((b.items || []).map((item: { productId: string }) => item.productId))
       }
       setLoading(false)
     })()
@@ -72,5 +74,5 @@ export default function EditBundlePage() {
     )
   }
 
-  return <BundleForm initialData={initialData!} mode="edit" bundleId={id} />
+  return <BundleForm initialData={initialData!} initialProductIds={initialProductIds} mode="edit" bundleId={id} />
 }

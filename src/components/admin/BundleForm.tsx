@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ArrowLeft } from '@/lib/lucide-icons'
 import { useImageUpload } from '@/hooks/useImageUpload'
+import ProductPicker from '@/components/admin/ProductPicker'
 
 interface BundleFormData {
   name: string
@@ -42,13 +43,15 @@ const defaultFormState: BundleFormData = {
 
 interface BundleFormProps {
   initialData?: BundleFormData
+  initialProductIds?: string[]
   mode: 'create' | 'edit'
   bundleId?: string
 }
 
-export default function BundleForm({ initialData, mode, bundleId }: BundleFormProps) {
+export default function BundleForm({ initialData, initialProductIds = [], mode, bundleId }: BundleFormProps) {
   const router = useRouter()
   const [form, setForm] = useState<BundleFormData>(initialData || { ...defaultFormState })
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(initialProductIds)
   const [saving, setSaving] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const { uploadMainImage, isUploading: uploadingImage } = useImageUpload()
@@ -100,6 +103,7 @@ export default function BundleForm({ initialData, mode, bundleId }: BundleFormPr
         size: form.size || undefined,
         inStock: form.inStock,
         isActive: form.isActive,
+        productIds: selectedProductIds,
       }
 
       let result
@@ -196,6 +200,17 @@ export default function BundleForm({ initialData, mode, bundleId }: BundleFormPr
                   )}
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle>Products in this Bundle</CardTitle></CardHeader>
+            <CardContent>
+              <ProductPicker
+                selectedIds={selectedProductIds}
+                onChange={setSelectedProductIds}
+                bundlePrice={Number(form.price) || 0}
+              />
             </CardContent>
           </Card>
 

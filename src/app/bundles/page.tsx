@@ -31,6 +31,7 @@ export default async function BundlesPage() {
         image: true,
         save: true,
         size: true,
+        _count: { select: { items: true } },
       },
     })
   } catch (e) {
@@ -39,7 +40,7 @@ export default async function BundlesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="px-6 md:px-12 py-24">
+      <div className="px-6 md:px-12 pb-24">
         <div className="container-custom">
           <div className="text-center mb-16">
             <p className="text-sm tracking-[0.5em] uppercase mb-4 text-muted-foreground">
@@ -61,47 +62,59 @@ export default async function BundlesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {bundles.map((bundle) => (
-                <Link key={bundle.id} href={`/bundles/${bundle.slug}`} className="h-full">
-                  <Card className="h-full flex flex-col group hover:shadow-lg transition-all duration-300">
-                    <div className="relative bg-muted overflow-hidden" style={{ height: '260px' }}>
-                      {bundle.image ? (
-                        <img src={bundle.image} alt={bundle.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-muted-foreground text-lg">No Image</span>
-                        </div>
-                      )}
-                      {bundle.save && (
-                        <span className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
-                          SAVE {bundle.save}
-                        </span>
-                      )}
-                    </div>
-                    <CardContent className="flex-1 pt-6">
-                      <h3 className="font-heading text-foreground text-lg mb-2">{bundle.name}</h3>
-                      {bundle.description && (
-                        <p className="text-muted-foreground text-sm mb-1">{bundle.description}</p>
-                      )}
-                      {bundle.size && (
-                        <p className="text-muted-foreground text-sm">{bundle.size}</p>
-                      )}
-                    </CardContent>
-                    <CardFooter>
-                      <div className="w-full">
-                        <p className="text-2xl font-bold text-foreground tracking-tight">
-                          PKR {bundle.price.toLocaleString()}
-                          {bundle.originalPrice && (
-                            <span className="text-sm text-muted-foreground line-through ml-2">
-                              PKR {bundle.originalPrice.toLocaleString()}
-                            </span>
-                          )}
-                        </p>
+              {bundles.map((bundle) => {
+                const savingsPct =
+                  bundle.originalPrice && bundle.originalPrice > bundle.price
+                    ? Math.round(((bundle.originalPrice - bundle.price) / bundle.originalPrice) * 100)
+                    : 0
+                const productCount = bundle._count?.items ?? 0
+                return (
+                  <Link key={bundle.id} href={`/bundles/${bundle.slug}`} className="h-full">
+                    <Card className="h-full flex flex-col group hover:shadow-xl hover:border-gold/50 hover:-translate-y-1 transition-all duration-300">
+                      <div className="relative bg-muted overflow-hidden aspect-[4/3]">
+                        {bundle.image ? (
+                          <img src={bundle.image} alt={bundle.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-muted-foreground text-lg">No Image</span>
+                          </div>
+                        )}
+                        {savingsPct > 0 && (
+                          <span className="absolute top-4 left-4 bg-gradient-to-br from-gold to-gold-hover text-charcoal-dark text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+                            SAVE {savingsPct}%
+                          </span>
+                        )}
+                        {productCount > 0 && (
+                          <span className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                            {productCount} {productCount === 1 ? 'Product' : 'Products'} Included
+                          </span>
+                        )}
                       </div>
-                    </CardFooter>
-                  </Card>
-                </Link>
-              ))}
+                      <CardContent className="flex-1 pt-6">
+                        <h3 className="font-heading text-foreground text-lg mb-2 group-hover:text-gold transition-colors">{bundle.name}</h3>
+                        {bundle.description && (
+                          <p className="text-muted-foreground text-sm mb-1 line-clamp-2">{bundle.description}</p>
+                        )}
+                        {bundle.size && (
+                          <p className="text-muted-foreground text-sm mt-1">{bundle.size}</p>
+                        )}
+                      </CardContent>
+                      <CardFooter>
+                        <div className="w-full">
+                          <p className="text-2xl font-bold text-foreground tracking-tight">
+                            PKR {bundle.price.toLocaleString()}
+                            {bundle.originalPrice && bundle.originalPrice > bundle.price && (
+                              <span className="text-sm text-muted-foreground line-through ml-2">
+                                PKR {bundle.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>

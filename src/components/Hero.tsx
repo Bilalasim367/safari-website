@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen md:min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen md:min-h-[85vh] flex items-center justify-center overflow-hidden -mt-20 md:-mt-28 animate-fade-in">
       <div className="absolute inset-0 z-0">
         <Image
           src="/new-banneri.jpg"

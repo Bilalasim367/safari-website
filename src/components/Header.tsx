@@ -177,7 +177,7 @@ export default function Header() {
       </div>
 
 {/* TIER 1: TOP HEADER - Sticky */}
-      <header className={`sticky top-0 z-50 h-28 md:h-40 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-sm' : 'bg-black'} border-b border-white/10`}>
+      <header className={`sticky top-0 z-50 h-32 md:h-48 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-sm' : 'bg-black'} border-b border-white/10`}>
         <div className='container-custom grid grid-cols-[1fr_auto_1fr] items-center h-full px-4 md:px-8'>
           {/* LEFT: Search - Desktop Input / Mobile Button */}
           <div className='flex items-center justify-start'>
@@ -217,9 +217,9 @@ export default function Header() {
               src='/logo.png'
               alt='SAFARI Logo'
               width={352}
-              height={128}
+              height={112}
                 priority
-              className='h-20 md:h-40 w-auto object-contain'
+              className='h-24 md:h-40 w-auto object-contain'
             />
           </Link>
 

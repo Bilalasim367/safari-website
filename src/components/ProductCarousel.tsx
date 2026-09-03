@@ -16,7 +16,6 @@ interface CarouselProduct {
   category: string
   isNew?: boolean
   isBestseller?: boolean
-  size?: string
   rating?: number
   reviewCount?: number
 }
@@ -122,7 +121,6 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
                 category={product.category}
                 isNew={product.isNew}
                 isBestseller={product.isBestseller}
-                size={product.size}
                 rating={product.rating}
                 reviewCount={product.reviewCount}
               />

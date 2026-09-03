@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Minus, Plus, Heart, Shield, RotateCcw, Lock, Truck } from "lucide-react";
 import { Rating } from "@/components/Rating";
+import ScarcityLine from "@/components/ScarcityLine";
 import { toast } from "sonner";
 
 export interface RelatedProduct {
@@ -40,12 +41,11 @@ interface Product {
   name: string;
   slug: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   image: string;
   images: string[];
   category: { name: string; slug: string } | null;
   categorySlug?: string;
-  size: string;
   fragranceFamily: string;
   rating: number;
   reviews: number;
@@ -57,12 +57,10 @@ interface Product {
   notesTop: string[];
   notesHeart: string[];
   notesBase: string[];
-  sizePrices?: { size: string; price: number; originalPrice?: number }[];
   gender?: string;
   season?: string;
   impressionOf?: string;
   tags?: string;
-  sizesAvailable?: string;
   currency?: string;
   longDescription?: string;
   metaTitle?: string;
@@ -104,12 +102,10 @@ export default function ProductDetailClient({
   const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize] = useState(() =>
-    product?.type === 'Attar' ? '12ml' : product?.type === 'Perfume' ? '50ml' : ''
-  );
 
   const isPerfume = product?.type === 'Perfume';
   const isAttar = product?.type === 'Attar';
+  const selectedSize = '12ml';
 
   const router = useRouter();
 
@@ -170,11 +166,11 @@ export default function ProductDetailClient({
 
   const tagList = product.tags ? product.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [];
 
-  const hasRealReviews = product.reviewCount > 0 && product.rating > 0;
+  const hasRealReviews = product.reviews > 0 && product.rating > 0;
 
   return (
     <>
-      <div className="pt-16 md:pt-20 pb-16 lg:pb-0">
+      <div className="pb-16 lg:pb-0">
         <div className="border-b border-border">
           <div className="container-custom py-3">
             <Breadcrumb>
@@ -270,14 +266,19 @@ export default function ProductDetailClient({
                   </div>
                 )}
 
+                <div className="mb-6">
+                  <ScarcityLine />
+                </div>
+
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 mb-6">
                   <span className="text-4xl font-bold text-foreground tracking-tight">
                     {currencySymbol} {displayPrice.toLocaleString()}
                   </span>
-                  {/* Static size label */}
-                  <span className="text-lg text-muted-foreground">
-                    {isAttar ? '12ml' : '50ml'}
-                  </span>
+                  {isAttar && (
+                    <span className="inline-flex items-center gap-1 bg-gold/15 text-gold text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border border-gold/30">
+                      12ml Attar
+                    </span>
+                  )}
                   {displayOriginalPrice && (
                     <>
                       <span className="text-lg text-muted-foreground line-through ml-3">
@@ -489,7 +490,7 @@ export default function ProductDetailClient({
                         <Rating rating={product.rating} reviews={product.reviews} size="sm" />
                       </div>
                       <p className="text-muted-foreground mt-2">
-                        Based on {product.reviewCount} {product.reviewCount === 1 ? 'review' : 'reviews'}
+                        Based on {product.reviews} {product.reviews === 1 ? 'review' : 'reviews'}
                       </p>
                     </div>
                   </div>
@@ -515,7 +516,6 @@ export default function ProductDetailClient({
                   category={relProduct.category || "Unisex"}
                   isNew={relProduct.isNew}
                   isBestseller={relProduct.isBestseller}
-                  size={relProduct.size}
                   rating={relProduct.rating}
                   reviewCount={relProduct.reviewCount}
                   gender={relProduct.gender}

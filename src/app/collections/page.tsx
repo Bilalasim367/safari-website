@@ -19,7 +19,7 @@ export default async function CollectionsPage({
   const params = await searchParams;
 
   return (
-    <div className="pt-16 md:pt-20">
+    <div>
       <div className="bg-background border-b border-border py-16 md:py-20">
         <div className="container-custom">
           <div className="max-w-2xl">

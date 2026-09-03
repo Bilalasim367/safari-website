@@ -62,3 +62,6 @@ debug-errors.log
 *.db
 *.db-shm
 *.db-wal
+
+# Deployment bundles
+*.tar.gz

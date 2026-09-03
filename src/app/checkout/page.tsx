@@ -101,7 +101,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 bg-white">
+    <div className="bg-white">
       <div className="bg-background border-b border-border py-12">
         <div className="container-custom">
           <h1 className="text-4xl font-serif text-foreground mb-2">Checkout</h1>

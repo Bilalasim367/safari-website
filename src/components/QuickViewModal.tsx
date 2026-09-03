@@ -17,14 +17,13 @@ interface QuickViewModalProps {
   image: string;
   images?: string[];
   category: string;
-  size?: string;
   rating?: number;
   reviewCount?: number;
   onClose: () => void;
 }
 
 export default function QuickViewModal({
-  id, name, slug, price, originalPrice, image, images: propImages, category, size, rating, reviewCount, onClose,
+  id, name, slug, price, originalPrice, image, images: propImages, category, rating, reviewCount, onClose,
 }: QuickViewModalProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
@@ -36,7 +35,7 @@ export default function QuickViewModal({
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   const handleAdd = () => {
-    addItem({ id, name, price, image, size: size || "50ml", quantity: 1 });
+    addItem({ id, name, price, image, size: "12ml", quantity: 1 });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -82,9 +81,9 @@ export default function QuickViewModal({
             )}
 
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-3xl font-bold text-foreground">PKR {price.toFixed(2)}</span>
-              {originalPrice && (
-                <span className="text-lg text-muted-foreground line-through">PKR {originalPrice.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-foreground">PKR {price.toLocaleString()}</span>
+              {originalPrice && originalPrice > price && (
+                <span className="text-lg text-muted-foreground line-through">PKR {originalPrice.toLocaleString()}</span>
               )}
               {discount > 0 && (
                 <span className="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded-full">{discount}% Off</span>

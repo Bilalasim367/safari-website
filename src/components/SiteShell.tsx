@@ -23,7 +23,7 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {!isAdmin && <Header />}
-      {isAdmin ? children : <main className="flex-1">{children}</main>}
+      {isAdmin ? children : <main className="flex-1 pt-20 md:pt-28">{children}</main>}
       {!isAdmin && <Footer />}
       {!isAdmin && <CartSidebar />}
     </>

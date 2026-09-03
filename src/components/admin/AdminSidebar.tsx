@@ -56,12 +56,12 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
     <div className="flex flex-col h-full">
       <div className="p-6 border-b border-sidebar-border">
         <Link href="/admin/dashboard" className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-sidebar-primary rounded-lg flex items-center justify-center">
-            <span className="text-sidebar-primary-foreground font-bold text-lg">S</span>
+          <div className="w-10 h-10 bg-sidebar-primary rounded-lg flex items-center justify-center shadow-md">
+            <span className="text-sidebar-primary-foreground font-bold text-xl font-heading">S</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-heading text-xl text-sidebar-foreground">SAFARI</span>
-            <span className="text-xs text-sidebar-foreground/50 tracking-widest">Admin Panel</span>
+            <span className="font-heading text-2xl font-semibold text-sidebar-foreground tracking-wide leading-none">SAFARI</span>
+            <span className="text-xs text-gold/80 tracking-widest mt-1">Admin Panel</span>
           </div>
         </Link>
       </div>
@@ -77,8 +77,8 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
               onClick={onNavClick}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-sidebar-accent text-sidebar-primary'
-                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
+                  ? 'bg-sidebar-accent text-gold border-l-2 border-gold'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground border-l-2 border-transparent'
               }`}
             >
               <Icon className="w-5 h-5 shrink-0" />
@@ -91,14 +91,14 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
       <div className="p-4 border-t border-sidebar-border space-y-1">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground px-4 py-3 rounded-lg transition-colors"
+          className="flex items-center gap-2 text-sm text-sidebar-foreground/60 hover:text-gold px-4 py-3 rounded-lg transition-colors"
         >
           <ExternalLink className="w-4 h-4" />
           View Store
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2 text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground px-4 py-3 rounded-lg transition-colors w-full"
+          className="flex items-center gap-2 text-sm text-sidebar-foreground/60 hover:text-destructive px-4 py-3 rounded-lg transition-colors w-full"
         >
           <LogOut className="w-4 h-4" />
           Sign Out

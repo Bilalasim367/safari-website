@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import AddBundleToCart from '@/components/AddBundleToCart'
+import ScarcityLine from '@/components/ScarcityLine'
 import { SITE_URL } from '@/lib/site'
 
 export const revalidate = 300
@@ -198,8 +199,13 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
               </div>
             )}
             {bundle.save && (
-              <span className="absolute top-5 right-5 bg-primary text-primary-foreground text-xs font-bold px-4 py-2 rounded-full tracking-wider">
+              <span className="absolute top-5 right-5 bg-gradient-to-br from-gold to-gold-hover text-charcoal-dark text-xs font-bold px-4 py-2 rounded-full tracking-wider shadow-md">
                 SAVE {bundle.save}
+              </span>
+            )}
+            {bundle.items && bundle.items.length > 0 && (
+              <span className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
+                {bundle.items.length} {bundle.items.length === 1 ? 'Product' : 'Products'} Included
               </span>
             )}
             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/40 to-transparent" />
@@ -219,6 +225,10 @@ export default async function BundleDetailPage({ params }: { params: Promise<{ s
                 {bundle.description}
               </p>
             )}
+
+            <div className="mb-6">
+              <ScarcityLine />
+            </div>
 
             {bundle.size && (
               <div className="flex items-center gap-2 mb-6">
