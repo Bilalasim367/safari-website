@@ -142,8 +142,8 @@ export default function ProductDetailClient({
   const displayOriginalPrice = product?.originalPrice;
 
   const genderDisplay = product.gender?.trim() || "Unisex";
-  const familyDisplay = product.fragranceFamily?.trim() || "Oriental";
-  const sizeDisplay = (product.size?.trim() || (isAttar ? "12 ML Attar" : "50 ML")).toUpperCase();
+  const familyDisplay = product.fragranceFamily?.trim() || "—";
+  const sizeDisplay = (product.size?.trim() || "12 ML").toUpperCase();
   const notes = cleanNotes(product.notes);
   const mainDescription = formatDescription(product);
   const hasRealReviews = product.reviews > 0 && product.rating > 0;
@@ -165,7 +165,7 @@ export default function ProductDetailClient({
         name: product.name,
         price: product.price,
         image: product.image,
-        size: "12ml",
+        size: product.size?.trim() || "12ml",
         quantity,
       });
       toast.success(`${product.name} added to cart!`);

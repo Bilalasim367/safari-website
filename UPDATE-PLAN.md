@@ -296,6 +296,36 @@ On the server run exactly the same idempotent flow: `npx prisma db push` (now un
 
 ---
 
+## PART I — INFO CARDS DATA SOURCE FIX (2026-09-05)
+
+### Problem
+Info cards used fallback values (fake defaults) hiding the real DB-driven display:
+- FRAGRANCE showed hardcoded **"Oriental"** (330 of 339 products have `null` fragranceFamily → the fake default showed nearly everywhere)
+- SIZE fallback was `"12 ML Attar"` / **"50 ML"** based on type, not DB
+- CART payload hardcoded `size: "12ml"`
+
+### Data flow now (Admin → DB → detail page → display)
+- **GENDER** card: `product.gender` → fallback `"Unisex"` *(already correct — DB has real Men/Women/Unisex; no fake "Men" default existed)*
+- **SIZE** card: `product.size` → fallback **`"12 ML"`** *(never 50ML/100ML as default)*
+- **FRAGRANCE** card: `product.fragranceFamily` → fallback **`"—"`** *(fake "Oriental" removed)*
+- **AMOUNT** card: base price (unchanged)
+- Title **size badge** + WhatsApp message: same `sizeDisplay` (DB-driven)
+- **Cart payload**: `size: product.size?.trim() || "12ml"` (DB-driven, fallback 12ml)
+
+### Removed hardcoded fallbacks (ProductDetailClient.tsx only)
+- `"Oriental"` → `"—"`
+- `isAttar ? "12 ML Attar" : "50 ML"` fallback → `"12 ML"`
+- `size: "12ml"` cart literal → DB value
+
+### ⚠️ Note (data, not code)
+The DB currently stores `size = "50ml"` (334) / `"100ml"` (5) from the legacy schema default (`size String @default("50ml")`). Per spec, SIZZ card now displays the stored DB value; `"12 ML"` appears only when the field is truly empty. If the store is 12ml-only, those 339 rows need a one-time data update (admin or script) — the display code is unchanged after that.
+
+### Verification
+- [x] `npx eslint src/app/shop/[slug]/ProductDetailClient.tsx` — 0 errors
+- [x] `npx next build` — CLEAN (37.4s)
+
+---
+
 ## CONSTRAINTS (DO NOT TOUCH)
 - [ ] `server.js` — NO CHANGES
 - [ ] `next.config.js` / `next.config.ts` — NO CHANGES
