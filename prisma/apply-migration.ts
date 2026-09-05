@@ -68,6 +68,7 @@ async function main() {
     `ALTER TABLE Product ADD COLUMN applicatorType TEXT;`,
     `ALTER TABLE Product ADD COLUMN origin TEXT;`,
     `ALTER TABLE Product ADD COLUMN ingredients TEXT;`,
+    `ALTER TABLE Product ADD COLUMN notes TEXT;`,
   ]
   for (const colSql of bulkColumns) {
     try { await prisma.$executeRawUnsafe(colSql) } catch { /* column exists */ }
@@ -139,5 +140,4 @@ main().catch((e) => {
   process.exit(1)
 }).finally(async () => {
   await prisma.$disconnect()
-  await pool.end()
 })

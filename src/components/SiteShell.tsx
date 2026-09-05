@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CartSidebar from '@/components/CartSidebar'
+import FloatingWhatsApp from '@/components/FloatingWhatsApp'
+import SocialProofPopup from '@/components/SocialProofPopup'
 
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || ''
@@ -26,6 +28,8 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
       {isAdmin ? children : <main className="flex-1 pt-20 md:pt-28">{children}</main>}
       {!isAdmin && <Footer />}
       {!isAdmin && <CartSidebar />}
+      {!isAdmin && <FloatingWhatsApp />}
+      {!isAdmin && <SocialProofPopup />}
     </>
   )
 }

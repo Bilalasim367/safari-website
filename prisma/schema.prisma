@@ -70,6 +70,8 @@ model Product {
   // Attar-specific attributes
   applicatorType   String?      // roll-on, stick, premium-box
   origin           String?      // Sourcing region e.g. Assam, India
+  // Display fragrance notes (comma-separated, e.g. "Woody, Musk, Oud, Amber")
+  notes            String?
   ingredients      String?       // Ingredient list
   price3mlPhysical Int?
   price6mlPhysical Int?

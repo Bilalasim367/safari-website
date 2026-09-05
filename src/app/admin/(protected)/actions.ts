@@ -147,6 +147,7 @@ export interface ProductFormData {
   applicatorType?: string | null;
   origin?: string | null;
   ingredients?: string | null;
+  notes?: string | null;
 }
 
 function makeProductId(id: string | null | undefined, index: number): string | null {
@@ -238,6 +239,7 @@ export async function createProduct(data: ProductFormData) {
         applicatorType: data.applicatorType || null,
         origin: data.origin || null,
         ingredients: data.ingredients || null,
+        notes: data.notes || null,
       },
     });
     return { success: true, product };
@@ -311,6 +313,7 @@ export async function updateProduct(id: string, data: ProductFormData) {
         applicatorType: data.applicatorType || null,
         origin: data.origin || null,
         ingredients: data.ingredients || null,
+        notes: data.notes || null,
       },
     });
     return { success: true };

@@ -214,7 +214,7 @@ export default function Header() {
           {/* CENTER: Logo - Perfectly Centered via Grid */}
           <Link href='/' className='justify-self-center flex-shrink-0' aria-label='SAFARI Perfumes Home'>
             <Image
-              src='/logo.png'
+              src='/logo.jpeg'
               alt='SAFARI Logo'
               width={352}
               height={112}

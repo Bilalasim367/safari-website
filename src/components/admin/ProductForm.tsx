@@ -76,6 +76,7 @@ const defaultFormState: AdminProductFormValues = {
   applicatorType: null,
   origin: null,
   ingredients: null,
+  notes: null,
 }
 
 const tabs = [
@@ -293,6 +294,7 @@ export default function ProductForm({ initialData, mode, productId, productType 
           originalPrice: sp.originalPrice ? Number(sp.originalPrice) : null,
         })),
         type: productType === 'perfume' ? 'Perfume' : data.type || 'Attar',
+        notes: data.notes || null,
       }
 
       let result
@@ -855,9 +857,26 @@ export default function ProductForm({ initialData, mode, productId, productType 
                   <option value="Woody">Woody</option>
                   <option value="Oriental">Oriental</option>
                   <option value="Fresh">Fresh</option>
+                  <option value="Musky">Musky</option>
+                  <option value="Amber">Amber</option>
+                  <option value="Spicy">Spicy</option>
                   <option value="Citrus">Citrus</option>
                   <option value="Gourmand">Gourmand</option>
                 </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="size">Size</Label>
+                <Input id="size"
+                  value={form.watch('size') || ''}
+                  onChange={(e) => form.setValue('size', e.target.value)}
+                  placeholder="12 ML" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Attar Notes (comma-separated)</Label>
+                <Input id="notes"
+                  value={form.watch('notes') || ''}
+                  onChange={(e) => form.setValue('notes', e.target.value)}
+                  placeholder="Woody, Musk, Oud" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="season">Season</Label>

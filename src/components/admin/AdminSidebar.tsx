@@ -12,6 +12,7 @@ import {
   Gift,
   ExternalLink,
   LogOut,
+  Megaphone,
 } from '@/lib/lucide-icons'
 import {
   Sheet,
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/admin/bundles', label: 'Bundles', icon: Gift },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { href: '/admin/users', label: 'Customers', icon: Users },
+  { href: '/admin/popup-settings', label: 'Popup Settings', icon: Megaphone },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 

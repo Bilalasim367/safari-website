@@ -139,12 +139,143 @@ products from "... Perfume" to "... Attar".
 
 ---
 
+## PART E — PREMIUM PDP REDESIGN + CONVERSION FEATURES (2026-09-05)
+
+> **Scope**: Luxury black+gold Product Detail Page, WhatsApp Order, Social-Proof Purchase Popup, Admin-editable product display fields.
+
+### PART 0 — Database + Admin editable fields
+- [x] Added `notes Text?` column to Product model (`prisma/schema.prisma`) — comma-separated display notes ("Woody, Musk, Oud, Amber")
+- [x] `gender`, `fragranceFamily`, `size` already existed — reused (no duplicates, no renames)
+- [x] Applied to DB idempotently via `prisma/apply-migration.ts` (project's established flow; `prisma db push` blocked by a pre-existing `Order.shippingAddress` data-length issue on an unrelated column). Column verified present in local `perfume_db`.
+- [x] `prisma generate` ✓
+- [x] Admin ProductForm: added **Attar Notes** input (comma-separated, placeholder "Woody, Musk, Oud") + **Size** input (placeholder "12 ML") in Classification card; expanded **Fragrance Family** dropdown with Musky/Amber/Spicy. Gender dropdown (Men/Women/Unisex, default Unisex) already present.
+- [x] `createProduct`/`updateProduct` + `AdminProductSchema` + `defaultFormState` now persist `notes`. Empty values allowed (no errors).
+
+### PART 1 — Product Detail Page redesign (`src/app/shop/[slug]/ProductDetailClient.tsx`)
+- [x] Mobile compact sticky header: back arrow + SAFARI logo (black bar under global header)
+- [x] Title + size badge, rating row (or ScarcityLine fallback)
+- [x] Price in cream/gold rounded pill (Base bold + Original strike-through + Save %)
+- [x] Pill TABS (useState): **Description** (3-line clamp + Show more) | **Attar Notes** (gold chips from `notes`, default chips when empty)
+- [x] Info cards 2×2 (👫 GENDER / 📦 SIZE / 🌿 FRAGRANCE / 💰 AMOUNT) with sensible defaults (Unisex, 12 ML Attar, Oriental)
+- [x] ScarcityLine integrated (rating present → below info cards; no rating → top)
+- [x] Related products retained (ProductCard grid)
+- [x] Sticky mobile bottom bar: price + qty + gold Add to Cart
+- [x] Desktop: sticky left image, right column with title/rating/price/tabs/2×2 info grid, Add-to-Cart + WhatsApp buttons side-by-side, trust strip ("✅ 100% Original | 💵 COD | 🚚 Free Shipping 999+")
+- [x] Style: black/charcoal, gold `#c9a962`, cream cards, rounded-2xl, mobile-first
+- [x] Server page passes `notes` + `whatsappNumber` props
+
+### PART 2 — WhatsApp Order
+- [x] `data/popup-settings.json` created (default `923000000000`)
+- [x] Green "WhatsApp pe Order Karein" button on PDP (`#25D366`, inline SVG) → `wa.me` with product name/size/price+URL
+- [x] Floating WhatsApp bubble on ALL storefront pages (`src/components/FloatingWhatsApp.tsx`, bottom-right, subtle pulse animation)
+
+### PART 3 — Social-Proof Purchase Popup
+- [x] `src/components/SocialProofPopup.tsx` — bottom-left white card, gold border-left, "Name from City purchased Product", "X minutes ago", price, ✓ Verified Order, X close; click → product page
+- [x] Timing: first popup 8–10s, visible 5–6s, gap 20–30s, ~30% cycle skip
+- [x] Data: real active products from `/api/products` (limit 12), names/cities from settings
+- [x] Admin **Popup Settings** page (`/admin/popup-settings`, sidebar entry "Popup Settings"): ON/OFF, Names textarea, Cities textarea, WhatsApp number, Save → `data/popup-settings.json`
+- [x] API `GET/PUT /api/popup-settings` (PUT admin-guarded JWT)
+- [x] Both rendered via `SiteShell` on storefront only; positioned to not overlap sticky bars
+
+### Files created
+- `src/components/FloatingWhatsApp.tsx`
+- `src/components/SocialProofPopup.tsx`
+- `src/lib/popup-settings.ts`
+- `src/app/api/popup-settings/route.ts`
+- `src/app/admin/(protected)/popup-settings/page.tsx`
+- `data/popup-settings.json`
+- `IMPLEMENTATION-PLAN.md`
+
+### Files modified
+- `prisma/schema.prisma` — added `notes` column (additive only)
+- `prisma/apply-migration.ts` — added `notes` ALTER (idempotent) + removed broken `pool.end()` ref
+- `src/app/shop/[slug]/ProductDetailClient.tsx` — full redesign
+- `src/app/shop/[slug]/page.tsx` — pass `notes`/`whatsappNumber`
+- `src/components/admin/ProductForm.tsx` — Attar Notes + Size inputs, Fragrance Family options
+- `src/lib/validations/product.ts` — `notes` field
+- `src/app/admin/(protected)/actions.ts` — persist `notes`
+- `src/components/admin/AdminSidebar.tsx` — Popup Settings item
+- `src/lib/lucide-icons.ts` — added `Megaphone`
+- `src/components/SiteShell.tsx` — floating WhatsApp + social proof popup
+- `src/app/globals.css` — WhatsApp pulse + popup slide animations
+
+### Verification
+- [x] `npx eslint` on all changed files — 0 errors
+- [x] `npm run build` — CLEAN (Compiled successfully, 320+ product pages SSG'd)
+- Note: 4 pre-existing lint errors in `scripts/rename-to-attar.js` / `scripts/update-prices.js` (`require()` imports) were NOT introduced by this work and are untouched.
+
+### Deploy steps
+1. On server: `npx prisma generate`
+2. On server (idempotent): `npx tsx --env-file=.env prisma/apply-migration.ts` (adds `notes` column)
+3. Build + upload `.next` + `public` + `data/` to cPanel
+4. Restart app
+
+---
+
+## PART F — PDP BUG FIXES (2026-09-05)
+
+### BUG 1: WhatsApp link hydration mismatch (mobile console) — FIXED
+- **Cause**: `href` was built during render with `window.location.href` (client) vs a hardcoded fallback URL (server) → `href` differed between SSR HTML and first client render → hydration error.
+- **Fix**: Removed all `window.location` / `typeof window` usage from render. WhatsApp message now uses only server-deterministic values (product name, size, price, WhatsApp number) → `href` is byte-identical on server & client.
+- Kept the "Order link" line OUT of the message (task's "behtar" option) — staff still receive product + size + price. No `useEffect`/`useState` needed → zero lint warnings, zero mismatch.
+- **Test**: Refresh any `/shop/[slug]` page → console hydration errors ZERO (verified by reasoning + build: the only window-dependent attribute previously was this `href`; it is now deterministic).
+
+### BUG 2: Double navbar on mobile detail page — FIXED
+- **Cause**: PDP added its own compact sticky header (back arrow + SAFARI logo at `top-32`) on top of the global sticky site header (`sticky top-0 z-50 h-32 md:h-48`).
+- **Fix**: Removed the PDP compact sticky header entirely. Also removed the `-mt-20 lg:mt-0` negative-margin hack (it existed only to seat that compact header). SiteShell `<main>`'s `pt-20 md:pt-28` now provides clean top spacing.
+- Replaced with a small in-content **"← Back"** row (mobile-only, `lg:hidden`) inside the container — non-sticky, non-overlapping.
+- **Test**: Mobile detail page now shows ONLY the main site header.
+
+### BUG 3: Desktop Add to Cart area congested — FIXED
+- **Cause**: Qty stepper + Add to Cart + WhatsApp sat side-by-side in one `sm:flex-row` row inside a half-width column.
+- **Fix**: Stacked the action area vertically:
+  - Qty stepper → standalone fixed-width (`w-[140px]`) pill row
+  - **Add to Cart** → `w-full` + `min-h-[56px]` gold button
+  - **WhatsApp pe Order Karein** → separate `w-full` + `min-h-[52px]` green-outline button (`border-2`), `mt-3` gap
+  - Region `mb-4` → `mb-5`
+- **Spacing polish**: price pill `mb-5`→`mb-6`, tabs `mb-5`→`mb-6`, description/notes cards `mb-5`→`mb-6`, info cards grid `gap-3`→`gap-4` + `mb-6`, trust strip `mb-5`→`mb-6`. Desktop right column now has breathing room.
+
+### Verification
+- [x] `npx eslint src/app/shop/[slug]/ProductDetailClient.tsx` — 0 errors
+- [x] `npx tsc --noEmit` — 0 errors in this file (only pre-existing errors elsewhere)
+- [x] `npx next build` — CLEAN (Compiled successfully, 320+ product pages SSG'd)
+
+### Files changed (this round)
+- `src/app/shop/[slug]/ProductDetailClient.tsx` only
+
+---
+
+## PART G — HERO MOBILE HEIGHT FIX (2026-09-05)
+
+### Task: Homepage hero too tall on mobile — FIXED
+- **Cause**: Hero (`src/components/Hero.tsx`) used `min-h-screen md:min-h-[85vh]` → 100% of the viewport on mobile, hiding the Hot Selling section below the fold.
+- **Heights set** (responsive):
+  - Mobile (default): `h-[420px]` (~60-70% of a typical phone viewport)
+  - Small tablet `sm`: `h-[480px]`
+  - Tablet `md`: `h-[560px]`
+  - Desktop `lg+`: `lg:min-h-[85vh]` — **unchanged** (zero regression)
+- Image stays `object-cover`; black gradient overlay untouched.
+- **Mobile text proportions** (smaller hero → proportional type):
+  - H1: `text-[42px]` → `text-4xl` (36px), margin `mb-6` → `mb-4`
+  - Subtitle spacing `mb-4` → `mb-3`
+  - Button compact: `px-7 py-4 md:px-8 md:py-6`
+  - Content inset `py-16` → `py-12`
+  - Scroll indicator `bottom-8` → `bottom-6 md:bottom-12` (stays inside the hero)
+- Desktop (`md:`) heading/description/button sizes untouched.
+- Only `src/components/Hero.tsx` changed.
+
+### Verification
+- [x] `npx eslint src/components/Hero.tsx` — 0 errors
+- [x] `npx next build` — CLEAN (37.8s)
+
+---
+
 ## CONSTRAINTS (DO NOT TOUCH)
-- [ ] `prisma/schema.prisma` — NO CHANGES
 - [ ] `server.js` — NO CHANGES
 - [ ] `next.config.js` / `next.config.ts` — NO CHANGES
-- [ ] Admin pricing form structure — NO structural changes (Base Price + Original Price fields stay)
-- [ ] `npm run build` must be CLEAN after each task
+- [ ] Admin panel layout/design of existing pages — NO CHANGES (only added new fields)
+- [ ] Customer pages (home, shop, bundles list) — NO CHANGES
+- [ ] `npm run build` must stay CLEAN after each task
 
 ---
 

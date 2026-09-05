@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
+import { readPopupSettings } from '@/lib/popup-settings'
 import ProductDetailClient, { type RelatedProduct } from './ProductDetailClient'
 
 export const revalidate = 300
@@ -77,6 +78,7 @@ function formatProduct(product: {
   ingredients: string | null
   metaTitle: string | null
   metaDescription: string | null
+  notes: string | null
 }) {
   return {
     id: product.id,
@@ -87,7 +89,7 @@ function formatProduct(product: {
     image: product.image || '',
     images: parseJsonArray(product.images),
     category: product.category ? { name: product.category.name, slug: product.category.slug } : null,
-    categorySlug: product.categorySlug,
+    categorySlug: product.categorySlug || undefined,
     size: product.size,
     sizePrices: parseSizePrices(product.sizePrices),
     fragranceFamily: product.fragranceFamily,
@@ -118,6 +120,7 @@ function formatProduct(product: {
     applicatorType: product.applicatorType || undefined,
     origin: product.origin || undefined,
     ingredients: product.ingredients || undefined,
+    notes: product.notes || undefined,
   }
 }
 
@@ -167,11 +170,6 @@ export async function generateMetadata({
       robots: { index: false },
     }
   }
-
-  const price = Math.round(product.price)
-  const impression = product.impressionOf
-    ? `Impression of ${product.impressionOf}`
-    : product.type || 'Fragrance'
 
   // SEO-optimized title: {fragranceName} Impression — {type} | Safari Perfumes (under ~65 chars)
   const fragranceName = product.name
@@ -332,6 +330,7 @@ export default async function ProductPage({
         product={formattedProduct}
         relatedProducts={relatedProducts}
         freeShippingThreshold={settings?.freeShippingThreshold ?? null}
+        whatsappNumber={readPopupSettings().whatsappNumber}
       />
     </>
   )

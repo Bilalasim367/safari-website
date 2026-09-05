@@ -37,4 +37,5 @@ export {
   Trash2,
   ChevronRight as ChevronRightIcon,
   Check as CheckIcon,
+  Megaphone,
 } from 'lucide-react';

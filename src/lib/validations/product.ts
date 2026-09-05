@@ -124,6 +124,7 @@ export const AdminProductSchema = z.object({
   applicatorType: z.string().nullable().optional(),
   origin: z.string().nullable().optional(),
   ingredients: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
 })
 
 export type AdminProductFormValues = z.input<typeof AdminProductSchema>
