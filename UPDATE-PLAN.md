@@ -270,6 +270,32 @@ products from "... Perfume" to "... Attar".
 
 ---
 
+## PART H — DATABASE SCHEMA FIX: db push P2000 + notes column (2026-09-05)
+
+### Problem (found on server)
+- `prisma db push` failed with **P2000** ("value too long ... Column: shippingAddress"): `Order.shippingAddress` held 253 chars but was VARCHAR(191).
+- That blocked the Product `notes` column from being added server-side.
+
+### Root cause (deeper, found locally)
+The DB (created via legacy raw-SQL ALTERs/bundle-migration.sql) already has these columns as **TEXT**, but the schema declared them `String` (VARCHAR 191). `db push` therefore tried to SHRINK text→varchar and threw P2000 on the first long value (`images`, 253 chars). Same class of problem — shrinking long-data columns.
+
+### What changed in `prisma/schema.prisma` (additive only — no renames, no @@map changes, no data loss)
+1. `Order.shippingAddress` → `String? @db.Text`
+2. Product columns widened to `@db.Text` to MATCH existing TEXT columns holding JSON/long content:
+   - `description`, `images`, `sizePrices`, `shortDescription`, `longDescription`, `ingredients`, `metaDescription`, `notes`
+3. `Product.notes String? @db.Text` confirmed present (was already added earlier). `gender`, `fragranceFamily`, `size`, `notesTop/Heart/Base` untouched (already VARCHAR, matching schema).
+
+### Verification
+- [x] `npx prisma db push` — **0 errors** → "Your database is now in sync with your Prisma schema. Done in 2.11s"
+- [x] `npx prisma generate` — success (v5.22.0)
+- [x] Temporary `verify-schema.js` (deleted after): SHOW COLUMNS confirmed `product` has gender/fragranceFamily/size/notes/notesTop/notesHeart/notesBase and `order.shippingAddress` is `text` → **VERIFY: PASS**
+- [x] `npx next build` — CLEAN (Compiled successfully, `/shop/[slug]` SSG'd = product detail query runs fine against DB)
+
+### Deploy note
+On the server run exactly the same idempotent flow: `npx prisma db push` (now unblocked) then `npx prisma generate` — the `notes` column will be added and all long columns stay TEXT (no data loss).
+
+---
+
 ## CONSTRAINTS (DO NOT TOUCH)
 - [ ] `server.js` — NO CHANGES
 - [ ] `next.config.js` / `next.config.ts` — NO CHANGES

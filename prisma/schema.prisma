@@ -27,16 +27,16 @@ model Product {
   id               String   @id @default(cuid())
   name             String
   slug             String   @unique
-  description      String?  
+  description      String?   @db.Text  
   price            Float
   originalPrice    Float?
   image            String
-  images           String    // JSON array of image URLs
+  images           String    @db.Text // JSON array of image URLs
   categoryId       String?
   category         Category?    @relation(fields: [categoryId], references: [id])
   categorySlug     String?      @default("unisex")
   size             String       @default("50ml")
-  sizePrices       String        // JSON array of { size, price, originalPrice }
+  sizePrices       String        @db.Text // JSON array of { size, price, originalPrice }
   fragranceFamily  String?
   rating           Float        @default(0)
   reviewCount      Int          @default(0)
@@ -56,8 +56,8 @@ model Product {
   season           String?
   bestTime         String?
   impressionOf     String?
-  shortDescription String?      
-  longDescription  String?      
+  shortDescription String?    @db.Text
+  longDescription  String?    @db.Text      
   tags             String?
   sizesAvailable   String       @default("3ml,6ml,12ml,50ml")
 
@@ -71,8 +71,8 @@ model Product {
   applicatorType   String?      // roll-on, stick, premium-box
   origin           String?      // Sourcing region e.g. Assam, India
   // Display fragrance notes (comma-separated, e.g. "Woody, Musk, Oud, Amber")
-  notes            String?
-  ingredients      String?       // Ingredient list
+  notes            String?    @db.Text
+  ingredients      String?    @db.Text // Ingredient list
   price3mlPhysical Int?
   price6mlPhysical Int?
   price12mlPhysical Int?
@@ -89,7 +89,7 @@ model Product {
   stockStatus      String       @default("in_stock") // in_stock, out_of_stock, backorder
   imageFolder      String?
   metaTitle        String?
-  metaDescription  String?      
+  metaDescription  String?    @db.Text      
 
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -235,7 +235,7 @@ model Order {
   status         String    @default("pending")     // pending, processing, shipped, delivered, cancelled
   paymentStatus  String    @default("pending")     // pending, paid, failed, refunded
   paymentMethod  String    @default("cod")         // cod, bank_transfer, card, jazzcash, easypaisa
-  shippingAddress String?   // JSON string or formatted address
+  shippingAddress String? @db.Text   // JSON string or formatted address
   billingAddress  String?  
   notes           String?   
   trackingNumber  String?
