@@ -107,7 +107,7 @@ export async function POST(request: Request) {
         price,
         quantity,
         size: item.size || product.size || '',
-        image: item.image || product.image || '',
+        image: product.image || item.image || '',
       });
     }
 

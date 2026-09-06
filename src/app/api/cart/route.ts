@@ -12,6 +12,28 @@ interface CartItem {
   quantity: number;
 }
 
+// Effective price for a cart line from the CURRENT DB product: sizePrice wins if
+// the size is in the product's sizePrices, otherwise the base price. Server-side
+// only — never trust the client-supplied snapshot price.
+function resolvePrice(product: { price: number; sizePrices: string | null }, size: string): number {
+  if (size && product.sizePrices) {
+    try {
+      const parsed: unknown = JSON.parse(product.sizePrices);
+      if (Array.isArray(parsed)) {
+        const match = (parsed as { size?: string; price?: number }[]).find(
+          (s) => s && s.size === size
+        );
+        if (match && typeof match.price === 'number' && match.price > 0) {
+          return match.price;
+        }
+      }
+    } catch {
+      // fall back to base price
+    }
+  }
+  return product.price;
+}
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -30,16 +52,31 @@ export async function GET() {
       where: { id: payload.userId },
       include: { cart: true },
     });
-    
-    const cart = user?.cart.map(item => ({
-      id: item.productId,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      size: item.size,
-      quantity: item.quantity,
-    })) || [];
-    
+
+    const savedCart = user?.cart || [];
+    const ids = [...new Set(savedCart.map((i) => i.productId).filter(Boolean))];
+    const products = ids.length
+      ? await prisma.product.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, name: true, price: true, image: true, sizePrices: true },
+        })
+      : [];
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    // Recompute from the CURRENT DB so stored snapshot price/name/images never
+    // leak stale values to the cart (checkout) UI.
+    const cart = savedCart.map((item) => {
+      const p = productMap.get(item.productId);
+      return {
+        id: item.productId,
+        name: p?.name || item.name,
+        price: p ? resolvePrice(p, item.size) : item.price,
+        image: p?.image || item.image,
+        size: item.size,
+        quantity: item.quantity,
+      };
+    });
+
     return NextResponse.json({ cart });
   } catch (error) {
     console.error('Error fetching cart:', error);
@@ -77,19 +114,33 @@ export async function POST(request: Request) {
       );
     }
 
+    const ids = [...new Set(cart.map((i) => i?.id).filter(Boolean))];
+    const products = ids.length
+      ? await prisma.product.findMany({
+          where: { id: { in: ids } },
+          select: { id: true, name: true, price: true, image: true, size: true, sizePrices: true },
+        })
+      : [];
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
     await prisma.$transaction([
       prisma.cartItem.deleteMany({ where: { userId: payload.userId } }),
       ...(cart.length > 0
         ? [prisma.cartItem.createMany({
-            data: cart.filter(item => item?.id).map(item => ({
-              userId: payload.userId,
-              productId: item.id,
-              name: item.name || 'Unknown',
-              price: Number(item.price) || 0,
-              image: item.image || '',
-              size: item.size || '',
-              quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
-            })),
+            data: cart.filter(item => item?.id).map(item => {
+              const p = productMap.get(item.id);
+              return {
+                userId: payload.userId,
+                productId: item.id,
+                // Fresh DB values win; fall back to the snapshot only when the
+                // product no longer exists (so the line is not silently dropped).
+                name: p?.name || item.name || 'Unknown',
+                price: p ? resolvePrice(p, item.size) : Number(item.price) || 0,
+                image: p?.image || item.image || '',
+                size: item.size || p?.size || '',
+                quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
+              };
+            }),
           })]
         : []),
     ]);

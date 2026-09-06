@@ -48,6 +48,39 @@ function loadCartFromStorage(): CartItem[] {
   }
 }
 
+type FreshProduct = {
+  id: string;
+  name?: string;
+  price?: number;
+  image?: string;
+  sizePrices?: string | null;
+};
+
+// Effective display price for a cart line: sizePrice wins if the size is in the
+// product's sizePrices, otherwise the base DB price. Mirrors /api/orders pricing.
+function effectivePrice(product: FreshProduct, size: string): number | null {
+  const base =
+    typeof product.price === 'number' && Number.isFinite(product.price)
+      ? product.price
+      : null;
+  if (size && product.sizePrices) {
+    try {
+      const parsed = JSON.parse(product.sizePrices);
+      if (Array.isArray(parsed)) {
+        const match = parsed.find(
+          (s: { size?: string; price?: number }) => s && s.size === size
+        );
+        if (match && typeof match.price === 'number' && match.price > 0) {
+          return match.price;
+        }
+      }
+    } catch {
+      // fall back to base price
+    }
+  }
+  return base;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(loadCartFromStorage);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -57,6 +90,75 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalItems = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
+
+  // Keys only on the set of product ids (not price/name/image), so a price sync
+  // never retriggers itself.
+  const cartIdsKey = useMemo(
+    () => [...new Set(items.map((i) => i.id).filter(Boolean))].sort().join('|'),
+    [items]
+  );
+
+  // Refresh cart line price/name/image from the CURRENT DB state.
+  // The cart used to persist a full snapshot (price/name/image) in localStorage +
+  // the CartItem table, so a product price change in the admin panel left old
+  // carts showing the OLD price. This sync overrides stale snapshots with fresh
+  // DB values on cart load / tab refocus / cart contents change.
+  const refreshPrices = useCallback(async () => {
+    const ids = cartIdsKey === '' ? [] : cartIdsKey.split('|');
+    if (ids.length === 0) return;
+
+    let products: (FreshProduct | null)[];
+    try {
+      products = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+              cache: 'no-store',
+            });
+            if (!res.ok) return null;
+            return (await res.json()) as FreshProduct;
+          } catch {
+            return null;
+          }
+        })
+      );
+    } catch {
+      return;
+    }
+
+    const map = new Map<string, FreshProduct>();
+    for (const p of products) {
+      if (p && p.id) map.set(p.id, p);
+    }
+
+    setItems((prev) =>
+      prev.map((item) => {
+        const p = map.get(item.id);
+        if (!p) return item;
+        const price = effectivePrice(p, item.size);
+        return {
+          ...item,
+          name: p.name ? p.name : item.name,
+          ...(price !== null ? { price } : {}),
+          image: p.image ? p.image : item.image,
+        };
+      })
+    );
+  }, [cartIdsKey]);
+
+  // Initial sync on mount (and whenever cart contents change).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refreshPrices();
+  }, [refreshPrices]);
+
+  // Resync when the tab regains focus — catches admin-side price changes
+  // that happened while the user was browsing elsewhere.
+  useEffect(() => {
+    const onFocus = () => void refreshPrices();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [refreshPrices]);
 
   useEffect(() => {
     localStorage.setItem("safari-cart", JSON.stringify(items));

@@ -496,6 +496,51 @@ The 3 stages run on the **cleaned** CSV name (Title-Cased) vs each DB product na
 
 ---
 
+## PART O — CHECKOUT PRICE BUG: STALE CART SNAPSHOT (2026-09-06)
+
+### Bug (owner report)
+Checkout page Order Summary showed a WRONG (old) price then the Order Items list:
+- Order Items: `Impression of Acqua Di Gio Profondo Parfum 50ml ×1 — PKR 1,799` ✅ (DB price)
+- Order Summary: `Acqua Di Gio Profondo Parfum (50ml) ×1 — PKR 800` ❌ (old price, not in DB)
+- Subtotal/Total also showed the wrong price; note the Summary name was ALSO different ("Impression of" missing).
+
+### Root cause (exact source)
+- `CartItem` (`src/context/CartContext.tsx:6-13`) stores a **full snapshot** `{id, name, price, image, size, quantity}`. `price`, `name` and `image` are copied from the product at add-time.
+- The snapshot persists: `localStorage["safari-cart"]` (`CartContext.tsx:41-49`) AND the DB `CartItem` table (`/api/cart` POST wrote the client snapshot verbatim).
+- When the admin changes a product's `price`/`name` in the DB, any cart line added BEFORE the change still carries the OLD price/name.
+- Checkout (`src/app/checkout/page.tsx:325,362,370`) and `CartSidebar.tsx:110` render `item.price` / `subtotal` directly — i.e. the **snapshot**, not the DB — so stale values are shown. Two cart lines for the pre/post-rename product explain the name + price mismatch between Order Items and Order Summary.
+- **Server-side was already safe**: `/api/orders` POST recomputes every item's `price`/`name` from the DB (`productMap` + `sizePrices` lookup, `route.ts:71-112`), so the ORDER record itself was not at risk — but the UI (and the stored cart snapshot) was.
+
+### Fix
+1. **Fresh-price sync in `CartContext` (stale snapshot override):**
+   - New `effectivePrice()` helper (sizePrice wins, else base price) mirroring `/api/orders` pricing.
+   - New `refreshPrices()`: for each unique productId in the cart, fetches `/api/products/{id}` (no-store) and overrides `name`, `price`, `image` with current DB values. Runs on cart mount, whenever the cart's product-id set changes, and on window `focus` (catches admin price edits made while browsing elsewhere).
+2. **Server-authoritative cart store** (`/api/cart`):
+   - POST now recomputes `name`, `price` (incl. sizePrice), `image` from the DB before writing `CartItem` — falls back to snapshot only when the product no longer exists.
+   - GET now recomputes the same from the DB (fresh values returned even for old stored rows).
+3. **Order API** (`/api/orders`) — already recomputed price/name server-side; kept as-is (minimal hardening: DB `product.image` now preferred over client-sent image for the order item).
+
+Result: checkout, cart sidebar, subtotal/total, DB order total, and email all show the CURRENT DB price/name (e.g. PKR 1,799 + "Impression of..." prefix) even for cart lines added at an older price.
+
+### Files changed
+- `src/context/CartContext.tsx` — `refreshPrices` + `effectivePrice`, sync effects (mount / cart change / focus).
+- `src/app/api/cart/route.ts` — GET+POST recompute name/price/image from DB.
+- `src/app/api/orders/route.ts` — image preference DB-first (pricing validation already present).
+
+### Constraints honored
+- [x] `prisma/schema.prisma`, `server.js`, `next.config.ts` — NO TOUCH
+- [x] Bulk Import, product pages, admin products UI — NO TOUCH
+- [x] No new npm packages, no schema change, no new route
+- [x] ESLint clean; `npm run build` ✓ clean (36.4s)
+- [x] Note: dev server was restarted by user before this task; it is NOT running now (stopped before build).
+
+### Verification steps for the owner
+1. Clear localStorage cart / add item again at old price snapshot → open checkout → Order Summary now shows current DB price + name.
+2. Place the order → `track` page / admin orders → order total = current DB price (server recomputes).
+3. Admin: change a product price → reload the storefront (or refocus the tab) → cart/checkout show the NEW price.
+
+---
+
 ## CONSTRAINTS (DO NOT TOUCH)
 - [ ] `server.js` — NO CHANGES
 - [ ] `next.config.js` / `next.config.ts` — NO CHANGES
