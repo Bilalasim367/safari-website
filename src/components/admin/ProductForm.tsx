@@ -637,9 +637,9 @@ export default function ProductForm({ initialData, mode, productId, productType 
                   <CardHeader><CardTitle>Fragrance Notes</CardTitle></CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                      <TagInput label="Top Notes" tags={notesTop || []} onChange={(tags) => form.setValue('notesTop', tags)} placeholder="e.g. Bergamot, Saffron" />
-                      <TagInput label="Heart Notes" tags={notesHeart || []} onChange={(tags) => form.setValue('notesHeart', tags)} placeholder="e.g. Rose, Jasmine" />
-                      <TagInput label="Base Notes" tags={notesBase || []} onChange={(tags) => form.setValue('notesBase', tags)} placeholder="e.g. Musk, Amber" />
+                      <TagInput label="Top Notes" tags={notesTop || []} onChange={(tags) => form.setValue('notesTop', tags)} placeholder="e.g. Bergamot, Lemon, Rose" />
+                      <TagInput label="Heart Notes" tags={notesHeart || []} onChange={(tags) => form.setValue('notesHeart', tags)} placeholder="e.g. Jasmine, Oud, Vanilla" />
+                      <TagInput label="Base Notes" tags={notesBase || []} onChange={(tags) => form.setValue('notesBase', tags)} placeholder="e.g. Musk, Amber, Sandalwood" />
                     </div>
                   </CardContent>
                 </Card>

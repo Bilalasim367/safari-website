@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
@@ -129,7 +128,6 @@ export default function SettingsPage() {
     { id: "general", label: "General" },
     { id: "shipping", label: "Shipping & Tax" },
     { id: "email", label: "Notifications & SMTP" },
-    { id: "payment", label: "Payment Methods" },
   ];
 
   if (loading) {
@@ -354,36 +352,6 @@ export default function SettingsPage() {
                       onChange={(e) => update({ smtpPassword: e.target.value })}
                     />
                   </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "payment" && (
-              <div className="space-y-5">
-                <h2 className="text-lg font-semibold">Payment Methods</h2>
-
-                <div className="space-y-3">
-                  {[
-                    { name: 'Cash on Delivery', note: 'Pay when you receive your order', enabled: true },
-                    { name: 'Bank Transfer', note: 'Manual transfer, confirmed by admin', enabled: true },
-                    { name: 'JazzCash', note: 'JazzCash mobile wallet', enabled: true },
-                    { name: 'EasyPaisa', note: 'EasyPaisa mobile wallet', enabled: true },
-                    { name: 'Credit/Debit Card', note: 'Online card payments (not integrated yet)', enabled: false },
-                  ].map((method) => (
-                    <Card key={method.name} className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{method.name}</p>
-                          <p className="text-muted-foreground text-sm">{method.note}</p>
-                        </div>
-                        {method.enabled ? (
-                          <Badge className="bg-green-100 text-green-800">Enabled</Badge>
-                        ) : (
-                          <Badge variant="secondary">Not integrated</Badge>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
                 </div>
               </div>
             )}

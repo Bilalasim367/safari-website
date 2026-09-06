@@ -21,7 +21,7 @@ interface OrderItem {
   image: string;
 }
 
-const VALID_PAYMENT_METHODS = ['cod', 'bank_transfer', 'card', 'jazzcash', 'easypaisa'];
+const VALID_PAYMENT_METHODS = ['cod'];
 
 export async function POST(request: Request) {
   try {

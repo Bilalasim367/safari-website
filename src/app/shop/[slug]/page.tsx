@@ -65,6 +65,7 @@ function formatProduct(product: {
   type: string | null
   gender: string | null
   season: string | null
+  bestTime: string | null
   impressionOf: string | null
   tags: string | null
   sizesAvailable: string | null
@@ -106,6 +107,7 @@ function formatProduct(product: {
     type: product.type || undefined,
     gender: product.gender || undefined,
     season: product.season || undefined,
+    bestTime: product.bestTime || undefined,
     impressionOf: product.impressionOf || undefined,
     tags: product.tags || undefined,
     sizesAvailable: product.sizesAvailable || undefined,

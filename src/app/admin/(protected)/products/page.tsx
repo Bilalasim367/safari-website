@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface Product {
@@ -46,6 +47,7 @@ export default function ProductsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [bestsellerFilter, setBestsellerFilter] = useState<string>("all");
   const [newFilter, setNewFilter] = useState<string>("all");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const loadProducts = useCallback(async () => {
     const result = await getAdminProducts();
@@ -154,18 +156,48 @@ export default function ProductsPage() {
               Bulk Upload
             </Button>
           </Link>
-          <Link href="/admin/products/perfume/new">
-            <Button>
-              + Perfume
-            </Button>
-          </Link>
-          <Link href="/admin/products/attar/new">
-            <Button variant="secondary">
-              + Attar
-            </Button>
-          </Link>
+          <Button onClick={() => setCreateOpen(true)}>
+            Create / Add Product
+          </Button>
         </div>
       </div>
+
+      <Dialog open={createOpen} onOpenChange={(open) => setCreateOpen(open)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif">Create / Add Product</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Manual Add
+              </p>
+              <p className="text-sm text-muted-foreground mb-3">
+                Fill the detailed product form (name, price, notes, images, SEO fields…).
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Link href="/admin/products/perfume/new">
+                  <Button variant="outline" className="w-full">+ Perfume</Button>
+                </Link>
+                <Link href="/admin/products/attar/new">
+                  <Button variant="secondary" className="w-full">+ Attar</Button>
+                </Link>
+              </div>
+            </div>
+            <div className="border-t border-muted pt-4">
+              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Bulk Import
+              </p>
+              <p className="text-sm text-muted-foreground mb-3">
+                Upload a CSV file to create or update many products at once (matched by slug).
+              </p>
+              <Link href="/admin/products/bulk-import">
+                <Button className="w-full">Upload CSV</Button>
+              </Link>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-wrap gap-3 mb-4">
         <Input

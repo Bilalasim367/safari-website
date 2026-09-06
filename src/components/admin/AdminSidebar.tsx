@@ -13,6 +13,7 @@ import {
   ExternalLink,
   LogOut,
   Megaphone,
+  Upload,
 } from '@/lib/lucide-icons'
 import {
   Sheet,
@@ -22,6 +23,7 @@ import {
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/products/bulk-import', label: 'Bulk Import (CSV)', icon: Upload },
   { href: '/admin/bundles', label: 'Bundles', icon: Gift },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { href: '/admin/users', label: 'Customers', icon: Users },

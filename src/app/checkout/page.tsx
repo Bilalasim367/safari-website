@@ -268,36 +268,14 @@ export default function CheckoutPage() {
                 <div className="space-y-6 bg-card p-8">
                   <h2 className="text-xl font-semibold text-foreground mb-6">Payment Method</h2>
                   
-                  <div className="space-y-4">
-                    <label className="flex items-center gap-4 p-4 border border-input cursor-pointer hover:border-foreground transition-colors">
-                      <input 
-                        type="radio" 
-                        name="paymentMethod" 
-                        value="cod" 
-                        checked={formData.paymentMethod === "cod"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4" 
-                      />
-                      <div>
-                        <span className="font-medium text-foreground">Cash on Delivery (COD)</span>
-                        <p className="text-muted-foreground text-sm">Pay cash when courier delivers to your doorstep</p>
-                      </div>
-                    </label>
-
-                    <label className="flex items-center gap-4 p-4 border border-input cursor-pointer hover:border-foreground transition-colors">
-                      <input 
-                        type="radio" 
-                        name="paymentMethod" 
-                        value="bank_transfer"
-                        checked={formData.paymentMethod === "bank_transfer"}
-                        onChange={handleInputChange}
-                        className="w-4 h-4" 
-                      />
-                      <div>
-                        <span className="font-medium text-foreground">Direct Bank Transfer / Online</span>
-                        <p className="text-muted-foreground text-sm">Transfer to our official account after order placement</p>
-                      </div>
-                    </label>
+                  <div className="flex items-start gap-4 p-5 border-2 border-[#c9a962]/50 bg-[#c9a962]/5 rounded-lg">
+                    <span className="text-3xl leading-none">💵</span>
+                    <div>
+                      <p className="font-semibold text-foreground text-lg">Cash on Delivery (COD)</p>
+                      <p className="text-muted-foreground text-sm mt-1">
+                        We accept Cash on Delivery. Pay cash when the courier delivers to your doorstep.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="flex gap-4">
@@ -328,7 +306,7 @@ export default function CheckoutPage() {
                   <Card className="p-6">
                     <h3 className="font-medium text-foreground mb-3">Payment Method</h3>
                     <p className="text-muted-foreground">
-                      {formData.paymentMethod === "cod" ? "Cash on Delivery" : "Bank Transfer / Online"}
+                      Cash on Delivery (COD)
                     </p>
                   </Card>
 

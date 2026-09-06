@@ -54,6 +54,7 @@ interface Product {
   notes?: string;
   gender?: string;
   season?: string;
+  bestTime?: string;
   impressionOf?: string;
   tags?: string;
   currency?: string;
@@ -78,8 +79,6 @@ interface ProductDetailClientProps {
   whatsappNumber: string;
 }
 
-const DEFAULT_NOTES = ["Woody", "Musk", "Oud", "Amber"];
-
 function WhatsAppIcon({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} fill="currentColor" aria-hidden="true">
@@ -88,23 +87,18 @@ function WhatsAppIcon({ className = "" }: { className?: string }) {
   )
 }
 
-function cleanNotes(raw: string | undefined): string[] {
-  if (!raw) {
-    return DEFAULT_NOTES;
-  }
-  const notes = raw
-    .split(",")
-    .map((n) => n.trim())
-    .filter(Boolean);
-  return notes.length ? notes : DEFAULT_NOTES;
-}
-
 function formatDescription(product: Product): string {
   const source =
     product.shortDescription ||
     product.description ||
     (product.longDescription ?? "").split("\n\n")[0].replace(/\*\*/g, "");
   return source?.trim() || "";
+}
+
+// Deterministic price formatting: fixed locale (never relies on server vs browser
+// default locale) so server & client always render the exact same string.
+function formatPrice(value: number | null | undefined): string {
+  return (value ?? 0).toLocaleString("en-PK");
 }
 
 export default function ProductDetailClient({
@@ -141,12 +135,24 @@ export default function ProductDetailClient({
   const displayPrice = product?.price ?? 0;
   const displayOriginalPrice = product?.originalPrice;
 
+  // Info-card label is derived ONLY from product data (`type`) — identical on
+  // server & client, so hydration always matches.
+  const sizeLabel = isAttar ? "SIZE" : "VOLUME";
+
   const genderDisplay = product.gender?.trim() || "Unisex";
-  const familyDisplay = product.fragranceFamily?.trim() || "—";
+  const familyDisplay = product.fragranceFamily?.trim() || "";
   const sizeDisplay = (product.size?.trim() || "12 ML").toUpperCase();
-  const notes = cleanNotes(product.notes);
+  const seasonDisplay = product.season?.trim() || "";
+  const bestTimeDisplay = product.bestTime?.trim() || "";
+  const categoryDisplay = product.category?.name?.trim() || "";
   const mainDescription = formatDescription(product);
   const hasRealReviews = product.reviews > 0 && product.rating > 0;
+  const noteSections = [
+    { title: "Top Notes", items: product.notesTop || [] },
+    { title: "Heart Notes", items: product.notesHeart || [] },
+    { title: "Base Notes", items: product.notesBase || [] },
+  ];
+  const hasNotes = noteSections.some((s) => s.items.filter((n) => n?.trim()).length > 0);
 
   const mainImage = product.image?.trim() || "";
   const galleryImages = Array.isArray(product.images)
@@ -174,15 +180,18 @@ export default function ProductDetailClient({
 
   // Deterministic link (no window.location) so server & client href always match (hydration-safe)
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hi Safari Perfumes! 👋\nI want to order:\n\n*${product.name}*\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${displayPrice.toLocaleString()}\n\nPlease confirm my order. Thank you!`
+    `Hi Safari Perfumes! 👋\nI want to order:\n\n*${product.name}*\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\n\nPlease confirm my order. Thank you!`
   )}`;
 
   const infoCards = [
+    { icon: categoryDisplay ? "🏷" : null, key: "CATEGORY", value: categoryDisplay },
     { icon: "👫", key: "GENDER", value: genderDisplay },
-    { icon: "📦", key: "SIZE", value: sizeDisplay },
-    { icon: "🌿", key: "FRAGRANCE", value: familyDisplay },
-    { icon: "💰", key: "AMOUNT", value: `${currencySymbol} ${displayPrice.toLocaleString()}` },
-  ];
+    { icon: "📦", key: sizeLabel, value: sizeDisplay },
+    { icon: seasonDisplay ? "🍂" : null, key: "SEASON", value: seasonDisplay },
+    { icon: bestTimeDisplay ? "🕐" : null, key: "WHEN TO WEAR", value: bestTimeDisplay },
+    { icon: familyDisplay ? "🌿" : null, key: "FRAGRANCE FAMILY", value: familyDisplay },
+    { icon: "💰", key: "PRICE", value: `${currencySymbol} ${formatPrice(displayPrice)}` },
+  ].filter((card) => card.value && String(card.value).trim() !== "");
 
   const wishlisted = isWishlisted(product.id);
 
@@ -330,13 +339,13 @@ export default function ProductDetailClient({
                     Price
                   </p>
                   <span className="text-3xl lg:text-4xl font-bold text-[#c9a962] tracking-tight">
-                    {currencySymbol} {displayPrice.toLocaleString()}
+                    {currencySymbol} {formatPrice(displayPrice)}
                   </span>
                 </div>
                 {displayOriginalPrice && displayOriginalPrice > displayPrice && (
                   <div className="flex flex-col justify-end">
                     <span className="text-sm lg:text-base text-muted-foreground line-through">
-                      {currencySymbol} {displayOriginalPrice.toLocaleString()}
+                      {currencySymbol} {formatPrice(displayOriginalPrice)}
                     </span>
                     <span className="text-[11px] font-bold text-emerald-600">
                       Save {Math.round((1 - displayPrice / displayOriginalPrice) * 100)}%
@@ -389,19 +398,42 @@ export default function ProductDetailClient({
                 </div>
               ) : (
                 <div className="bg-white border border-border rounded-2xl p-5 mb-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-4">
                     Attar Notes
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {notes.map((note) => (
-                      <span
-                        key={note}
-                        className="rounded-full bg-[#c9a962]/15 border border-[#c9a962]/30 text-[#c9a962] text-xs font-semibold px-3.5 py-1.5"
-                      >
-                        {note}
-                      </span>
-                    ))}
-                  </div>
+                  {hasNotes ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {noteSections.map(
+                        (section) =>
+                          section.items.filter((n) => n?.trim()).length > 0 && (
+                            <div
+                              key={section.title}
+                              className="bg-[#f6efdf] rounded-2xl p-4 border border-[#c9a962]/20"
+                            >
+                              <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mb-2.5">
+                                {section.title}
+                              </h3>
+                              <div className="flex flex-wrap gap-1.5">
+                                {section.items
+                                  .filter((n) => n?.trim())
+                                  .map((note) => (
+                                    <span
+                                      key={note}
+                                      className="rounded-full bg-[#c9a962]/15 border border-[#c9a962]/30 text-[#c9a962] text-xs font-semibold px-3 py-1"
+                                    >
+                                      {note}
+                                    </span>
+                                  ))}
+                              </div>
+                            </div>
+                          )
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">
+                      Notes information coming soon
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -551,11 +583,11 @@ export default function ProductDetailClient({
               Total
             </p>
             <p className="text-lg font-bold text-white leading-tight">
-              {currencySymbol} {displayPrice.toLocaleString()}
+              {currencySymbol} {formatPrice(displayPrice)}
             </p>
             {displayOriginalPrice && displayOriginalPrice > displayPrice && (
               <p className="text-[11px] text-white/40 line-through">
-                {currencySymbol} {displayOriginalPrice.toLocaleString()}
+                {currencySymbol} {formatPrice(displayOriginalPrice)}
               </p>
             )}
           </div>
