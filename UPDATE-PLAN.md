@@ -522,6 +522,12 @@ Checkout page Order Summary showed a WRONG (old) price then the Order Items list
 
 Result: checkout, cart sidebar, subtotal/total, DB order total, and email all show the CURRENT DB price/name (e.g. PKR 1,799 + "Impression of..." prefix) even for cart lines added at an older price.
 
+### Price policy — ONE price everywhere (owner follow-up, same day)
+Owner requirement: "walad price jo show ho ri hai wahi checkout me dikhani hai, aur har jaga — checkout, order processing." So the price the customer SEES must be the price CHARGED, everywhere.
+- **Single source of truth = DB `product.price`.** Audit confirmed the storefront ONLY ever displays `product.price` (PDP `ProductDetailClient.tsx:135` `displayPrice = product.price` + handleAddToCart `price: product.price`; product cards/quick-view all use `product.price`). There is **no size selector** and **no storefront UI reads `sizePrices`** — `sizePrices` only fed the admin form, CSV import, and type-classification.
+- The `sizePrices` override previously in CartContext `effectivePrice()`, `/api/cart` `resolvePrice()`, and `/api/orders` could change the charged price to a value the customer never saw → removed in all 3 places. Now PDP price = cart price = checkout/order summary = subtotal/total = order DB price = confirmation email price.
+- Snapshot sync (PART O above) still applies: cart lines fetch fresh `name`/`price` (now = `product.price`) from `/api/products/{id}` on mount/focus/cart-change; bundles (id not in `Product` table) fall back to their snapshot price unchanged.
+
 ### Files changed
 - `src/context/CartContext.tsx` — `refreshPrices` + `effectivePrice`, sync effects (mount / cart change / focus).
 - `src/app/api/cart/route.ts` — GET+POST recompute name/price/image from DB.

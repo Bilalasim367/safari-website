@@ -89,18 +89,10 @@ export async function POST(request: Request) {
         );
       }
       const quantity = Math.min(Math.max(parseInt(String(item.quantity)) || 1, 1), 99);
-      let price = product.price;
-      if (item.size && product.sizePrices) {
-        try {
-          const sizePrices = JSON.parse(product.sizePrices);
-          const match = Array.isArray(sizePrices)
-            ? sizePrices.find((sp: { size?: string; price?: number }) => sp.size === item.size)
-            : null;
-          if (match && typeof match.price === 'number' && match.price > 0) price = match.price;
-        } catch {
-          // fall back to base price
-        }
-      }
+      // Price = current DB base price, which is the ONLY price the storefront
+      // shows (PDP / product cards). No size selector exists, so `sizePrices`
+      // must never change what the customer saw when adding to cart.
+      const price = product.price;
       validatedItems.push({
         id: product.id,
         name: product.name,

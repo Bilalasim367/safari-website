@@ -56,29 +56,14 @@ type FreshProduct = {
   sizePrices?: string | null;
 };
 
-// Effective display price for a cart line: sizePrice wins if the size is in the
-// product's sizePrices, otherwise the base DB price. Mirrors /api/orders pricing.
-function effectivePrice(product: FreshProduct, size: string): number | null {
-  const base =
-    typeof product.price === 'number' && Number.isFinite(product.price)
-      ? product.price
-      : null;
-  if (size && product.sizePrices) {
-    try {
-      const parsed = JSON.parse(product.sizePrices);
-      if (Array.isArray(parsed)) {
-        const match = parsed.find(
-          (s: { size?: string; price?: number }) => s && s.size === size
-        );
-        if (match && typeof match.price === 'number' && match.price > 0) {
-          return match.price;
-        }
-      }
-    } catch {
-      // fall back to base price
-    }
-  }
-  return base;
+// Effective price for a cart line = the CURRENT DB base price, which is the ONLY
+// price the storefront ever shows (PDP, product cards — there is no size selector
+// and no UI uses sizePrices). This keeps PDP price === cart price === checkout
+// price === order price. Never trust the snapshot price stored at add-time.
+function effectivePrice(product: FreshProduct): number | null {
+  return typeof product.price === 'number' && Number.isFinite(product.price)
+    ? product.price
+    : null;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -135,7 +120,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       prev.map((item) => {
         const p = map.get(item.id);
         if (!p) return item;
-        const price = effectivePrice(p, item.size);
+        const price = effectivePrice(p);
         return {
           ...item,
           name: p.name ? p.name : item.name,

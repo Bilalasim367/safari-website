@@ -12,25 +12,11 @@ interface CartItem {
   quantity: number;
 }
 
-// Effective price for a cart line from the CURRENT DB product: sizePrice wins if
-// the size is in the product's sizePrices, otherwise the base price. Server-side
-// only — never trust the client-supplied snapshot price.
-function resolvePrice(product: { price: number; sizePrices: string | null }, size: string): number {
-  if (size && product.sizePrices) {
-    try {
-      const parsed: unknown = JSON.parse(product.sizePrices);
-      if (Array.isArray(parsed)) {
-        const match = (parsed as { size?: string; price?: number }[]).find(
-          (s) => s && s.size === size
-        );
-        if (match && typeof match.price === 'number' && match.price > 0) {
-          return match.price;
-        }
-      }
-    } catch {
-      // fall back to base price
-    }
-  }
+// Effective price for a cart line = the CURRENT DB base price. This is the ONLY
+// price the storefront shows (PDP, product cards); there is no size selector and
+// no storefront UI uses sizePrices. Server-side only — never trust the
+// client-supplied snapshot price.
+function resolvePrice(product: { price: number }): number {
   return product.price;
 }
 
@@ -58,7 +44,7 @@ export async function GET() {
     const products = ids.length
       ? await prisma.product.findMany({
           where: { id: { in: ids } },
-          select: { id: true, name: true, price: true, image: true, sizePrices: true },
+          select: { id: true, name: true, price: true, image: true },
         })
       : [];
     const productMap = new Map(products.map((p) => [p.id, p]));
@@ -70,7 +56,7 @@ export async function GET() {
       return {
         id: item.productId,
         name: p?.name || item.name,
-        price: p ? resolvePrice(p, item.size) : item.price,
+        price: p ? resolvePrice(p) : item.price,
         image: p?.image || item.image,
         size: item.size,
         quantity: item.quantity,
@@ -118,7 +104,7 @@ export async function POST(request: Request) {
     const products = ids.length
       ? await prisma.product.findMany({
           where: { id: { in: ids } },
-          select: { id: true, name: true, price: true, image: true, size: true, sizePrices: true },
+          select: { id: true, name: true, price: true, image: true, size: true },
         })
       : [];
     const productMap = new Map(products.map((p) => [p.id, p]));
@@ -135,7 +121,7 @@ export async function POST(request: Request) {
                 // Fresh DB values win; fall back to the snapshot only when the
                 // product no longer exists (so the line is not silently dropped).
                 name: p?.name || item.name || 'Unknown',
-                price: p ? resolvePrice(p, item.size) : Number(item.price) || 0,
+                price: p ? resolvePrice(p) : Number(item.price) || 0,
                 image: p?.image || item.image || '',
                 size: item.size || p?.size || '',
                 quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
