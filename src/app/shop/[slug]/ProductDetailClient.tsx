@@ -3,10 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import ProductCard from "@/components/ProductCard";
+import ShopProductCard from "@/app/shop/ShopProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { ChevronLeft, Minus, Plus, Heart, Truck, Shield } from "lucide-react";
+import { defaultSizeForType } from "@/lib/normalize";
+import { ChevronLeft, Minus, Plus, Heart, Truck, Shield, Sparkles, Gem, Flame } from "lucide-react";
 import { Rating } from "@/components/Rating";
 import ScarcityLine from "@/components/ScarcityLine";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ export interface RelatedProduct {
   name: string;
   slug: string;
   price: number;
+  originalPrice: number | null;
   image: string;
   images: string[];
   category: string;
@@ -28,6 +30,14 @@ export interface RelatedProduct {
   season: string | null;
   impressionOf: string | null;
   currency: string | null;
+}
+
+export interface ReviewItem {
+  id: string;
+  customerName: string;
+  rating: number;
+  text: string;
+  date: string;
 }
 
 interface Product {
@@ -77,6 +87,15 @@ interface ProductDetailClientProps {
   relatedProducts: RelatedProduct[];
   freeShippingThreshold: number | null;
   whatsappNumber: string;
+  reviewsList: ReviewItem[];
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function formatDate(date: string): string {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return date;
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 function WhatsAppIcon({ className = "" }: { className?: string }) {
@@ -95,8 +114,6 @@ function formatDescription(product: Product): string {
   return source?.trim() || "";
 }
 
-// Deterministic price formatting: fixed locale (never relies on server vs browser
-// default locale) so server & client always render the exact same string.
 function formatPrice(value: number | null | undefined): string {
   return (value ?? 0).toLocaleString("en-PK");
 }
@@ -106,6 +123,7 @@ export default function ProductDetailClient({
   relatedProducts,
   freeShippingThreshold,
   whatsappNumber,
+  reviewsList,
 }: ProductDetailClientProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
@@ -118,11 +136,11 @@ export default function ProductDetailClient({
 
   if (!product) {
     return (
-      <div className="py-24 text-center">
+      <div className="bg-[#0a0a0a] py-24 text-center">
         <div className="container-custom">
-          <h1 className="text-4xl font-serif text-foreground mb-4">Product Not Found</h1>
-          <p className="text-muted-foreground mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
-          <Link href="/shop" className="btn-primary">
+          <h1 className="text-4xl font-serif text-white mb-4">Product Not Found</h1>
+          <p className="text-[#8a867f] mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
+          <Link href="/shop" className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#B6965D] hover:bg-[#c9a873] px-8 py-3 text-sm font-bold uppercase tracking-wider text-black transition-colors">
             Back to Shop
           </Link>
         </div>
@@ -135,22 +153,17 @@ export default function ProductDetailClient({
   const displayPrice = product?.price ?? 0;
   const displayOriginalPrice = product?.originalPrice;
 
-  // Info-card label is derived ONLY from product data (`type`) — identical on
-  // server & client, so hydration always matches.
   const sizeLabel = isAttar ? "SIZE" : "VOLUME";
 
   const genderDisplay = product.gender?.trim() || "Unisex";
-  const familyDisplay = product.fragranceFamily?.trim() || "";
   const sizeDisplay = (product.size?.trim() || "12 ML").toUpperCase();
-  const seasonDisplay = product.season?.trim() || "";
-  const bestTimeDisplay = product.bestTime?.trim() || "";
   const categoryDisplay = product.category?.name?.trim() || "";
   const mainDescription = formatDescription(product);
   const hasRealReviews = product.reviews > 0 && product.rating > 0;
   const noteSections = [
-    { title: "Top Notes", items: product.notesTop || [] },
-    { title: "Heart Notes", items: product.notesHeart || [] },
-    { title: "Base Notes", items: product.notesBase || [] },
+    { title: "Top Notes", items: product.notesTop || [], icon: Sparkles },
+    { title: "Heart Notes", items: product.notesHeart || [], icon: Gem },
+    { title: "Base Notes", items: product.notesBase || [], icon: Flame },
   ];
   const hasNotes = noteSections.some((s) => s.items.filter((n) => n?.trim()).length > 0);
 
@@ -171,97 +184,97 @@ export default function ProductDetailClient({
         name: product.name,
         price: product.price,
         image: product.image,
-        size: product.size?.trim() || "12ml",
+        size: product.size?.trim() || defaultSizeForType(product.type),
         quantity,
       });
       toast.success(`${product.name} added to cart!`);
     }
   };
 
-  // Deterministic link (no window.location) so server & client href always match (hydration-safe)
+  const productUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/shop/${product.slug}`;
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hi Safari Perfumes! 👋\nI want to order:\n\n*${product.name}*\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\n\nPlease confirm my order. Thank you!`
+    `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\nQuantity: ${quantity}\nLink: ${productUrl}`
   )}`;
 
-  const infoCards = [
-    { icon: categoryDisplay ? "🏷" : null, key: "CATEGORY", value: categoryDisplay },
+  const infoChips = [
     { icon: "👫", key: "GENDER", value: genderDisplay },
     { icon: "📦", key: sizeLabel, value: sizeDisplay },
-    { icon: seasonDisplay ? "🍂" : null, key: "SEASON", value: seasonDisplay },
-    { icon: bestTimeDisplay ? "🕐" : null, key: "WHEN TO WEAR", value: bestTimeDisplay },
-    { icon: familyDisplay ? "🌿" : null, key: "FRAGRANCE FAMILY", value: familyDisplay },
-    { icon: "💰", key: "PRICE", value: `${currencySymbol} ${formatPrice(displayPrice)}` },
-  ].filter((card) => card.value && String(card.value).trim() !== "");
+  ].filter((chip) => chip.value && String(chip.value).trim() !== "");
 
   const wishlisted = isWishlisted(product.id);
+
+  const scrollToReviews = () => {
+    document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const mobileBottomPadding = "pb-24 lg:pb-0";
 
   return (
     <>
-      <div className={mobileBottomPadding}>
+      <div className={`-mt-20 md:-mt-28 bg-[#0a0a0a] text-[#b8b3ab] ${mobileBottomPadding}`}>
         <div className="container-custom py-6 lg:py-12">
-          {/* Mobile back row (main site header handles nav on desktop) */}
+          {/* Mobile back row */}
           <button
             type="button"
             onClick={() => router.back()}
             aria-label="Go back"
-            className="lg:hidden inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-[#c9a962] transition-colors mb-4"
+            className="lg:hidden inline-flex items-center gap-1 text-sm font-semibold text-[#8a867f] hover:text-[#c9a873] transition-colors mb-4"
           >
             <ChevronLeft className="h-4 w-4" />
             Back
           </button>
 
           {/* Desktop-only breadcrumb */}
-          <nav className="hidden lg:block text-xs text-muted-foreground mb-8">
-            <Link href="/" className="hover:text-[#c9a962] transition-colors">
+          <nav className="hidden lg:block text-xs text-[#8a867f] mb-8">
+            <Link href="/" className="hover:text-[#c9a873] transition-colors">
               Home
             </Link>
             <span className="mx-2">/</span>
-            <Link href="/shop" className="hover:text-[#c9a962] transition-colors">
+            <Link href="/shop" className="hover:text-[#c9a873] transition-colors">
               Shop
             </Link>
             <span className="mx-2">/</span>
-            <span className="text-foreground">{product.name}</span>
+            <span className="text-white">{product.name}</span>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16">
             {/* ── LEFT: image gallery (sticky on desktop) ── */}
             <div className="lg:sticky lg:top-[320px] lg:self-start">
-              <div className="relative bg-muted overflow-hidden rounded-2xl border border-border aspect-[3/4] lg:aspect-square">
+              <div className="relative bg-[#161616] overflow-hidden rounded-2xl border border-[#B6965D]/20 aspect-[3/4] lg:aspect-square">
                 {productImages[selectedImage] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
+                    key={selectedImage}
                     src={productImages[selectedImage]}
                     alt={`${product.name} perfume bottle - Safari Perfumes Pakistan`}
-                    className="w-full h-full object-cover"
+                    className="pdp-fade w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-muted-foreground text-lg">[Product Image]</span>
+                    <span className="text-[#8a867f] text-lg">[Product Image]</span>
                   </div>
                 )}
                 {product.isNew && (
-                  <span className="absolute top-3 left-3 bg-[#c9a962] text-black text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
+                  <span className="absolute top-3 left-3 bg-[#B6965D] text-black text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
                     New
                   </span>
                 )}
                 {product.isBestseller && (
-                  <span className="absolute top-3 right-3 bg-black/80 text-[#c9a962] text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#c9a962]/40">
+                  <span className="absolute top-3 right-3 bg-black/80 text-[#c9a873] text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#B6965D]/40">
                     Bestseller
                   </span>
                 )}
               </div>
 
               {productImages.length > 1 && (
-                <div className="flex gap-2.5 mt-3 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2.5 mt-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
                   {productImages.map((img: string, index: number) => (
                     <button
                       key={index}
-                      className={`relative w-16 h-20 shrink-0 overflow-hidden rounded-lg cursor-pointer transition-all ${
+                      className={`relative w-16 h-20 shrink-0 overflow-hidden rounded-lg cursor-pointer transition-all snap-start ${
                         selectedImage === index
-                          ? "ring-2 ring-[#c9a962] ring-offset-2 ring-offset-background"
-                          : "opacity-60 hover:opacity-100"
+                          ? "border-2 border-[#B6965D]"
+                          : "border border-[#B6965D]/25 opacity-60 hover:opacity-100"
                       }`}
                       onClick={() => setSelectedImage(index)}
                       aria-label={`View image ${index + 1}`}
@@ -279,20 +292,20 @@ export default function ProductDetailClient({
               <div className="flex items-start justify-between gap-3 mb-3 lg:mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    {product.category?.name && (
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c9a962] border border-[#c9a962]/40 rounded-full px-3 py-1">
-                        {product.category.name}
+                    {categoryDisplay && (
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#c9a873] border border-[#B6965D]/40 rounded-full px-3 py-1">
+                        {categoryDisplay}
                       </span>
                     )}
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] bg-black text-[#c9a962] rounded-full px-3 py-1 border border-white/10">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] bg-[#B6965D]/15 text-[#c9a873] rounded-full px-3 py-1 border border-[#B6965D]/40">
                       {isAttar ? "Attar" : "Perfume"}
                     </span>
                   </div>
-                  <h1 className="font-heading text-2xl md:text-4xl lg:text-[42px] font-bold tracking-tight text-foreground leading-tight lg:leading-[1.15]">
+                  <h1 className="font-heading text-2xl md:text-4xl lg:text-[42px] font-bold tracking-tight text-[#f5f1e8] leading-tight lg:leading-[1.15]">
                     {product.name}
                   </h1>
                   {product.impressionOf && (
-                    <p className="text-sm text-muted-foreground italic mt-1.5">
+                    <p className="text-sm text-[#8a867f] italic mt-1.5">
                       Impression of {product.impressionOf}
                     </p>
                   )}
@@ -303,8 +316,8 @@ export default function ProductDetailClient({
                   aria-label="Toggle wishlist"
                   className={`hidden lg:flex items-center justify-center w-11 h-11 rounded-full border transition-colors shrink-0 ${
                     wishlisted
-                      ? "border-[#c9a962] bg-[#c9a962]/15 text-[#c9a962]"
-                      : "border-border bg-white text-muted-foreground hover:text-[#c9a962] hover:border-[#c9a962]/50"
+                      ? "border-[#B6965D] bg-[#B6965D]/15 text-[#c9a873]"
+                      : "border-[#B6965D]/25 bg-white/5 text-[#8a867f] hover:text-[#c9a873] hover:border-[#B6965D]/50"
                   }`}
                 >
                   <Heart className={`h-5 w-5 ${wishlisted ? "fill-current" : ""}`} />
@@ -313,8 +326,17 @@ export default function ProductDetailClient({
 
               {/* Rating row (or scarcity fallback) */}
               {hasRealReviews ? (
-                <div className="flex items-center gap-1 mb-4">
-                  <Rating rating={product.rating} reviews={product.reviews} />
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Rating rating={product.rating} />
+                  {reviewsList.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={scrollToReviews}
+                      className="text-sm font-semibold text-[#c9a873] underline-offset-2 hover:underline whitespace-nowrap"
+                    >
+                      ({product.reviews} reviews)
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="mb-4">
@@ -322,37 +344,55 @@ export default function ProductDetailClient({
                 </div>
               )}
 
-              {/* Mobile: size badge next to title area (already in header row above) */}
+              {/* Mobile: size badge + stock */}
               <div className="mb-4 -mt-1 flex items-center gap-2 lg:hidden">
-                <span className="inline-flex items-center gap-1 bg-[#c9a962]/15 text-[#c9a962] text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#c9a962]/30">
+                <span className="inline-flex items-center gap-1 bg-[#B6965D]/15 text-[#c9a873] text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#B6965D]/30">
                   {sizeDisplay}
                 </span>
-                <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold">
+                <span className="inline-flex items-center gap-1 text-emerald-400 text-xs font-semibold">
                   ✅ In Stock
                 </span>
               </div>
 
-              {/* Price pill */}
-              <div className="mb-6 inline-flex items-baseline gap-x-3 gap-y-1 flex-wrap bg-[#faf3e3] border border-[#c9a962]/40 rounded-2xl px-5 py-4">
+              {/* Price box */}
+              <div className="mb-6 inline-flex items-baseline gap-x-3 gap-y-1 flex-wrap bg-[#161616] border border-[#B6965D]/20 rounded-2xl px-5 py-4">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-0.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8a867f] mb-0.5">
                     Price
                   </p>
-                  <span className="text-3xl lg:text-4xl font-bold text-[#c9a962] tracking-tight">
+                  <span className="text-3xl lg:text-4xl font-bold text-[#B6965D] tracking-tight">
                     {currencySymbol} {formatPrice(displayPrice)}
                   </span>
                 </div>
                 {displayOriginalPrice && displayOriginalPrice > displayPrice && (
                   <div className="flex flex-col justify-end">
-                    <span className="text-sm lg:text-base text-muted-foreground line-through">
+                    <span className="text-sm lg:text-base text-[#8a867f] line-through">
                       {currencySymbol} {formatPrice(displayOriginalPrice)}
                     </span>
-                    <span className="text-[11px] font-bold text-emerald-600">
+                    <span className="text-[11px] font-bold text-emerald-400">
                       Save {Math.round((1 - displayPrice / displayOriginalPrice) * 100)}%
                     </span>
                   </div>
                 )}
               </div>
+
+              {/* Gender + Size chips only (price chip removed — duplicated in price box) */}
+              {infoChips.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-6">
+                  {infoChips.map((chip) => (
+                    <div
+                      key={chip.key}
+                      className="flex items-center gap-2.5 rounded-full bg-[#161616] border border-[#B6965D]/25 px-4 py-2"
+                    >
+                      <span className="text-lg leading-none">{chip.icon}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8a867f]">
+                        {chip.key}
+                      </span>
+                      <span className="text-sm font-bold text-white">{chip.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Tabs */}
               <div className="flex gap-2 mb-6">
@@ -361,8 +401,8 @@ export default function ProductDetailClient({
                   onClick={() => setActiveTab("description")}
                   className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
                     activeTab === "description"
-                      ? "bg-[#c9a962] text-black"
-                      : "border border-[#c9a962]/50 text-[#c9a962] hover:bg-[#c9a962]/10"
+                      ? "bg-[#B6965D] text-black"
+                      : "border border-[#B6965D]/50 text-[#c9a873] hover:bg-[#B6965D]/10"
                   }`}
                 >
                   Description
@@ -372,8 +412,8 @@ export default function ProductDetailClient({
                   onClick={() => setActiveTab("notes")}
                   className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
                     activeTab === "notes"
-                      ? "bg-[#c9a962] text-black"
-                      : "border border-[#c9a962]/50 text-[#c9a962] hover:bg-[#c9a962]/10"
+                      ? "bg-[#B6965D] text-black"
+                      : "border border-[#B6965D]/50 text-[#c9a873] hover:bg-[#B6965D]/10"
                   }`}
                 >
                   Attar Notes
@@ -382,23 +422,23 @@ export default function ProductDetailClient({
 
               {/* Tab content */}
               {activeTab === "description" ? (
-                <div className="bg-white border border-border rounded-2xl p-5 mb-6">
-                  <p className={`text-sm lg:text-[15px] text-muted-foreground leading-relaxed ${!expanded ? "line-clamp-3" : ""}`}>
+                <div className="bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-5 mb-6">
+                  <p className={`text-[15px] text-[#b8b3ab] leading-[1.7] ${!expanded ? "line-clamp-3" : ""}`}>
                     {mainDescription}
                   </p>
                   {mainDescription.length > 140 && (
                     <button
                       type="button"
                       onClick={() => setExpanded((v) => !v)}
-                      className="mt-2 text-sm font-semibold text-[#c9a962] hover:underline inline-flex items-center gap-1"
+                      className="mt-2 text-sm font-semibold text-[#c9a873] hover:underline inline-flex items-center gap-1"
                     >
                       {expanded ? "Show less" : "... Show more"}
                     </button>
                   )}
                 </div>
               ) : (
-                <div className="bg-white border border-border rounded-2xl p-5 mb-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-4">
+                <div className="bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-5 mb-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a867f] mb-4">
                     Attar Notes
                   </p>
                   {hasNotes ? (
@@ -408,18 +448,21 @@ export default function ProductDetailClient({
                           section.items.filter((n) => n?.trim()).length > 0 && (
                             <div
                               key={section.title}
-                              className="bg-[#f6efdf] rounded-2xl p-4 border border-[#c9a962]/20"
+                              className="bg-[#0f0f0f] rounded-2xl p-4 border border-[#B6965D]/15"
                             >
-                              <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mb-2.5">
-                                {section.title}
-                              </h3>
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <section.icon className="h-4 w-4 text-[#B6965D]" />
+                                <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#c9a873]">
+                                  {section.title}
+                                </h3>
+                              </div>
                               <div className="flex flex-wrap gap-1.5">
                                 {section.items
                                   .filter((n) => n?.trim())
                                   .map((note) => (
                                     <span
                                       key={note}
-                                      className="rounded-full bg-[#c9a962]/15 border border-[#c9a962]/30 text-[#c9a962] text-xs font-semibold px-3 py-1"
+                                      className="rounded-full bg-[#B6965D]/10 border border-[#B6965D]/25 text-[#c9a873] text-xs font-semibold px-3 py-1"
                                     >
                                       {note}
                                     </span>
@@ -430,78 +473,68 @@ export default function ProductDetailClient({
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground italic">
+                    <p className="text-sm text-[#8a867f] italic">
                       Notes information coming soon
                     </p>
                   )}
                 </div>
               )}
 
-              {/* Info cards 2x2 */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {infoCards.map((card) => (
-                  <div key={card.key} className="bg-[#f6efdf] rounded-2xl p-3.5 border border-[#c9a962]/20">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-lg leading-none">{card.icon}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                        {card.key}
-                      </span>
-                    </div>
-                    <p className="text-sm lg:text-[15px] font-bold text-foreground">{card.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Action area — stacked full-width CTAs */}
+              {/* Qty stepper + CTAs */}
               <div className="flex flex-col gap-3 mb-5">
-                {/* Qty stepper */}
-                <div className="flex items-center justify-between border border-border rounded-full bg-white px-2 min-h-[52px] w-[140px]">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    aria-label="Decrease quantity"
-                    className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-[#c9a962] transition-colors"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="text-sm font-bold text-foreground">{quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(quantity + 1)}
-                    aria-label="Increase quantity"
-                    className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:text-[#c9a962] transition-colors"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
+                <div className="flex items-center gap-4">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#c9a873]">
+                    Qty
+                  </span>
+                  <div className="flex items-center border border-[#B6965D]/40 rounded-full bg-[#161616] p-1 pr-3">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      aria-label="Decrease quantity"
+                      className="flex items-center justify-center w-11 h-11 rounded-full text-[#c9a873] hover:bg-[#B6965D]/15 hover:text-white transition-colors"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-bold text-white">{quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(quantity + 1)}
+                      aria-label="Increase quantity"
+                      className="flex items-center justify-center w-11 h-11 rounded-full text-[#c9a873] hover:bg-[#B6965D]/15 hover:text-white transition-colors"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="w-full min-h-[56px] rounded-full bg-[#c9a962] hover:bg-[#b8923d] text-black text-base font-bold uppercase tracking-wider px-8 transition-colors"
+                  className="w-full min-h-[56px] rounded-full bg-[#B6965D] hover:bg-[#c9a873] text-black text-base font-bold uppercase tracking-wider px-8 transition-all duration-300 shadow-[0_0_20px_rgba(182,150,93,0.3)] hover:shadow-[0_0_32px_rgba(182,150,93,0.55)]"
                 >
                   Add to Cart
                 </button>
 
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 min-h-[52px] rounded-full border-2 border-[#25D366] bg-white text-[#128C4A] hover:bg-[#25D366]/10 text-sm font-bold uppercase tracking-wider px-8 transition-colors"
-                >
-                  <WhatsAppIcon className="w-5 h-5" />
-                  WhatsApp pe Order Karein
-                </a>
+<a
+  href={whatsappLink}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="w-full inline-flex items-center justify-center gap-2 min-h-[52px] rounded-full border-2 border-[#25D366] bg-[#0a0a0a] text-white hover:bg-[#25D366]/10 text-sm font-bold uppercase tracking-wider px-8 transition-colors"
+>
+  <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
+  Order on WhatsApp
+</a>
               </div>
 
               {/* Trust strip (desktop) */}
-              <div className="hidden lg:flex items-center justify-center gap-6 flex-wrap text-xs text-muted-foreground mb-6 bg-white border border-border rounded-2xl p-3.5">
+              <div className="hidden lg:flex items-center justify-center gap-6 flex-wrap text-xs text-[#8a867f] mb-6 bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-3.5">
                 <span className="flex items-center gap-1.5">
-                  <Shield className="w-4 h-4 text-[#c9a962]" /> 100% Original
+                  <Shield className="w-4 h-4 text-[#B6965D]" /> 100% Original
                 </span>
                 <span className="flex items-center gap-1.5">💵 Cash on Delivery</span>
                 <span className="flex items-center gap-1.5">
-                  <Truck className="w-4 h-4 text-[#c9a962]" /> Free Shipping {freeShippingThreshold ? `999+` : "Nationwide"}
+                  <Truck className="w-4 h-4 text-[#B6965D]" /> Free Shipping{" "}
+                  {freeShippingThreshold ? `over ${currencySymbol} ${formatPrice(freeShippingThreshold)}` : "Nationwide"}
                 </span>
               </div>
 
@@ -517,57 +550,80 @@ export default function ProductDetailClient({
 
         {/* Customer Reviews */}
         {hasRealReviews && (
-          <section className="py-8 lg:py-14 bg-background border-y border-border">
+          <section id="reviews" className="scroll-mt-56 py-10 lg:py-16 bg-[#0a0a0a] border-t border-[#B6965D]/15">
             <div className="container-custom">
-              <div className="max-w-3xl mx-auto text-center">
-                <h2 className="font-heading text-2xl lg:text-3xl text-foreground mb-4">
+              <div className="max-w-3xl mx-auto text-center mb-8 lg:mb-12">
+                <h2 className="font-heading text-2xl lg:text-3xl text-[#f5f1e8] mb-4">
                   Customer Reviews
                 </h2>
-                <p className="text-6xl lg:text-7xl font-bold text-foreground">{product.rating}</p>
+                <p className="text-6xl lg:text-7xl font-bold text-[#B6965D]">{product.rating}</p>
                 <div className="flex items-center justify-center gap-1 mt-2">
-                  <Rating rating={product.rating} reviews={product.reviews} size="sm" />
+                  <Rating rating={product.rating} reviews={product.reviews} size="sm" color="gold" />
                 </div>
-                <p className="text-muted-foreground mt-2">
+                <p className="text-[#8a867f] mt-2 text-sm">
                   Based on {product.reviews} {product.reviews === 1 ? "review" : "reviews"}
                 </p>
               </div>
+              {reviewsList.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                  {reviewsList.map((review) => (
+                    <div
+                      key={review.id}
+                      className="bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-5 lg:p-6"
+                    >
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-[#B6965D]/15 text-[#c9a873] flex items-center justify-center font-heading font-bold shrink-0">
+                            {(review.customerName || "S").charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-white font-semibold text-sm truncate">{review.customerName}</p>
+                            <p className="text-[#8a867f] text-xs">{formatDate(review.date)}</p>
+                          </div>
+                        </div>
+                        <Rating rating={review.rating} size="sm" color="gold" />
+                      </div>
+                      <p className="text-[#b8b3ab] text-sm leading-relaxed">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-[#8a867f] text-sm">No written reviews yet.</p>
+              )}
             </div>
           </section>
         )}
 
         {/* Related products */}
-        <section className="py-10 lg:py-16 bg-muted">
+        <section className="py-10 lg:py-16 bg-[#0e0e0e] border-t border-[#B6965D]/15 scroll-mt-56">
           <div className="container-custom">
-            <h2 className="font-heading text-2xl lg:text-3xl text-center mb-8">
+            <h2 className="font-heading text-2xl lg:text-3xl text-[#f5f1e8] text-center mb-8">
               You May Also Like
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
               {relatedProducts.map((relProduct) => (
-                <ProductCard
+                <ShopProductCard
                   key={relProduct.id}
                   id={String(relProduct.id)}
                   name={relProduct.name}
                   slug={relProduct.slug}
                   price={relProduct.price}
+                  originalPrice={relProduct.originalPrice}
                   image={relProduct.image}
                   images={relProduct.images}
-                  category={relProduct.category || "Unisex"}
-                  isNew={relProduct.isNew}
-                  isBestseller={relProduct.isBestseller}
+                  size={relProduct.size}
                   rating={relProduct.rating}
                   reviewCount={relProduct.reviewCount}
-                  gender={relProduct.gender || undefined}
-                  season={relProduct.season || undefined}
-                  impressionOf={relProduct.impressionOf || undefined}
                   currency={relProduct.currency || "PKR"}
+                  variant="dark"
                 />
               ))}
               {Array.from({ length: Math.max(0, 4 - relatedProducts.length) }).map((_, i) => (
-                <div key={`skeleton-${i}`} className="space-y-4">
-                  <div className="aspect-[3/4] w-full rounded-lg bg-gray-200 animate-pulse" />
-                  <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
-                  <div className="h-6 w-32 bg-gray-200 animate-pulse rounded" />
-                  <div className="h-5 w-20 bg-gray-200 animate-pulse rounded" />
+                <div key={`skeleton-${i}`} className="space-y-3 rounded-xl border border-[#B6965D]/15 bg-[#161616] p-2">
+                  <div className="aspect-[3/4] w-full rounded-lg bg-white/5 animate-pulse" />
+                  <div className="h-4 w-24 bg-white/5 animate-pulse rounded" />
+                  <div className="h-6 w-32 bg-white/5 animate-pulse rounded" />
+                  <div className="h-5 w-20 bg-white/5 animate-pulse rounded" />
                 </div>
               ))}
             </div>
@@ -576,10 +632,10 @@ export default function ProductDetailClient({
       </div>
 
       {/* Mobile sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-black border-t border-white/10 px-4 py-3 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-black border-t border-[#B6965D]/20 px-4 py-3 shadow-lg">
         <div className="flex items-center justify-between gap-3">
           <div className="flex-shrink-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c9a962]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c9a873]">
               Total
             </p>
             <p className="text-lg font-bold text-white leading-tight">
@@ -592,11 +648,11 @@ export default function ProductDetailClient({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 border border-white/20 rounded-full h-10 px-2">
+            <div className="flex items-center gap-1 border border-[#B6965D]/40 rounded-full h-12 px-1 bg-[#0f0f0f]">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 aria-label="Decrease quantity"
-                className="w-8 h-8 flex items-center justify-center text-white/70 hover:text-[#c9a962] transition-colors"
+                className="flex items-center justify-center rounded-full text-white/70 hover:text-[#c9a873] transition-colors w-11 h-11"
               >
                 <Minus className="h-4 w-4" />
               </button>
@@ -604,14 +660,14 @@ export default function ProductDetailClient({
               <button
                 onClick={() => setQuantity(quantity + 1)}
                 aria-label="Increase quantity"
-                className="w-8 h-8 flex items-center justify-center text-white/70 hover:text-[#c9a962] transition-colors"
+                className="flex items-center justify-center rounded-full text-white/70 hover:text-[#c9a873] transition-colors w-11 h-11"
               >
                 <Plus className="h-4 w-4" />
               </button>
             </div>
             <button
               onClick={handleAddToCart}
-              className="rounded-full bg-[#c9a962] hover:bg-[#b8923d] text-black text-sm font-bold uppercase tracking-wider px-6 h-10 transition-colors"
+              className="rounded-full bg-[#B6965D] hover:bg-[#c9a873] text-black text-sm font-bold uppercase tracking-wider px-5 h-12 transition-colors"
             >
               Add to Cart
             </button>

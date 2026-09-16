@@ -34,6 +34,8 @@ export function FilterSection({
   paramKey,
   priceRanges,
   currentParams,
+  headingClassName,
+  rowClassName,
 }: {
   title: string;
   options: string[];
@@ -41,6 +43,8 @@ export function FilterSection({
   paramKey: string;
   priceRanges?: { label: string; min: number; max: number }[];
   currentParams: SearchParams;
+  headingClassName?: string;
+  rowClassName?: string;
 }) {
   const buildHref = (option: string, isSelected: boolean) => {
     const sp = new URLSearchParams();
@@ -73,14 +77,14 @@ export function FilterSection({
 
   return (
     <div className="mb-8">
-      <h3 className="text-foreground text-xs font-bold uppercase tracking-[0.2em] mb-4">{title}</h3>
+      <h3 className={headingClassName ?? 'text-foreground text-xs font-bold uppercase tracking-[0.2em] mb-4'}>{title}</h3>
       <div className="space-y-3">
         {options.map((option) => {
           const isSelected = selected.includes(option);
           const href = buildHref(option, isSelected);
 
           return (
-            <Link key={option} href={href} className="flex items-center gap-3 group">
+            <Link key={option} href={href} className={`flex items-center gap-3 group ${rowClassName ?? ''}`}>
               <span
                 className={`w-4 h-4 border flex items-center justify-center ${
                   isSelected

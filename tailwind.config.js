@@ -36,9 +36,9 @@ const config = {
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         gold: {
-          DEFAULT: '#C9A84C',
-          light: '#d4b870',
-          hover: '#b8923d',
+          DEFAULT: '#B6965D',
+          light: '#c9a873',
+          hover: '#9c7f4d',
         },
         charcoal: {
           DEFAULT: '#1C1C1A',

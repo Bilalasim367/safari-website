@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import HomePage from "@/components/HomePage"
 import { classifyProductType } from "@/lib/product-types"
+import { defaultSizeForType } from "@/lib/normalize"
 import { SITE_URL } from "@/lib/site"
 import type { Metadata } from "next"
 
@@ -60,7 +61,7 @@ function mapProduct(p: {
     isNew: p.isNew,
     isHotSelling: p.isHotSelling,
     isTrending: p.isTrending,
-    size: p.size || "50ml",
+    size: p.size || defaultSizeForType(classifyProductType(p)),
     inStock: p.inStock,
     rating: p.rating,
     reviewCount: p.reviewCount,

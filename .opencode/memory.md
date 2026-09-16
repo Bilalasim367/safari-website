@@ -612,5 +612,247 @@ Deployment is Vercel serverless (vercel.json, Fluid, ephemeral FS) → libSQL em
 ## Open items
 - 34 lint warnings (pre-existing unused vars in test files) — out of scope
 - Remaining eslint-disable setState-in-effect in storefront contexts (WishlistContext:24, CartContext:118, Header:76, account:61, track:97) — pre-existing, out of scope
+- 6 pre-existing TS errors reported by `tsc --noEmit` (seed.ts `pool`, api/admin/products POST `sizePrices` missing, orders/by-number `userId`, bundles/page `_count`) — pre-existing; build ignores type errors (`next.config.js` sets `typescript.ignoreBuildErrors: true`)
+
+---
+
+# BULK PRICE UPDATE — COMPLETED 2026-09-14
+
+Rewrote the admin Bulk Price Update feature for the actual supplier CSV format.
+
+## CSV format handled (this file is the source format)
+```
+Row 1: (blank)                 → ignored
+Row 2: "Final Perfumes Prices and Category List"  → title, ignored
+Row 3: (blank)                 → ignored
+Row 4: header Sr. #, Perfume Oil, Price of 100 Gram Oil, Attar Price (1 Tola),
+       Box Price (1 Tola), Bottle Price (1 Tola), Printing Cost, Flyer Cost,
+       Delivery Charges, Total Cost (1 Tola), Selling Price
+Row 5+: product rows
+Last:  Total summary row       → ignored
+```
+Header row is located dynamically (row containing "Perfume Oil" + "Selling Price"),
+so preamble length changes do not break the parser.
+
+## Files added
+- `src/lib/text-match.ts` — dependency-free normalization + fuzzy matching.
+  `normalizeProductName` (NFKC, lowercase, `&`→and, strips `{...}`, trailing `PRM`,
+  all punctuation→space, collapse whitespace; parens content KEPT so EDT≠EDP≠Parfum).
+  `similarity` = 0.4·bigram-Dice + 0.4·token-containment + 0.2·Levenshtein.
+  `bestFuzzyMatch` two-tier: ≥0.90 auto, or ≥0.82 if unambiguous (gap ≥0.12 to runner-up).
+- `src/lib/bulk-price.ts` — reusable parser/matcher module (also future-reusable for
+  bulk product import from the same CSV):
+  `parsePriceCsv` (PapaParse, header auto-located, Total/gaps skipped, quoted commas+
+  escaped quotes, decimal prices), `dedupeRows` (last occurrence wins per normalized
+  name), `buildDbIndex`/`matchRows` (exact normalized → fuzzy; DB-name duplicates → all
+  updated), `resolveMatchedIds`, `diffProductPrices` (single source of truth for the
+  CSV→DB mapping: `Selling Price → price`, `Price of 100 Gram Oil → oilPricePer100g`;
+  other CSV columns parsed but not written — no matching plumbing column exists).
+
+## Files modified
+- `src/app/api/admin/products/bulk-price/route.ts` — rewrote POST:
+  admin JWT+role check, 5MB + `.csv`-only (decision: CSV only, consistent with
+  bulk-upload route), row cap 3000, preview vs apply modes, all writes + audit in a
+  single `prisma.$transaction`. Apply mode only writes fields that actually differ.
+- `src/app/admin/(protected)/products/bulk-price/page.tsx` — rewrote UI:
+  drag&drop + browse, sample CSV (real format), preview stats bar (rows/matched/price
+  changes/not found/invalid/duplicates), full row table with old→new highlights,
+  not-found section + "Download not-found CSV", duplicates (last wins) section,
+  Confirm Update → applied summary, per-field audit.
+- `prisma/schema.prisma` — new `PriceUpdateLog` model (audit trail: productId,
+  productName, csvFileName, field, oldValue, newValue, performedById/Email, createdAt;
+  `@@map("priceupdatelog")`, indexes on productId+createdAt, createdAt).
+- `prisma/apply-migration.ts` — idempotent `CREATE TABLE IF NOT EXISTS priceupdatelog`
+  (mysql/libSQL compatible) — must be run against the DB before apply uses the table.
+
+## Verification
+- `npm run lint`: my files 0 errors/0 warnings (6 pre-existing errors in `scripts/*`).
+- `tsc --noEmit`: no errors in the new/modified files (5 pre-existing elsewhere).
+- `npm run build`: ✓ Compiled successfully (~33s), `/admin/products/bulk-price` and
+  `/api/admin/products/bulk-price` route output correctly.
+- Logic test (temp script, since deleted): 19/19 assertions passed — preamble ignored,
+  `Total` row ignored, `"""K"" BY …"` quoted cell parsed as `"K" BY DOLCE & GABBANA (D&G)`,
+  decimal prices (1114.8) parsed, duplicate row 11 kept over 9, `PACCO RABANNE` fuzzy
+  matched `PACO RABANNE` (sim 0.921), unknown product → not-found, no false matches.
+- NOTE: could NOT validate against live DB from this workspace (`mysql://…localhost`
+  creds invalid from here). Live-DB run of `npx tsx prisma/apply-migration.ts` is
+  required to create `priceupdatelog` before first apply.
+
+## Known limitation / decision
+- Only `.csv` accepted (consistent with other admin uploads). xlsx → reject with message.
+- Matching is name-based (the CSV has `Sr. #`, not SKU). Products not found are reported
+  + downloadable, never auto-created.
+
+## DEPLOYMENT NOTE (2026-09-14)
+- `.env`/`.env.production` point to cPanel MySQL (safariperfumes_perfume_user @ localhost,
+  DB `safariperfumes_perfume_db`); `.env.local` points to local root MySQL DB `perfume_db`.
+  Next.js dev uses `.env.local` (overrides `.env`).
+- The bulk-price apply 500 (P2021 `priceupdatelog does not exist`) was root-caused to the
+  missing table. Migration was run against the LOCAL DB:
+  `npx tsx --env-file=.env.local prisma/apply-migration.ts` → priceupdatelog table ensured
+  (cols verified; interactive `$transaction` trace with product.update +
+  priceUpdateLog.createMany validated, rolled back, no data changed).
+- MUST ALSO run `npx tsx --env-file=.env prisma/apply-migration.ts` against the PRODUCTION
+  (cPanel) DB before enabling bulk price apply in production — the table does not exist
+  there yet.
+---
+- apply-migration's MySQL `CREATE INDEX IF NOT EXISTS` statements fail on plain MySQL
+  (syntax 1064 — supported on MariaDB/cPanel, not vanilla MySQL). Pre-existing, non-fatal.
+
+# FOOTER SOCIAL LOGOS — 2026-09-14
+- User added `public/instagram.svg`, `public/facebook.svg`, `public/tiktok.svg` (black-fill SVGs).
+- `src/components/Footer.tsx` social row now renders those images (`<img src="/instagram.svg">` etc,
+  w-5 h-5, `invert` + `opacity-80`, hover `opacity-100`; verified `invert(1)` in dev) inside circular
+  bordered links. Links (already present, unchanged): instagram.com/safariperfumesofficial,
+  facebook.com/share/19G8xxiTP7, tiktok.com/@safari.perfumes — all open in new tab.
+- `<img>` (not next/image) is intentional: next/image refuses .svg without `dangerouslyAllowSVG` in
+  next.config (not set). Consistent with 20 existing `<img>` usages app-wide; eslint `no-img-element`
+  warnings are pre-existing pattern. Header.tsx top-nav socials are separate (header still inline SVG).
+
+---
+# SESSION NOT PERSISTING — FIXED 2026-09-14 (multi-part root cause)
+
+Symptom: login worked but the session was lost on any page reload / after ~15 min
+("session login save nahi ho raha").
+
+## Root causes (all found & fixed)
+1. **Refresh tokens were born-expired.** `jose`'s `setExpirationTime` treats a NUMBER as an
+   absolute epoch timestamp, NOT seconds. `login/route.ts` passed `7*24*60*60` (604800) /
+   `30*24*60*60` → token exp = Jan 1970 → `verifyToken` always null → `/api/auth/refresh` always
+   401. Proved with a runtime jose test ("exp claim timestamp check failed").
+2. **refreshUser killed valid sessions.** `AuthContext.refreshUser()` called
+   `fetch('/api/auth/refresh')`; on non-OK it did `setUser(null)` even though the access_token was
+   still valid. Combined with #1, every page load wiped the session.
+3. **Wrong "still loading" flag.** `AuthContext` has BOTH `loading` (only set during `logout()`) and
+   `authChecking` (true during init). `account/page.tsx` destructured `loading: authLoading` and
+   redirected to `/login` while auth-check was still running → hard redirect on every reload.
+4. **`user` initialized to `null`, not `undefined`.** `AdminLayout.tsx` renders its spinner only
+   when `user === undefined`, which could never happen → "Please login as admin" flash on reload.
+5. Cookie/token lifetime mismatch: access_token cookie `maxAge: 15*60` vs token signed `'30d'`
+   → cookie dropped after 15 min.
+
+## Fixes
+- `src/lib/auth.ts`: `createRefreshToken` normalizes numeric input to `${n}s` so it can never mint
+  an expired token again. (Kept `setAuthCookies` helper; access cookie maxAge 30d.)
+- `src/app/api/auth/login/route.ts`: builds refresh token with string `'7d'`/`'30d'` (per rememberMe);
+  sets cookies via `setAuthCookies` (access token cookie now 30d to match token).
+- `src/app/api/auth/register/route.ts`: now also creates a refresh_token (`'7d'`) and uses
+  `setAuthCookies` (previously only a 15-min access cookie → registration sessions died too).
+- `src/app/api/auth/refresh/route.ts`: access cookie `maxAge` aligned to 30d.
+- `src/context/AuthContext.tsx`: `user` starts as `undefined` (loading); `refreshUser` now falls
+  back to `GET /api/auth/me` on refresh failure — `/api/auth/me` is the single source of truth for
+  client session state, so a valid access token is never destroyed by a failing refresh.
+- `src/app/account/page.tsx`: guard uses `authChecking` (was `loading`).
+- `AdminLayout.tsx`: now works correctly with the `undefined` init state (no code change needed).
+
+## Verification
+- jose runtime test: numeric exp = born-expired; string / `${n}s` exp = valid.
+- Browser E2E (registered temp user `sess-test-914@example.com`, deleted afterwards):
+  - register → auto-login OK; `POST /api/auth/refresh` now returns **200** (was always 401).
+  - full page reloads of `/account` persist the session (2x verified); `/api/auth/me` returns user.
+  - test user removed from DB after test.
+- `npx eslint` + `tsc --noEmit`: no errors in changed files.
+- NOTE: full `npm run build` not run because dev server holds prisma DLL (known constraint,
+  memory.md line ~610). Run once dev server is stopped.
+
+---
+# PDP EMPTY STRIP + SCARCITY/WHATSAPP CTA — FIXED 2026-09-15
+
+## 1. PDP white/light strip under the navbar
+- Root cause: `src/components/SiteShell.tsx:28` wraps all storefront pages in
+  `<main className="flex-1 pt-20 md:pt-28">`. The header is `sticky` (in-flow, NOT fixed), so
+  this 80px/112px padding is leftover overlay-compensation that shows the LIGHT body background
+  (`--background: 30 20% 98%` ≈ cream/white) above any page whose top is dark.
+- Why only PDP: Home `src/components/Hero.tsx:11` cancels the padding with `-mt-20 md:-mt-28`;
+  Shop/Collections/Cart have light `bg-background` tops (strip invisible = part of the design).
+  The PDP dark wrapper (`bg-[#0a0a0a]`, full-bleed) had NO compensation → visible light strip.
+- Fix (page-specific, matches Hero pattern): `src/app/shop/[slug]/ProductDetailClient.tsx:213`
+  outer div now `-mt-20 md:-mt-28 bg-[#0a0a0a] …`. Breadcrumb/content padding (`container-custom
+  py-6 lg:py-12`) unchanged.
+- Verified (headless Playwright, 1280×900 and 390×844): gap header-bottom → PDP-content-top == 0
+  on both; breadcrumb sits 48px (py-12) below the black container top on desktop, Back button
+  24px (py-6) below on mobile. Shop/Home untouched.
+
+## 2. ScarcityLine readability
+- `src/components/ScarcityLine.tsx`: pill variant `text-white`; alert variant `text-[#e5e5e5]`
+  (both light — gold/10 bg + gold border on dark pages; `text-charcoal` was near-invisible).
+  Used on PDP (2x) and bundles page — both dark backgrounds, safe.
+
+## 3. WhatsApp Order CTA
+- `src/app/shop/[slug]/ProductDetailClient.tsx`:
+  - Button label now `Order on WhatsApp` (English; was `WhatsApp pe Order Karein`) with green
+    `border-[#25D366]` + green icon via `WhatsAppIcon className="… text-[#25D366]"`.
+  - WhatsApp message is now a real order (English template):
+    `Assalam o Alaikum! I would like to place an order:`
+    `Product:`, `Price:`, `Quantity:`, `Link:` (client-built `${location.origin}/shop/${slug}`).
+    Number from `readPopupSettings().whatsappNumber`.
+
+## 4. Canonical WhatsApp number → 923346322462  (2026-09-15 session 2)
+- OLD `923247277489` replaced everywhere (defaults + runtime):
+  - `src/lib/popup-settings.ts` DEFAULT_POPUP_SETTINGS.whatsappNumber
+  - `data/popup-settings.json` (runtime file, live)
+  - `src/app/api/popup-settings/route.ts` PUT fallback
+  - `src/components/FloatingWhatsApp.tsx` initial state
+  - `src/app/admin/(protected)/popup-settings/page.tsx` DEFAULT + fetch fallback
+  - `src/components/Footer.tsx` tel:+923346322462 · +92 334 6322462
+- Display format: `+92 334 6322462`; wa.me/country code: `923346322462`.
+
+## Verification
+- `npx eslint` on changed files: 0 errors.
+- `npm run build`: ✓ PASSED (dev server stopped first due to Prisma DLL lock, restarted
+  afterwards; route map incl. `/shop/[slug]` emitted).
 
 
+
+---
+
+# BULK PRICE CSV MATCHING OVERHAUL � 2026-09-15 (session 2)
+
+## Problem
+Supplier perfume.csv writes names as **"NAME BY BRAND"** (and drops trailing "- PRM") while the DB stores
+many names BRANDLESS ("Sauvage" not "Sauvage By Dior"). Old matcher = exact normName + fuzzy only ?
+**94/322 CSV rows matched**, 228 went to not-found.
+
+## New matcher (src/lib/bulk-price.ts + src/lib/text-match.ts)
+Layered, gated, earlier layer = higher confidence:
+1. exact � full normalized name exact
+2. randless � exact brand-less (strips last " by <brand>") with disambiguation:
+   prefers candidates whose full name contains the CSV's trailing brand tokens; single candidate = accept;
+   multi ambiguous = not-found (no guessing)
+3. uzzy � full-name fuzzy (>=0.9, or >=0.82 + gap >=0.12)
+4. uzzyBrandless � brandless fuzzy (same thresholds)
+5. substring � ordered-token subsequence (all CSV tokens appear in DB order),
+   sanity bar similarity >= 0.55, runner-up gap >= 0.10 (or unique)
+Also: 
+ormalizeProductName now strips standalone "PRM" ANYWHERE (/\bprm\b/g), not just trailing.
+
+## New data / API
+- matchType field on every MatchEntry: exact | brandless | fuzzy | fuzzyBrandless | substring | override | not-found
+- 
+otFound[] items now carry suggestions: {dbName, similarity}[] (top-5 >= 0.45)
+- determinism: not-found rows are sorted by run, no array-order dependence.
+
+## Results (validated against local DB + perfume.csv)
+- **320/322 matched** (brandless=256, exact=59, fuzzy=2, substring=2, fuzzyBrandless=1)
+- 2 not-found are genuinely absent/ambiguous: WHITE OUD TOP SELLING (no DB match) and ZAM ZAM (absent).
+- All 9 ambiguous brandless collisions resolve correctly via L1 exact (e.g. "LEGEND BY MONTBLANC" ?
+  "Legend By Montblanc", not "Legend"). white musk no longer a collision (different brandless keys).
+- No false positives found in audit.
+
+## Admin UX
+- Match column shows per-layer badge + similarity tooltip.
+- Quality breakdown bar (matchType counts) under the summary hunks.
+- not-found rows now get a **suggestion dropdown** per row ? admin picks a DB product ? stored as
+  **override** ? sent as overrides: [{row, dbName}] to POST /api/admin/products/bulk-price on apply.
+  Overridden rows are dropped from the apply-run notFound list; entry matchType = override.
+- debug console.log("[bulk-price] �") in the API route with mateh-count + breakdown.
+
+## Verification
+- scripts/_validate-matcher.ts (322 rows ? 320), scripts/_debug-collisions.ts (9 collisions OK).
+- 
+pm run lint: 0 new errors (20 pre-existing in tests/scripts remain).
+- 
+px next build: ? PASSED (36s; dev server running so 
+pm run build's prisma generate DLL rename
+  fails with EPERM � use 
+px next build when schema unchanged).

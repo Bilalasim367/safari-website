@@ -38,4 +38,8 @@ export {
   ChevronRight as ChevronRightIcon,
   Check as CheckIcon,
   Megaphone,
+  Bell,
+  AlertTriangle,
+  Sparkles,
+  SkipForward,
 } from 'lucide-react';

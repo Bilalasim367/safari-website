@@ -16,6 +16,7 @@ interface QuickViewModalProps {
   originalPrice?: number;
   image: string;
   images?: string[];
+  size?: string;
   category: string;
   rating?: number;
   reviewCount?: number;
@@ -23,7 +24,7 @@ interface QuickViewModalProps {
 }
 
 export default function QuickViewModal({
-  id, name, slug, price, originalPrice, image, images: propImages, category, rating, reviewCount, onClose,
+  id, name, slug, price, originalPrice, image, images: propImages, size, category, rating, reviewCount, onClose,
 }: QuickViewModalProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
@@ -35,7 +36,7 @@ export default function QuickViewModal({
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   const handleAdd = () => {
-    addItem({ id, name, price, image, size: "12ml", quantity: 1 });
+    addItem({ id, name, price, image, size: (size && size.trim()) || '50ml', quantity: 1 });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

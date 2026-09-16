@@ -264,7 +264,7 @@ export default function OrdersPage() {
                     <label className="text-xs text-muted-foreground">Payment Status</label>
                     <Select
                       value={selectedOrder.paymentStatus}
-                      onValueChange={(value) => updatePaymentStatus(selectedOrder.id, value)}
+                      onValueChange={(value) => updatePaymentStatus(selectedOrder.id, value ?? '')}
                     >
                       <SelectTrigger>
                         <SelectValue />

@@ -93,12 +93,15 @@ export async function POST(request: Request) {
       // shows (PDP / product cards). No size selector exists, so `sizePrices`
       // must never change what the customer saw when adding to cart.
       const price = product.price;
+      // Size label = current DB value (fresh wins) — an attar once stored as
+      // "50ml" must be recorded as 12ml once the data is corrected, regardless
+      // of the stale client-supplied snapshot in the cart.
       validatedItems.push({
         id: product.id,
         name: product.name,
         price,
         quantity,
-        size: item.size || product.size || '',
+        size: product.size || item.size || '',
         image: product.image || item.image || '',
       });
     }

@@ -37,7 +37,7 @@ export default function Newsletter() {
   }
 
   return (
-    <section className="px-4 md:px-12 py-6 md:py-28 bg-black relative overflow-hidden">
+    <section className="px-4 md:px-12 py-6 md:py-28 bg-[#050505] relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03]" />
 

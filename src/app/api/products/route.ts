@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
-import { normalizeGender, normalizeType } from "@/lib/normalize";
+import { normalizeGender, normalizeType, defaultSizeForType } from "@/lib/normalize";
 import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
@@ -193,7 +193,8 @@ export async function POST(request: Request) {
         images: body.images ? JSON.stringify(body.images) : '[]',
         categoryId,
         categorySlug: body.categorySlug,
-        size: body.size || "50ml",
+        // Type-aware default: attar → 12ml, everything else → 50ml (historical default)
+        size: body.size || defaultSizeForType(body.type),
         sizePrices: body.sizePrices ? JSON.stringify(body.sizePrices) : '[]',
         fragranceFamily: body.fragranceFamily,
         rating: body.rating || 0,

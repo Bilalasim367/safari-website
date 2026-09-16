@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import ProductForm from '@/components/admin/ProductForm'
 import { getProductById } from '@/app/admin/(protected)/actions'
+import { defaultSizeForType } from '@/lib/normalize'
 import type { AdminProductFormValues } from '@/lib/validations/product'
 
 export default function ProductEditWrapper({ productType }: { productType: 'perfume' | 'attar' }) {
@@ -31,7 +32,7 @@ export default function ProductEditWrapper({ productType }: { productType: 'perf
           image: p.image || '',
           images: Array.isArray(p.images) ? p.images : [],
           categorySlug: p.categorySlug ?? undefined,
-          size: p.size || '50ml',
+          size: p.size || defaultSizeForType(p.type || productType),
           sizePrices: Array.isArray(p.sizePrices)
             ? p.sizePrices.map((sp: { size: string; price: number; originalPrice?: number | null }) => ({
                 size: sp.size,

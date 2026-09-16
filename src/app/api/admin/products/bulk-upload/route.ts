@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { parseCsv, transformRow } from '@/lib/csv-parser';
+import { defaultSizeForType } from '@/lib/normalize';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -91,7 +92,8 @@ export async function POST(request: Request) {
               reviewCount: 0,
               isBestseller: false,
               isNew: false,
-              size: '50ml',
+              // Type-aware default: attar → 12ml, perfume → 50ml (historical default)
+              size: defaultSizeForType(transformed.type),
               categoryId: undefined,
               images: '[]',
             },

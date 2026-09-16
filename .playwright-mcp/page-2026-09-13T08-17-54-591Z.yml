@@ -1,0 +1,328 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e4]:
+    - navigation [ref=f4e1203]:
+      - link "About Us" [ref=f4e1204] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=f4e1205]: "|"
+      - link "Contact Us" [ref=f4e1206] [cursor=pointer]:
+        - /url: /contact
+      - generic [ref=f4e1207]: "|"
+      - link "FAQs" [ref=f4e1208] [cursor=pointer]:
+        - /url: /contact?faq=true
+    - generic [ref=f4e5]:
+      - button "Instagram" [ref=f4e6]
+      - button "Facebook" [ref=f4e9]
+      - button "Twitter" [ref=f4e12]
+  - generic [ref=f4e16]:
+    - generic [ref=f4e17]: FREE SHIPPING ON ORDERS OVER PKR 15,000
+    - generic [ref=f4e18]: "|"
+    - generic [ref=f4e19]: NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+    - generic [ref=f4e20]: "|"
+    - generic [ref=f4e21]: "BUY 2 GET 10% OFF — USE CODE: PAIR10"
+    - generic [ref=f4e22]: "|"
+    - generic [ref=f4e23]: FREE SHIPPING ON ORDERS OVER PKR 15,000
+    - generic [ref=f4e24]: "|"
+    - generic [ref=f4e25]: NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+    - generic [ref=f4e26]: "|"
+    - generic [ref=f4e27]: "BUY 2 GET 10% OFF — USE CODE: PAIR10"
+    - generic [ref=f4e28]: "|"
+  - banner [ref=f4e29]:
+    - generic [ref=f4e30]:
+      - searchbox "Search fragrances" [ref=f4e1213]
+      - link "SAFARI Perfumes Home" [ref=f4e35] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=f4e36]
+      - generic [ref=f4e37]:
+        - button "Cart" [ref=f4e38] [cursor=pointer]
+        - link "Account" [ref=f4e41] [cursor=pointer]:
+          - /url: /login
+  - navigation "Main navigation" [ref=f4e1214]:
+    - generic [ref=f4e1215]:
+      - link "Bestsellers" [ref=f4e1216] [cursor=pointer]:
+        - /url: /shop?isBestseller=true
+      - link "New Arrival" [ref=f4e1217] [cursor=pointer]:
+        - /url: /shop?isNew=true
+      - link "Our Collection" [ref=f4e1218] [cursor=pointer]:
+        - /url: /collections
+      - button "Attar Collection" [ref=f4e1220] [cursor=pointer]
+      - button "Perfumes Collection" [ref=f4e1224] [cursor=pointer]
+      - link "Bundles/Offers" [ref=f4e1227] [cursor=pointer]:
+        - /url: /bundles
+      - link "Blog" [ref=f4e1228] [cursor=pointer]:
+        - /url: /blog
+  - main [ref=f4e47]:
+    - generic [ref=f4e1293]:
+      - generic [ref=f4e1294]:
+        - navigation [ref=f4e1295]:
+          - link "Home" [ref=f4e1296] [cursor=pointer]:
+            - /url: /
+          - text: /
+          - link "Shop" [ref=f4e1297] [cursor=pointer]:
+            - /url: /shop
+          - text: /Impression of White Oud
+        - generic [ref=f4e1298]:
+          - generic [ref=f4e1300]:
+            - img "Impression of White Oud perfume bottle - Safari Perfumes Pakistan" [ref=f4e1301]
+            - generic [ref=f4e1302]: Bestseller
+          - generic [ref=f4e1303]:
+            - generic [ref=f4e1304]:
+              - generic [ref=f4e1305]:
+                - generic [ref=f4e1306]: Attar
+                - heading "Impression of White Oud" [level=1] [ref=f4e1308]
+              - button "Toggle wishlist" [ref=f4e1309] [cursor=pointer]
+            - generic [ref=f4e1312]: (5 reviews)
+            - generic [ref=f4e1327]:
+              - generic [ref=f4e1328]:
+                - paragraph [ref=f4e1329]: Price
+                - generic [ref=f4e1330]: PKR 1,799
+              - generic [ref=f4e1331]:
+                - generic [ref=f4e1332]: PKR 2,599
+                - generic [ref=f4e1333]: Save 31%
+            - generic [ref=f4e1334]:
+              - button "Description" [ref=f4e1335] [cursor=pointer]
+              - button "Attar Notes" [ref=f4e1336] [cursor=pointer]
+            - paragraph [ref=f4e1338]: A unisex fragrance best suited for nan wear during nan occasions.
+            - generic [ref=f4e1339]:
+              - generic [ref=f4e1340]:
+                - generic [ref=f4e1341]:
+                  - generic [ref=f4e1342]: 👫
+                  - generic [ref=f4e1343]: GENDER
+                - paragraph [ref=f4e1344]: Unisex
+              - generic [ref=f4e1345]:
+                - generic [ref=f4e1346]:
+                  - generic [ref=f4e1347]: 📦
+                  - generic [ref=f4e1348]: SIZE
+                - paragraph [ref=f4e1349]: 12ML
+              - generic [ref=f4e1350]:
+                - generic [ref=f4e1351]:
+                  - generic [ref=f4e1352]: 💰
+                  - generic [ref=f4e1353]: PRICE
+                - paragraph [ref=f4e1354]: PKR 1,799
+            - generic [ref=f4e1355]:
+              - generic [ref=f4e1356]:
+                - button "Decrease quantity" [ref=f4e1357] [cursor=pointer]
+                - generic [ref=f4e1359]: "1"
+                - button "Increase quantity" [ref=f4e1360] [cursor=pointer]
+              - button "Add to Cart" [ref=f4e1362] [cursor=pointer]
+              - link "WhatsApp pe Order Karein" [ref=f4e1363] [cursor=pointer]:
+                - /url: https://wa.me/923247277489?text=Hi%20Safari%20Perfumes!%20%F0%9F%91%8B%0AI%20want%20to%20order%3A%0A%0A*Impression%20of%20White%20Oud%20*%0ASize%3A%2012ML%0APrice%3A%20PKR%201%2C799%0A%0APlease%20confirm%20my%20order.%20Thank%20you!
+            - generic [ref=f4e1366]:
+              - generic [ref=f4e1367]: 100% Original
+              - generic [ref=f4e1370]: 💵 Cash on Delivery
+              - generic [ref=f4e1371]: Free Shipping Nationwide
+            - generic [ref=f4e1377]: 🔥 Only 5 left in stock — selling fast!
+      - generic [ref=f4e1381]:
+        - heading "Customer Reviews" [level=2] [ref=f4e1382]
+        - paragraph [ref=f4e1383]: "4.6"
+        - generic [ref=f4e1384]: (5 reviews)
+        - paragraph [ref=f4e1399]: Based on 5 reviews
+      - generic [ref=f4e1401]:
+        - heading "You May Also Like" [level=2] [ref=f4e1402]
+        - generic [ref=f4e1403]:
+          - link "White Gold Quick view Add to wishlist Unisex Unisex Spring & Summer White Gold (3 reviews) PKR 1,599 Add White Gold to cart Free Returns Secure Pay Fast Ship" [ref=f4e1404] [cursor=pointer]:
+            - /url: /shop/white-gold
+            - generic [ref=f4e1405]:
+              - generic [ref=f4e1406]:
+                - img "White Gold" [ref=f4e1407]
+                - generic [ref=f4e1408]:
+                  - button "Quick view" [ref=f4e1409]
+                  - button "Add to wishlist" [ref=f4e1413]
+              - generic [ref=f4e1416]:
+                - generic [ref=f4e1417]:
+                  - paragraph [ref=f4e1418]: Unisex
+                  - generic [ref=f4e1419]: Unisex
+                  - generic [ref=f4e1420]: Spring & Summer
+                - heading "White Gold" [level=3] [ref=f4e1421]
+                - generic [ref=f4e1422]: (3 reviews)
+                - generic [ref=f4e1437]: PKR 1,599
+              - generic [ref=f4e1439]:
+                - button "Add White Gold to cart" [ref=f4e1440]:
+                  - generic [ref=f4e1441]: Add to Cart
+                - generic [ref=f4e1446]:
+                  - generic [ref=f4e1447]: Free Returns
+                  - generic [ref=f4e1448]: Secure Pay
+                  - generic [ref=f4e1449]: Fast Ship
+          - link "Mukhallat Quick view Add to wishlist Unisex Unisex Mukhallat Impression of Mukhallat by Swiss Arabian (6 reviews) PKR 1,599 Add Mukhallat to cart Free Returns Secure Pay Fast Ship" [ref=f4e1450] [cursor=pointer]:
+            - /url: /shop/mukhallat
+            - generic [ref=f4e1451]:
+              - generic [ref=f4e1452]:
+                - img "Mukhallat" [ref=f4e1453]
+                - generic [ref=f4e1454]:
+                  - button "Quick view" [ref=f4e1455]
+                  - button "Add to wishlist" [ref=f4e1459]
+              - generic [ref=f4e1462]:
+                - generic [ref=f4e1463]:
+                  - paragraph [ref=f4e1464]: Unisex
+                  - generic [ref=f4e1465]: Unisex
+                - heading "Mukhallat" [level=3] [ref=f4e1466]
+                - paragraph [ref=f4e1467]: Impression of Mukhallat by Swiss Arabian
+                - generic [ref=f4e1468]: (6 reviews)
+                - generic [ref=f4e1483]: PKR 1,599
+              - generic [ref=f4e1485]:
+                - button "Add Mukhallat to cart" [ref=f4e1486]:
+                  - generic [ref=f4e1487]: Add to Cart
+                - generic [ref=f4e1492]:
+                  - generic [ref=f4e1493]: Free Returns
+                  - generic [ref=f4e1494]: Secure Pay
+                  - generic [ref=f4e1495]: Fast Ship
+          - link "Mercedes Benz Quick view Add to wishlist Unisex Unisex Mercedes Benz Impression of Mercedes Benz by Mercedes Benz (6 reviews) PKR 1,699 Add Mercedes Benz to cart Free Returns Secure Pay Fast Ship" [ref=f4e1496] [cursor=pointer]:
+            - /url: /shop/mercedes-benz
+            - generic [ref=f4e1497]:
+              - generic [ref=f4e1498]:
+                - img "Mercedes Benz" [ref=f4e1499]
+                - generic [ref=f4e1500]:
+                  - button "Quick view" [ref=f4e1501]
+                  - button "Add to wishlist" [ref=f4e1505]
+              - generic [ref=f4e1508]:
+                - generic [ref=f4e1509]:
+                  - paragraph [ref=f4e1510]: Unisex
+                  - generic [ref=f4e1511]: Unisex
+                - heading "Mercedes Benz" [level=3] [ref=f4e1512]
+                - paragraph [ref=f4e1513]: Impression of Mercedes Benz by Mercedes Benz
+                - generic [ref=f4e1514]: (6 reviews)
+                - generic [ref=f4e1529]: PKR 1,699
+              - generic [ref=f4e1531]:
+                - button "Add Mercedes Benz to cart" [ref=f4e1532]:
+                  - generic [ref=f4e1533]: Add to Cart
+                - generic [ref=f4e1538]:
+                  - generic [ref=f4e1539]: Free Returns
+                  - generic [ref=f4e1540]: Secure Pay
+                  - generic [ref=f4e1541]: Fast Ship
+          - link "Jazz Tiger Quick view Add to wishlist Unisex Unisex Jazz Tiger (5 reviews) PKR 1,499 Add Jazz Tiger to cart Free Returns Secure Pay Fast Ship" [ref=f4e1542] [cursor=pointer]:
+            - /url: /shop/jazz-tiger
+            - generic [ref=f4e1543]:
+              - generic [ref=f4e1544]:
+                - img "Jazz Tiger" [ref=f4e1545]
+                - generic [ref=f4e1546]:
+                  - button "Quick view" [ref=f4e1547]
+                  - button "Add to wishlist" [ref=f4e1551]
+              - generic [ref=f4e1554]:
+                - generic [ref=f4e1555]:
+                  - paragraph [ref=f4e1556]: Unisex
+                  - generic [ref=f4e1557]: Unisex
+                - heading "Jazz Tiger" [level=3] [ref=f4e1558]
+                - generic [ref=f4e1559]: (5 reviews)
+                - generic [ref=f4e1574]: PKR 1,499
+              - generic [ref=f4e1576]:
+                - button "Add Jazz Tiger to cart" [ref=f4e1577]:
+                  - generic [ref=f4e1578]: Add to Cart
+                - generic [ref=f4e1583]:
+                  - generic [ref=f4e1584]: Free Returns
+                  - generic [ref=f4e1585]: Secure Pay
+                  - generic [ref=f4e1586]: Fast Ship
+  - contentinfo [ref=f4e1102]:
+    - generic [ref=f4e1104]:
+      - generic [ref=f4e1105]:
+        - generic [ref=f4e1106]:
+          - link [ref=f4e1107] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=f4e1108]
+          - paragraph [ref=f4e1109]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f4e1110] [cursor=pointer]:
+            - link "Read More" [ref=f4e1111]:
+              - /url: /about
+          - generic [ref=f4e1114]:
+            - heading "Contact Us" [level=4] [ref=f4e1115]
+            - list [ref=f4e1116]:
+              - listitem [ref=f4e1117]:
+                - link "support@safari-perfumes.com" [ref=f4e1118] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=f4e1121]:
+                - link "+92 324 7277489" [ref=f4e1122] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=f4e1125]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=f4e1126]:
+          - heading "Quick Links" [level=4] [ref=f4e1127]
+          - list [ref=f4e1128]:
+            - listitem [ref=f4e1129]:
+              - link "Shop All" [ref=f4e1130] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f4e1131]:
+              - link "New Arrivals" [ref=f4e1132] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=f4e1133]:
+              - link "Best Sellers" [ref=f4e1134] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=f4e1135]:
+              - link "Collections" [ref=f4e1136] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=f4e1137]:
+              - link "Bundles & Gift Sets" [ref=f4e1138] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=f4e1139]:
+              - link "Gift Cards" [ref=f4e1140] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=f4e1141]:
+              - link "Fragrance Guides" [ref=f4e1142] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=f4e1143]:
+          - heading "Customer Service" [level=4] [ref=f4e1144]
+          - list [ref=f4e1145]:
+            - listitem [ref=f4e1146]:
+              - link "My Account" [ref=f4e1147] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=f4e1148]:
+              - link "Order Tracking" [ref=f4e1149] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=f4e1150]:
+              - link "Returns & Exchange" [ref=f4e1151] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f4e1152]:
+              - link "Shipping & Delivery" [ref=f4e1153] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f4e1154]:
+              - link "FAQs" [ref=f4e1155] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=f4e1156]:
+              - link "Contact Us" [ref=f4e1157] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f4e1158]:
+          - heading "Stay Connected & Save" [level=4] [ref=f4e1159]
+          - paragraph [ref=f4e1160]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f4e1161]:
+            - textbox "Email address for newsletter" [ref=f4e1162]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=f4e1163] [cursor=pointer]
+          - generic [ref=f4e1164]:
+            - link "TikTok" [ref=f4e1165] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv
+            - link "Facebook" [ref=f4e1168] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - generic [ref=f4e1172]:
+        - generic [ref=f4e1173]:
+          - generic [ref=f4e1174]: "We Accept:"
+          - generic [ref=f4e1175]:
+            - generic [ref=f4e1176]: Visa
+            - generic [ref=f4e1178]: MC
+            - generic [ref=f4e1180]: Amex
+            - generic [ref=f4e1182]: PayPal
+        - generic [ref=f4e1184]:
+          - link "Privacy Policy" [ref=f4e1185] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=f4e1186] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=f4e1187] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=f4e1190]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=f4e1191] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - generic:
+    - link "Desire Umar from Sialkot purchased Desire PKR 1,499 21 minutes ago ✓ Verified Order Close notification":
+      - /url: /shop/desire
+      - generic:
+        - img "Desire"
+      - generic:
+        - paragraph:
+          - strong: Umar
+          - text: from
+          - strong: Sialkot
+          - text: purchased
+          - strong: Desire
+        - generic:
+          - generic: PKR 1,499
+          - generic: 21 minutes ago
+        - generic: ✓ Verified Order
+      - button "Close notification"
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f4e1199] [cursor=pointer]
+  - alert [ref=f4e1292]: Impression of White Oud Impression — Attar | Safari Perfumes | Safari Perfumes

@@ -1,0 +1,384 @@
+- generic [ref=f29e1]:
+  - generic [ref=f29e5]:
+    - button [ref=f29e569]
+    - button [ref=f29e570]
+    - button [ref=f29e571]
+  - generic [ref=f29e16]:
+    - generic [ref=f29e17]: FREE SHIPPING ON ORDERS OVER PKR 15,000
+    - generic [aria-hidden] [ref=f29e18]: NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+    - generic [aria-hidden] [ref=f29e19]: "BUY 2 GET 10% OFF — USE CODE: PAIR10"
+  - banner [aria-hidden] [ref=f29e20]:
+    - generic [ref=f29e21]:
+      - button [ref=f29e572] [cursor=pointer]
+      - link [ref=f29e573] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f29e28]:
+        - button [ref=f29e575] [cursor=pointer]:
+          - generic [ref=f29e576]: "1"
+        - link [ref=f29e577] [cursor=pointer]:
+          - /url: /login
+        - button [ref=f29e578] [cursor=pointer]
+  - main [aria-hidden] [ref=f29e38]:
+    - generic [ref=f29e39]:
+      - generic [ref=f29e41]:
+        - generic [ref=f29e42]:
+          - paragraph [ref=f29e43]: Collection
+          - heading [level=1] [ref=f29e579]: Shop All
+          - paragraph [ref=f29e45]: Discover our complete collection of luxury fragrances, crafted to elevate your senses.
+        - navigation [ref=f29e580]:
+          - list [ref=f29e48]:
+            - listitem [ref=f29e49]:
+              - link [ref=f29e581] [cursor=pointer]:
+                - /url: /
+                - text: Home
+            - listitem [aria-hidden] [ref=f29e51]
+            - listitem [ref=f29e54]:
+              - link [disabled] [ref=f29e582]: Shop All
+      - generic [ref=f29e59]:
+        - generic [ref=f29e60]:
+          - generic [ref=f29e61]:
+            - paragraph [ref=f29e62]: Showing 12 of 319 products
+            - button [ref=f29e583] [cursor=pointer]: Filters
+          - combobox [ref=f29e67] [cursor=pointer]
+        - generic [ref=f29e68]:
+          - link [ref=f29e584] [cursor=pointer]:
+            - /url: /shop/white-rose
+            - generic [ref=f29e70]:
+              - generic [ref=f29e72]: "-35%"
+              - button [ref=f29e586]
+            - generic [ref=f29e76]:
+              - heading [level=3] [ref=f29e587]: White Rose
+              - generic [ref=f29e78]: (4)
+              - generic [ref=f29e93]:
+                - generic [ref=f29e94]: PKR 1,299
+                - generic [ref=f29e95]: "Was: PKR 1,999"
+              - button [ref=f29e588]: Add to Cart
+          - link [ref=f29e591] [cursor=pointer]:
+            - /url: /shop/white-gold
+            - generic [ref=f29e103]:
+              - generic [ref=f29e105]: "-20%"
+              - button [ref=f29e593]
+            - generic [ref=f29e109]:
+              - heading [level=3] [ref=f29e594]: White Gold
+              - generic [ref=f29e111]: (3)
+              - generic [ref=f29e126]:
+                - generic [ref=f29e127]: PKR 1,599
+                - generic [ref=f29e128]: "Was: PKR 1,999"
+              - button [ref=f29e595]: Add to Cart
+          - link [ref=f29e596] [cursor=pointer]:
+            - /url: /shop/mukhallat
+            - generic [ref=f29e136]:
+              - generic [ref=f29e138]: "-20%"
+              - button [ref=f29e598]
+            - generic [ref=f29e142]:
+              - heading [level=3] [ref=f29e599]: Mukhallat
+              - generic [ref=f29e144]: (6)
+              - generic [ref=f29e159]:
+                - generic [ref=f29e160]: PKR 1,599
+                - generic [ref=f29e161]: "Was: PKR 1,999"
+              - button [ref=f29e600]: Add to Cart
+          - link [ref=f29e601] [cursor=pointer]:
+            - /url: /shop/mercedes-benz
+            - generic [ref=f29e169]:
+              - generic [ref=f29e171]: "-15%"
+              - button [ref=f29e603]
+            - generic [ref=f29e175]:
+              - heading [level=3] [ref=f29e604]: Mercedes Benz
+              - generic [ref=f29e177]: (6)
+              - generic [ref=f29e192]:
+                - generic [ref=f29e193]: PKR 1,699
+                - generic [ref=f29e194]: "Was: PKR 1,999"
+              - button [ref=f29e605]: Add to Cart
+          - link [ref=f29e606] [cursor=pointer]:
+            - /url: /shop/jazz-tiger
+            - generic [ref=f29e202]:
+              - generic [ref=f29e204]: "-25%"
+              - button [ref=f29e608]
+            - generic [ref=f29e208]:
+              - heading [level=3] [ref=f29e609]: Jazz Tiger
+              - generic [ref=f29e210]: (5)
+              - generic [ref=f29e225]:
+                - generic [ref=f29e226]: PKR 1,499
+                - generic [ref=f29e227]: "Was: PKR 1,999"
+              - button [ref=f29e610]: Add to Cart
+          - link [ref=f29e611] [cursor=pointer]:
+            - /url: /shop/issey-miyake
+            - generic [ref=f29e235]:
+              - generic [ref=f29e237]: "-20%"
+              - button [ref=f29e613]
+            - generic [ref=f29e241]:
+              - heading [level=3] [ref=f29e614]: Issey Miyake
+              - generic [ref=f29e243]: (6)
+              - generic [ref=f29e258]:
+                - generic [ref=f29e259]: PKR 1,599
+                - generic [ref=f29e260]: "Was: PKR 1,999"
+              - button [ref=f29e615]: Add to Cart
+          - link [ref=f29e616] [cursor=pointer]:
+            - /url: /shop/desire
+            - generic [ref=f29e268]:
+              - generic [ref=f29e270]: "-25%"
+              - button [ref=f29e618]
+            - generic [ref=f29e274]:
+              - heading [level=3] [ref=f29e619]: Desire
+              - generic [ref=f29e276]: (5)
+              - generic [ref=f29e291]:
+                - generic [ref=f29e292]: PKR 1,499
+                - generic [ref=f29e293]: "Was: PKR 1,999"
+              - button [ref=f29e620]: Add to Cart
+          - link [ref=f29e621] [cursor=pointer]:
+            - /url: /shop/david-beckham
+            - generic [ref=f29e301]:
+              - generic [ref=f29e303]: "-25%"
+              - button [ref=f29e623]
+            - generic [ref=f29e307]:
+              - heading [level=3] [ref=f29e624]: David Beckham
+              - generic [ref=f29e309]: (6)
+              - generic [ref=f29e324]:
+                - generic [ref=f29e325]: PKR 1,499
+                - generic [ref=f29e326]: "Was: PKR 1,999"
+              - button [ref=f29e625]: Add to Cart
+          - link [ref=f29e626] [cursor=pointer]:
+            - /url: /shop/club-de-nuit
+            - generic [ref=f29e334]:
+              - generic [ref=f29e336]: "-15%"
+              - button [ref=f29e628]
+            - generic [ref=f29e340]:
+              - heading [level=3] [ref=f29e629]: Club De Nuit
+              - generic [ref=f29e342]: (5)
+              - generic [ref=f29e357]:
+                - generic [ref=f29e358]: PKR 1,699
+                - generic [ref=f29e359]: "Was: PKR 1,999"
+              - button [ref=f29e630]: Add to Cart
+          - link [ref=f29e631] [cursor=pointer]:
+            - /url: /shop/charli-new
+            - generic [ref=f29e367]:
+              - generic [ref=f29e369]: "-25%"
+              - button [ref=f29e633]
+            - generic [ref=f29e373]:
+              - heading [level=3] [ref=f29e634]: Charli New
+              - generic [ref=f29e375]: (3)
+              - generic [ref=f29e390]:
+                - generic [ref=f29e391]: PKR 1,499
+                - generic [ref=f29e392]: "Was: PKR 1,999"
+              - button [ref=f29e635]: Add to Cart
+          - link [ref=f29e636] [cursor=pointer]:
+            - /url: /shop/boss-in-office
+            - generic [ref=f29e400]:
+              - generic [ref=f29e402]: "-22%"
+              - button [ref=f29e638]
+            - generic [ref=f29e406]:
+              - heading [level=3] [ref=f29e639]: Boss In Office
+              - generic [ref=f29e408]: (3)
+              - generic [ref=f29e423]:
+                - generic [ref=f29e424]: PKR 1,799
+                - generic [ref=f29e425]: "Was: PKR 2,299"
+              - button [ref=f29e640]: Add to Cart
+          - link [ref=f29e641] [cursor=pointer]:
+            - /url: /shop/bakhoor
+            - generic [ref=f29e433]:
+              - generic [ref=f29e435]: "-25%"
+              - button [ref=f29e643]
+            - generic [ref=f29e439]:
+              - heading [level=3] [ref=f29e644]: Bakhoor
+              - generic [ref=f29e441]: (5)
+              - generic [ref=f29e456]:
+                - generic [ref=f29e457]: PKR 1,499
+                - generic [ref=f29e458]: "Was: PKR 1,999"
+              - button [ref=f29e645]: Add to Cart
+        - generic [ref=f29e465]:
+          - generic [ref=f29e466]: Page 1 of 27
+          - link [ref=f29e646] [cursor=pointer]:
+            - /url: /shop?page=2
+            - text: Next
+  - contentinfo [aria-hidden] [ref=f29e468]:
+    - generic [ref=f29e470]:
+      - generic [ref=f29e471]:
+        - generic [ref=f29e472]:
+          - link [ref=f29e647] [cursor=pointer]:
+            - /url: /
+            - heading [level=2] [ref=f29e648]: SAFARI
+          - paragraph [ref=f29e475]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f29e649] [cursor=pointer]:
+            - link [ref=f29e650]:
+              - /url: /about
+              - text: Read More
+          - generic [ref=f29e480]:
+            - heading [level=4] [ref=f29e651]: Contact Us
+            - list [ref=f29e482]:
+              - listitem [ref=f29e483]:
+                - link [ref=f29e652] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+                  - text: support@safari-perfumes.com
+              - listitem [ref=f29e487]:
+                - link [ref=f29e653] [cursor=pointer]:
+                  - /url: tel:+923247277489
+                  - text: +92 324 7277489
+              - listitem [ref=f29e491]: Online store — nationwide delivery across Pakistan No physical storefront
+        - generic [ref=f29e492]:
+          - heading [level=4] [ref=f29e654]: Quick Links
+          - list [ref=f29e494]:
+            - listitem [ref=f29e495]:
+              - link [ref=f29e655] [cursor=pointer]:
+                - /url: /shop
+                - text: Shop All
+            - listitem [ref=f29e497]:
+              - link [ref=f29e656] [cursor=pointer]:
+                - /url: /shop?isNew=true
+                - text: New Arrivals
+            - listitem [ref=f29e499]:
+              - link [ref=f29e657] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+                - text: Best Sellers
+            - listitem [ref=f29e501]:
+              - link [ref=f29e658] [cursor=pointer]:
+                - /url: /collections
+                - text: Collections
+            - listitem [ref=f29e503]:
+              - link [ref=f29e659] [cursor=pointer]:
+                - /url: /bundles
+                - text: Bundles & Gift Sets
+            - listitem [ref=f29e505]:
+              - link [ref=f29e660] [cursor=pointer]:
+                - /url: /gift-cards
+                - text: Gift Cards
+            - listitem [ref=f29e507]:
+              - link [ref=f29e661] [cursor=pointer]:
+                - /url: /blog
+                - text: Fragrance Guides
+        - generic [ref=f29e509]:
+          - heading [level=4] [ref=f29e662]: Customer Service
+          - list [ref=f29e511]:
+            - listitem [ref=f29e512]:
+              - link [ref=f29e663] [cursor=pointer]:
+                - /url: /account
+                - text: My Account
+            - listitem [ref=f29e514]:
+              - link [ref=f29e664] [cursor=pointer]:
+                - /url: /track
+                - text: Order Tracking
+            - listitem [ref=f29e516]:
+              - link [ref=f29e665] [cursor=pointer]:
+                - /url: /returns
+                - text: Returns & Exchange
+            - listitem [ref=f29e518]:
+              - link [ref=f29e666] [cursor=pointer]:
+                - /url: /shipping
+                - text: Shipping & Delivery
+            - listitem [ref=f29e520]:
+              - link [ref=f29e667] [cursor=pointer]:
+                - /url: /contact?faq=true
+                - text: FAQs
+            - listitem [ref=f29e522]:
+              - link [ref=f29e668] [cursor=pointer]:
+                - /url: /contact
+                - text: Contact Us
+        - generic [ref=f29e524]:
+          - heading [level=4] [ref=f29e669]: Stay Connected & Save
+          - paragraph [ref=f29e526]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f29e527]:
+            - textbox [ref=f29e670]:
+              - /placeholder: Enter your email
+            - button [ref=f29e671] [cursor=pointer]: Subscribe
+          - generic [ref=f29e530]:
+            - link [ref=f29e672] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv
+            - link [ref=f29e673] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - generic [ref=f29e538]:
+        - generic [ref=f29e539]:
+          - generic [ref=f29e540]: "We Accept:"
+          - generic [ref=f29e541]:
+            - generic [ref=f29e542]: Visa
+            - generic [ref=f29e544]: MC
+            - generic [ref=f29e546]: Amex
+            - generic [ref=f29e548]: PayPal
+        - generic [ref=f29e550]:
+          - link [ref=f29e674] [cursor=pointer]:
+            - /url: /privacy
+            - text: Privacy Policy
+          - link [ref=f29e675] [cursor=pointer]:
+            - /url: /terms
+            - text: Terms of Service
+          - link [ref=f29e676] [cursor=pointer]:
+            - /url: /cookies
+            - text: Cookies Policy
+    - paragraph [ref=f29e556]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link [aria-hidden] [ref=f29e677] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - generic:
+    - link "Club De Nuit Ali from Faisalabad purchased Club De Nuit PKR 1,699 22 minutes ago ✓ Verified Order Close notification":
+      - /url: /shop/club-de-nuit
+      - generic:
+        - img "Club De Nuit"
+      - generic:
+        - paragraph:
+          - strong: Ali
+          - text: from
+          - strong: Faisalabad
+          - text: purchased
+          - strong: Club De Nuit
+        - generic:
+          - generic: PKR 1,699
+          - generic: 22 minutes ago
+        - generic: ✓ Verified Order
+      - button "Close notification"
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f29e565] [cursor=pointer]
+  - alert [ref=f29e678]
+  - dialog [ref=f29e682]:
+    - generic [ref=f29e683]:
+      - heading "Shopping Bag (1)" [level=2] [ref=f29e687]
+      - button [active] [ref=f29e688] [cursor=pointer]
+    - generic [ref=f29e691]:
+      - generic [ref=f29e693]:
+        - img "White Rose" [ref=f29e695]
+        - generic [ref=f29e696]:
+          - generic [ref=f29e697]:
+            - generic [ref=f29e698]:
+              - heading "White Rose" [level=3] [ref=f29e699]
+              - paragraph [ref=f29e700]: 12ml
+            - button [ref=f29e701] [cursor=pointer]
+          - generic [ref=f29e704]:
+            - generic [ref=f29e705]:
+              - button "−" [ref=f29e706] [cursor=pointer]
+              - generic [ref=f29e707]: "1"
+              - button "+" [ref=f29e708] [cursor=pointer]
+            - paragraph [ref=f29e709]: PKR 1299
+      - generic [ref=f29e710]:
+        - paragraph [ref=f29e711]: You Might Also Like
+        - generic [ref=f29e713]:
+          - link [ref=f29e714] [cursor=pointer]:
+            - /url: /shop/safari-midnight
+            - generic [ref=f29e715]:
+              - img "Safari Midnight" [ref=f29e716]
+              - button "Add Safari Midnight to cart" [ref=f29e717]
+            - paragraph [ref=f29e720]: Safari Midnight
+            - paragraph [ref=f29e721]: PKR 149
+          - link [ref=f29e722] [cursor=pointer]:
+            - /url: /shop/safari-rose
+            - generic [ref=f29e723]:
+              - img "Safari Rose" [ref=f29e724]
+              - button "Add Safari Rose to cart" [ref=f29e725]
+            - paragraph [ref=f29e728]: Safari Rose
+            - paragraph [ref=f29e729]: PKR 129
+          - link [ref=f29e730] [cursor=pointer]:
+            - /url: /shop/safari-oud
+            - generic [ref=f29e731]:
+              - img "Safari Oud" [ref=f29e732]
+              - button "Add Safari Oud to cart" [ref=f29e733]
+            - paragraph [ref=f29e736]: Safari Oud
+            - paragraph [ref=f29e737]: PKR 199
+    - generic [ref=f29e738]:
+      - generic [ref=f29e739]:
+        - generic [ref=f29e740]:
+          - generic [ref=f29e741]: Subtotal
+          - generic [ref=f29e742]: PKR 1299.00
+        - generic [ref=f29e743]:
+          - generic [ref=f29e744]: Shipping
+          - generic [ref=f29e745]: Free
+        - generic [ref=f29e746]:
+          - generic [ref=f29e747]: Total
+          - generic [ref=f29e748]: PKR 1299.00
+      - button "Checkout" [ref=f29e749] [cursor=pointer]
+      - button "Continue Shopping" [ref=f29e750] [cursor=pointer]
+    - button "Close" [ref=f29e751] [cursor=pointer]

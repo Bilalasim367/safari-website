@@ -1,11 +1,11 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
-import ProductCard from '@/components/ProductCard';
+import ShopProductCard from './ShopProductCard';
 import SortSelect from './SortSelect';
 import MobileFilterDrawer from './MobileFilterDrawer';
 import FILTERS, { FilterSection } from './FilterSection';
 import { classifyProductType, type ProductCategoryType } from '@/lib/product-types';
-import { normalizeGender, normalizeType } from '@/lib/normalize';
+import { normalizeGender, normalizeType, defaultSizeForType } from '@/lib/normalize';
 import { debugLog } from '@/lib/debugLog';
 
 export const dynamic = 'force-dynamic';
@@ -21,6 +21,7 @@ interface Product {
   category: { name: string; slug: string } | null;
   categorySlug?: string | null;
   size: string;
+  
   isBestseller: boolean;
   isNew: boolean;
   rating: number;
@@ -67,6 +68,41 @@ function buildParamString(params: SearchParams): string {
   }
   const qs = sp.toString();
   return qs ? `&${qs}` : '';
+}
+
+function capitalize(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function withoutFilter(params: SearchParams, key: string, value: string): string {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (!v || k === 'page') continue;
+    if (k === 'minPrice' || k === 'maxPrice') continue;
+    if (key === 'price' && k === 'minPrice' || key === 'price' && k === 'maxPrice') continue;
+    if (k === key) {
+      if (key === 'price') continue;
+      const remaining = v.split(',').filter((x: string) => x !== value).filter(Boolean);
+      if (remaining.length > 0) sp.set(k, remaining.join(','));
+      continue;
+    }
+    sp.set(k, v);
+  }
+  const qs = sp.toString();
+  return qs ? `/shop?${qs}` : '/shop';
+}
+
+function buildChips(params: SearchParams, selectedCategories: string[], selectedGenders: string[], selectedFamilies: string[], selectedTypes: string[], selectedPriceRanges: string[]): { label: string; href: string }[] {
+  const chips: { label: string; href: string }[] = [];
+  selectedCategories.forEach((v) => chips.push({ label: capitalize(v), href: withoutFilter(params, 'category', v) }));
+  selectedGenders.forEach((v) => chips.push({ label: capitalize(v), href: withoutFilter(params, 'gender', v) }));
+  selectedFamilies.forEach((v) => chips.push({ label: v, href: withoutFilter(params, 'fragranceFamily', v) }));
+  selectedTypes.forEach((v) => chips.push({ label: capitalize(v), href: withoutFilter(params, 'type', v) }));
+  selectedPriceRanges.forEach((label) => chips.push({ label, href: withoutFilter(params, 'price', '') }));
+  if (params.isBestseller === 'true') chips.push({ label: 'Bestseller', href: withoutFilter(params, 'isBestseller', 'true') });
+  if (params.isNew === 'true') chips.push({ label: 'New Arrivals', href: withoutFilter(params, 'isNew', 'true') });
+  if (params.q) chips.push({ label: `Search: ${params.q}`, href: withoutFilter(params, 'q', params.q) });
+  return chips;
 }
 
 export default async function ShopContent({
@@ -175,6 +211,7 @@ export default async function ShopContent({
     images: string;
     categorySlug: string | null;
     size: string;
+    
     isBestseller: boolean;
     isNew: boolean;
     rating: number;
@@ -201,7 +238,8 @@ export default async function ShopContent({
       images: parseJsonArray(p.images),
       category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
       categorySlug: p.categorySlug ?? undefined,
-      size: p.size || '50ml',
+      size: p.size || defaultSizeForType(p.type),
+      
       isBestseller: p.isBestseller,
       isNew: p.isNew,
       rating: p.rating,
@@ -230,9 +268,9 @@ export default async function ShopContent({
           originalPrice: true,
           image: true,
           images: true,
-          categorySlug: true,
-          size: true,
-          isBestseller: true,
+categorySlug: true,
+      size: true,
+      isBestseller: true,
           isNew: true,
           rating: true,
           reviewCount: true,
@@ -260,11 +298,12 @@ export default async function ShopContent({
     try {
       debugLog('ShopContent:where-clause', JSON.stringify(where, null, 2));
     } catch {
-      // JSON.stringify may fail on circular refs — swallow
+      // JSON.stringify may fail on circular refs - swallow
     }
   }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  const shownOnPage = Math.min(total, page * PAGE_SIZE);
 
   const selectedCategories = params.category?.split(',').filter(Boolean) || [];
   const selectedFamilies = params.fragranceFamily?.split(',').filter(Boolean) || [];
@@ -282,6 +321,8 @@ export default async function ShopContent({
     });
   }
 
+  const chips = buildChips(params, selectedCategories, selectedGenders, selectedFamilies, selectedTypes, selectedPriceRanges);
+
   return (
     <div className="bg-white">
       <div className="container-custom py-12 lg:py-16">
@@ -293,9 +334,9 @@ export default async function ShopContent({
                 {(selectedCategories.length + selectedFamilies.length + selectedGenders.length + selectedPriceRanges.length + selectedTypes.length) > 0 && (
                   <Link
                     href="/shop"
-                    className="text-black text-sm hover:underline underline-offset-2 transition-all"
+                    className="text-[#9a958d] text-sm hover:text-[#B6965D] transition-colors"
                   >
-                    Clear All
+                    Clear All Filters
                   </Link>
                 )}
               </div>
@@ -346,9 +387,9 @@ export default async function ShopContent({
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-6 border-b border-border">
               <div className="flex items-center gap-4 w-full sm:w-auto">
-                <p className="text-muted-foreground text-sm">
-                  {total} Product{total !== 1 ? 's' : ''}
-                </p>
+<p className="text-muted-foreground text-sm">
+                    Showing {total === 0 ? 0 : shownOnPage} of {total} product{total !== 1 ? 's' : ''}
+                  </p>
                 <div className="lg:hidden ml-auto">
                   <MobileFilterDrawer
                     filterCount={
@@ -361,6 +402,8 @@ export default async function ShopContent({
                       selected={selectedCategories}
                       paramKey="category"
                       currentParams={params}
+                      headingClassName="text-foreground text-base font-bold uppercase tracking-wider mb-4"
+                      rowClassName="min-h-[44px] items-center"
                     />
                     <FilterSection
                       title="Gender"
@@ -368,6 +411,8 @@ export default async function ShopContent({
                       selected={selectedGenders}
                       paramKey="gender"
                       currentParams={params}
+                      headingClassName="text-foreground text-base font-bold uppercase tracking-wider mb-4"
+                      rowClassName="min-h-[44px] items-center"
                     />
                     <FilterSection
                       title="Fragrance Family"
@@ -375,6 +420,8 @@ export default async function ShopContent({
                       selected={selectedFamilies}
                       paramKey="fragranceFamily"
                       currentParams={params}
+                      headingClassName="text-foreground text-base font-bold uppercase tracking-wider mb-4"
+                      rowClassName="min-h-[44px] items-center"
                     />
                     <FilterSection
                       title="Price"
@@ -383,6 +430,8 @@ export default async function ShopContent({
                       paramKey="price"
                       priceRanges={FILTERS.priceRanges}
                       currentParams={params}
+                      headingClassName="text-foreground text-base font-bold uppercase tracking-wider mb-4"
+                      rowClassName="min-h-[44px] items-center"
                     />
                     <FilterSection
                       title="Product Type"
@@ -390,6 +439,8 @@ export default async function ShopContent({
                       selected={selectedTypes}
                       paramKey="type"
                       currentParams={params}
+                      headingClassName="text-foreground text-base font-bold uppercase tracking-wider mb-4"
+                      rowClassName="min-h-[44px] items-center"
                     />
                   </MobileFilterDrawer>
                 </div>
@@ -411,9 +462,23 @@ export default async function ShopContent({
               </div>
             ) : (
               <>
+                {chips.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 mb-8">
+                    {chips.map((chip) => (
+                      <Link
+                        key={chip.label}
+                        href={chip.href}
+                        className="inline-flex items-center gap-1.5 pl-3 pr-2 py-2 text-xs text-foreground border border-border rounded-full bg-background hover:border-[#B6965D] hover:text-[#B6965D] transition-colors"
+                      >
+                        {chip.label}
+                        <span className="text-[#9a958d]" aria-hidden="true">×</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
                 <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {formattedProducts.map((product) => (
-                    <ProductCard
+                    <ShopProductCard
                       key={product.id}
                       id={product.id}
                       name={product.name}
@@ -422,14 +487,9 @@ export default async function ShopContent({
                       originalPrice={product.originalPrice ?? undefined}
                       image={product.image}
                       images={product.images}
-                      category={product.category?.name || 'Unisex'}
-                      isNew={product.isNew}
-                      isBestseller={product.isBestseller}
+                      size={product.size}
                       rating={product.rating}
                       reviewCount={product.reviewCount}
-                      gender={product.gender}
-                      season={product.season}
-                      impressionOf={product.impressionOf}
                       currency={product.currency}
                     />
                   ))}

@@ -132,6 +132,66 @@ async function main() {
     console.error('Failed to ensure Settings row:', e)
   }
 
+  // ReturnRequest table (idempotent)
+  console.log('Ensuring returnrequest table...')
+  const returnTableSql = `
+    CREATE TABLE IF NOT EXISTS returnrequest (
+      id VARCHAR(191) NOT NULL,
+      requestId VARCHAR(191) NOT NULL,
+      type VARCHAR(191) NOT NULL DEFAULT 'return',
+      orderNumber VARCHAR(191),
+      customerName VARCHAR(191) NOT NULL,
+      email VARCHAR(191) NOT NULL,
+      phone VARCHAR(191),
+      productName VARCHAR(191) NOT NULL,
+      sku VARCHAR(191),
+      size VARCHAR(191),
+      reason VARCHAR(191) NOT NULL,
+      details TEXT,
+      status VARCHAR(191) NOT NULL DEFAULT 'pending',
+      adminNote TEXT,
+      createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+      updatedAt DATETIME(3) NOT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY returnrequest_requestId_key (requestId),
+      KEY returnrequest_status_createdAt_idx (status, createdAt),
+      KEY returnrequest_email_idx (email),
+      KEY returnrequest_orderNumber_idx (orderNumber)
+    );
+  `
+  try {
+    await prisma.$executeRawUnsafe(returnTableSql)
+    console.log('returnrequest table ensured.')
+  } catch (e) {
+    console.error('Failed to ensure returnrequest table:', e)
+  }
+
+  // PriceUpdateLog table for bulk price update audit trail (idempotent)
+  console.log('Ensuring priceupdatelog table...')
+  const priceLogTableSql = `
+    CREATE TABLE IF NOT EXISTS priceupdatelog (
+      id VARCHAR(191) NOT NULL,
+      productId VARCHAR(191),
+      productName TEXT,
+      csvFileName VARCHAR(191),
+      field VARCHAR(191) NOT NULL,
+      oldValue DOUBLE,
+      newValue DOUBLE,
+      performedById VARCHAR(191),
+      performedByEmail VARCHAR(191),
+      createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+      PRIMARY KEY (id),
+      KEY priceupdatelog_productId_createdAt_idx (productId, createdAt),
+      KEY priceupdatelog_createdAt_idx (createdAt)
+    );
+  `
+  try {
+    await prisma.$executeRawUnsafe(priceLogTableSql)
+    console.log('priceupdatelog table ensured.')
+  } catch (e) {
+    console.error('Failed to ensure priceupdatelog table:', e)
+  }
+
   console.log('Migration applied successfully!')
 }
 

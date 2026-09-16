@@ -29,7 +29,7 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default function AccountPage() {
-  const { user, loading: authLoading, logout, refreshUser } = useAuth();
+  const { user, authChecking, logout, refreshUser } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -50,10 +50,10 @@ export default function AccountPage() {
   ];
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authChecking && !user) {
       router.push('/login?redirect=/account');
     }
-  }, [authLoading, user, router]);
+  }, [authChecking, user, router]);
 
   useEffect(() => {
     if (user) {
@@ -109,7 +109,7 @@ export default function AccountPage() {
     router.refresh();
   };
 
-  if (authLoading || !user) {
+  if (authChecking || !user) {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
         <div className="animate-pulse">Loading...</div>

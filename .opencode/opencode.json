@@ -10,5 +10,14 @@
     }
   },
 
-  "model": "openrouter/qwen/qwen3-coder"
+  "model": "openrouter/qwen/qwen3-coder",
+
+  "lsp": {
+    "typescript": {
+      "command": ["typescript-language-server", "--stdio"]
+    },
+    "tailwindcss": {
+      "command": ["tailwindcss-language-server", "--stdio"]
+    }
+  }
 }

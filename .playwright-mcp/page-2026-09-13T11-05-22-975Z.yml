@@ -1,0 +1,305 @@
+- generic [active] [ref=f28e1]:
+  - generic [ref=f28e5]:
+    - button "Instagram" [ref=f28e6]
+    - button "Facebook" [ref=f28e9]
+    - button "Twitter" [ref=f28e12]
+  - generic [ref=f28e16]:
+    - generic [ref=f28e17]: FREE SHIPPING ON ORDERS OVER PKR 15,000
+    - generic [aria-hidden] [ref=f28e18]: NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+    - generic [aria-hidden] [ref=f28e19]: "BUY 2 GET 10% OFF — USE CODE: PAIR10"
+  - banner [ref=f28e20]:
+    - generic [ref=f28e21]:
+      - button "Search" [ref=f28e23] [cursor=pointer]
+      - link "SAFARI Perfumes Home" [ref=f28e26] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=f28e27]
+      - generic [ref=f28e28]:
+        - button "Cart" [ref=f28e29] [cursor=pointer]
+        - link "Account" [ref=f28e32] [cursor=pointer]:
+          - /url: /login
+        - button "Menu" [ref=f28e35] [cursor=pointer]
+  - main [ref=f28e38]:
+    - generic [ref=f28e39]:
+      - generic [ref=f28e41]:
+        - generic [ref=f28e42]:
+          - paragraph [ref=f28e43]: Collection
+          - heading "Men Fragrances" [level=1] [ref=f28e44]
+          - paragraph [ref=f28e45]: Discover our complete collection of luxury fragrances, crafted to elevate your senses.
+        - navigation "breadcrumb" [ref=f28e47]:
+          - list [ref=f28e48]:
+            - listitem [ref=f28e49]:
+              - link "Home" [ref=f28e50] [cursor=pointer]:
+                - /url: /
+            - listitem [aria-hidden] [ref=f28e51]
+            - listitem [ref=f28e54]:
+              - link "Men Fragrances" [disabled] [ref=f28e55]
+      - generic [ref=f28e59]:
+        - generic [ref=f28e60]:
+          - generic [ref=f28e61]:
+            - paragraph [ref=f28e62]: Showing 12 of 50 products
+            - button "Filters 1" [ref=f28e64] [cursor=pointer]:
+              - text: Filters
+              - generic [ref=f28e67]: "1"
+          - combobox [ref=f28e68] [cursor=pointer]:
+            - 'option "Sort: Featured" [selected]'
+            - 'option "Price: Low to High"'
+            - 'option "Price: High to Low"'
+            - option "Newest"
+            - option "Top Rated"
+        - link "Men" [ref=f28e70] [cursor=pointer]:
+          - /url: /shop
+          - text: Men
+          - generic [aria-hidden] [ref=f28e71]: ×
+        - generic [ref=f28e72]:
+          - 'link "Boss In Office -22% Add to wishlist Boss In Office (3) PKR 1,799 Was: PKR 2,299 Add Boss In Office to cart" [ref=f28e73] [cursor=pointer]':
+            - /url: /shop/boss-in-office
+            - generic [ref=f28e74]:
+              - img "Boss In Office" [ref=f28e75]
+              - generic [ref=f28e76]: "-22%"
+              - button "Add to wishlist" [ref=f28e77]
+            - generic [ref=f28e80]:
+              - heading "Boss In Office" [level=3] [ref=f28e81]
+              - generic [ref=f28e82]: (3)
+              - generic [ref=f28e97]:
+                - generic [ref=f28e98]: PKR 1,799
+                - generic [ref=f28e99]: "Was: PKR 2,299"
+              - button "Add Boss In Office to cart" [ref=f28e101]: Add to Cart
+          - link "Hugo Energise Men Add to wishlist Hugo Energise Men (3) PKR 300 Add Hugo Energise Men to cart" [ref=f28e106] [cursor=pointer]:
+            - /url: /shop/hugo-energise-men-2
+            - generic [ref=f28e107]:
+              - img "Hugo Energise Men" [ref=f28e108]
+              - button "Add to wishlist" [ref=f28e109]
+            - generic [ref=f28e112]:
+              - heading "Hugo Energise Men" [level=3] [ref=f28e113]
+              - generic [ref=f28e114]: (3)
+              - generic [ref=f28e129]: PKR 300
+              - button "Add Hugo Energise Men to cart" [ref=f28e132]: Add to Cart
+          - link "Herrera For Men Add to wishlist Herrera For Men (6) PKR 300 Add Herrera For Men to cart" [ref=f28e137] [cursor=pointer]:
+            - /url: /shop/herrera-for-men-2
+            - generic [ref=f28e138]:
+              - img "Herrera For Men" [ref=f28e139]
+              - button "Add to wishlist" [ref=f28e140]
+            - generic [ref=f28e143]:
+              - heading "Herrera For Men" [level=3] [ref=f28e144]
+              - generic [ref=f28e145]: (6)
+              - generic [ref=f28e160]: PKR 300
+              - button "Add Herrera For Men to cart" [ref=f28e163]: Add to Cart
+          - 'link "1 Million Royal -20% Add to wishlist 1 Million Royal (4) PKR 2,399 Was: PKR 2,999 Add 1 Million Royal to cart" [ref=f28e168] [cursor=pointer]':
+            - /url: /shop/1-million-royal
+            - generic [ref=f28e169]:
+              - img "1 Million Royal" [ref=f28e170]
+              - generic [ref=f28e171]: "-20%"
+              - button "Add to wishlist" [ref=f28e172]
+            - generic [ref=f28e175]:
+              - heading "1 Million Royal" [level=3] [ref=f28e176]
+              - generic [ref=f28e177]: (4)
+              - generic [ref=f28e192]:
+                - generic [ref=f28e193]: PKR 2,399
+                - generic [ref=f28e194]: "Was: PKR 2,999"
+              - button "Add 1 Million Royal to cart" [ref=f28e196]: Add to Cart
+          - 'link "X For Men -27% Add to wishlist X For Men (4) PKR 2,199 Was: PKR 2,999 Add X For Men to cart" [ref=f28e201] [cursor=pointer]':
+            - /url: /shop/x-for-men
+            - generic [ref=f28e202]:
+              - img "X For Men" [ref=f28e203]
+              - generic [ref=f28e204]: "-27%"
+              - button "Add to wishlist" [ref=f28e205]
+            - generic [ref=f28e208]:
+              - heading "X For Men" [level=3] [ref=f28e209]
+              - generic [ref=f28e210]: (4)
+              - generic [ref=f28e225]:
+                - generic [ref=f28e226]: PKR 2,199
+                - generic [ref=f28e227]: "Was: PKR 2,999"
+              - button "Add X For Men to cart" [ref=f28e229]: Add to Cart
+          - 'link "Aventus -33% Add to wishlist Aventus (3) PKR 1,999 Was: PKR 2,999 Add Aventus to cart" [ref=f28e234] [cursor=pointer]':
+            - /url: /shop/aventus-2
+            - generic [ref=f28e235]:
+              - img "Aventus" [ref=f28e236]
+              - generic [ref=f28e237]: "-33%"
+              - button "Add to wishlist" [ref=f28e238]
+            - generic [ref=f28e241]:
+              - heading "Aventus" [level=3] [ref=f28e242]
+              - generic [ref=f28e243]: (3)
+              - generic [ref=f28e258]:
+                - generic [ref=f28e259]: PKR 1,999
+                - generic [ref=f28e260]: "Was: PKR 2,999"
+              - button "Add Aventus to cart" [ref=f28e262]: Add to Cart
+          - 'link "Gucci Guilty Elixir De Parfum Pour Homme -33% Add to wishlist Gucci Guilty Elixir De Parfum Pour Homme (5) PKR 1,999 Was: PKR 2,999 Add Gucci Guilty Elixir De Parfum Pour Homme to cart" [ref=f28e267] [cursor=pointer]':
+            - /url: /shop/gucci-guilty-elixir-de-parfum-pour-homme
+            - generic [ref=f28e268]:
+              - img "Gucci Guilty Elixir De Parfum Pour Homme" [ref=f28e269]
+              - generic [ref=f28e270]: "-33%"
+              - button "Add to wishlist" [ref=f28e271]
+            - generic [ref=f28e274]:
+              - heading "Gucci Guilty Elixir De Parfum Pour Homme" [level=3] [ref=f28e275]
+              - generic [ref=f28e276]: (5)
+              - generic [ref=f28e291]:
+                - generic [ref=f28e292]: PKR 1,999
+                - generic [ref=f28e293]: "Was: PKR 2,999"
+              - button "Add Gucci Guilty Elixir De Parfum Pour Homme to cart" [ref=f28e295]: Add to Cart
+          - 'link "Boss The Scent Magnetic For Her -33% Add to wishlist Boss The Scent Magnetic For Her (5) PKR 1,999 Was: PKR 2,999 Add Boss The Scent Magnetic For Her to cart" [ref=f28e300] [cursor=pointer]':
+            - /url: /shop/boss-the-scent-magnetic-for-her
+            - generic [ref=f28e301]:
+              - img "Boss The Scent Magnetic For Her" [ref=f28e302]
+              - generic [ref=f28e303]: "-33%"
+              - button "Add to wishlist" [ref=f28e304]
+            - generic [ref=f28e307]:
+              - heading "Boss The Scent Magnetic For Her" [level=3] [ref=f28e308]
+              - generic [ref=f28e309]: (5)
+              - generic [ref=f28e324]:
+                - generic [ref=f28e325]: PKR 1,999
+                - generic [ref=f28e326]: "Was: PKR 2,999"
+              - button "Add Boss The Scent Magnetic For Her to cart" [ref=f28e328]: Add to Cart
+          - 'link "Baccarat Rouge 540 -33% Add to wishlist Baccarat Rouge 540 (5) PKR 1,999 Was: PKR 2,999 Add Baccarat Rouge 540 to cart" [ref=f28e333] [cursor=pointer]':
+            - /url: /shop/baccarat-rouge-540
+            - generic [ref=f28e334]:
+              - img "Baccarat Rouge 540" [ref=f28e335]
+              - generic [ref=f28e336]: "-33%"
+              - button "Add to wishlist" [ref=f28e337]
+            - generic [ref=f28e340]:
+              - heading "Baccarat Rouge 540" [level=3] [ref=f28e341]
+              - generic [ref=f28e342]: (5)
+              - generic [ref=f28e357]:
+                - generic [ref=f28e358]: PKR 1,999
+                - generic [ref=f28e359]: "Was: PKR 2,999"
+              - button "Add Baccarat Rouge 540 to cart" [ref=f28e361]: Add to Cart
+          - 'link "Acqua Di Gio Profondo Elixir -37% Add to wishlist Acqua Di Gio Profondo Elixir (3) PKR 1,899 Was: PKR 2,999 Add Acqua Di Gio Profondo Elixir to cart" [ref=f28e366] [cursor=pointer]':
+            - /url: /shop/acqua-di-gio-profondo-elixir
+            - generic [ref=f28e367]:
+              - img "Acqua Di Gio Profondo Elixir" [ref=f28e368]
+              - generic [ref=f28e369]: "-37%"
+              - button "Add to wishlist" [ref=f28e370]
+            - generic [ref=f28e373]:
+              - heading "Acqua Di Gio Profondo Elixir" [level=3] [ref=f28e374]
+              - generic [ref=f28e375]: (3)
+              - generic [ref=f28e390]:
+                - generic [ref=f28e391]: PKR 1,899
+                - generic [ref=f28e392]: "Was: PKR 2,999"
+              - button "Add Acqua Di Gio Profondo Elixir to cart" [ref=f28e394]: Add to Cart
+          - 'link "Y Le Parfum 2025 -28% Add to wishlist Y Le Parfum 2025 (4) PKR 1,799 Was: PKR 2,499 Add Y Le Parfum 2025 to cart" [ref=f28e399] [cursor=pointer]':
+            - /url: /shop/y-le-parfum-2025
+            - generic [ref=f28e400]:
+              - img "Y Le Parfum 2025" [ref=f28e401]
+              - generic [ref=f28e402]: "-28%"
+              - button "Add to wishlist" [ref=f28e403]
+            - generic [ref=f28e406]:
+              - heading "Y Le Parfum 2025" [level=3] [ref=f28e407]
+              - generic [ref=f28e408]: (4)
+              - generic [ref=f28e423]:
+                - generic [ref=f28e424]: PKR 1,799
+                - generic [ref=f28e425]: "Was: PKR 2,499"
+              - button "Add Y Le Parfum 2025 to cart" [ref=f28e427]: Add to Cart
+          - 'link "1 Million Lucky -36% Add to wishlist 1 Million Lucky (4) PKR 1,799 Was: PKR 2,799 Add 1 Million Lucky to cart" [ref=f28e432] [cursor=pointer]':
+            - /url: /shop/1-million-lucky
+            - generic [ref=f28e433]:
+              - img "1 Million Lucky" [ref=f28e434]
+              - generic [ref=f28e435]: "-36%"
+              - button "Add to wishlist" [ref=f28e436]
+            - generic [ref=f28e439]:
+              - heading "1 Million Lucky" [level=3] [ref=f28e440]
+              - generic [ref=f28e441]: (4)
+              - generic [ref=f28e456]:
+                - generic [ref=f28e457]: PKR 1,799
+                - generic [ref=f28e458]: "Was: PKR 2,799"
+              - button "Add 1 Million Lucky to cart" [ref=f28e460]: Add to Cart
+        - generic [ref=f28e465]:
+          - generic [ref=f28e466]: Page 1 of 5
+          - link "Next" [ref=f28e467] [cursor=pointer]:
+            - /url: /shop?page=2&gender=Men
+  - contentinfo [ref=f28e468]:
+    - generic [ref=f28e470]:
+      - generic [ref=f28e471]:
+        - generic [ref=f28e472]:
+          - link [ref=f28e473] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=f28e474]
+          - paragraph [ref=f28e475]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f28e476] [cursor=pointer]:
+            - link "Read More" [ref=f28e477]:
+              - /url: /about
+          - generic [ref=f28e480]:
+            - heading "Contact Us" [level=4] [ref=f28e481]
+            - list [ref=f28e482]:
+              - listitem [ref=f28e483]:
+                - link "support@safari-perfumes.com" [ref=f28e484] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=f28e487]:
+                - link "+92 324 7277489" [ref=f28e488] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=f28e491]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=f28e492]:
+          - heading "Quick Links" [level=4] [ref=f28e493]
+          - list [ref=f28e494]:
+            - listitem [ref=f28e495]:
+              - link "Shop All" [ref=f28e496] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f28e497]:
+              - link "New Arrivals" [ref=f28e498] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=f28e499]:
+              - link "Best Sellers" [ref=f28e500] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=f28e501]:
+              - link "Collections" [ref=f28e502] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=f28e503]:
+              - link "Bundles & Gift Sets" [ref=f28e504] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=f28e505]:
+              - link "Gift Cards" [ref=f28e506] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=f28e507]:
+              - link "Fragrance Guides" [ref=f28e508] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=f28e509]:
+          - heading "Customer Service" [level=4] [ref=f28e510]
+          - list [ref=f28e511]:
+            - listitem [ref=f28e512]:
+              - link "My Account" [ref=f28e513] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=f28e514]:
+              - link "Order Tracking" [ref=f28e515] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=f28e516]:
+              - link "Returns & Exchange" [ref=f28e517] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f28e518]:
+              - link "Shipping & Delivery" [ref=f28e519] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f28e520]:
+              - link "FAQs" [ref=f28e521] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=f28e522]:
+              - link "Contact Us" [ref=f28e523] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f28e524]:
+          - heading "Stay Connected & Save" [level=4] [ref=f28e525]
+          - paragraph [ref=f28e526]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f28e527]:
+            - textbox "Email address for newsletter" [ref=f28e528]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=f28e529] [cursor=pointer]
+          - generic [ref=f28e530]:
+            - link "TikTok" [ref=f28e531] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv
+            - link "Facebook" [ref=f28e534] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - generic [ref=f28e538]:
+        - generic [ref=f28e539]:
+          - generic [ref=f28e540]: "We Accept:"
+          - generic [ref=f28e541]:
+            - generic [ref=f28e542]: Visa
+            - generic [ref=f28e544]: MC
+            - generic [ref=f28e546]: Amex
+            - generic [ref=f28e548]: PayPal
+        - generic [ref=f28e550]:
+          - link "Privacy Policy" [ref=f28e551] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=f28e552] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=f28e553] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=f28e556]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=f28e557] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f28e565] [cursor=pointer]

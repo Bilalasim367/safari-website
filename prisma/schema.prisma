@@ -280,6 +280,23 @@ model Notification {
   @@map("notification")
 }
 
+model PriceUpdateLog {
+  id               String   @id @default(cuid())
+  productId        String?
+  productName      String?
+  csvFileName      String?
+  field            String // e.g. "price", "oilPricePer100g"
+  oldValue         Float?
+  newValue         Float?
+  performedById    String?
+  performedByEmail String?
+  createdAt        DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([createdAt])
+  @@map("priceupdatelog")
+}
+
 model Review {
   id            String   @id @default(cuid())
   productId     String
@@ -293,6 +310,30 @@ model Review {
 
   @@index([productId, isApproved])
   @@map("review")
+}
+
+model ReturnRequest {
+  id            String   @id @default(cuid())
+  requestId     String   @unique
+  type          String   @default("return") // return, exchange
+  orderNumber   String?
+  customerName  String
+  email         String
+  phone         String?
+  productName   String
+  sku           String?
+  size          String?
+  reason        String
+  details       String?   @db.Text
+  status        String   @default("pending") // pending, approved, rejected, completed, cancelled
+  adminNote     String?   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([orderNumber])
+  @@map("returnrequest")
 }
 
 model Settings {

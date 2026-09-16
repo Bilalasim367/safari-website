@@ -25,7 +25,7 @@ export default function NotificationsPage() {
     switch (type) {
       case "order": return "text-blue-400 bg-blue-400/10";
       case "user": return "text-green-400 bg-green-400/10";
-      case "review": return "text-[#C9A962] bg-[#C9A962]/10";
+      case "review": return "text-[#B6965D] bg-[#B6965D]/10";
       case "system": return "text-red-400 bg-red-400/10";
       default: return "text-gray-400 bg-gray-400/10";
     }
@@ -96,7 +96,7 @@ export default function NotificationsPage() {
                   </div>
                 </div>
                 {!notification.read && (
-                  <div className="w-2 h-2 rounded-full bg-[#C9A962] flex-shrink-0 mt-2" />
+                  <div className="w-2 h-2 rounded-full bg-[#B6965D] flex-shrink-0 mt-2" />
                 )}
               </div>
             ))}
@@ -109,19 +109,19 @@ export default function NotificationsPage() {
         <div className="space-y-4">
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-white/80">Order notifications</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#C9A962]" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#B6965D]" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-white/80">New customer registrations</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#C9A962]" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#B6965D]" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-white/80">Product reviews</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#C9A962]" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#B6965D]" />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-white/80">Low stock alerts</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#C9A962]" />
+            <input type="checkbox" defaultChecked className="w-5 h-5 accent-[#B6965D]" />
           </label>
         </div>
       </div>

@@ -12,8 +12,22 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com', port: '', pathname: '/**' },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
+      { source: '/admin', destination: '/admin/login', permanent: true },
       { source: '/shop/tobacco-oud-by-tom-ford-2', destination: '/shop/tobacco-oud-by-tom-ford', permanent: true },
       { source: '/shop/office-for-men-by-jeremy-fragrance-2', destination: '/shop/office-for-men-by-jeremy-fragrance', permanent: true },
       { source: '/shop/chanel-no-5-red-by-chanel-2', destination: '/shop/chanel-no-5-red-by-chanel', permanent: true },

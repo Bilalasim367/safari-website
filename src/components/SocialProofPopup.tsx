@@ -157,7 +157,7 @@ export default function SocialProofPopup() {
     >
       <Link
         href={`/shop/${frame.product.slug}`}
-        className="relative flex items-start gap-3 rounded-2xl bg-white text-foreground shadow-[0_12px_32px_rgba(0,0,0,0.18)] border-l-4 border-[#c9a962] p-3"
+        className="relative flex items-start gap-3 rounded-2xl bg-white text-foreground shadow-[0_12px_32px_rgba(0,0,0,0.18)] border-l-4 border-[#B6965D] p-3"
       >
         <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted shrink-0 border border-border">
           {frame.product.image ? (
@@ -178,7 +178,7 @@ export default function SocialProofPopup() {
             <strong className="font-semibold">{frame.product.name}</strong>
           </p>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span className="text-sm font-bold text-[#c9a962]">{price}</span>
+            <span className="text-sm font-bold text-[#B6965D]">{price}</span>
             <span className="text-[11px] text-muted-foreground">{frame.minutesAgo} minutes ago</span>
           </div>
           <div className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-green-600 bg-green-50 border border-green-100 rounded-full px-2 py-0.5">

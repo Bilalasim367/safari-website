@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
-import { normalizeGender, normalizeType } from '@/lib/normalize';
+import { normalizeGender, normalizeType, defaultSizeForType } from '@/lib/normalize';
 
 async function getAuth() {
   const cookieStore = await cookies();
@@ -192,7 +192,8 @@ export async function createProduct(data: ProductFormData) {
         image: data.image || '',
         images: JSON.stringify(data.images || (data.image ? [data.image] : [])),
         categorySlug: data.categorySlug?.toLowerCase() || 'men',
-        size: data.size || '50ml',
+        // Type-aware default: attar → 12ml, everything else → 50ml (historical default)
+        size: data.size || defaultSizeForType(data.type),
         sizePrices: JSON.stringify(data.sizePrices || []),
         fragranceFamily: data.fragranceFamily || null,
         rating: data.rating ?? 0,
@@ -266,7 +267,8 @@ export async function updateProduct(id: string, data: ProductFormData) {
         image: data.image || '',
         images: JSON.stringify(data.images || (data.image ? [data.image] : [])),
         categorySlug: data.categorySlug?.toLowerCase() || 'men',
-        size: data.size || '50ml',
+        // Type-aware default: attar → 12ml, everything else → 50ml (historical default)
+        size: data.size || defaultSizeForType(data.type),
         sizePrices: JSON.stringify(data.sizePrices || []),
         fragranceFamily: data.fragranceFamily || null,
         rating: data.rating ?? 0,

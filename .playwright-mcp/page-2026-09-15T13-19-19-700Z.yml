@@ -1,0 +1,381 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e4]:
+    - navigation [ref=f1e5]:
+      - link "About Us" [ref=f1e6] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=f1e7]: "|"
+      - link "Contact Us" [ref=f1e8] [cursor=pointer]:
+        - /url: /contact
+      - generic [ref=f1e9]: "|"
+      - link "FAQs" [ref=f1e10] [cursor=pointer]:
+        - /url: /contact?faq=true
+    - generic [ref=f1e11]:
+      - link "Instagram" [ref=f1e12] [cursor=pointer]:
+        - /url: https://www.instagram.com/safariperfumesofficial
+      - link "Facebook" [ref=f1e15] [cursor=pointer]:
+        - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - link "TikTok" [ref=f1e18] [cursor=pointer]:
+        - /url: https://www.tiktok.com/@safari.perfumes
+  - generic [ref=f1e21]: FREE SHIPPING ON COD
+  - banner [ref=f1e24]:
+    - generic [ref=f1e25]:
+      - searchbox "Search fragrances" [ref=f1e31]
+      - link "SAFARI Perfumes Home" [ref=f1e32] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=f1e33]
+      - generic [ref=f1e34]:
+        - button "Cart" [ref=f1e35] [cursor=pointer]
+        - link "Account" [ref=f1e38] [cursor=pointer]:
+          - /url: /login
+        - button "Menu" [ref=f1e41] [cursor=pointer]
+  - main [ref=f1e44]:
+    - generic [ref=f1e45]:
+      - generic [ref=f1e47]:
+        - generic [ref=f1e48]:
+          - paragraph [ref=f1e49]: Collection
+          - heading "Shop All" [level=1] [ref=f1e50]
+          - paragraph [ref=f1e51]: Discover our complete collection of luxury fragrances, crafted to elevate your senses.
+        - navigation "breadcrumb" [ref=f1e53]:
+          - list [ref=f1e54]:
+            - listitem [ref=f1e55]:
+              - link "Home" [ref=f1e56] [cursor=pointer]:
+                - /url: /
+            - listitem [aria-hidden] [ref=f1e57]
+            - listitem [ref=f1e60]:
+              - link "Shop All" [disabled] [ref=f1e61]
+      - generic [ref=f1e64]:
+        - complementary [ref=f1e65]:
+          - generic [ref=f1e66]:
+            - heading "Filters" [level=2] [ref=f1e68]
+            - generic [ref=f1e69]:
+              - heading "Category" [level=3] [ref=f1e70]
+              - generic [ref=f1e71]:
+                - link "Men" [ref=f1e72] [cursor=pointer]:
+                  - /url: /shop?category=men
+                - link "Women" [ref=f1e75] [cursor=pointer]:
+                  - /url: /shop?category=women
+                - link "Unisex" [ref=f1e78] [cursor=pointer]:
+                  - /url: /shop?category=unisex
+            - generic [ref=f1e81]:
+              - heading "Gender" [level=3] [ref=f1e82]
+              - generic [ref=f1e83]:
+                - link "Men" [ref=f1e84] [cursor=pointer]:
+                  - /url: /shop?gender=men
+                - link "Women" [ref=f1e87] [cursor=pointer]:
+                  - /url: /shop?gender=women
+                - link "Unisex" [ref=f1e90] [cursor=pointer]:
+                  - /url: /shop?gender=unisex
+            - generic [ref=f1e93]:
+              - heading "Fragrance Family" [level=3] [ref=f1e94]
+              - generic [ref=f1e95]:
+                - link "Floral" [ref=f1e96] [cursor=pointer]:
+                  - /url: /shop?fragranceFamily=Floral
+                - link "Woody" [ref=f1e99] [cursor=pointer]:
+                  - /url: /shop?fragranceFamily=Woody
+                - link "Oriental" [ref=f1e102] [cursor=pointer]:
+                  - /url: /shop?fragranceFamily=Oriental
+                - link "Fresh" [ref=f1e105] [cursor=pointer]:
+                  - /url: /shop?fragranceFamily=Fresh
+            - generic [ref=f1e108]:
+              - heading "Price" [level=3] [ref=f1e109]
+              - generic [ref=f1e110]:
+                - link "Under PKR 5,000" [ref=f1e111] [cursor=pointer]:
+                  - /url: /shop?minPrice=0&maxPrice=5000
+                - link "PKR 5,000 - PKR 15,000" [ref=f1e114] [cursor=pointer]:
+                  - /url: /shop?minPrice=5000&maxPrice=15000
+                - link "PKR 15,000 - PKR 25,000" [ref=f1e117] [cursor=pointer]:
+                  - /url: /shop?minPrice=15000&maxPrice=25000
+                - link "Over PKR 25,000" [ref=f1e120] [cursor=pointer]:
+                  - /url: /shop?minPrice=25000
+            - generic [ref=f1e123]:
+              - heading "Product Type" [level=3] [ref=f1e124]
+              - generic [ref=f1e125]:
+                - link "Attar" [ref=f1e126] [cursor=pointer]:
+                  - /url: /shop?type=attar
+                - link "Perfume" [ref=f1e129] [cursor=pointer]:
+                  - /url: /shop?type=perfume
+        - generic [ref=f1e132]:
+          - generic [ref=f1e133]:
+            - paragraph [ref=f1e135]: Showing 12 of 319 products
+            - combobox [ref=f1e136] [cursor=pointer]:
+              - 'option "Sort: Featured" [selected]'
+              - 'option "Price: Low to High"'
+              - 'option "Price: High to Low"'
+              - option "Newest"
+              - option "Top Rated"
+          - generic [ref=f1e137]:
+            - 'link "White Rose -44% Add to wishlist White Rose (4 reviews) PKR 1,128 Was: PKR 1,999 Add White Rose to cart" [ref=f1e138] [cursor=pointer]':
+              - /url: /shop/white-rose
+              - generic [ref=f1e139]:
+                - img "White Rose" [ref=f1e140]
+                - generic [ref=f1e141]: "-44%"
+                - button "Add to wishlist" [ref=f1e142]
+              - generic [ref=f1e145]:
+                - heading "White Rose" [level=3] [ref=f1e146]
+                - generic [ref=f1e147]: (4 reviews)
+                - generic [ref=f1e162]:
+                  - generic [ref=f1e163]: PKR 1,128
+                  - generic [ref=f1e164]: "Was: PKR 1,999"
+                - generic [ref=f1e165]:
+                  - button "Add White Rose to cart": Add to Cart
+            - 'link "White Gold -20% Add to wishlist White Gold (3 reviews) PKR 1,599 Was: PKR 1,999 Add White Gold to cart" [ref=f1e166] [cursor=pointer]':
+              - /url: /shop/white-gold
+              - generic [ref=f1e167]:
+                - img "White Gold" [ref=f1e168]
+                - generic [ref=f1e169]: "-20%"
+                - button "Add to wishlist" [ref=f1e170]
+              - generic [ref=f1e173]:
+                - heading "White Gold" [level=3] [ref=f1e174]
+                - generic [ref=f1e175]: (3 reviews)
+                - generic [ref=f1e190]:
+                  - generic [ref=f1e191]: PKR 1,599
+                  - generic [ref=f1e192]: "Was: PKR 1,999"
+                - generic [ref=f1e193]:
+                  - button "Add White Gold to cart": Add to Cart
+            - 'link "Mukhallat -20% Add to wishlist Mukhallat (6 reviews) PKR 1,599 Was: PKR 1,999 Add Mukhallat to cart" [ref=f1e194] [cursor=pointer]':
+              - /url: /shop/mukhallat
+              - generic [ref=f1e195]:
+                - img "Mukhallat" [ref=f1e196]
+                - generic [ref=f1e197]: "-20%"
+                - button "Add to wishlist" [ref=f1e198]
+              - generic [ref=f1e201]:
+                - heading "Mukhallat" [level=3] [ref=f1e202]
+                - generic [ref=f1e203]: (6 reviews)
+                - generic [ref=f1e218]:
+                  - generic [ref=f1e219]: PKR 1,599
+                  - generic [ref=f1e220]: "Was: PKR 1,999"
+                - generic [ref=f1e221]:
+                  - button "Add Mukhallat to cart": Add to Cart
+            - 'link "Mercedes Benz -15% Add to wishlist Mercedes Benz (6 reviews) PKR 1,699 Was: PKR 1,999 Add Mercedes Benz to cart" [ref=f1e222] [cursor=pointer]':
+              - /url: /shop/mercedes-benz
+              - generic [ref=f1e223]:
+                - img "Mercedes Benz" [ref=f1e224]
+                - generic [ref=f1e225]: "-15%"
+                - button "Add to wishlist" [ref=f1e226]
+              - generic [ref=f1e229]:
+                - heading "Mercedes Benz" [level=3] [ref=f1e230]
+                - generic [ref=f1e231]: (6 reviews)
+                - generic [ref=f1e246]:
+                  - generic [ref=f1e247]: PKR 1,699
+                  - generic [ref=f1e248]: "Was: PKR 1,999"
+                - generic [ref=f1e249]:
+                  - button "Add Mercedes Benz to cart": Add to Cart
+            - 'link "Jazz Tiger -39% Add to wishlist Jazz Tiger (5 reviews) PKR 1,224 Was: PKR 1,999 Add Jazz Tiger to cart" [ref=f1e250] [cursor=pointer]':
+              - /url: /shop/jazz-tiger
+              - generic [ref=f1e251]:
+                - img "Jazz Tiger" [ref=f1e252]
+                - generic [ref=f1e253]: "-39%"
+                - button "Add to wishlist" [ref=f1e254]
+              - generic [ref=f1e257]:
+                - heading "Jazz Tiger" [level=3] [ref=f1e258]
+                - generic [ref=f1e259]: (5 reviews)
+                - generic [ref=f1e274]:
+                  - generic [ref=f1e275]: PKR 1,224
+                  - generic [ref=f1e276]: "Was: PKR 1,999"
+                - generic [ref=f1e277]:
+                  - button "Add Jazz Tiger to cart": Add to Cart
+            - 'link "Issey Miyake -20% Add to wishlist Issey Miyake (6 reviews) PKR 1,599 Was: PKR 1,999 Add Issey Miyake to cart" [ref=f1e278] [cursor=pointer]':
+              - /url: /shop/issey-miyake
+              - generic [ref=f1e279]:
+                - img "Issey Miyake" [ref=f1e280]
+                - generic [ref=f1e281]: "-20%"
+                - button "Add to wishlist" [ref=f1e282]
+              - generic [ref=f1e285]:
+                - heading "Issey Miyake" [level=3] [ref=f1e286]
+                - generic [ref=f1e287]: (6 reviews)
+                - generic [ref=f1e302]:
+                  - generic [ref=f1e303]: PKR 1,599
+                  - generic [ref=f1e304]: "Was: PKR 1,999"
+                - generic [ref=f1e305]:
+                  - button "Add Issey Miyake to cart": Add to Cart
+            - 'link "Desire -25% Add to wishlist Desire (5 reviews) PKR 1,499 Was: PKR 1,999 Add Desire to cart" [ref=f1e306] [cursor=pointer]':
+              - /url: /shop/desire
+              - generic [ref=f1e307]:
+                - img "Desire" [ref=f1e308]
+                - generic [ref=f1e309]: "-25%"
+                - button "Add to wishlist" [ref=f1e310]
+              - generic [ref=f1e313]:
+                - heading "Desire" [level=3] [ref=f1e314]
+                - generic [ref=f1e315]: (5 reviews)
+                - generic [ref=f1e330]:
+                  - generic [ref=f1e331]: PKR 1,499
+                  - generic [ref=f1e332]: "Was: PKR 1,999"
+                - generic [ref=f1e333]:
+                  - button "Add Desire to cart": Add to Cart
+            - 'link "David Beckham -38% Add to wishlist David Beckham (6 reviews) PKR 1,248 Was: PKR 1,999 Add David Beckham to cart" [ref=f1e334] [cursor=pointer]':
+              - /url: /shop/david-beckham
+              - generic [ref=f1e335]:
+                - img "David Beckham" [ref=f1e336]
+                - generic [ref=f1e337]: "-38%"
+                - button "Add to wishlist" [ref=f1e338]
+              - generic [ref=f1e341]:
+                - heading "David Beckham" [level=3] [ref=f1e342]
+                - generic [ref=f1e343]: (6 reviews)
+                - generic [ref=f1e358]:
+                  - generic [ref=f1e359]: PKR 1,248
+                  - generic [ref=f1e360]: "Was: PKR 1,999"
+                - generic [ref=f1e361]:
+                  - button "Add David Beckham to cart": Add to Cart
+            - 'link "Club De Nuit -15% Add to wishlist Club De Nuit (5 reviews) PKR 1,699 Was: PKR 1,999 Add Club De Nuit to cart" [ref=f1e362] [cursor=pointer]':
+              - /url: /shop/club-de-nuit
+              - generic [ref=f1e363]:
+                - img "Club De Nuit" [ref=f1e364]
+                - generic [ref=f1e365]: "-15%"
+                - button "Add to wishlist" [ref=f1e366]
+              - generic [ref=f1e369]:
+                - heading "Club De Nuit" [level=3] [ref=f1e370]
+                - generic [ref=f1e371]: (5 reviews)
+                - generic [ref=f1e386]:
+                  - generic [ref=f1e387]: PKR 1,699
+                  - generic [ref=f1e388]: "Was: PKR 1,999"
+                - generic [ref=f1e389]:
+                  - button "Add Club De Nuit to cart": Add to Cart
+            - 'link "Charli New -38% Add to wishlist Charli New (3 reviews) PKR 1,236 Was: PKR 1,999 Add Charli New to cart" [ref=f1e390] [cursor=pointer]':
+              - /url: /shop/charli-new
+              - generic [ref=f1e391]:
+                - img "Charli New" [ref=f1e392]
+                - generic [ref=f1e393]: "-38%"
+                - button "Add to wishlist" [ref=f1e394]
+              - generic [ref=f1e397]:
+                - heading "Charli New" [level=3] [ref=f1e398]
+                - generic [ref=f1e399]: (3 reviews)
+                - generic [ref=f1e414]:
+                  - generic [ref=f1e415]: PKR 1,236
+                  - generic [ref=f1e416]: "Was: PKR 1,999"
+                - generic [ref=f1e417]:
+                  - button "Add Charli New to cart": Add to Cart
+            - 'link "Boss In Office -39% Add to wishlist Boss In Office (3 reviews) PKR 1,392 Was: PKR 2,299 Add Boss In Office to cart" [ref=f1e418] [cursor=pointer]':
+              - /url: /shop/boss-in-office
+              - generic [ref=f1e419]:
+                - img "Boss In Office" [ref=f1e420]
+                - generic [ref=f1e421]: "-39%"
+                - button "Add to wishlist" [ref=f1e422]
+              - generic [ref=f1e425]:
+                - heading "Boss In Office" [level=3] [ref=f1e426]
+                - generic [ref=f1e427]: (3 reviews)
+                - generic [ref=f1e442]:
+                  - generic [ref=f1e443]: PKR 1,392
+                  - generic [ref=f1e444]: "Was: PKR 2,299"
+                - generic [ref=f1e445]:
+                  - button "Add Boss In Office to cart": Add to Cart
+            - 'link "Bakhoor -39% Add to wishlist Bakhoor (5 reviews) PKR 1,220.4 Was: PKR 1,999 Add Bakhoor to cart" [ref=f1e446] [cursor=pointer]':
+              - /url: /shop/bakhoor
+              - generic [ref=f1e447]:
+                - img "Bakhoor" [ref=f1e448]
+                - generic [ref=f1e449]: "-39%"
+                - button "Add to wishlist" [ref=f1e450]
+              - generic [ref=f1e453]:
+                - heading "Bakhoor" [level=3] [ref=f1e454]
+                - generic [ref=f1e455]: (5 reviews)
+                - generic [ref=f1e470]:
+                  - generic [ref=f1e471]: PKR 1,220.4
+                  - generic [ref=f1e472]: "Was: PKR 1,999"
+                - generic [ref=f1e473]:
+                  - button "Add Bakhoor to cart": Add to Cart
+          - generic [ref=f1e474]:
+            - generic [ref=f1e475]: Page 1 of 27
+            - link "Next" [ref=f1e476] [cursor=pointer]:
+              - /url: /shop?page=2
+  - contentinfo [ref=f1e477]:
+    - generic [ref=f1e479]:
+      - generic [ref=f1e480]:
+        - generic [ref=f1e481]:
+          - link [ref=f1e482] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=f1e483]
+          - paragraph [ref=f1e484]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f1e485] [cursor=pointer]:
+            - link "Read More" [ref=f1e486]:
+              - /url: /about
+          - generic [ref=f1e489]:
+            - heading "Contact Us" [level=4] [ref=f1e490]
+            - list [ref=f1e491]:
+              - listitem [ref=f1e492]:
+                - link "support@safari-perfumes.com" [ref=f1e493] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=f1e496]:
+                - link "+92 324 7277489" [ref=f1e497] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=f1e500]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=f1e501]:
+          - heading "Quick Links" [level=4] [ref=f1e502]
+          - list [ref=f1e503]:
+            - listitem [ref=f1e504]:
+              - link "Shop All" [ref=f1e505] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f1e506]:
+              - link "New Arrivals" [ref=f1e507] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=f1e508]:
+              - link "Best Sellers" [ref=f1e509] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=f1e510]:
+              - link "Collections" [ref=f1e511] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=f1e512]:
+              - link "Bundles & Gift Sets" [ref=f1e513] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=f1e514]:
+              - link "Gift Cards" [ref=f1e515] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=f1e516]:
+              - link "Fragrance Guides" [ref=f1e517] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=f1e518]:
+          - heading "Customer Service" [level=4] [ref=f1e519]
+          - list [ref=f1e520]:
+            - listitem [ref=f1e521]:
+              - link "My Account" [ref=f1e522] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=f1e523]:
+              - link "Order Tracking" [ref=f1e524] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=f1e525]:
+              - link "Returns & Exchange" [ref=f1e526] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f1e527]:
+              - link "Shipping & Delivery" [ref=f1e528] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f1e529]:
+              - link "FAQs" [ref=f1e530] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=f1e531]:
+              - link "Contact Us" [ref=f1e532] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f1e533]:
+          - heading "Stay Connected & Save" [level=4] [ref=f1e534]
+          - paragraph [ref=f1e535]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f1e536]:
+            - textbox "Email address for newsletter" [ref=f1e537]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=f1e538] [cursor=pointer]
+          - generic [ref=f1e539]:
+            - link "Instagram" [ref=f1e540] [cursor=pointer]:
+              - /url: https://www.instagram.com/safariperfumesofficial
+              - img "Instagram" [ref=f1e541]
+            - link "Facebook" [ref=f1e542] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+              - img "Facebook" [ref=f1e543]
+            - link "TikTok" [ref=f1e544] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes
+              - img "TikTok" [ref=f1e545]
+      - generic [ref=f1e547]:
+        - generic [ref=f1e548]:
+          - generic [ref=f1e549]: "We Accept:"
+          - generic [ref=f1e550]:
+            - generic [ref=f1e551]: Visa
+            - generic [ref=f1e553]: MC
+            - generic [ref=f1e555]: Amex
+            - generic [ref=f1e557]: PayPal
+        - generic [ref=f1e559]:
+          - link "Privacy Policy" [ref=f1e560] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=f1e561] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=f1e562] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=f1e565]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=f1e566] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f1e574] [cursor=pointer]

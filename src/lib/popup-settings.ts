@@ -10,7 +10,7 @@ export interface PopupSettings {
 
 export const DEFAULT_POPUP_SETTINGS: PopupSettings = {
   enabled: true,
-  whatsappNumber: '923247277489',
+  whatsappNumber: '923346322462',
   names: [
     'Ahmed', 'Bilal', 'Usman', 'Fatima', 'Ayesha', 'Zainab',
     'Hamza', 'Ali', 'Hassan', 'Umar', 'Sana', 'Maryam', 'Junaid', 'Kashif',

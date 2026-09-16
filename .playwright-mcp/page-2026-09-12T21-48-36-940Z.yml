@@ -1,0 +1,676 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - navigation [ref=e5]:
+      - link "About Us" [ref=e6] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=e7]: "|"
+      - link "Contact Us" [ref=e8] [cursor=pointer]:
+        - /url: /contact
+      - generic [ref=e9]: "|"
+      - link "FAQs" [ref=e10] [cursor=pointer]:
+        - /url: /contact?faq=true
+    - generic [ref=e11]:
+      - button "Instagram" [ref=e12]
+      - button "Facebook" [ref=e15]
+      - button "Twitter" [ref=e18]
+  - generic [ref=e22]:
+    - generic [ref=e23]: FREE SHIPPING ON ORDERS OVER PKR 15,000
+    - generic [ref=e24]: "|"
+    - generic [ref=e25]: NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+    - generic [ref=e26]: "|"
+    - generic [ref=e27]: "BUY 2 GET 10% OFF — USE CODE: PAIR10"
+    - generic [ref=e28]: "|"
+    - generic [ref=e29]: FREE SHIPPING ON ORDERS OVER PKR 15,000
+    - generic [ref=e30]: "|"
+    - generic [ref=e31]: NEW ARRIVALS — EXPLORE THE LATEST SCENTS
+    - generic [ref=e32]: "|"
+    - generic [ref=e33]: "BUY 2 GET 10% OFF — USE CODE: PAIR10"
+    - generic [ref=e34]: "|"
+  - banner [ref=e35]:
+    - generic [ref=e36]:
+      - searchbox "Search fragrances" [ref=e42]
+      - link "SAFARI Perfumes Home" [ref=e43] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=e44]
+      - generic [ref=e45]:
+        - button "Cart" [ref=e46] [cursor=pointer]
+        - link "Account" [ref=e49] [cursor=pointer]:
+          - /url: /login
+  - navigation "Main navigation" [ref=e1292]:
+    - generic [ref=e1293]:
+      - link "Bestsellers" [ref=e1294] [cursor=pointer]:
+        - /url: /shop?isBestseller=true
+      - link "New Arrival" [ref=e1295] [cursor=pointer]:
+        - /url: /shop?isNew=true
+      - link "Our Collection" [ref=e1296] [cursor=pointer]:
+        - /url: /collections
+      - button "Attar Collection" [ref=e1298] [cursor=pointer]
+      - button "Perfumes Collection" [ref=e1302] [cursor=pointer]
+      - link "Bundles/Offers" [ref=e1305] [cursor=pointer]:
+        - /url: /bundles
+      - link "Blog" [ref=e1306] [cursor=pointer]:
+        - /url: /blog
+  - main [ref=e55]:
+    - generic [ref=e56]:
+      - img "Safari Perfumes - Luxury fragrances" [ref=e58]
+      - generic [ref=e60]:
+        - paragraph [ref=e61]: Luxury Fragrance House
+        - heading "Discover Your Signature Scent" [level=1] [ref=e62]:
+          - text: Discover Your
+          - generic [ref=e63]: Signature Scent
+        - paragraph [ref=e64]: Crafted with passion, designed to captivate your senses. Explore our exclusive range of captivating fragrances.
+        - generic [ref=e65]:
+          - link [ref=e66] [cursor=pointer]:
+            - /url: /shop
+            - button "Shop Now" [ref=e67]
+          - link [ref=e68] [cursor=pointer]:
+            - /url: /about
+            - button "Our Story" [ref=e69]
+    - region "Signature perfume showcase" [ref=e75]:
+      - generic [ref=e77]:
+        - generic [ref=e86]:
+          - generic [ref=e87]: SAFARI
+          - generic [ref=e88]: GREEN GARNET
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - text: New
+            - generic [ref=e92]: جدید
+          - heading "Green Garnet" [level=2] [ref=e93]
+          - paragraph [ref=e94]: A Sophisticated Gem of Fragrance
+          - paragraph [ref=e95]: A rare gem of perfumery — luminous green citrus opens into a delicate heart of jasmine and green tea, settling into warm white musk and creamy sandalwood. Long-lasting, refined, unmistakably Safari.
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - generic [ref=e101]: Top Notes
+              - generic [ref=e102]: Bergamot, Green Citrus
+            - generic [ref=e103]:
+              - generic [ref=e109]: Heart Notes
+              - generic [ref=e110]: Jasmine, Green Tea
+            - generic [ref=e111]:
+              - generic [ref=e115]: Base Notes
+              - generic [ref=e116]: White Musk, Sandalwood
+          - generic [ref=e117]:
+            - generic [ref=e129]: "4.9"
+            - generic [ref=e130]: (250+ reviews)
+          - generic [ref=e131]:
+            - generic [ref=e132]: Rs. 6,500
+            - generic [ref=e133]: Rs. 8,500
+          - link "Shop Now" [ref=e134] [cursor=pointer]:
+            - /url: /shop
+    - region "Lifestyle banner" [ref=e139]:
+      - generic [ref=e141]:
+        - generic [ref=e142]: The Art of Fragrance
+        - heading "Crafted for Every Occasion" [level=2] [ref=e143]
+        - paragraph [ref=e144]: From timeless classics to bold signatures
+        - link "Explore All" [ref=e145] [cursor=pointer]:
+          - /url: /shop
+    - generic [ref=e149]:
+      - generic [ref=e150]:
+        - generic [ref=e151]:
+          - paragraph [ref=e152]: Hot Selling
+          - heading "Trending This Week" [level=2] [ref=e153]
+        - link "View All" [ref=e154] [cursor=pointer]:
+          - /url: /shop?sort=hot
+      - generic [ref=e157]:
+        - region "Hot selling products carousel" [ref=e158]:
+          - link "Aventus Hot Bestseller Signature Aventus (3) PKR 1,999 PKR 2,999" [ref=e160] [cursor=pointer]:
+            - /url: /shop/aventus-2
+            - generic [ref=e161]:
+              - img "Aventus" [ref=e162]
+              - generic [ref=e163]:
+                - generic [ref=e164]: Hot
+                - generic [ref=e165]: Bestseller
+            - generic [ref=e166]:
+              - paragraph [ref=e167]: Signature
+              - heading "Aventus" [level=3] [ref=e168]
+              - generic [ref=e169]: (3)
+              - generic [ref=e183]:
+                - generic [ref=e184]: PKR 1,999
+                - generic [ref=e185]: PKR 2,999
+          - link "Acqua Di Gio Profondo Elixir Hot Bestseller Signature Acqua Di Gio Profondo Elixir (3) PKR 1,899 PKR 2,999" [ref=e187] [cursor=pointer]:
+            - /url: /shop/acqua-di-gio-profondo-elixir
+            - generic [ref=e188]:
+              - img "Acqua Di Gio Profondo Elixir" [ref=e189]
+              - generic [ref=e190]:
+                - generic [ref=e191]: Hot
+                - generic [ref=e192]: Bestseller
+            - generic [ref=e193]:
+              - paragraph [ref=e194]: Signature
+              - heading "Acqua Di Gio Profondo Elixir" [level=3] [ref=e195]
+              - generic [ref=e196]: (3)
+              - generic [ref=e210]:
+                - generic [ref=e211]: PKR 1,899
+                - generic [ref=e212]: PKR 2,999
+          - link "Acqua Di Gio Profondo Parfum (armani) Hot Bestseller Signature Acqua Di Gio Profondo Parfum (armani) (3) PKR 1,799 PKR 2,699" [ref=e214] [cursor=pointer]:
+            - /url: /shop/acqua-di-gio-profondo-parfum-armani
+            - generic [ref=e215]:
+              - img "Acqua Di Gio Profondo Parfum (armani)" [ref=e216]
+              - generic [ref=e217]:
+                - generic [ref=e218]: Hot
+                - generic [ref=e219]: Bestseller
+            - generic [ref=e220]:
+              - paragraph [ref=e221]: Signature
+              - heading "Acqua Di Gio Profondo Parfum (armani)" [level=3] [ref=e222]
+              - generic [ref=e223]: (3)
+              - generic [ref=e237]:
+                - generic [ref=e238]: PKR 1,799
+                - generic [ref=e239]: PKR 2,699
+          - link "Sauvage Elixir Hot Bestseller Signature Sauvage Elixir (4) PKR 350" [ref=e241] [cursor=pointer]:
+            - /url: /shop/sauvage-elixir
+            - generic [ref=e242]:
+              - img "Sauvage Elixir" [ref=e243]
+              - generic [ref=e244]:
+                - generic [ref=e245]: Hot
+                - generic [ref=e246]: Bestseller
+            - generic [ref=e247]:
+              - paragraph [ref=e248]: Signature
+              - heading "Sauvage Elixir" [level=3] [ref=e249]
+              - generic [ref=e250]: (4)
+              - generic [ref=e264]: PKR 350
+          - link "Aventus 2985 (Creed) Hot Bestseller Signature Aventus 2985 (Creed) (3) PKR 300" [ref=e267] [cursor=pointer]:
+            - /url: /shop/aventus-2985-creed
+            - generic [ref=e268]:
+              - img "Aventus 2985 (Creed)" [ref=e269]
+              - generic [ref=e270]:
+                - generic [ref=e271]: Hot
+                - generic [ref=e272]: Bestseller
+            - generic [ref=e273]:
+              - paragraph [ref=e274]: Signature
+              - heading "Aventus 2985 (Creed)" [level=3] [ref=e275]
+              - generic [ref=e276]: (3)
+              - generic [ref=e290]: PKR 300
+          - link "Acqua Di Gio Hot Bestseller Signature Acqua Di Gio (3) PKR 300" [ref=e293] [cursor=pointer]:
+            - /url: /shop/acqua-di-gio
+            - generic [ref=e294]:
+              - img "Acqua Di Gio" [ref=e295]
+              - generic [ref=e296]:
+                - generic [ref=e297]: Hot
+                - generic [ref=e298]: Bestseller
+            - generic [ref=e299]:
+              - paragraph [ref=e300]: Signature
+              - heading "Acqua Di Gio" [level=3] [ref=e301]
+              - generic [ref=e302]: (3)
+              - generic [ref=e316]: PKR 300
+          - link "Hot Bestseller Signature Bleu De Chanel (6) PKR 300" [ref=e319] [cursor=pointer]:
+            - /url: /shop/bleu-de-chanel
+            - generic [ref=e326]:
+              - generic [ref=e327]: Hot
+              - generic [ref=e328]: Bestseller
+            - generic [ref=e329]:
+              - paragraph [ref=e330]: Signature
+              - heading "Bleu De Chanel" [level=3] [ref=e331]
+              - generic [ref=e332]: (6)
+              - generic [ref=e346]: PKR 300
+          - link "Hot Signature Versace Eros For Men (4) PKR 300" [ref=e349] [cursor=pointer]:
+            - /url: /shop/versace-eros-for-men
+            - generic [ref=e350]: Hot
+            - generic [ref=e358]:
+              - paragraph [ref=e359]: Signature
+              - heading "Versace Eros For Men" [level=3] [ref=e360]
+              - generic [ref=e361]: (4)
+              - generic [ref=e375]: PKR 300
+        - tablist "Hot selling pagination" [ref=e377]:
+          - tab "Go to product 1" [ref=e378] [cursor=pointer]
+          - tab "Go to product 2" [ref=e379] [cursor=pointer]
+          - tab "Go to product 3" [ref=e380] [cursor=pointer]
+          - tab "Go to product 4" [ref=e381] [cursor=pointer]
+          - tab "Go to product 5" [ref=e382] [cursor=pointer]
+          - tab "Go to product 6" [ref=e383] [cursor=pointer]
+          - tab "Go to product 7" [ref=e384] [cursor=pointer]
+          - tab "Go to product 8" [ref=e385] [cursor=pointer]
+    - generic [ref=e389]:
+      - generic [ref=e390]:
+        - paragraph [ref=e391]: Featured Collections
+        - heading "Discover Our Fragrance Collection" [level=2] [ref=e392]
+      - generic [ref=e393]:
+        - article [ref=e394]:
+          - generic [ref=e395]:
+            - img "Attar Collection" [ref=e396]
+            - generic [ref=e399]:
+              - heading "Attar Collection" [level=3] [ref=e400]
+              - paragraph [ref=e401]: Pure, concentrated perfume oils for lasting intensity
+              - generic [ref=e402] [cursor=pointer]: Explore Attar Collection
+        - article [ref=e406]:
+          - generic [ref=e407]:
+            - img "Perfumes Collection" [ref=e408]
+            - generic [ref=e411]:
+              - heading "Perfumes Collection" [level=3] [ref=e412]
+              - paragraph [ref=e413]: Luxury interpretations of iconic designer fragrances
+              - generic [ref=e414] [cursor=pointer]: Explore Perfumes Collection
+        - article [ref=e418]:
+          - generic [ref=e419]:
+            - img "Our Collection" [ref=e420]
+            - generic [ref=e423]:
+              - heading "Our Collection" [level=3] [ref=e424]
+              - paragraph [ref=e425]: Exclusive signature blends coming soon
+              - generic [ref=e426]:
+                - generic [ref=e427]: Coming Soon
+                - link "Notify Me" [ref=e428] [cursor=pointer]:
+                  - /url: /contact?notify=our-collection
+    - generic [ref=e435]:
+      - generic [ref=e436]:
+        - generic [ref=e437]:
+          - paragraph [ref=e438]: Men Collection
+          - heading "Men Collection" [level=2] [ref=e439]
+        - link "View All Men" [ref=e440] [cursor=pointer]:
+          - /url: /shop?gender=men&sort=trending
+      - region "Men products carousel" [ref=e444]:
+        - link "Boss In Office Signature Boss In Office (3) PKR 1,799 PKR 2,299" [ref=e446] [cursor=pointer]:
+          - /url: /shop/boss-in-office
+          - img "Boss In Office" [ref=e448]
+          - generic [ref=e449]:
+            - paragraph [ref=e450]: Signature
+            - heading "Boss In Office" [level=3] [ref=e451]
+            - generic [ref=e452]: (3)
+            - generic [ref=e466]:
+              - generic [ref=e467]: PKR 1,799
+              - generic [ref=e468]: PKR 2,299
+        - link "Hugo Energise Men Signature Hugo Energise Men (3) PKR 300" [ref=e470] [cursor=pointer]:
+          - /url: /shop/hugo-energise-men-2
+          - img "Hugo Energise Men" [ref=e472]
+          - generic [ref=e473]:
+            - paragraph [ref=e474]: Signature
+            - heading "Hugo Energise Men" [level=3] [ref=e475]
+            - generic [ref=e476]: (3)
+            - generic [ref=e490]: PKR 300
+        - link "Herrera For Men Signature Herrera For Men (6) PKR 300" [ref=e493] [cursor=pointer]:
+          - /url: /shop/herrera-for-men-2
+          - img "Herrera For Men" [ref=e495]
+          - generic [ref=e496]:
+            - paragraph [ref=e497]: Signature
+            - heading "Herrera For Men" [level=3] [ref=e498]
+            - generic [ref=e499]: (6)
+            - generic [ref=e513]: PKR 300
+        - link "1 Million Royal Signature 1 Million Royal (4) PKR 2,399 PKR 2,999" [ref=e516] [cursor=pointer]:
+          - /url: /shop/1-million-royal
+          - img "1 Million Royal" [ref=e518]
+          - generic [ref=e519]:
+            - paragraph [ref=e520]: Signature
+            - heading "1 Million Royal" [level=3] [ref=e521]
+            - generic [ref=e522]: (4)
+            - generic [ref=e536]:
+              - generic [ref=e537]: PKR 2,399
+              - generic [ref=e538]: PKR 2,999
+        - link "X For Men Signature X For Men (4) PKR 2,199 PKR 2,999" [ref=e540] [cursor=pointer]:
+          - /url: /shop/x-for-men
+          - img "X For Men" [ref=e542]
+          - generic [ref=e543]:
+            - paragraph [ref=e544]: Signature
+            - heading "X For Men" [level=3] [ref=e545]
+            - generic [ref=e546]: (4)
+            - generic [ref=e560]:
+              - generic [ref=e561]: PKR 2,199
+              - generic [ref=e562]: PKR 2,999
+        - link "Aventus Bestseller Signature Aventus (3) PKR 1,999 PKR 2,999" [ref=e564] [cursor=pointer]:
+          - /url: /shop/aventus-2
+          - generic [ref=e565]:
+            - img "Aventus" [ref=e566]
+            - generic [ref=e567]: Bestseller
+          - generic [ref=e569]:
+            - paragraph [ref=e570]: Signature
+            - heading "Aventus" [level=3] [ref=e571]
+            - generic [ref=e572]: (3)
+            - generic [ref=e586]:
+              - generic [ref=e587]: PKR 1,999
+              - generic [ref=e588]: PKR 2,999
+        - link "Gucci Guilty Elixir De Parfum Pour Homme Signature Gucci Guilty Elixir De Parfum Pour Homme (5) PKR 1,999 PKR 2,999" [ref=e590] [cursor=pointer]:
+          - /url: /shop/gucci-guilty-elixir-de-parfum-pour-homme
+          - img "Gucci Guilty Elixir De Parfum Pour Homme" [ref=e592]
+          - generic [ref=e593]:
+            - paragraph [ref=e594]: Signature
+            - heading "Gucci Guilty Elixir De Parfum Pour Homme" [level=3] [ref=e595]
+            - generic [ref=e596]: (5)
+            - generic [ref=e610]:
+              - generic [ref=e611]: PKR 1,999
+              - generic [ref=e612]: PKR 2,999
+        - link "Boss The Scent Magnetic For Her Signature Boss The Scent Magnetic For Her (5) PKR 1,999 PKR 2,999" [ref=e614] [cursor=pointer]:
+          - /url: /shop/boss-the-scent-magnetic-for-her
+          - img "Boss The Scent Magnetic For Her" [ref=e616]
+          - generic [ref=e617]:
+            - paragraph [ref=e618]: Signature
+            - heading "Boss The Scent Magnetic For Her" [level=3] [ref=e619]
+            - generic [ref=e620]: (5)
+            - generic [ref=e634]:
+              - generic [ref=e635]: PKR 1,999
+              - generic [ref=e636]: PKR 2,999
+      - link "View All Men" [ref=e638] [cursor=pointer]:
+        - /url: /shop?gender=men&sort=trending
+    - generic [ref=e642]:
+      - generic [ref=e643]:
+        - generic [ref=e644]:
+          - paragraph [ref=e645]: Women Collection
+          - heading "Women Collection" [level=2] [ref=e646]
+        - link "View All Women" [ref=e647] [cursor=pointer]:
+          - /url: /shop?gender=women&sort=trending
+      - region "Women products carousel" [ref=e651]:
+        - link "White Rose Signature White Rose (4) PKR 1,299 PKR 1,999" [ref=e653] [cursor=pointer]:
+          - /url: /shop/white-rose
+          - img "White Rose" [ref=e655]
+          - generic [ref=e656]:
+            - paragraph [ref=e657]: Signature
+            - heading "White Rose" [level=3] [ref=e658]
+            - generic [ref=e659]: (4)
+            - generic [ref=e673]:
+              - generic [ref=e674]: PKR 1,299
+              - generic [ref=e675]: PKR 1,999
+        - link "Winter Jasmine (Creation Of Argeville) Signature Winter Jasmine (Creation Of Argeville) (4) PKR 1,399 PKR 1,999" [ref=e677] [cursor=pointer]:
+          - /url: /shop/winter-jasmine-creation-of-argeville
+          - img "Winter Jasmine (Creation Of Argeville)" [ref=e679]
+          - generic [ref=e680]:
+            - paragraph [ref=e681]: Signature
+            - heading "Winter Jasmine (Creation Of Argeville)" [level=3] [ref=e682]
+            - generic [ref=e683]: (4)
+            - generic [ref=e697]:
+              - generic [ref=e698]: PKR 1,399
+              - generic [ref=e699]: PKR 1,999
+        - link "Silk Musk Super Signature Silk Musk Super (4) PKR 2,299 PKR 2,999" [ref=e701] [cursor=pointer]:
+          - /url: /shop/silk-musk-super
+          - img "Silk Musk Super" [ref=e703]
+          - generic [ref=e704]:
+            - paragraph [ref=e705]: Signature
+            - heading "Silk Musk Super" [level=3] [ref=e706]
+            - generic [ref=e707]: (4)
+            - generic [ref=e721]:
+              - generic [ref=e722]: PKR 2,299
+              - generic [ref=e723]: PKR 2,999
+        - link "Oud Rosewood Signature Oud Rosewood (3) PKR 1,999 PKR 2,999" [ref=e725] [cursor=pointer]:
+          - /url: /shop/oud-rosewood
+          - img "Oud Rosewood" [ref=e727]
+          - generic [ref=e728]:
+            - paragraph [ref=e729]: Signature
+            - heading "Oud Rosewood" [level=3] [ref=e730]
+            - generic [ref=e731]: (3)
+            - generic [ref=e745]:
+              - generic [ref=e746]: PKR 1,999
+              - generic [ref=e747]: PKR 2,999
+        - link "Gucci Guilty Elixir De Parfum Pour Femme Signature Gucci Guilty Elixir De Parfum Pour Femme (6) PKR 1,999 PKR 2,999" [ref=e749] [cursor=pointer]:
+          - /url: /shop/gucci-guilty-elixir-de-parfum-pour-femme
+          - img "Gucci Guilty Elixir De Parfum Pour Femme" [ref=e751]
+          - generic [ref=e752]:
+            - paragraph [ref=e753]: Signature
+            - heading "Gucci Guilty Elixir De Parfum Pour Femme" [level=3] [ref=e754]
+            - generic [ref=e755]: (6)
+            - generic [ref=e769]:
+              - generic [ref=e770]: PKR 1,999
+              - generic [ref=e771]: PKR 2,999
+        - link "Crystal Saffron Signature Crystal Saffron (3) PKR 1,999 PKR 2,999" [ref=e773] [cursor=pointer]:
+          - /url: /shop/crystal-saffron
+          - img "Crystal Saffron" [ref=e775]
+          - generic [ref=e776]:
+            - paragraph [ref=e777]: Signature
+            - heading "Crystal Saffron" [level=3] [ref=e778]
+            - generic [ref=e779]: (3)
+            - generic [ref=e793]:
+              - generic [ref=e794]: PKR 1,999
+              - generic [ref=e795]: PKR 2,999
+        - link "Voilet Musk Signature Voilet Musk (5) PKR 1,899 PKR 2,999" [ref=e797] [cursor=pointer]:
+          - /url: /shop/voilet-musk
+          - img "Voilet Musk" [ref=e799]
+          - generic [ref=e800]:
+            - paragraph [ref=e801]: Signature
+            - heading "Voilet Musk" [level=3] [ref=e802]
+            - generic [ref=e803]: (5)
+            - generic [ref=e817]:
+              - generic [ref=e818]: PKR 1,899
+              - generic [ref=e819]: PKR 2,999
+        - link "Les Sables Roses Signature Les Sables Roses (3) PKR 1,999 PKR 2,999" [ref=e821] [cursor=pointer]:
+          - /url: /shop/les-sables-roses
+          - img "Les Sables Roses" [ref=e823]
+          - generic [ref=e824]:
+            - paragraph [ref=e825]: Signature
+            - heading "Les Sables Roses" [level=3] [ref=e826]
+            - generic [ref=e827]: (3)
+            - generic [ref=e841]:
+              - generic [ref=e842]: PKR 1,999
+              - generic [ref=e843]: PKR 2,999
+      - link "View All Women" [ref=e845] [cursor=pointer]:
+        - /url: /shop?gender=women&sort=trending
+    - generic [ref=e849]:
+      - generic [ref=e850]:
+        - generic [ref=e851]:
+          - paragraph [ref=e852]: Unisex Trend
+          - heading "Unisex Trending" [level=2] [ref=e853]
+        - link "View All Unisex" [ref=e854] [cursor=pointer]:
+          - /url: /shop?gender=unisex&sort=trending
+      - region "Unisex products carousel" [ref=e858]:
+        - link "White Gold Signature White Gold (3) PKR 1,599 PKR 1,999" [ref=e860] [cursor=pointer]:
+          - /url: /shop/white-gold
+          - img "White Gold" [ref=e862]
+          - generic [ref=e863]:
+            - paragraph [ref=e864]: Signature
+            - heading "White Gold" [level=3] [ref=e865]
+            - generic [ref=e866]: (3)
+            - generic [ref=e880]:
+              - generic [ref=e881]: PKR 1,599
+              - generic [ref=e882]: PKR 1,999
+        - link "Mukhallat Signature Mukhallat (6) PKR 1,599 PKR 1,999" [ref=e884] [cursor=pointer]:
+          - /url: /shop/mukhallat
+          - img "Mukhallat" [ref=e886]
+          - generic [ref=e887]:
+            - paragraph [ref=e888]: Signature
+            - heading "Mukhallat" [level=3] [ref=e889]
+            - generic [ref=e890]: (6)
+            - generic [ref=e904]:
+              - generic [ref=e905]: PKR 1,599
+              - generic [ref=e906]: PKR 1,999
+        - link "Mercedes Benz Signature Mercedes Benz (6) PKR 1,699 PKR 1,999" [ref=e908] [cursor=pointer]:
+          - /url: /shop/mercedes-benz
+          - img "Mercedes Benz" [ref=e910]
+          - generic [ref=e911]:
+            - paragraph [ref=e912]: Signature
+            - heading "Mercedes Benz" [level=3] [ref=e913]
+            - generic [ref=e914]: (6)
+            - generic [ref=e928]:
+              - generic [ref=e929]: PKR 1,699
+              - generic [ref=e930]: PKR 1,999
+        - link "Jazz Tiger Signature Jazz Tiger (5) PKR 1,499 PKR 1,999" [ref=e932] [cursor=pointer]:
+          - /url: /shop/jazz-tiger
+          - img "Jazz Tiger" [ref=e934]
+          - generic [ref=e935]:
+            - paragraph [ref=e936]: Signature
+            - heading "Jazz Tiger" [level=3] [ref=e937]
+            - generic [ref=e938]: (5)
+            - generic [ref=e952]:
+              - generic [ref=e953]: PKR 1,499
+              - generic [ref=e954]: PKR 1,999
+        - link "Issey Miyake Signature Issey Miyake (6) PKR 1,599 PKR 1,999" [ref=e956] [cursor=pointer]:
+          - /url: /shop/issey-miyake
+          - img "Issey Miyake" [ref=e958]
+          - generic [ref=e959]:
+            - paragraph [ref=e960]: Signature
+            - heading "Issey Miyake" [level=3] [ref=e961]
+            - generic [ref=e962]: (6)
+            - generic [ref=e976]:
+              - generic [ref=e977]: PKR 1,599
+              - generic [ref=e978]: PKR 1,999
+        - link "Desire Signature Desire (5) PKR 1,499 PKR 1,999" [ref=e980] [cursor=pointer]:
+          - /url: /shop/desire
+          - img "Desire" [ref=e982]
+          - generic [ref=e983]:
+            - paragraph [ref=e984]: Signature
+            - heading "Desire" [level=3] [ref=e985]
+            - generic [ref=e986]: (5)
+            - generic [ref=e1000]:
+              - generic [ref=e1001]: PKR 1,499
+              - generic [ref=e1002]: PKR 1,999
+        - link "David Beckham Signature David Beckham (6) PKR 1,499 PKR 1,999" [ref=e1004] [cursor=pointer]:
+          - /url: /shop/david-beckham
+          - img "David Beckham" [ref=e1006]
+          - generic [ref=e1007]:
+            - paragraph [ref=e1008]: Signature
+            - heading "David Beckham" [level=3] [ref=e1009]
+            - generic [ref=e1010]: (6)
+            - generic [ref=e1024]:
+              - generic [ref=e1025]: PKR 1,499
+              - generic [ref=e1026]: PKR 1,999
+        - link "Club De Nuit Signature Club De Nuit (5) PKR 1,699 PKR 1,999" [ref=e1028] [cursor=pointer]:
+          - /url: /shop/club-de-nuit
+          - img "Club De Nuit" [ref=e1030]
+          - generic [ref=e1031]:
+            - paragraph [ref=e1032]: Signature
+            - heading "Club De Nuit" [level=3] [ref=e1033]
+            - generic [ref=e1034]: (5)
+            - generic [ref=e1048]:
+              - generic [ref=e1049]: PKR 1,699
+              - generic [ref=e1050]: PKR 1,999
+      - link "View All Unisex" [ref=e1052] [cursor=pointer]:
+        - /url: /shop?gender=unisex&sort=trending
+    - region "Why choose us" [ref=e1055]:
+      - generic [ref=e1057]:
+        - generic [ref=e1058]:
+          - generic [ref=e1063]: 100% Original
+          - generic [ref=e1064]: Authentic designer-inspired blends
+        - generic [ref=e1065]:
+          - generic [ref=e1070]: Cash on Delivery
+          - generic [ref=e1071]: Pay only when you receive
+        - generic [ref=e1072]:
+          - generic [ref=e1079]: Free Delivery
+          - generic [ref=e1080]: On orders across Pakistan
+        - generic [ref=e1081]:
+          - generic [ref=e1086]: Easy Returns
+          - generic [ref=e1087]: Hassle-free exchange within 7 days
+    - generic [ref=e1091]:
+      - generic [ref=e1092]:
+        - paragraph [ref=e1093]: Testimonials
+        - heading "Loved by Fragrance Connoisseurs" [level=2] [ref=e1094]
+      - generic [ref=e1095]:
+        - article [ref=e1096]:
+          - blockquote [ref=e1110]: “Safari Midnight has become my signature scent. The oud and amber blend is absolutely mesmerizing — I get compliments every single time I wear it. The longevity is incredible, lasting 12+ hours on my skin.”
+          - generic [ref=e1111]:
+            - generic [ref=e1112]:
+              - generic [ref=e1113]: A
+              - generic [ref=e1115]:
+                - paragraph [ref=e1116]: Ahmed Hassan
+                - paragraph [ref=e1117]: Karachi, Pakistan
+            - paragraph [ref=e1118]: Safari Midnight
+        - article [ref=e1119]:
+          - blockquote [ref=e1133]: “I was skeptical about buying perfume online, but the Discovery Set changed everything. Being able to sample before committing to a full bottle is brilliant. Safari Oud is now my go-to for evening events — sophisticated and unforgettable.”
+          - generic [ref=e1134]:
+            - generic [ref=e1135]:
+              - generic [ref=e1136]: F
+              - generic [ref=e1138]:
+                - paragraph [ref=e1139]: Fatima Ali
+                - paragraph [ref=e1140]: Lahore, Pakistan
+            - paragraph [ref=e1141]: Safari Oud
+        - article [ref=e1142]:
+          - blockquote [ref=e1156]: “The Attar collection is pure luxury in a bottle. I've never experienced such concentrated, long-lasting fragrance oils. A single drop of Safari Rose Attar stays with me all day. The packaging is also exquisite — makes gifting effortless.”
+          - generic [ref=e1157]:
+            - generic [ref=e1158]:
+              - generic [ref=e1159]: M
+              - generic [ref=e1161]:
+                - paragraph [ref=e1162]: Muhammad Usman
+                - paragraph [ref=e1163]: Islamabad, Pakistan
+            - paragraph [ref=e1164]: Safari Rose Attar
+      - link "Read All Reviews" [ref=e1166] [cursor=pointer]:
+        - /url: /shop#reviews
+    - generic [ref=e1175]:
+      - paragraph [ref=e1176]: Join the Safari Circle
+      - heading "Unlock Exclusive Access" [level=2] [ref=e1177]
+      - paragraph [ref=e1178]: Be the first to discover new releases, enjoy members-only pricing, and receive a 15% welcome discount on your first order.
+      - generic [ref=e1179]:
+        - textbox "Email address" [ref=e1184]:
+          - /placeholder: Enter your email address
+        - button "Subscribe" [ref=e1185] [cursor=pointer]
+      - paragraph [ref=e1186]:
+        - text: By subscribing, you agree to our
+        - link "Privacy Policy" [ref=e1187] [cursor=pointer]:
+          - /url: /privacy
+        - text: . Unsubscribe anytime.
+  - contentinfo [ref=e1188]:
+    - generic [ref=e1189]:
+      - generic [ref=e1190]:
+        - generic [ref=e1191]:
+          - link [ref=e1192] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=e1193]
+          - paragraph [ref=e1194]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=e1195] [cursor=pointer]:
+            - link "Read More" [ref=e1196]:
+              - /url: /about
+          - generic [ref=e1199]:
+            - heading "Contact Us" [level=4] [ref=e1200]
+            - list [ref=e1201]:
+              - listitem [ref=e1202]:
+                - link "support@safari-perfumes.com" [ref=e1203] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=e1206]:
+                - link "+92 324 7277489" [ref=e1207] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=e1210]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=e1211]:
+          - heading "Quick Links" [level=4] [ref=e1212]
+          - list [ref=e1213]:
+            - listitem [ref=e1214]:
+              - link "Shop All" [ref=e1215] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=e1216]:
+              - link "New Arrivals" [ref=e1217] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=e1218]:
+              - link "Best Sellers" [ref=e1219] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=e1220]:
+              - link "Collections" [ref=e1221] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=e1222]:
+              - link "Bundles & Gift Sets" [ref=e1223] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=e1224]:
+              - link "Gift Cards" [ref=e1225] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=e1226]:
+              - link "Fragrance Guides" [ref=e1227] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=e1228]:
+          - heading "Customer Service" [level=4] [ref=e1229]
+          - list [ref=e1230]:
+            - listitem [ref=e1231]:
+              - link "My Account" [ref=e1232] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=e1233]:
+              - link "Order Tracking" [ref=e1234] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=e1235]:
+              - link "Returns & Exchange" [ref=e1236] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=e1237]:
+              - link "Shipping & Delivery" [ref=e1238] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=e1239]:
+              - link "FAQs" [ref=e1240] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=e1241]:
+              - link "Contact Us" [ref=e1242] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=e1243]:
+          - heading "Stay Connected & Save" [level=4] [ref=e1244]
+          - paragraph [ref=e1245]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=e1246]:
+            - textbox "Email address for newsletter" [ref=e1247]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=e1248] [cursor=pointer]
+          - generic [ref=e1249]:
+            - link "TikTok" [ref=e1250] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv
+            - link "Facebook" [ref=e1253] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - generic [ref=e1257]:
+        - generic [ref=e1258]:
+          - generic [ref=e1259]: "We Accept:"
+          - generic [ref=e1260]:
+            - generic [ref=e1261]: Visa
+            - generic [ref=e1263]: MC
+            - generic [ref=e1265]: Amex
+            - generic [ref=e1267]: PayPal
+        - generic [ref=e1269]:
+          - link "Privacy Policy" [ref=e1270] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=e1271] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=e1272] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=e1275]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=e1276] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e1284] [cursor=pointer]
+  - alert [ref=e1291]

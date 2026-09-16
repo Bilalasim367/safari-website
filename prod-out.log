@@ -1,0 +1,3 @@
+> Ready on port/socket: 3000
+[2026-09-16T16:06:46.966Z] [prisma:init] Connecting to DB (url prefix: mysql://root:Hassan224266@loca...)
+[2026-09-16T16:06:46.979Z] [prisma:init] PrismaClient created successfully

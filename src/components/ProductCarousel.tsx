@@ -13,6 +13,7 @@ interface CarouselProduct {
   originalPrice?: number
   image: string
   images: string[]
+  size?: string
   category: string
   isNew?: boolean
   isBestseller?: boolean
@@ -118,6 +119,7 @@ export default function ProductCarousel({ products }: ProductCarouselProps) {
                 originalPrice={product.originalPrice}
                 image={product.image}
                 images={product.images}
+                size={product.size}
                 category={product.category}
                 isNew={product.isNew}
                 isBestseller={product.isBestseller}

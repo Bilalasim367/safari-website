@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { validateLogin } from '@/lib/validation';
-import { createAccessToken, createRefreshToken } from '@/lib/auth';
+import { createAccessToken, createRefreshToken, setAuthCookies } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { debugLog } from '@/lib/debugLog';
 
@@ -22,7 +22,6 @@ export async function POST(request: Request) {
     const { email, password, rememberMe } = body;
 
     const rememberMeBool = rememberMe === true;
-    const refreshExpiry = rememberMeBool ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60;
 
     const errors = validateLogin({ email, password });
 
@@ -98,7 +97,7 @@ export async function POST(request: Request) {
         userId: user.id,
         email: user.email,
         role: user.role as 'customer' | 'admin',
-      }, refreshExpiry);
+      }, rememberMeBool ? '30d' : '7d');
     } catch (jwtError) {
       debugLog('login:createToken', jwtError);
       return NextResponse.json(
@@ -120,21 +119,9 @@ export async function POST(request: Request) {
       redirectTo: user.role === 'admin' ? '/admin/dashboard' : '/account',
     });
 
-    response.cookies.set('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 15 * 60,
-      path: '/',
-    });
-
-    response.cookies.set('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: refreshExpiry,
-      path: '/',
-    });
+    const authCookies = setAuthCookies(accessToken, refreshToken, rememberMeBool);
+    response.cookies.set(authCookies.access_token);
+    response.cookies.set(authCookies.refresh_token);
 
     return response;
   } catch (error) {

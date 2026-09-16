@@ -2,15 +2,17 @@
 
 import React from "react"
 import Hero from "@/components/Hero"
-import FeaturedCollections from "@/components/FeaturedCollectionsV2"
+import SignaturePerfumeShowcase from "@/components/SignaturePerfumeShowcase"
+import LifestyleBanner from "@/components/LifestyleBanner"
 import HotSellingCarousel from "@/components/HotSellingCarousel"
-import BrandStory from "@/components/BrandStory"
-import Testimonials from "@/components/Testimonials"
-import Newsletter from "@/components/Newsletter"
+import FeaturedCollections from "@/components/FeaturedCollectionsV2"
 import MenCollection from "@/components/MenCollection"
 import WomenCollection from "@/components/WomenCollection"
 import UnisexTrend from "@/components/UnisexTrend"
-import LifestyleVisualGrid from "@/components/LifestyleVisualGrid"
+import WhyChooseUs from "@/components/WhyChooseUs"
+import Testimonials from "@/components/Testimonials"
+import Newsletter from "@/components/Newsletter"
+import Reveal from "@/components/Reveal"
 import type { ProductCategory } from "@/lib/product-types"
 
 interface HomePageProps {
@@ -20,7 +22,11 @@ interface HomePageProps {
   unisexProducts: ProductCategory[]
 }
 
-export default function HomePage({ 
+function GoldDivider() {
+  return <div className="gold-divider" aria-hidden="true" />
+}
+
+export default function HomePage({
   hotSelling,
   menProducts,
   womenProducts,
@@ -29,15 +35,45 @@ export default function HomePage({
   return (
     <>
       <Hero />
-      <HotSellingCarousel products={hotSelling} />
-      <FeaturedCollections />
-      <MenCollection products={menProducts} title="Men Collection" gender="Men" />
-      <LifestyleVisualGrid />
-      <WomenCollection products={womenProducts} title="Women Collection" gender="Women" />
-      <UnisexTrend products={unisexProducts} />
-      <BrandStory />
-      <Testimonials />
-      <Newsletter />
+      <Reveal>
+        <HotSellingCarousel products={hotSelling} />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <SignaturePerfumeShowcase />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <MenCollection products={menProducts} title="Men Collection" gender="Men" />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <LifestyleBanner />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <WomenCollection products={womenProducts} title="Women Collection" gender="Women" />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <FeaturedCollections />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <UnisexTrend products={unisexProducts} />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <WhyChooseUs />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <Testimonials />
+      </Reveal>
+      <GoldDivider />
+      <Reveal>
+        <Newsletter />
+      </Reveal>
     </>
   )
 }

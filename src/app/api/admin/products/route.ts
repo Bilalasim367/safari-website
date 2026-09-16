@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { defaultSizeForType } from '@/lib/normalize';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
         image: image || '',
         images: JSON.stringify(image ? [image] : []),
         categorySlug: categorySlug?.toLowerCase() || 'men',
-        size: size || '50ml',
+        size: size || defaultSizeForType(undefined),
         inStock: inStock ?? true,
         isBestseller: isBestseller ?? false,
         isNew: isNew ?? false,

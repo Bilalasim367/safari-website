@@ -27,7 +27,7 @@ export default function CartSidebar() {
       name: product.name,
       price: product.price,
       image: product.image,
-      size: "12ml",
+      size: String(product.size || '50ml'),
       quantity: 1,
     });
   };

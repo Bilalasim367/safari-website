@@ -34,7 +34,7 @@ export default function ScarcityLine({ style = 'alert', className = '' }: Scarci
   if (style === 'pill') {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 bg-gold/10 text-charcoal text-xs font-medium px-3 py-1.5 rounded-full border border-gold/30 ${className}`}
+        className={`inline-flex items-center gap-1.5 bg-gold/10 text-white text-xs font-medium px-3 py-1.5 rounded-full border border-gold/30 ${className}`}
       >
         {message}
       </span>
@@ -43,7 +43,7 @@ export default function ScarcityLine({ style = 'alert', className = '' }: Scarci
 
   return (
     <div
-      className={`flex items-center gap-2 bg-gold/10 border border-gold/30 rounded-lg px-4 py-2.5 text-sm text-charcoal ${className}`}
+      className={`flex items-center gap-2 bg-gold/10 border border-gold/30 rounded-lg px-4 py-2.5 text-sm text-[#e5e5e5] ${className}`}
     >
       {message}
     </div>

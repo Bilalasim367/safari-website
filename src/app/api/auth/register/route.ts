@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { validateRegistration } from '@/lib/validation';
-import { createAccessToken } from '@/lib/auth';
+import { createAccessToken, createRefreshToken, setAuthCookies } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { debugLog } from '@/lib/debugLog';
 
@@ -104,14 +104,20 @@ export async function POST(request: Request) {
     }
 
     let accessToken: string;
+    let refreshToken: string;
     try {
       accessToken = await createAccessToken({
         userId: user.id,
         email: user.email,
         role: user.role,
       });
+      refreshToken = await createRefreshToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      });
     } catch (jwtError) {
-      debugLog('register:createAccessToken', jwtError);
+      debugLog('register:createToken', jwtError);
       return NextResponse.json(
         { success: false, message: 'Account created but failed to create session.' },
         { status: 500 }
@@ -129,13 +135,9 @@ export async function POST(request: Request) {
       },
     });
 
-    response.cookies.set('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 15 * 60,
-      path: '/',
-    });
+    const authCookies = setAuthCookies(accessToken, refreshToken, false);
+    response.cookies.set(authCookies.access_token);
+    response.cookies.set(authCookies.refresh_token);
 
     return response;
   } catch (error) {

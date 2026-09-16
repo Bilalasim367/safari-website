@@ -59,7 +59,7 @@ export async function sendOrderShippedEmail(
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #0D0D0D; padding: 24px; text-align: center;">
-            <h1 style="color: #C9A962; margin: 0; font-size: 24px;">${storeName}</h1>
+            <h1 style="color: #B6965D; margin: 0; font-size: 24px;">${storeName}</h1>
           </div>
           <div style="padding: 32px 24px; background: #fff;">
             <h2 style="color: #0D0D0D; margin-top: 0;">Your Order Has Shipped!</h2>
@@ -74,7 +74,7 @@ export async function sendOrderShippedEmail(
               </p>
             </div>
             <a href="${trackUrl}"
-               style="display: inline-block; background: #C9A962; color: #0D0D0D; text-decoration: none;
+               style="display: inline-block; background: #B6965D; color: #0D0D0D; text-decoration: none;
                       padding: 14px 32px; border-radius: 6px; font-weight: bold; margin: 16px 0;">
               Track Your Order
             </a>
@@ -122,7 +122,7 @@ export async function sendPasswordResetEmail(
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #0D0D0D; padding: 24px; text-align: center;">
-            <h1 style="color: #C9A962; margin: 0; font-size: 24px;">${storeName}</h1>
+            <h1 style="color: #B6965D; margin: 0; font-size: 24px;">${storeName}</h1>
           </div>
           <div style="padding: 32px 24px; background: #fff;">
             <h2 style="color: #0D0D0D; margin-top: 0;">Password Reset Request</h2>
@@ -152,6 +152,81 @@ export async function sendPasswordResetEmail(
   } catch (e) {
     console.error('Failed to send password reset email:', e)
     return { sent: false, reason: 'Failed to send password reset email' }
+  }
+}
+
+export async function sendReturnRequestEmail(
+  customerEmail: string,
+  customerName: string,
+  requestId: string,
+  type: 'return' | 'exchange' | string,
+  productName: string,
+  orderNumber?: string | null
+) {
+  try {
+    const settings = await prisma.settings.findFirst()
+    if (!settings?.emailNotifications) {
+      console.log('Email notifications disabled — return request email not sent to', customerEmail)
+      return { sent: false, reason: 'Email notifications disabled' }
+    }
+
+    const transporter = await getTransporter()
+    if (!transporter) {
+      console.warn('SMTP not configured — return request email not sent to', customerEmail)
+      return { sent: false, reason: 'SMTP not configured' }
+    }
+
+    const storeName = settings?.storeName || 'Safari Perfumes'
+    const storeEmail = settings?.storeEmail || 'noreply@safari-perfumes.com'
+    const storePhone = settings?.storePhone || '+92 334 6322462'
+    const typeLabel = type === 'exchange' ? 'Exchange' : 'Return'
+
+    await transporter.sendMail({
+      from: `"${storeName}" <${storeEmail}>`,
+      to: customerEmail,
+      subject: `${typeLabel} Request Received — ${storeName} (${requestId})`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #0D0D0D; padding: 24px; text-align: center;">
+            <h1 style="color: #B6965D; margin: 0; font-size: 24px;">${storeName}</h1>
+          </div>
+          <div style="padding: 32px 24px; background: #fff;">
+            <h2 style="color: #0D0D0D; margin-top: 0;">Your ${typeLabel} Request Is In</h2>
+            <p style="color: #555; line-height: 1.6;">Hi ${customerName},</p>
+            <p style="color: #555; line-height: 1.6;">
+              We have received your ${typeLabel.toLowerCase()} request
+              ${orderNumber ? `for order <strong>#${orderNumber}</strong>` : ''} for
+              <strong>${productName}</strong>. Our team will review it within 24&ndash;48 hours and
+              get back to you on this email address.
+            </p>
+            <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin: 24px 0;">
+              <p style="margin: 0 0 8px; color: #555; font-size: 14px;">Your Request ID</p>
+              <p style="margin: 0; font-size: 18px; font-weight: bold; color: #0D0D0D; letter-spacing: 1px;">
+                ${requestId}
+              </p>
+            </div>
+            <p style="color: #555; line-height: 1.6; font-size: 14px;">
+              <strong>Reminder:</strong> Per our policy, ${typeLabel.toLowerCase()} requests must be
+              raised within 3 days of delivery. Items must be unused and in original packaging.
+            </p>
+            <p style="color: #999; font-size: 14px; margin-top: 24px;">
+              For urgent help, call us at <strong>${storePhone}</strong>.
+            </p>
+          </div>
+          <div style="background: #0D0D0D; padding: 16px; text-align: center;">
+            <p style="color: #666; font-size: 12px; margin: 0;">
+              ${storeName} &mdash; Luxury Fragrances
+            </p>
+          </div>
+        </div>
+      `,
+    })
+
+    console.log('Return request email sent to', customerEmail, 'for', requestId)
+    return { sent: true }
+  } catch (e) {
+    console.error('Failed to send return request email:', e)
+    return { sent: false, reason: 'Failed to send return request email' }
   }
 }
 
@@ -197,7 +272,7 @@ export async function sendOrderConfirmationEmail(
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: #0D0D0D; padding: 24px; text-align: center;">
-            <h1 style="color: #C9A962; margin: 0; font-size: 24px;">${storeName}</h1>
+            <h1 style="color: #B6965D; margin: 0; font-size: 24px;">${storeName}</h1>
           </div>
           <div style="padding: 32px 24px; background: #fff;">
             <h2 style="color: #0D0D0D; margin-top: 0;">Thank You for Your Order!</h2>

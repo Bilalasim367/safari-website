@@ -39,10 +39,15 @@ export async function createRefreshToken(
   expiresIn: string | number = '7d'
 ): Promise<string> {
   try {
+    // jose treats numbers as absolute epoch timestamps, NOT second counts.
+    // Normalize numeric inputs to a duration string so callers can't
+    // accidentally mint already-expired tokens.
+    const expires: string =
+      typeof expiresIn === 'number' ? `${expiresIn}s` : expiresIn;
     return await new SignJWT({ ...payload })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime(expiresIn)
+      .setExpirationTime(expires)
       .sign(encoder);
   } catch (error) {
     debugLog('auth:createRefreshToken', error);

@@ -151,6 +151,16 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Products</h1>
         <div className="flex gap-2">
+          <Link href="/admin/products/bulk-price">
+            <Button variant="outline">
+              Bulk Price Update
+            </Button>
+          </Link>
+          <Link href="/admin/products/import">
+            <Button variant="outline">
+              Import CSV
+            </Button>
+          </Link>
           <Link href="/admin/products/bulk-upload">
             <Button variant="outline">
               Bulk Upload

@@ -1,0 +1,14 @@
+- generic [active] [ref=f11e1]:
+  - generic [ref=f11e2]:
+    - complementary [ref=f11e3]
+    - generic [ref=f11e12]:
+      - banner [ref=f11e13]:
+        - heading "Showcase" [level=1] [ref=f11e15]
+        - generic [ref=f11e16]:
+          - button "3" [ref=f11e17] [cursor=pointer]
+          - button "A Admin" [ref=f11e22] [cursor=pointer]:
+            - generic [ref=f11e23]: A
+            - generic [ref=f11e24]: Admin
+      - main [ref=f11e27]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f11e36] [cursor=pointer]

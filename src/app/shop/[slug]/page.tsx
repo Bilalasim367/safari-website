@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 import { readPopupSettings } from '@/lib/popup-settings'
+import { defaultSizeForType } from '@/lib/normalize'
 import ProductDetailClient, { type RelatedProduct } from './ProductDetailClient'
 
 export const revalidate = 300
@@ -243,12 +244,14 @@ export default async function ProductPage({
       name: true,
       slug: true,
       price: true,
+      originalPrice: true,
       image: true,
       images: true,
       categorySlug: true,
       isNew: true,
       isBestseller: true,
       size: true,
+      type: true,
       rating: true,
       reviewCount: true,
       gender: true,
@@ -267,18 +270,32 @@ export default async function ProductPage({
     name: p.name,
     slug: p.slug,
     price: p.price,
+    originalPrice: p.originalPrice,
     image: p.image || '',
     images: parseJsonArray(p.images),
     category: p.category?.name || 'Unisex',
     isNew: p.isNew,
     isBestseller: p.isBestseller,
-    size: p.size || '50ml',
+    size: p.size || defaultSizeForType(p.type),
     rating: p.rating,
     reviewCount: p.reviewCount,
     gender: p.gender,
     season: p.season,
     impressionOf: p.impressionOf,
     currency: p.currency,
+  }))
+
+  const reviews = await prisma.review.findMany({
+    where: { productId: product.id, isApproved: true },
+    orderBy: { date: 'desc' },
+    take: 6,
+  })
+  const reviewsList = reviews.map((r) => ({
+    id: r.id,
+    customerName: r.customerName,
+    rating: r.rating,
+    text: r.text,
+    date: r.date.toISOString(),
   }))
 
   const productUrl = `${SITE_URL}/shop/${product.slug}`
@@ -333,6 +350,7 @@ export default async function ProductPage({
         relatedProducts={relatedProducts}
         freeShippingThreshold={settings?.freeShippingThreshold ?? null}
         whatsappNumber={readPopupSettings().whatsappNumber}
+        reviewsList={reviewsList}
       />
     </>
   )

@@ -68,7 +68,7 @@ export default function LifestyleVisualGrid() {
             The Art of Scent
           </h2>
           <p className="hidden md:block text-muted-foreground text-lg md:text-xl mt-4 max-w-2xl mx-auto">
-            From rare ingredients to artisanal craftsmanship â€” discover the world behind every bottle
+            From rare ingredients to artisanal craftsmanship - discover the world behind every bottle
           </p>
         </div>
 

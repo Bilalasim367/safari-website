@@ -11,7 +11,7 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: User | null | undefined;
   loading: boolean;
   authChecking: boolean;
   loginFromResponse: (userData: User) => void;
@@ -22,7 +22,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  // undefined = session still being checked, null = confirmed logged out
+  const [user, setUser] = useState<User | null | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -35,30 +36,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshUser = useCallback(async () => {
+    const readSession = async (): Promise<boolean> => {
+      const r = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
+      const data = await r.json().catch(() => null);
+      if (data?.user) {
+        setUser(data.user);
+        return true;
+      }
+      setUser(null);
+      clearRefreshTimer();
+      return false;
+    };
+
     try {
-      const res = await fetch('/api/auth/refresh', {
+      await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include',
       });
-      if (res.ok) {
-        await fetch('/api/auth/me', {
-          credentials: 'include',
-        }).then(r => r.json()).then(data => {
-          if (data.user) {
-            setUser(data.user);
-          } else {
-            setUser(null);
-            clearRefreshTimer();
-          }
-        });
-      } else {
-        setUser(null);
-        clearRefreshTimer();
-      }
     } catch {
-      setUser(null);
-      clearRefreshTimer();
+      // network-level failures must not wipe a valid access token below
     }
+    // Refresh failure falls back to the access token cookie, so /api/auth/me
+    // is the single source of truth for the client-side session state.
+    await readSession();
   }, [clearRefreshTimer]);
 
   const startRefreshTimer = useCallback(() => {

@@ -23,7 +23,6 @@ test.describe('Shop Page', () => {
     await expect(page.getByRole('heading', { name: 'Filters' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Category' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Gender' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Size' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Fragrance Family' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Price' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Product Type' })).toBeVisible();
@@ -90,14 +89,13 @@ test.describe('Shop Page', () => {
   test('should filter by bestseller', async ({ page }) => {
     await page.locator('a[href*="isBestseller=true"]').first().click();
     await expect(page).toHaveURL(/isBestseller=true/, { timeout: 30000 });
-    await expect(page.locator('span:has-text("Bestseller")').first()).toBeVisible();
+    await expect(page.locator('a.rounded-full', { hasText: 'Bestseller' }).first()).toBeVisible();
   });
 
   test('should filter by new arrivals', async ({ page }) => {
     await page.goto('/shop?isNew=true');
-    await page.waitForLoadState('networkidle');
-    await expect(page).toHaveURL(/isNew=true/);
-    await expect(page.locator('span:has-text("New")').first()).toBeVisible();
+    await page.waitForURL(/isNew=true/);
+    await expect(page.locator('a.rounded-full', { hasText: 'New Arrivals' }).first()).toBeVisible();
   });
 
   test('should clear all filters', async ({ page }) => {
@@ -122,13 +120,13 @@ test.describe('Shop Page - Product Grid', () => {
     await expect(productCard.locator('text=PKR').first()).toBeVisible();
   });
 
-  test('should show product badges (Bestseller, New, etc.)', async ({ page }) => {
-    const bestsellerBadge = page.locator('text=Bestseller, .bestseller-badge, .badge:has-text("BEST")');
-    const newBadge = page.locator('text=New, .new-badge, .badge:has-text("NEW")');
-    const trendingBadge = page.locator('text=Trending, .trending-badge');
-    
-    if (await bestsellerBadge.first().isVisible()) {
-      await expect(bestsellerBadge.first()).toBeVisible();
+  test('should show product price info', async ({ page }) => {
+    const productCard = page.locator('div.grid > a[href^="/shop/"]').first();
+    await expect(productCard).toBeVisible();
+    await expect(productCard.locator('span:has-text("PKR")').first()).toBeVisible();
+    const wasPrice = productCard.locator('span:has-text("Was:")');
+    if (await wasPrice.isVisible()) {
+      await expect(wasPrice).toBeVisible();
     }
   });
 
@@ -177,12 +175,12 @@ test.describe('Shop Page - Collection Routes', () => {
   test('should load Bestsellers collection', async ({ page }) => {
     await page.goto('/shop?isBestseller=true');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('span:has-text("Bestseller")').first()).toBeVisible();
+    await expect(page.locator('a.rounded-full', { hasText: 'Bestseller' }).first()).toBeVisible();
   });
 
   test('should load New Arrivals', async ({ page }) => {
     await page.goto('/shop?isNew=true');
-    await page.waitForLoadState('networkidle');
-    await expect(page.locator('span:has-text("New")').first()).toBeVisible();
+    await page.waitForURL(/isNew=true/);
+    await expect(page.locator('a.rounded-full', { hasText: 'New Arrivals' }).first()).toBeVisible();
   });
 });

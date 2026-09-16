@@ -1,0 +1,281 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e4]:
+    - navigation [ref=f2e5]:
+      - link "About Us" [ref=f2e6] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=f2e7]: "|"
+      - link "Contact Us" [ref=f2e8] [cursor=pointer]:
+        - /url: /contact
+      - generic [ref=f2e9]: "|"
+      - link "FAQs" [ref=f2e10] [cursor=pointer]:
+        - /url: /contact?faq=true
+    - generic [ref=f2e11]:
+      - link "Instagram" [ref=f2e12] [cursor=pointer]:
+        - /url: https://www.instagram.com/safariperfumesofficial
+      - link "Facebook" [ref=f2e15] [cursor=pointer]:
+        - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - link "TikTok" [ref=f2e18] [cursor=pointer]:
+        - /url: https://www.tiktok.com/@safari.perfumes
+  - generic [ref=f2e21]: FREE SHIPPING ON COD
+  - banner [ref=f2e24]:
+    - generic [ref=f2e25]:
+      - searchbox "Search fragrances" [ref=f2e31]
+      - link "SAFARI Perfumes Home" [ref=f2e32] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=f2e33]
+      - generic [ref=f2e34]:
+        - button "Cart" [ref=f2e35] [cursor=pointer]
+        - link "Account" [ref=f2e38] [cursor=pointer]:
+          - /url: /login
+        - button "Menu" [ref=f2e41] [cursor=pointer]
+  - main [ref=f2e44]:
+    - generic [ref=f2e45]:
+      - generic [ref=f2e46]:
+        - navigation [ref=f2e47]:
+          - link "Home" [ref=f2e48] [cursor=pointer]:
+            - /url: /
+          - text: /
+          - link "Shop" [ref=f2e49] [cursor=pointer]:
+            - /url: /shop
+          - text: /White Rose
+        - generic [ref=f2e50]:
+          - img "White Rose perfume bottle - Safari Perfumes Pakistan" [ref=f2e53]
+          - generic [ref=f2e54]:
+            - generic [ref=f2e55]:
+              - generic [ref=f2e56]:
+                - generic [ref=f2e57]: Attar
+                - heading "White Rose" [level=1] [ref=f2e59]
+              - button "Toggle wishlist" [ref=f2e60] [cursor=pointer]
+            - button "(4 reviews)" [ref=f2e76] [cursor=pointer]
+            - generic [ref=f2e77]:
+              - generic [ref=f2e78]:
+                - paragraph [ref=f2e79]: Price
+                - generic [ref=f2e80]: PKR 1,128
+              - generic [ref=f2e81]:
+                - generic [ref=f2e82]: PKR 1,999
+                - generic [ref=f2e83]: Save 44%
+            - generic [ref=f2e84]:
+              - generic [ref=f2e85]:
+                - generic [ref=f2e86]: 👫
+                - generic [ref=f2e87]: GENDER
+                - generic [ref=f2e88]: Women
+              - generic [ref=f2e89]:
+                - generic [ref=f2e90]: 📦
+                - generic [ref=f2e91]: SIZE
+                - generic [ref=f2e92]: 12ML
+            - generic [ref=f2e93]:
+              - button "Description" [ref=f2e94] [cursor=pointer]
+              - button "Attar Notes" [ref=f2e95] [cursor=pointer]
+            - paragraph [ref=f2e97]: A unisex fragrance best suited for nan wear during nan occasions.
+            - generic [ref=f2e98]:
+              - generic [ref=f2e99]:
+                - generic [ref=f2e100]: Qty
+                - generic [ref=f2e101]:
+                  - button "Decrease quantity" [ref=f2e102] [cursor=pointer]
+                  - generic [ref=f2e104]: "1"
+                  - button "Increase quantity" [ref=f2e105] [cursor=pointer]
+              - button "Add to Cart" [ref=f2e107] [cursor=pointer]
+              - link "WhatsApp pe Order Karein" [ref=f2e108] [cursor=pointer]:
+                - /url: https://wa.me/923247277489?text=Hi%20Safari%20Perfumes!%20%F0%9F%91%8B%0AI%20want%20to%20order%3A%0A%0A*White%20Rose*%0ASize%3A%2012ML%0APrice%3A%20PKR%201%2C128%0A%0APlease%20confirm%20my%20order.%20Thank%20you!
+            - generic [ref=f2e111]:
+              - generic [ref=f2e112]: 100% Original
+              - generic [ref=f2e115]: 💵 Cash on Delivery
+              - generic [ref=f2e116]: Free Shipping Nationwide
+            - generic [ref=f2e122]: 🔥 Only 5 left in stock — selling fast!
+      - generic [ref=f2e125]:
+        - generic [ref=f2e126]:
+          - heading "Customer Reviews" [level=2] [ref=f2e127]
+          - paragraph [ref=f2e128]: "4.8"
+          - generic [ref=f2e129]: (4 reviews)
+          - paragraph [ref=f2e144]: Based on 4 reviews
+        - generic [ref=f2e145]:
+          - generic [ref=f2e146]:
+            - generic [ref=f2e148]:
+              - generic [ref=f2e149]: A
+              - generic [ref=f2e150]:
+                - paragraph [ref=f2e151]: Ahmed B.
+                - paragraph [ref=f2e152]: 27 Aug 2026
+            - paragraph [ref=f2e165]: The packaging was beautiful and the scent is even better. Smells exactly like the original. Worth every rupee.
+          - generic [ref=f2e166]:
+            - generic [ref=f2e168]:
+              - generic [ref=f2e169]: U
+              - generic [ref=f2e170]:
+                - paragraph [ref=f2e171]: Usman B.
+                - paragraph [ref=f2e172]: 6 Jul 2026
+            - paragraph [ref=f2e185]: Smells exactly like the original. Worth every rupee.
+          - generic [ref=f2e186]:
+            - generic [ref=f2e188]:
+              - generic [ref=f2e189]: U
+              - generic [ref=f2e190]:
+                - paragraph [ref=f2e191]: Usman K.
+                - paragraph [ref=f2e192]: 18 Jun 2026
+            - paragraph [ref=f2e205]: Rich, luxurious scent profile. Feels way more expensive than it is.
+          - generic [ref=f2e206]:
+            - generic [ref=f2e208]:
+              - generic [ref=f2e209]: A
+              - generic [ref=f2e210]:
+                - paragraph [ref=f2e211]: Ahmed Q.
+                - paragraph [ref=f2e212]: 17 May 2026
+            - paragraph [ref=f2e225]: Great daily wear — long lasting even in hot weather. Reminds me of a designer fragrance at a fraction of the cost.
+      - generic [ref=f2e227]:
+        - heading "You May Also Like" [level=2] [ref=f2e228]
+        - generic [ref=f2e229]:
+          - 'link "Winter Jasmine (Creation Of Argeville) -30% Add to wishlist Winter Jasmine (Creation Of Argeville) (4 reviews) PKR 1,399 Was: PKR 1,999 Add Winter Jasmine (Creation Of Argeville) to cart" [ref=f2e230] [cursor=pointer]':
+            - /url: /shop/winter-jasmine-creation-of-argeville
+            - generic [ref=f2e231]:
+              - img "Winter Jasmine (Creation Of Argeville)" [ref=f2e232]
+              - generic [ref=f2e233]: "-30%"
+              - button "Add to wishlist" [ref=f2e234]
+            - generic [ref=f2e237]:
+              - heading "Winter Jasmine (Creation Of Argeville)" [level=3] [ref=f2e238]
+              - generic [ref=f2e239]: (4 reviews)
+              - generic [ref=f2e254]:
+                - generic [ref=f2e255]: PKR 1,399
+                - generic [ref=f2e256]: "Was: PKR 1,999"
+              - generic [ref=f2e257]:
+                - button "Add Winter Jasmine (Creation Of Argeville) to cart": Add to Cart
+          - 'link "Silk Musk Super -48% Add to wishlist Silk Musk Super (4 reviews) PKR 1,572 Was: PKR 2,999 Add Silk Musk Super to cart" [ref=f2e258] [cursor=pointer]':
+            - /url: /shop/silk-musk-super
+            - generic [ref=f2e259]:
+              - img "Silk Musk Super" [ref=f2e260]
+              - generic [ref=f2e261]: "-48%"
+              - button "Add to wishlist" [ref=f2e262]
+            - generic [ref=f2e265]:
+              - heading "Silk Musk Super" [level=3] [ref=f2e266]
+              - generic [ref=f2e267]: (4 reviews)
+              - generic [ref=f2e282]:
+                - generic [ref=f2e283]: PKR 1,572
+                - generic [ref=f2e284]: "Was: PKR 2,999"
+              - generic [ref=f2e285]:
+                - button "Add Silk Musk Super to cart": Add to Cart
+          - 'link "Oud Rosewood -33% Add to wishlist Oud Rosewood (3 reviews) PKR 1,999 Was: PKR 2,999 Add Oud Rosewood to cart" [ref=f2e286] [cursor=pointer]':
+            - /url: /shop/oud-rosewood
+            - generic [ref=f2e287]:
+              - img "Oud Rosewood" [ref=f2e288]
+              - generic [ref=f2e289]: "-33%"
+              - button "Add to wishlist" [ref=f2e290]
+            - generic [ref=f2e293]:
+              - heading "Oud Rosewood" [level=3] [ref=f2e294]
+              - generic [ref=f2e295]: (3 reviews)
+              - generic [ref=f2e310]:
+                - generic [ref=f2e311]: PKR 1,999
+                - generic [ref=f2e312]: "Was: PKR 2,999"
+              - generic [ref=f2e313]:
+                - button "Add Oud Rosewood to cart": Add to Cart
+          - 'link "Gucci Guilty Elixir De Parfum Pour Femme -51% Add to wishlist Gucci Guilty Elixir De Parfum Pour Femme (6 reviews) PKR 1,464 Was: PKR 2,999 Add Gucci Guilty Elixir De Parfum Pour Femme to cart" [ref=f2e314] [cursor=pointer]':
+            - /url: /shop/gucci-guilty-elixir-de-parfum-pour-femme
+            - generic [ref=f2e315]:
+              - img "Gucci Guilty Elixir De Parfum Pour Femme" [ref=f2e316]
+              - generic [ref=f2e317]: "-51%"
+              - button "Add to wishlist" [ref=f2e318]
+            - generic [ref=f2e321]:
+              - heading "Gucci Guilty Elixir De Parfum Pour Femme" [level=3] [ref=f2e322]
+              - generic [ref=f2e323]: (6 reviews)
+              - generic [ref=f2e338]:
+                - generic [ref=f2e339]: PKR 1,464
+                - generic [ref=f2e340]: "Was: PKR 2,999"
+              - generic [ref=f2e341]:
+                - button "Add Gucci Guilty Elixir De Parfum Pour Femme to cart": Add to Cart
+  - contentinfo [ref=f2e342]:
+    - generic [ref=f2e344]:
+      - generic [ref=f2e345]:
+        - generic [ref=f2e346]:
+          - link [ref=f2e347] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=f2e348]
+          - paragraph [ref=f2e349]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f2e350] [cursor=pointer]:
+            - link "Read More" [ref=f2e351]:
+              - /url: /about
+          - generic [ref=f2e354]:
+            - heading "Contact Us" [level=4] [ref=f2e355]
+            - list [ref=f2e356]:
+              - listitem [ref=f2e357]:
+                - link "support@safari-perfumes.com" [ref=f2e358] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=f2e361]:
+                - link "+92 324 7277489" [ref=f2e362] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=f2e365]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=f2e366]:
+          - heading "Quick Links" [level=4] [ref=f2e367]
+          - list [ref=f2e368]:
+            - listitem [ref=f2e369]:
+              - link "Shop All" [ref=f2e370] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f2e371]:
+              - link "New Arrivals" [ref=f2e372] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=f2e373]:
+              - link "Best Sellers" [ref=f2e374] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=f2e375]:
+              - link "Collections" [ref=f2e376] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=f2e377]:
+              - link "Bundles & Gift Sets" [ref=f2e378] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=f2e379]:
+              - link "Gift Cards" [ref=f2e380] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=f2e381]:
+              - link "Fragrance Guides" [ref=f2e382] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=f2e383]:
+          - heading "Customer Service" [level=4] [ref=f2e384]
+          - list [ref=f2e385]:
+            - listitem [ref=f2e386]:
+              - link "My Account" [ref=f2e387] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=f2e388]:
+              - link "Order Tracking" [ref=f2e389] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=f2e390]:
+              - link "Returns & Exchange" [ref=f2e391] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f2e392]:
+              - link "Shipping & Delivery" [ref=f2e393] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f2e394]:
+              - link "FAQs" [ref=f2e395] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=f2e396]:
+              - link "Contact Us" [ref=f2e397] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f2e398]:
+          - heading "Stay Connected & Save" [level=4] [ref=f2e399]
+          - paragraph [ref=f2e400]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f2e401]:
+            - textbox "Email address for newsletter" [ref=f2e402]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=f2e403] [cursor=pointer]
+          - generic [ref=f2e404]:
+            - link "Instagram" [ref=f2e405] [cursor=pointer]:
+              - /url: https://www.instagram.com/safariperfumesofficial
+              - img "Instagram" [ref=f2e406]
+            - link "Facebook" [ref=f2e407] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+              - img "Facebook" [ref=f2e408]
+            - link "TikTok" [ref=f2e409] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes
+              - img "TikTok" [ref=f2e410]
+      - generic [ref=f2e412]:
+        - generic [ref=f2e413]:
+          - generic [ref=f2e414]: "We Accept:"
+          - generic [ref=f2e415]:
+            - generic [ref=f2e416]: Visa
+            - generic [ref=f2e418]: MC
+            - generic [ref=f2e420]: Amex
+            - generic [ref=f2e422]: PayPal
+        - generic [ref=f2e424]:
+          - link "Privacy Policy" [ref=f2e425] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=f2e426] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=f2e427] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=f2e430]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=f2e431] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f2e439] [cursor=pointer]

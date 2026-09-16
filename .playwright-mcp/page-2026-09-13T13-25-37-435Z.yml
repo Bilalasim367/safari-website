@@ -1,0 +1,156 @@
+- generic [active] [ref=f42e1]:
+  - generic [ref=f42e4]:
+    - navigation [ref=f42e5]:
+      - link "About Us" [ref=f42e6] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=f42e7]: "|"
+      - link "Contact Us" [ref=f42e8] [cursor=pointer]:
+        - /url: /contact
+      - generic [ref=f42e9]: "|"
+      - link "FAQs" [ref=f42e10] [cursor=pointer]:
+        - /url: /contact?faq=true
+    - generic [ref=f42e11]:
+      - button "Instagram" [ref=f42e12]
+      - button "Facebook" [ref=f42e15]
+      - button "Twitter" [ref=f42e18]
+  - generic [ref=f42e22]:
+    - generic [ref=f42e23]: FREE SHIPPING ON COD
+    - generic [aria-hidden] [ref=f42e24]: BUY 2 GET 1
+  - banner [ref=f42e25]:
+    - generic [ref=f42e26]:
+      - searchbox "Search fragrances" [ref=f42e32]
+      - link "SAFARI Perfumes Home" [ref=f42e33] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=f42e34]
+      - generic [ref=f42e35]:
+        - button "Cart" [ref=f42e36] [cursor=pointer]
+        - link "Account" [ref=f42e39] [cursor=pointer]:
+          - /url: /login
+  - navigation "Main navigation" [ref=f42e42]:
+    - generic [ref=f42e43]:
+      - link "Bestsellers" [ref=f42e44] [cursor=pointer]:
+        - /url: /shop?isBestseller=true
+      - link "New Arrival" [ref=f42e45] [cursor=pointer]:
+        - /url: /shop?isNew=true
+      - link "Our Collection" [ref=f42e46] [cursor=pointer]:
+        - /url: /collections
+      - button "Attar Collection" [ref=f42e48] [cursor=pointer]
+      - button "Perfumes Collection" [ref=f42e52] [cursor=pointer]
+      - link "Bundles/Offers" [ref=f42e55] [cursor=pointer]:
+        - /url: /bundles
+      - link "Blog" [ref=f42e56] [cursor=pointer]:
+        - /url: /blog
+  - main [ref=f42e57]:
+    - generic [ref=f42e58]:
+      - generic [ref=f42e60]:
+        - generic [ref=f42e61]:
+          - paragraph [ref=f42e62]: Collection
+          - heading "Bestsellers" [level=1] [ref=f42e63]
+          - paragraph [ref=f42e64]: Discover our complete collection of luxury fragrances, crafted to elevate your senses.
+        - navigation "breadcrumb" [ref=f42e66]:
+          - list [ref=f42e67]:
+            - listitem [ref=f42e68]:
+              - link "Home" [ref=f42e69] [cursor=pointer]:
+                - /url: /
+            - listitem [aria-hidden] [ref=f42e70]
+            - listitem [ref=f42e73]:
+              - link "Bestsellers" [disabled] [ref=f42e74]
+      - generic [ref=f42e75]: Loading products...
+  - contentinfo [ref=f42e76]:
+    - generic [ref=f42e78]:
+      - generic [ref=f42e79]:
+        - generic [ref=f42e80]:
+          - link [ref=f42e81] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=f42e82]
+          - paragraph [ref=f42e83]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f42e84] [cursor=pointer]:
+            - link "Read More" [ref=f42e85]:
+              - /url: /about
+          - generic [ref=f42e88]:
+            - heading "Contact Us" [level=4] [ref=f42e89]
+            - list [ref=f42e90]:
+              - listitem [ref=f42e91]:
+                - link "support@safari-perfumes.com" [ref=f42e92] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=f42e95]:
+                - link "+92 324 7277489" [ref=f42e96] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=f42e99]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=f42e100]:
+          - heading "Quick Links" [level=4] [ref=f42e101]
+          - list [ref=f42e102]:
+            - listitem [ref=f42e103]:
+              - link "Shop All" [ref=f42e104] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f42e105]:
+              - link "New Arrivals" [ref=f42e106] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=f42e107]:
+              - link "Best Sellers" [ref=f42e108] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=f42e109]:
+              - link "Collections" [ref=f42e110] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=f42e111]:
+              - link "Bundles & Gift Sets" [ref=f42e112] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=f42e113]:
+              - link "Gift Cards" [ref=f42e114] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=f42e115]:
+              - link "Fragrance Guides" [ref=f42e116] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=f42e117]:
+          - heading "Customer Service" [level=4] [ref=f42e118]
+          - list [ref=f42e119]:
+            - listitem [ref=f42e120]:
+              - link "My Account" [ref=f42e121] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=f42e122]:
+              - link "Order Tracking" [ref=f42e123] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=f42e124]:
+              - link "Returns & Exchange" [ref=f42e125] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f42e126]:
+              - link "Shipping & Delivery" [ref=f42e127] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f42e128]:
+              - link "FAQs" [ref=f42e129] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=f42e130]:
+              - link "Contact Us" [ref=f42e131] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f42e132]:
+          - heading "Stay Connected & Save" [level=4] [ref=f42e133]
+          - paragraph [ref=f42e134]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f42e135]:
+            - textbox "Email address for newsletter" [ref=f42e136]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=f42e137] [cursor=pointer]
+          - generic [ref=f42e138]:
+            - link "TikTok" [ref=f42e139] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv
+            - link "Facebook" [ref=f42e142] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - generic [ref=f42e146]:
+        - generic [ref=f42e147]:
+          - generic [ref=f42e148]: "We Accept:"
+          - generic [ref=f42e149]:
+            - generic [ref=f42e150]: Visa
+            - generic [ref=f42e152]: MC
+            - generic [ref=f42e154]: Amex
+            - generic [ref=f42e156]: PayPal
+        - generic [ref=f42e158]:
+          - link "Privacy Policy" [ref=f42e159] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=f42e160] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=f42e161] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=f42e164]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=f42e165] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=f42e173] [cursor=pointer]

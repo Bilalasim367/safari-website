@@ -53,6 +53,8 @@ type FreshProduct = {
   name?: string;
   price?: number;
   image?: string;
+  size?: string | null;
+  type?: string | null;
   sizePrices?: string | null;
 };
 
@@ -121,11 +123,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const p = map.get(item.id);
         if (!p) return item;
         const price = effectivePrice(p);
+        const freshSize = p.size && p.size.trim() ? p.size.trim() : null;
         return {
           ...item,
           name: p.name ? p.name : item.name,
           ...(price !== null ? { price } : {}),
           image: p.image ? p.image : item.image,
+          // Sync the size label from the current DB product too — an attar once
+          // stored as "50ml" would otherwise keep showing 50ml in the cart even
+          // after the data is corrected (same stale-snapshot problem as price).
+          size: freshSize || item.size,
         };
       })
     );

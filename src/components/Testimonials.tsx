@@ -43,45 +43,44 @@ const testimonials: Testimonial[] = [
 
 export default function Testimonials() {
   return (
-    <section className="px-4 md:px-12 py-6 md:py-28 bg-muted/30">
+    <section className="px-4 md:px-12 py-6 md:py-28 bg-[#0d0d0d]">
       <div className="container-custom">
         <div className="text-center mb-6 md:mb-16">
           <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
             Testimonials
           </p>
-          <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
+          <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading bg-gradient-to-r from-[#e7d8b5] via-[#B6965D] to-[#8f7442] bg-clip-text text-transparent">
             Loved by Fragrance Connoisseurs
           </h2>
         </div>
 
-        {/* Single responsive layout: one DOM instance, carousel on mobile, grid on desktop */}
-        <div className="grid grid-flow-col md:grid-flow-row auto-cols-[80vw] md:auto-cols-auto snap-x snap-mandatory md:snap-none scrollbar-hide gap-4 md:gap-6 lg:gap-8 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-4 md:mx-0 px-4 md:px-0">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial) => (
             <article
               key={testimonial.id}
-              className="snap-start relative bg-background border border-border rounded-2xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl hover:border-gold/30"
+              className="bg-[#161616] border border-[#B6965D]/20 rounded-xl p-6 md:p-7 transition-all duration-300 hover:border-[#B6965D]/50"
             >
               <div className="flex items-center gap-2 mb-4 md:mb-6">
                 <Rating rating={testimonial.rating} size="sm" color="gold" />
               </div>
 
-              <blockquote className="text-foreground/90 text-sm md:text-base leading-relaxed mb-4 md:mb-6 line-clamp-4 md:line-clamp-none">
+              <blockquote className="text-[#f5f0e8] text-sm md:text-base leading-relaxed mb-4 md:mb-6 line-clamp-4 md:line-clamp-none">
                 &ldquo;{testimonial.text}&rdquo;
               </blockquote>
 
-              <div className="border-t border-border pt-4 md:pt-6">
+              <div className="border-t border-[#B6965D]/15 pt-4 md:pt-5">
                 <div className="flex items-center gap-3 md:gap-4">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
-                    <span className="text-gold font-heading font-medium text-base md:text-lg">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#B6965D]/10 flex items-center justify-center shrink-0">
+                    <span className="text-[#B6965D] font-heading font-medium text-base md:text-lg">
                       {testimonial.name.charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-foreground text-sm">{testimonial.name}</p>
-                    <p className="text-xs md:text-sm text-muted-foreground">{testimonial.location}</p>
+                    <p className="font-medium text-[#B6965D] text-sm">{testimonial.name}</p>
+                    <p className="text-xs md:text-sm text-[#9a958d]">{testimonial.location}</p>
                   </div>
                 </div>
-                <p className="text-gold text-xs md:text-sm mt-2 md:mt-3 font-medium">{testimonial.product}</p>
+                <p className="text-[#B6965D] text-xs md:text-sm mt-2 md:mt-3 font-medium">{testimonial.product}</p>
               </div>
             </article>
           ))}
@@ -90,7 +89,7 @@ export default function Testimonials() {
         <div className="text-center mt-6 md:mt-12">
           <Link
             href="/shop#reviews"
-            className="inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm"
+            className="inline-flex items-center gap-2 text-[#B6965D] hover:text-[#c9a873] transition-colors font-medium text-sm"
           >
             Read All Reviews
             <svg

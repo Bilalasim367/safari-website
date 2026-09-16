@@ -77,7 +77,7 @@ export const AdminProductSchema = z.object({
   image: z.string().optional(),
   images: z.array(z.string()).default([]),
   categorySlug: z.string().optional(),
-  size: z.string().default('50ml'),
+  size: z.string().optional(),
   sizePrices: z.array(SizePriceEntry).default([]),
   fragranceFamily: z.string().nullable().optional(),
   rating: z.number().default(0),

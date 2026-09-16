@@ -52,7 +52,7 @@ export default function BrandStory() {
                 moment, a signature.
               </p>
               <p>
-                We source the finest ingredients from around the world â€” rare oud from
+                We source the finest ingredients from around the world - rare oud from
                 Assam, Bulgarian roses, Madagascan vanilla, and Calabrian bergamot.
                 Each bottle is a testament to our commitment to quality, authenticity,
                 and the timeless art of fragrance creation.

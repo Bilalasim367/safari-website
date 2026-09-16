@@ -268,7 +268,7 @@ export default function CheckoutPage() {
                 <div className="space-y-6 bg-card p-8">
                   <h2 className="text-xl font-semibold text-foreground mb-6">Payment Method</h2>
                   
-                  <div className="flex items-start gap-4 p-5 border-2 border-[#c9a962]/50 bg-[#c9a962]/5 rounded-lg">
+                  <div className="flex items-start gap-4 p-5 border-2 border-[#B6965D]/50 bg-[#B6965D]/5 rounded-lg">
                     <span className="text-3xl leading-none">💵</span>
                     <div>
                       <p className="font-semibold text-foreground text-lg">Cash on Delivery (COD)</p>

@@ -44,13 +44,13 @@ export async function GET() {
     const products = ids.length
       ? await prisma.product.findMany({
           where: { id: { in: ids } },
-          select: { id: true, name: true, price: true, image: true },
+          select: { id: true, name: true, price: true, image: true, size: true },
         })
       : [];
     const productMap = new Map(products.map((p) => [p.id, p]));
 
-    // Recompute from the CURRENT DB so stored snapshot price/name/images never
-    // leak stale values to the cart (checkout) UI.
+    // Recompute from the CURRENT DB so stored snapshot price/name/image/size
+    // never leak stale values to the cart (checkout) UI.
     const cart = savedCart.map((item) => {
       const p = productMap.get(item.productId);
       return {
@@ -58,7 +58,7 @@ export async function GET() {
         name: p?.name || item.name,
         price: p ? resolvePrice(p) : item.price,
         image: p?.image || item.image,
-        size: item.size,
+        size: (p?.size && p.size.trim()) || item.size,
         quantity: item.quantity,
       };
     });
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
                 name: p?.name || item.name || 'Unknown',
                 price: p ? resolvePrice(p) : Number(item.price) || 0,
                 image: p?.image || item.image || '',
-                size: item.size || p?.size || '',
+                size: (p?.size && p.size.trim()) || item.size || '',
                 quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
               };
             }),

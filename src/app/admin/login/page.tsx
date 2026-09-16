@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
               <span className="text-white font-serif font-bold text-2xl">S</span>
             </div>
           </Link>
-          <CardTitle className="text-2xl font-serif">Admin Login</CardTitle>
+          <h1 className="font-heading text-2xl font-serif">Admin Login</h1>
           <p className="text-muted-foreground mt-1">Sign in to manage your store</p>
         </CardHeader>
         <CardContent>

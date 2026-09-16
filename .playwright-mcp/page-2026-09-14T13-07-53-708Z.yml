@@ -1,0 +1,267 @@
+- generic [ref=f4e1]:
+  - generic [ref=f4e4]:
+    - navigation [ref=f4e5]:
+      - link "About Us" [ref=f4e6] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=f4e7]: "|"
+      - link "Contact Us" [ref=f4e8] [cursor=pointer]:
+        - /url: /contact
+      - generic [ref=f4e9]: "|"
+      - link "FAQs" [ref=f4e10] [cursor=pointer]:
+        - /url: /contact?faq=true
+    - generic [ref=f4e11]:
+      - link "Instagram" [ref=f4e12] [cursor=pointer]:
+        - /url: https://www.instagram.com/safariperfumesofficial
+      - link "Facebook" [ref=f4e15] [cursor=pointer]:
+        - /url: https://www.facebook.com/share/19G8xxiTP7/
+      - link "TikTok" [ref=f4e18] [cursor=pointer]:
+        - /url: https://www.tiktok.com/@safari.perfumes
+  - generic [ref=f4e21]: FREE SHIPPING ON COD
+  - banner [ref=f4e24]:
+    - generic [ref=f4e25]:
+      - searchbox "Search fragrances" [ref=f4e31]
+      - link "SAFARI Perfumes Home" [ref=f4e32] [cursor=pointer]:
+        - /url: /
+        - img "SAFARI Logo" [ref=f4e33]
+      - generic [ref=f4e34]:
+        - button "Cart" [ref=f4e35] [cursor=pointer]:
+          - generic [ref=f4e245]: "1"
+        - link "Account" [ref=f4e38] [cursor=pointer]:
+          - /url: /login
+        - button "Menu" [ref=f4e41] [cursor=pointer]
+  - main [ref=f4e44]:
+    - generic [ref=f4e48]:
+      - heading "Returns & Exchange" [level=1] [ref=f4e49]
+      - paragraph [ref=f4e50]:
+        - link "Home" [ref=f4e51] [cursor=pointer]:
+          - /url: /
+        - text: / Returns
+    - generic [ref=f4e54]:
+      - generic [ref=f4e55]:
+        - heading "Our Return Policy" [level=2] [ref=f4e56]
+        - paragraph [ref=f4e57]: We want you to be completely satisfied with your purchase. If for any reason you're not happy with your fragrance, you can request a return, exchange or cancellation using the form below.
+        - generic [ref=f4e58]:
+          - paragraph [ref=f4e59]: "Please note before you raise a request:"
+          - list [ref=f4e60]:
+            - listitem [ref=f4e61]:
+              - text: Return / exchange requests must be raised
+              - strong [ref=f4e62]: within 3 days of delivery
+              - text: .
+            - listitem [ref=f4e63]:
+              - text: The item must be
+              - strong [ref=f4e64]: unused and in its original packaging
+              - text: .
+            - listitem [ref=f4e65]:
+              - strong [ref=f4e66]: Shipping
+              - text: takes up to
+              - strong [ref=f4e67]: 5 working days
+              - text: within Pakistan and up to
+              - strong [ref=f4e68]: 20 working days
+              - text: internationally.
+            - listitem [ref=f4e69]:
+              - text: Orders can be
+              - strong [ref=f4e70]: cancelled within 24 hours
+              - text: of placing them.
+        - generic [ref=f4e71]:
+          - generic [ref=f4e72]:
+            - heading "3-Day Returns" [level=3] [ref=f4e76]
+            - paragraph [ref=f4e77]: Request a return within 3 days of delivery for a refund. Item must be unused and in original packaging. Approval is subject to quality check.
+          - generic [ref=f4e78]:
+            - heading "Exchanges & Cancellations" [level=3] [ref=f4e82]
+            - paragraph [ref=f4e83]: Exchange for a different size or scent, or cancel your order within 24 hours of placing it. Mention it in the form or call our support line.
+        - generic [ref=f4e88]:
+          - paragraph [ref=f4e89]: Need urgent help?
+          - paragraph [ref=f4e90]:
+            - text: For complaints or urgent requests, call us at
+            - link "+92 334 6322462" [ref=f4e91] [cursor=pointer]:
+              - /url: tel:+923346322462
+            - text: .
+      - generic [ref=f4e92]:
+        - heading "How It Works" [level=2] [ref=f4e93]
+        - generic [ref=f4e94]:
+          - generic [ref=f4e95]:
+            - generic [ref=f4e96]: "01"
+            - generic [ref=f4e98]:
+              - heading "Raise a Request" [level=3] [ref=f4e99]
+              - paragraph [ref=f4e100]: Submit the form below with your order details. Our team reviews every request within 24–48 hours.
+          - generic [ref=f4e101]:
+            - generic [ref=f4e102]: "02"
+            - generic [ref=f4e104]:
+              - heading "Get Approval" [level=3] [ref=f4e105]
+              - paragraph [ref=f4e106]: Once approved, we'll email you the return instructions and, for a return, the refund process.
+          - generic [ref=f4e107]:
+            - generic [ref=f4e108]: "03"
+            - generic [ref=f4e110]:
+              - heading "Send / Send Back Item" [level=3] [ref=f4e111]
+              - paragraph [ref=f4e112]: For exchanges, we dispatch the replacement once we receive the original. Shipping takes up to 5 working days (20 days international).
+          - generic [ref=f4e113]:
+            - generic [ref=f4e114]: "04"
+            - generic [ref=f4e116]:
+              - heading "Refund Processed" [level=3] [ref=f4e117]
+              - paragraph [ref=f4e118]: Refunds are processed to your original payment method once the returned item passes quality check.
+      - generic [ref=f4e119]:
+        - heading "Request a Return" [level=2] [ref=f4e120]
+        - paragraph [ref=f4e121]: Fill in the form below and our team will get back to you within 24–48 hours on your email.
+        - generic [ref=f4e122]:
+          - button "Return" [ref=f4e123] [cursor=pointer]
+          - button "Exchange" [ref=f4e124] [cursor=pointer]
+        - generic [ref=f4e125]:
+          - generic [ref=f4e126]:
+            - generic [ref=f4e127]:
+              - generic [ref=f4e128]: Full Name *
+              - textbox "Your name" [ref=f4e129]: Test Customer
+            - generic [ref=f4e130]:
+              - generic [ref=f4e131]: Email Address *
+              - textbox "your@email.com" [ref=f4e132]: test@example.com
+          - generic [ref=f4e133]:
+            - generic [ref=f4e134]:
+              - text: Phone (optional)
+              - textbox "03XX-XXXXXXX" [ref=f4e135]
+            - generic [ref=f4e136]:
+              - text: Order Number (optional)
+              - textbox "e.g. SAF-2026-XXXX" [ref=f4e137]
+          - generic [ref=f4e138]:
+            - generic [ref=f4e139]:
+              - generic [ref=f4e140]: Product Name *
+              - textbox "e.g. Rose Wood by Ajmal" [active] [ref=f4e141]: Rose Wood by Ajmal
+            - generic [ref=f4e142]:
+              - text: Size (optional)
+              - combobox [ref=f4e143]:
+                - option "Select a size" [selected]
+                - option "3ml"
+                - option "6ml"
+                - option "12ml"
+                - option "50ml"
+                - option "Other"
+          - generic [ref=f4e144]:
+            - generic [ref=f4e145]: Reason for Return *
+            - combobox [ref=f4e146]:
+              - option "Select a reason"
+              - option "Wrong item received"
+              - option "Defective / Damaged product" [selected]
+              - option "Product not as described"
+              - option "Changed my mind"
+              - option "Too large"
+              - option "Too small"
+              - option "Other"
+          - generic [ref=f4e147]:
+            - text: Additional Details
+            - textbox "Please describe your request so we can help faster..." [ref=f4e148]
+          - button "Submit Return Request" [ref=f4e149] [cursor=pointer]
+  - contentinfo [ref=f4e150]:
+    - generic [ref=f4e152]:
+      - generic [ref=f4e153]:
+        - generic [ref=f4e154]:
+          - link [ref=f4e155] [cursor=pointer]:
+            - /url: /
+            - heading "SAFARI" [level=2] [ref=f4e156]
+          - paragraph [ref=f4e157]: Crafting luxury fragrances that capture the essence of elegance and sophistication since 2015. Every scent tells a story of craftsmanship and passion.
+          - button [ref=f4e158] [cursor=pointer]:
+            - link "Read More" [ref=f4e159]:
+              - /url: /about
+          - generic [ref=f4e162]:
+            - heading "Contact Us" [level=4] [ref=f4e163]
+            - list [ref=f4e164]:
+              - listitem [ref=f4e165]:
+                - link "support@safari-perfumes.com" [ref=f4e166] [cursor=pointer]:
+                  - /url: mailto:support@safari-perfumes.com
+              - listitem [ref=f4e169]:
+                - link "+92 324 7277489" [ref=f4e170] [cursor=pointer]:
+                  - /url: tel:+923247277489
+              - listitem [ref=f4e173]: Online store — nationwide delivery across PakistanNo physical storefront
+        - generic [ref=f4e174]:
+          - heading "Quick Links" [level=4] [ref=f4e175]
+          - list [ref=f4e176]:
+            - listitem [ref=f4e177]:
+              - link "Shop All" [ref=f4e178] [cursor=pointer]:
+                - /url: /shop
+            - listitem [ref=f4e179]:
+              - link "New Arrivals" [ref=f4e180] [cursor=pointer]:
+                - /url: /shop?isNew=true
+            - listitem [ref=f4e181]:
+              - link "Best Sellers" [ref=f4e182] [cursor=pointer]:
+                - /url: /shop?isBestseller=true
+            - listitem [ref=f4e183]:
+              - link "Collections" [ref=f4e184] [cursor=pointer]:
+                - /url: /collections
+            - listitem [ref=f4e185]:
+              - link "Bundles & Gift Sets" [ref=f4e186] [cursor=pointer]:
+                - /url: /bundles
+            - listitem [ref=f4e187]:
+              - link "Gift Cards" [ref=f4e188] [cursor=pointer]:
+                - /url: /gift-cards
+            - listitem [ref=f4e189]:
+              - link "Fragrance Guides" [ref=f4e190] [cursor=pointer]:
+                - /url: /blog
+        - generic [ref=f4e191]:
+          - heading "Customer Service" [level=4] [ref=f4e192]
+          - list [ref=f4e193]:
+            - listitem [ref=f4e194]:
+              - link "My Account" [ref=f4e195] [cursor=pointer]:
+                - /url: /account
+            - listitem [ref=f4e196]:
+              - link "Order Tracking" [ref=f4e197] [cursor=pointer]:
+                - /url: /track
+            - listitem [ref=f4e198]:
+              - link "Returns & Exchange" [ref=f4e199] [cursor=pointer]:
+                - /url: /returns
+            - listitem [ref=f4e200]:
+              - link "Shipping & Delivery" [ref=f4e201] [cursor=pointer]:
+                - /url: /shipping
+            - listitem [ref=f4e202]:
+              - link "FAQs" [ref=f4e203] [cursor=pointer]:
+                - /url: /contact?faq=true
+            - listitem [ref=f4e204]:
+              - link "Contact Us" [ref=f4e205] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=f4e206]:
+          - heading "Stay Connected & Save" [level=4] [ref=f4e207]
+          - paragraph [ref=f4e208]: Sign up for exclusive updates & offers, and get 10% off your first order!
+          - generic [ref=f4e209]:
+            - textbox "Email address for newsletter" [ref=f4e210]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=f4e211] [cursor=pointer]
+          - generic [ref=f4e212]:
+            - link "Instagram" [ref=f4e213] [cursor=pointer]:
+              - /url: https://www.instagram.com/safariperfumesofficial
+            - link "Facebook" [ref=f4e216] [cursor=pointer]:
+              - /url: https://www.facebook.com/share/19G8xxiTP7/
+            - link "TikTok" [ref=f4e219] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@safari.perfumes
+      - generic [ref=f4e223]:
+        - generic [ref=f4e224]:
+          - generic [ref=f4e225]: "We Accept:"
+          - generic [ref=f4e226]:
+            - generic [ref=f4e227]: Visa
+            - generic [ref=f4e229]: MC
+            - generic [ref=f4e231]: Amex
+            - generic [ref=f4e233]: PayPal
+        - generic [ref=f4e235]:
+          - link "Privacy Policy" [ref=f4e236] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=f4e237] [cursor=pointer]:
+            - /url: /terms
+          - link "Cookies Policy" [ref=f4e238] [cursor=pointer]:
+            - /url: /cookies
+    - paragraph [ref=f4e241]: © 2026 SAFARI Perfumes. All rights reserved.
+  - link "Chat with us on WhatsApp" [ref=f4e242] [cursor=pointer]:
+    - /url: https://wa.me/923247277489?text=Hi!%20I%20want%20to%20order%20a%20perfume%20from%20Safari%20Perfumes.
+  - generic:
+    - link "Boss In Office Usman from Multan purchased Boss In Office PKR 1,799 38 minutes ago ✓ Verified Order Close notification":
+      - /url: /shop/boss-in-office
+      - generic:
+        - img "Boss In Office"
+      - generic:
+        - paragraph:
+          - strong: Usman
+          - text: from
+          - strong: Multan
+          - text: purchased
+          - strong: Boss In Office
+        - generic:
+          - generic: PKR 1,799
+          - generic: 38 minutes ago
+        - generic: ✓ Verified Order
+      - button "Close notification"
+  - region "Notifications alt+T"
+  - alert [ref=f4e246]

@@ -12,7 +12,7 @@ export async function GET() {
     if (!accessToken) {
       return NextResponse.json(
         { success: false, user: null },
-        { status: 401 }
+        { status: 200 }
       );
     }
 
@@ -23,14 +23,14 @@ export async function GET() {
       debugLog('me:verifyToken', jwtError);
       return NextResponse.json(
         { success: false, user: null },
-        { status: 401 }
+        { status: 200 }
       );
     }
 
     if (!payload || !payload.userId) {
       return NextResponse.json(
         { success: false, user: null },
-        { status: 401 }
+        { status: 200 }
       );
     }
 
@@ -51,7 +51,7 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         { success: false, user: null },
-        { status: 401 }
+        { status: 200 }
       );
     }
 

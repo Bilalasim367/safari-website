@@ -10,7 +10,7 @@ export async function POST() {
     const refreshToken = cookieStore.get('refresh_token')?.value;
 
     if (!refreshToken) {
-      return NextResponse.json({ error: 'No refresh token' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'No refresh token' }, { status: 200 });
     }
 
     let decoded;
@@ -18,11 +18,11 @@ export async function POST() {
       decoded = await verifyToken(refreshToken);
     } catch (jwtError) {
       debugLog('refresh:verifyToken', jwtError);
-      return NextResponse.json({ error: 'Invalid refresh token' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Invalid refresh token' }, { status: 200 });
     }
 
     if (!decoded) {
-      return NextResponse.json({ error: 'Invalid refresh token' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'Invalid refresh token' }, { status: 200 });
     }
 
     let user;
@@ -36,7 +36,7 @@ export async function POST() {
     }
 
     if (!user || user.status !== 'active') {
-      return NextResponse.json({ error: 'User not found or inactive' }, { status: 401 });
+      return NextResponse.json({ success: false, error: 'User not found or inactive' }, { status: 200 });
     }
 
     let newAccessToken: string;
@@ -56,7 +56,7 @@ export async function POST() {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 15 * 60,
+      maxAge: 30 * 24 * 60 * 60,
       path: '/',
     });
 

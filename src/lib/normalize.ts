@@ -20,3 +20,10 @@ export function normalizeTypeLoose(t: string | null | undefined): string {
   if (lower.includes('perfume') || lower.includes('edp') || lower.includes('eau de')) return 'Perfume';
   return 'Attar';
 }
+
+// Single source of truth for the storefront's default size label.
+// Attar = 12ml (per product spec); every other type falls back to 50ml.
+export function defaultSizeForType(t: string | null | undefined): '12ml' | '50ml' {
+  const lower = (t || '').toLowerCase().trim();
+  return lower === 'attar' ? '12ml' : '50ml';
+}

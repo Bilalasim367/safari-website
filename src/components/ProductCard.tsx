@@ -17,6 +17,7 @@ interface ProductCardProps {
   originalPrice?: number | null;
   image: string;
   images?: string[];
+  size?: string;
   category: string;
   isNew?: boolean;
   isBestseller?: boolean;
@@ -36,6 +37,7 @@ export default function ProductCard({
   originalPrice,
   image,
   images,
+  size,
   category,
   isNew,
   isBestseller,
@@ -62,7 +64,7 @@ export default function ProductCard({
       name,
       price,
       image,
-      size: "12ml",
+      size: (size && size.trim()) || '50ml',
       quantity: 1,
     });
     setAdded(true);
@@ -240,6 +242,7 @@ export default function ProductCard({
           originalPrice={originalPrice ?? undefined}
           image={image}
           images={images}
+          size={size}
           category={category}
           rating={rating}
           reviewCount={reviewCount}
