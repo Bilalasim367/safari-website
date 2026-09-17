@@ -716,6 +716,25 @@ so preamble length changes do not break the parser.
 - apply-migration's MySQL `CREATE INDEX IF NOT EXISTS` statements fail on plain MySQL
   (syntax 1064 — supported on MariaDB/cPanel, not vanilla MySQL). Pre-existing, non-fatal.
 
+# DEPLOY SESSION — 2026-09-17 (server-ready + pushed)
+
+- Fixed `@prisma/client` in **dependencies** (was devDependencies) — NODE_ENV=production
+  on cPanel prunes dev deps → runtime crash. `prisma` CLI stays in devDependencies.
+- `npm run build` ✓ (394 static pages, 0 errors). Lint: 9 pre-existing errors ONLY in
+  `scripts/*` (`any`/`require`) — src/ is clean.
+- Committed as `9fd5e77` + pushed to BOTH remotes:
+  - `origin`  → github.com/Bilalasim367/safari-website.git  (86685ba..9fd5e77)
+  - `deploy`  → ssh safari-perfumes.git                     (cc4019d..9fd5e77)
+- Repo cleaned: `.playwright-mcp/` (was committed!), dev logs, screenshots untracked +
+  gitignored. Gift-cards pages deleted (intentional).
+- Env files (`.env`/`.env.production`) stay UNTRACKED (only `.env.example` committed).
+  Deployed secrets come from cPanel "Setup Node.js App" → Environment Variables.
+- cPanel deploy flow (find in CPANEL_DEPLOYMENT.md): git pull → npm ci --omit=dev will
+  NOT work (prisma CLI is dev + postinstall runs prisma generate) → use
+  `npm install --ignore-scripts` then `npx prisma generate` then `npm run build`,
+  and run `npx tsx prisma/apply-migration.ts` once to create `priceupdatelog` +
+  `returnrequest` on the cPanel MySQL DB. Restart the Node app in cPanel afterwards.
+
 # FOOTER SOCIAL LOGOS — 2026-09-14
 - User added `public/instagram.svg`, `public/facebook.svg`, `public/tiktok.svg` (black-fill SVGs).
 - `src/components/Footer.tsx` social row now renders those images (`<img src="/instagram.svg">` etc,
