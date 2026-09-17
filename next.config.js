@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
+  experimental: {
+    cpus: 2,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

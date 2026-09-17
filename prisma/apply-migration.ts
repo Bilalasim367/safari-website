@@ -99,7 +99,7 @@ async function main() {
     `CREATE INDEX IF NOT EXISTS cartitem_userId_idx ON cartitem(userId);`,
     `CREATE UNIQUE INDEX IF NOT EXISTS wishlistitem_userId_productId_key ON wishlistitem(userId, productId);`,
     `CREATE INDEX IF NOT EXISTS wishlistitem_userId_idx ON wishlistitem(userId);`,
-    `CREATE INDEX IF NOT EXISTS notification_userId_read_idx ON notification(userId, read);`,
+    `CREATE INDEX IF NOT EXISTS notification_userId_read_idx ON notification(userId, \`read\`);`,
   ]
   for (const idxSql of schemaIndexes) {
     try { await prisma.$executeRawUnsafe(idxSql) } catch (e) { console.error('Index statement failed:', idxSql, e) }
