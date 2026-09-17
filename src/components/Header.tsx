@@ -54,9 +54,9 @@ const announcementMessages = [
 ];
 
 const socialIcons = [
-  { icon: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z', label: 'Instagram', href: 'https://www.instagram.com/safariperfumesofficial' },
-  { icon: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z', label: 'Facebook', href: 'https://www.facebook.com/share/19G8xxiTP7/' },
-  { icon: 'M24 12c0-6.627-5.373-12-12-12S0 5.373 0 12c0 5.62 4.11 10.308 9.52 11.155V15.47H6.65V12h2.87V9.333c0-2.834 1.688-4.4 4.27-4.4 1.238 0 2.532.221 2.532.221v2.785h-1.427c-1.404 0-1.842.872-1.842 1.765V12h3.135l-.5 3.47h-2.635v7.685C19.89 22.308 24 17.62 24 12z', label: 'TikTok', href: 'https://www.tiktok.com/@safari.perfumes' },
+  { image: '/instagram.svg', label: 'Instagram', href: 'https://www.instagram.com/safariperfumesofficial' },
+  { image: '/facebook.svg', label: 'Facebook', href: 'https://www.facebook.com/share/19G8xxiTP7/' },
+  { image: '/tiktok.svg', label: 'TikTok', href: 'https://www.tiktok.com/@safari.perfumes' },
 ];
 
 export default function Header() {
@@ -72,7 +72,6 @@ export default function Header() {
   const [mobileAttarOpen, setMobileAttarOpen] = useState(false);
   const [mobilePerfumeOpen, setMobilePerfumeOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [msgIndex, setMsgIndex] = useState(0);
 
   const attarRef = useRef<HTMLDivElement>(null);
   const perfumeRef = useRef<HTMLDivElement>(null);
@@ -81,13 +80,6 @@ export default function Header() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setMsgIndex((index) => (index + 1) % announcementMessages.length);
-    }, 5000);
-    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -158,9 +150,14 @@ export default function Header() {
                   aria-label={social.label}
                   title={social.label}
                 >
-                  <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 24 24'>
-                    <path d={social.icon} />
-                  </svg>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={social.image}
+                    alt={social.label}
+                    width={18}
+                    height={18}
+                    className='w-[18px] h-[18px] invert opacity-80 hover:opacity-100 transition-opacity'
+                  />
                 </a>
               ))}
             </div>
@@ -168,18 +165,15 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Scrolling Announcement Bar - Slider */}
+      {/* Announcement Bar - Sliding */}
       <div className='bg-primary text-primary-foreground py-1.5 md:py-2.5 overflow-hidden'>
-        <div className='relative h-4 md:h-5 w-full'>
-          {announcementMessages.map((text, i) => (
+        <div className='flex whitespace-nowrap animate-[marquee_8s_linear_infinite]'>
+          {Array.from({ length: 6 }).map((_, i) => (
             <span
-              key={text}
-              aria-hidden={i !== msgIndex}
-              className={`absolute inset-0 flex items-center justify-center px-2 text-[11px] md:text-sm font-semibold uppercase whitespace-nowrap tracking-[0.12em] md:tracking-[0.3em] transition-all duration-500 ease-in-out ${
-                i === msgIndex ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-              }`}
+              key={i}
+              className='inline-block px-8 text-[11px] md:text-sm font-semibold uppercase tracking-[0.12em] md:tracking-[0.3em]'
             >
-              {text}
+              {announcementMessages[0]}
             </span>
           ))}
         </div>
@@ -442,9 +436,14 @@ export default function Header() {
                     title={social.label}
                     className='w-10 h-10 rounded-full border border-white/10 text-white/60 hover:border-gold hover:text-gold transition-all duration-200 flex items-center justify-center'
                   >
-                    <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 24 24'>
-                      <path d={social.icon} />
-                    </svg>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={social.image}
+                      alt={social.label}
+                      width={20}
+                      height={20}
+                      className='w-5 h-5 invert opacity-80 hover:opacity-100 transition-opacity'
+                    />
                   </a>
                 ))}
               </div>

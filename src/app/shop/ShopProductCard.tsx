@@ -52,7 +52,7 @@ export default function ShopProductCard({
       name,
       price,
       image,
-      size: (size && size.trim()) || '50ml',
+      size: (size && size.trim()) || '12ml',
       quantity: 1,
     });
     setAdded(true);

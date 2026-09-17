@@ -8,19 +8,31 @@ import { Card } from "@/components/ui/card";
 export default function AboutPage() {
   return (
     <div>
-      <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1920&h=800&fit=crop"
-            alt="About Safari"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-foreground/60" />
+      <section className="relative h-[50vh] md:h-[55vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 grid grid-cols-2">
+          <div className="relative">
+            <Image
+              src="/safari-lifestyle-1.png"
+              alt="Safari Perfumes lifestyle"
+              fill
+              className="object-cover object-center"
+              sizes="50vw"
+            />
+          </div>
+          <div className="relative hidden sm:block">
+            <Image
+              src="/safari-lifestyle-2.png"
+              alt="Safari Perfumes lifestyle"
+              fill
+              className="object-cover object-center"
+              sizes="50vw"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 pointer-events-none" />
         </div>
-        <div className="relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-semibold text-white mb-4">Our Story</h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto px-4">
+        <div className="relative z-10 text-center px-4">
+          <h1 className="text-4xl md:text-6xl font-semibold text-white mb-4 drop-shadow-lg">Our Story</h1>
+          <p className="text-white/90 text-lg max-w-2xl mx-auto px-4 drop-shadow">
             Crafting luxury fragrances since 2015 — Pakistan&apos;s trusted impression house
           </p>
         </div>
@@ -46,12 +58,13 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="relative aspect-square">
+            <div className="relative aspect-square rounded-2xl overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&h=800&fit=crop"
+                src="/safari-lifestyle-3.png"
                 alt="Safari craftsmanship"
                 fill
-                className="object-cover"
+                className="object-cover object-center"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
           </div>
@@ -110,12 +123,13 @@ export default function AboutPage() {
       <section className="section-padding bg-background">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative aspect-video lg:order-2">
+            <div className="relative aspect-video lg:order-2 rounded-2xl overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop"
+                src="/safari-lifestyle-4.png"
                 alt="Our perfumery"
                 fill
-                className="object-cover"
+                className="object-cover object-center"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </div>
             <div className="lg:order-1">

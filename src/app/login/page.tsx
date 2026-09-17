@@ -12,11 +12,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 export default function LoginPage() {
   const router = useRouter();
   const { loginFromResponse } = useAuth();
-  const [redirectTo] = useState(() => {
-    if (typeof window === 'undefined') return '/account';
+  const [redirectTo, setRedirectTo] = useState('/account');
+
+  React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('redirect') || '/account';
-  });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRedirectTo(params.get('redirect') || '/account');
+  }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

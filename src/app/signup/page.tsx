@@ -11,11 +11,13 @@ import { Button } from '@/components/ui/button';
 export default function SignupPage() {
   const router = useRouter();
   const { loginFromResponse } = useAuth();
-  const [redirectTo] = useState(() => {
-    if (typeof window === 'undefined') return '/account';
+  const [redirectTo, setRedirectTo] = useState('/account');
+
+  React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('redirect') || '/account';
-  });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRedirectTo(params.get('redirect') || '/account');
+  }, []);
   
   const [formData, setFormData] = useState({
     firstName: '',

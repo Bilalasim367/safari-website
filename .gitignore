@@ -58,10 +58,25 @@ node_modules/
 
 # local dev logs
 dev-server.log
+dev-server-*.log
+dev-lint.log
+dev.log
+lint*.txt
+*.out.log
+*.err.log
+build-output.log
 debug-errors.log
 *.db
 *.db-shm
 *.db-wal
+
+# Playwright MCP artifacts
+.playwright-mcp/
+test-results/
+playwright-report/
+
+# Screen caps / migration zips
+next.zip
 
 # Deployment bundles
 *.tar.gz

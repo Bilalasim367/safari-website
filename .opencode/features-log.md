@@ -21,7 +21,7 @@
 | Prior | **Admin Panel** | Full admin dashboard with products, categories, orders, users, notifications, and settings management. | `src/app/admin/*` |
 | Prior | **Authentication** | Login, signup, forgot-password flows with JWT-based auth and admin role enforcement. | `src/app/login/*`, `src/app/signup/*`, `src/app/forgot-password/*`, `src/lib/auth.ts` |
 | Prior | **shadcn/ui Integration** | Component library installed with Button, Input, Badge, Card, Dialog, Select, Checkbox, Tabs, Breadcrumb, Accordion, Table, Sheet, Skeleton, and more. | `src/components/ui/*` |
-| Prior | **Customer Pages** | About, Contact, Returns, Shipping, Track Order, Gift Cards, Collections, Privacy, Terms, Cookies, Blog (placeholder) pages. | `src/app/{about,contact,returns,shipping,track,gift-cards,collections,privacy,terms,cookies,blog}/*` |
+| Prior | **Customer Pages** | About, Contact, Returns, Shipping, Track Order, Collections, Privacy, Terms, Cookies, Blog pages. Gift Cards removed 2026-09-17 (was a non-functional UI placeholder — no cart/DB/API wiring). | `src/app/{about,contact,returns,shipping,track,collections,privacy,terms,cookies,blog}/*` |
 | Prior | **Cart System** | Slide-out cart sidebar with add/remove/update quantity, price calculation, localStorage persistence via React Context. | `src/context/CartContext.tsx`, `src/components/CartSidebar.tsx` |
 | Prior | **Shop Listing** | Product grid with category, size, fragrance family, price range filters; sort by price/newest; pagination. | `src/app/shop/*`, `src/components/ProductCard.tsx` |
 | Prior | **Product Detail** | Image gallery, thumbnail nav, size selector, quantity controls, add-to-cart, accordion (description/notes/shipping), related products. | `src/app/shop/[slug]/page.tsx` |

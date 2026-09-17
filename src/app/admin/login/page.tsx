@@ -12,12 +12,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [redirectTo] = useState(() => {
-    if (typeof window === 'undefined') return '/admin/dashboard';
-    const params = new URLSearchParams(window.location.search);
-    return params.get('redirect') || '/admin/dashboard';
-  });
+  const [redirectTo, setRedirectTo] = useState("/admin/dashboard");
   const { loginFromResponse } = useAuth();
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRedirectTo(params.get('redirect') || '/admin/dashboard');
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

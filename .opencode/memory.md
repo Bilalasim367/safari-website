@@ -8,6 +8,24 @@ Always use this document as project context before making any architectural or i
 
 ---
 
+# ⚖️ VOLUME STANDARDS (CRITICAL — 2026-09-17)
+**Attars = 12ml only. Perfumes = 50ml only.**
+- This is the canonical rule for the WHOLE project. Do not change these defaults
+  without an explicit user request.
+- `defaultSizeForType(type)` in `src/lib/normalize.ts` returns `'12ml'` for
+  `Attar` and `'50ml'` for `Perfume`. It is the single source of truth.
+- Currently the store shows **only Attars (12ml)**. Perfumes (50ml) will be added
+  later via phpMyAdmin / bulk upload (`scripts/seed-perfumes.sql` templates).
+- Never hardcode a size fallback (e.g. `'50ml'`) in a cart/add-to-cart handler.
+  If the product `type` is unknown at that point, default to `'12ml'` (attar).
+- PDP tab label: `Notes` (was `Attar Notes`) + new `Details` tab.
+  Attar details: origin / applicatorType / ingredients.
+  Perfume details: concentration / bottleStyle / longevity / sillage.
+  Both: fragranceFamily / gender / season / bestTime.
+- Announcement bar in header is STATIC ("FREE SHIPPING ON COD") — no sliding.
+- Header top socials render `/instagram.svg`, `/facebook.svg`, `/tiktok.svg`
+  via `<img>` (same as Footer).
+
 # Project Information
 
 ## Brand
@@ -581,7 +599,6 @@ Deployment is Vercel serverless (vercel.json, Fluid, ephemeral FS) → libSQL em
 - Home components (HotSellingCarousel, MenCollection, WomenCollection, UnisexTrend): `$`→`PKR {toLocaleString()}`
 - `bundles` list+detail: PKR incl. "Save PKR X"
 - `track` + `account`: PKR order totals
-- `gift-cards`: PKR denominations [500..10000], custom min 500 / max 100000
 - `shipping`: full rewrite — PKR rates, DYNAMIC from Settings DB (`standardShippingFee`, `freeShippingThreshold` via `prisma.settings.findFirst()`), Pakistan regions
 - `shop/[slug]`: free-shipping accordion line dynamic from `/api/settings`
 
@@ -806,7 +823,7 @@ Symptom: login worked but the session was lost on any page reload / after ~15 mi
 
 ---
 
-# BULK PRICE CSV MATCHING OVERHAUL � 2026-09-15 (session 2)
+# BULK PRICE CSV MATCHING OVERHAUL � 2026-09-15 (session 2)
 
 ## Problem
 Supplier perfume.csv writes names as **"NAME BY BRAND"** (and drops trailing "- PRM") while the DB stores
@@ -815,13 +832,13 @@ many names BRANDLESS ("Sauvage" not "Sauvage By Dior"). Old matcher = exact norm
 
 ## New matcher (src/lib/bulk-price.ts + src/lib/text-match.ts)
 Layered, gated, earlier layer = higher confidence:
-1. exact � full normalized name exact
-2. randless � exact brand-less (strips last " by <brand>") with disambiguation:
+1. exact � full normalized name exact
+2. randless � exact brand-less (strips last " by <brand>") with disambiguation:
    prefers candidates whose full name contains the CSV's trailing brand tokens; single candidate = accept;
    multi ambiguous = not-found (no guessing)
-3. uzzy � full-name fuzzy (>=0.9, or >=0.82 + gap >=0.12)
-4. uzzyBrandless � brandless fuzzy (same thresholds)
-5. substring � ordered-token subsequence (all CSV tokens appear in DB order),
+3. uzzy � full-name fuzzy (>=0.9, or >=0.82 + gap >=0.12)
+4. uzzyBrandless � brandless fuzzy (same thresholds)
+5. substring � ordered-token subsequence (all CSV tokens appear in DB order),
    sanity bar similarity >= 0.55, runner-up gap >= 0.10 (or unique)
 Also: 
 ormalizeProductName now strips standalone "PRM" ANYWHERE (/\bprm\b/g), not just trailing.
@@ -845,7 +862,7 @@ otFound[] items now carry suggestions: {dbName, similarity}[] (top-5 >= 0.45)
 - not-found rows now get a **suggestion dropdown** per row ? admin picks a DB product ? stored as
   **override** ? sent as overrides: [{row, dbName}] to POST /api/admin/products/bulk-price on apply.
   Overridden rows are dropped from the apply-run notFound list; entry matchType = override.
-- debug console.log("[bulk-price] �") in the API route with mateh-count + breakdown.
+- debug console.log("[bulk-price] �") in the API route with mateh-count + breakdown.
 
 ## Verification
 - scripts/_validate-matcher.ts (322 rows ? 320), scripts/_debug-collisions.ts (9 collisions OK).
@@ -854,5 +871,57 @@ pm run lint: 0 new errors (20 pre-existing in tests/scripts remain).
 - 
 px next build: ? PASSED (36s; dev server running so 
 pm run build's prisma generate DLL rename
-  fails with EPERM � use 
+  fails with EPERM � use 
 px next build when schema unchanged).
+
+---
+
+# PDP DETAILS TAB + VOLUME STANDARDS + STATIC BANNER — 2026-09-17
+
+## 1. PDP shows full admin detail fields
+- `src/app/shop/[slug]/ProductDetailClient.tsx` — new third tab `Details`:
+  - Attar → Sourcing Origin, Applicator Type, Ingredients (+ fragranceFamily,
+    gender, season, bestTime for both types)
+  - Perfume → Concentration, Bottle Type, Longevity, Sillage (+ shared fields)
+  - Existing `Notes` tab label changed "Attar Notes" → "Notes" (works for perfumes).
+  - `sizeDisplay` now falls back to `defaultSizeForType(product.type)` (was "12 ML").
+  - All fields (concentration/bottleStyle/longevity/sillage/origin/applicatorType/
+    ingredients) were already in `formatProduct` output (page.tsx) → render only.
+
+## 2. Only 12ml attars shown — hardcoded '50ml' cart fallbacks fixed
+These cart "add" handlers used `'50ml'` when size was empty; all replaced with
+`'12ml'` (current attar default):
+- `src/app/shop/ShopProductCard.tsx:55`
+- `src/components/ProductCard.tsx:67`
+- `src/components/QuickViewModal.tsx:39`
+- `src/components/CartSidebar.tsx:30`
+
+## 3. Header: static announcement + real social SVGs
+- `src/components/Header.tsx` — removed `msgIndex` state + 5s `setInterval`;
+  announcement bar is now a single static centered span.
+- `socialIcons` array now holds `image` paths (`/instagram.svg`,
+  `/facebook.svg`, `/tiktok.svg`) instead of inline SVG paths; top bar + mobile
+  drawer render `<img ... className="invert opacity-80 hover:opacity-100">`
+  (same visual language as Footer.tsx).
+
+## 4. cPanel MySQL-safe migration
+- `prisma/apply-migration.ts` — ALL raw-SQL table names lowercased to the real
+  cPanel/MySQL names (`product`, `order`, `orderitem`, `cartitem`,
+  `wishlistitem`, `notification`, `settings`). Previously used `Product`,
+  `Order`, etc. which fail on Linux/cPanel case-sensitive MySQL.
+  (Map verified against `@@map()` in prisma/schema.prisma.)
+  returnrequest/priceupdatelog were already lowercase.
+
+## 5. Perfume seed template
+- `scripts/seed-perfumes.sql` (NEW) — phpMyAdmin-ready INSERTs for 50ml
+  perfumes, incl. one live example + commented templates for a local-clone
+  perfume (uses `impressionOf`) and an own-brand perfume. Sets type='Perfume',
+  size='50ml', concentrations, bottleStyle, longevity, sillage, etc.
+
+## Verification
+- `npm run lint` — run before commit (per AGENTS.md). No known new issues.
+- No DB migration needed from this change (table structures unchanged).
+- Apply-migration must still be run against production to (re)create
+  returnrequest/priceupdatelog + this runs fine on cPanel MySQL now.
+
+---

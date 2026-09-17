@@ -7,6 +7,7 @@ import ShopProductCard from "@/app/shop/ShopProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { defaultSizeForType } from "@/lib/normalize";
+import { SITE_URL } from "@/lib/site";
 import { ChevronLeft, Minus, Plus, Heart, Truck, Shield, Sparkles, Gem, Flame } from "lucide-react";
 import { Rating } from "@/components/Rating";
 import ScarcityLine from "@/components/ScarcityLine";
@@ -118,6 +119,18 @@ function formatPrice(value: number | null | undefined): string {
   return (value ?? 0).toLocaleString("en-PK");
 }
 
+function DetailRow({ label, value }: { label: string; value: string }) {
+  if (!value || !value.trim()) return null;
+  return (
+    <div className="bg-[#0f0f0f] rounded-xl p-3 border border-[#B6965D]/15">
+      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8a867f] mb-1">
+        {label}
+      </p>
+      <p className="text-sm font-medium text-white">{value}</p>
+    </div>
+  );
+}
+
 export default function ProductDetailClient({
   product,
   relatedProducts,
@@ -129,7 +142,7 @@ export default function ProductDetailClient({
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<"description" | "notes">("description");
+  const [activeTab, setActiveTab] = useState<"description" | "notes" | "details">("description");
   const [expanded, setExpanded] = useState(false);
 
   const router = useRouter();
@@ -156,7 +169,7 @@ export default function ProductDetailClient({
   const sizeLabel = isAttar ? "SIZE" : "VOLUME";
 
   const genderDisplay = product.gender?.trim() || "Unisex";
-  const sizeDisplay = (product.size?.trim() || "12 ML").toUpperCase();
+  const sizeDisplay = (product.size?.trim() || defaultSizeForType(product.type)).toUpperCase();
   const categoryDisplay = product.category?.name?.trim() || "";
   const mainDescription = formatDescription(product);
   const hasRealReviews = product.reviews > 0 && product.rating > 0;
@@ -191,7 +204,7 @@ export default function ProductDetailClient({
     }
   };
 
-  const productUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/shop/${product.slug}`;
+  const productUrl = `${SITE_URL}/shop/${product.slug}`;
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\nQuantity: ${quantity}\nLink: ${productUrl}`
   )}`;
@@ -416,12 +429,23 @@ export default function ProductDetailClient({
                       : "border border-[#B6965D]/50 text-[#c9a873] hover:bg-[#B6965D]/10"
                   }`}
                 >
-                  Attar Notes
+                  Notes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("details")}
+                  className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+                    activeTab === "details"
+                      ? "bg-[#B6965D] text-black"
+                      : "border border-[#B6965D]/50 text-[#c9a873] hover:bg-[#B6965D]/10"
+                  }`}
+                >
+                  Details
                 </button>
               </div>
 
               {/* Tab content */}
-              {activeTab === "description" ? (
+              {activeTab === "description" && (
                 <div className="bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-5 mb-6">
                   <p className={`text-[15px] text-[#b8b3ab] leading-[1.7] ${!expanded ? "line-clamp-3" : ""}`}>
                     {mainDescription}
@@ -436,10 +460,12 @@ export default function ProductDetailClient({
                     </button>
                   )}
                 </div>
-              ) : (
+              )}
+
+              {activeTab === "notes" && (
                 <div className="bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-5 mb-6">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a867f] mb-4">
-                    Attar Notes
+                    {isAttar ? "Attar Notes" : "Fragrance Notes"}
                   </p>
                   {hasNotes ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -477,6 +503,58 @@ export default function ProductDetailClient({
                       Notes information coming soon
                     </p>
                   )}
+                </div>
+              )}
+
+              {activeTab === "details" && (
+                <div className="bg-[#161616] border border-[#B6965D]/20 rounded-2xl p-5 mb-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a867f] mb-4">
+                    Product Details
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {product.fragranceFamily && (
+                      <DetailRow label="Fragrance Family" value={product.fragranceFamily} />
+                    )}
+                    {product.gender && (
+                      <DetailRow label="Gender" value={product.gender} />
+                    )}
+                    {product.season && (
+                      <DetailRow label="Season" value={product.season} />
+                    )}
+                    {product.bestTime && (
+                      <DetailRow label="Best Time" value={product.bestTime} />
+                    )}
+                    {isAttar ? (
+                      <>
+                        {product.origin && (
+                          <DetailRow label="Sourcing Origin" value={product.origin} />
+                        )}
+                        {product.applicatorType && (
+                          <DetailRow label="Applicator Type" value={product.applicatorType} />
+                        )}
+                        {product.ingredients && (
+                          <div className="col-span-2">
+                            <DetailRow label="Ingredients" value={product.ingredients} />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {product.concentration && (
+                          <DetailRow label="Concentration" value={product.concentration} />
+                        )}
+                        {product.bottleStyle && (
+                          <DetailRow label="Bottle Type" value={product.bottleStyle} />
+                        )}
+                        {product.longevity && (
+                          <DetailRow label="Longevity" value={product.longevity} />
+                        )}
+                        {product.sillage && (
+                          <DetailRow label="Sillage" value={product.sillage} />
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
 

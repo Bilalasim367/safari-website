@@ -36,7 +36,7 @@ export default function QuickViewModal({
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   const handleAdd = () => {
-    addItem({ id, name, price, image, size: (size && size.trim()) || '50ml', quantity: 1 });
+    addItem({ id, name, price, image, size: (size && size.trim()) || '12ml', quantity: 1 });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

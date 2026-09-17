@@ -16,7 +16,7 @@ Committed: 56ec6a1, 67fce30, aeb515b (pushed to main). Domain confirmed: safari-
 - [x] Root: title template "%s | Safari Perfumes", homepage title/desc, canonical, OG, Twitter, metadataBase
 - [x] Product pages: '{Name} | Impression of X | PKR price | Safari Perfumes Pakistan' + per-product description (nan junk sanitized) + canonical + OG (real product image) + Twitter
 - [x] /shop: category-aware titles (Attars for Men, Perfume Collection, Bestsellers, New Arrivals...) + canonical to /shop parent
-- [x] Static pages: about, contact, gift-cards (server wrappers), shipping, returns, bundles, bundles/[slug], collections; noindex on privacy/terms/cookies
+- [x] Static pages: about, contact, shipping, returns, bundles, bundles/[slug], collections; noindex on privacy/terms/cookies (gift-cards removed 2026-09-17)
 
 ## PRIORITY 2 — JSON-LD structured data (DONE)
 - [x] Organization (root layout) — real name/url/logo only; contact omitted pending real NAP (no fake data)

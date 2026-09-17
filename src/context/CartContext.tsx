@@ -69,7 +69,7 @@ function effectivePrice(product: FreshProduct): number | null {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(loadCartFromStorage);
+  const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -143,6 +143,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshPrices();
   }, [refreshPrices]);
+
+  // Hydrate the persisted cart from localStorage AFTER mount so the server
+  // HTML and the first client render always match (avoids hydration mismatch
+  // where SSR shows an empty cart but the client reads localStorage).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setItems(loadCartFromStorage());
+  }, []);
 
   // Resync when the tab regains focus — catches admin-side price changes
   // that happened while the user was browsing elsewhere.
