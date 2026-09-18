@@ -171,6 +171,10 @@ export default function ProductDetailClient({
   const genderDisplay = product.gender?.trim() || "Unisex";
   const sizeDisplay = (product.size?.trim() || defaultSizeForType(product.type)).toUpperCase();
   const categoryDisplay = product.category?.name?.trim() || "";
+  const typeDisplay = isAttar ? "Attar" : "Perfume";
+  const categoryFromSlug = product.categorySlug
+    ? product.categorySlug.charAt(0).toUpperCase() + product.categorySlug.slice(1)
+    : "";
   const mainDescription = formatDescription(product);
   const hasRealReviews = product.reviews > 0 && product.rating > 0;
   const noteSections = [
@@ -512,6 +516,17 @@ export default function ProductDetailClient({
                     Product Details
                   </p>
                   <div className="grid grid-cols-2 gap-3">
+                    {categoryDisplay && (
+                      <DetailRow label="Category" value={categoryDisplay} />
+                    )}
+                    {!categoryDisplay && categoryFromSlug && (
+                      <DetailRow label="Category" value={categoryFromSlug} />
+                    )}
+                    {product.impressionOf && (
+                      <DetailRow label="Impression Of" value={product.impressionOf} />
+                    )}
+                    <DetailRow label="Type" value={typeDisplay} />
+                    <DetailRow label={sizeLabel} value={sizeDisplay} />
                     {product.fragranceFamily && (
                       <DetailRow label="Fragrance Family" value={product.fragranceFamily} />
                     )}

@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { normalizeGender, normalizeTypeLoose } from './normalize';
+import { normalizeGender, normalizeTypeLoose, defaultSizeForType } from './normalize';
 
 export interface CsvRow {
   product_id: string;
@@ -11,6 +11,7 @@ export interface CsvRow {
   season: string;
   best_time: string;
   impression_of: string;
+  size: string;
   top_notes: string;
   heart_notes: string;
   base_notes: string;
@@ -53,6 +54,7 @@ export interface TransformedProduct {
   season: string | null;
   bestTime: string | null;
   impressionOf: string | null;
+  size: string;
   notesTop: string;
   notesHeart: string;
   notesBase: string;
@@ -172,6 +174,7 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
   existingSlugs.add(slug);
 
   const gender = normalizeGender(row.gender);
+  const type = normalizeTypeLoose(row.type);
   const sizesAvailable = row.sizes_available?.trim() || '3ml,6ml,12ml,50ml';
 
   const p3p = toInt(row.price_3ml_physical);
@@ -198,10 +201,11 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
     slug,
     categorySlug: gender.toLowerCase(),
     gender,
-    type: normalizeTypeLoose(row.type),
+    type,
     season: row.season?.trim() || null,
     bestTime: row.best_time?.trim() || null,
     impressionOf: row.impression_of?.trim() || null,
+    size: row.size?.trim() || defaultSizeForType(type),
     notesTop: JSON.stringify((row.top_notes || '').split(',').map((s: string) => s.trim()).filter(Boolean)),
     notesHeart: JSON.stringify((row.heart_notes || '').split(',').map((s: string) => s.trim()).filter(Boolean)),
     notesBase: JSON.stringify((row.base_notes || '').split(',').map((s: string) => s.trim()).filter(Boolean)),

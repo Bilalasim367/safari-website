@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { parseCsv, transformRow } from '@/lib/csv-parser';
-import { defaultSizeForType } from '@/lib/normalize';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -93,7 +92,7 @@ export async function POST(request: Request) {
               isBestseller: false,
               isNew: false,
               // Type-aware default: attar → 12ml, perfume → 50ml (historical default)
-              size: defaultSizeForType(transformed.type),
+              size: transformed.size,
               categoryId: undefined,
               images: '[]',
             },
@@ -103,6 +102,7 @@ export async function POST(request: Request) {
               categorySlug: transformed.categorySlug,
               gender: transformed.gender,
               type: transformed.type,
+              size: transformed.size,
               season: transformed.season,
               bestTime: transformed.bestTime,
               impressionOf: transformed.impressionOf,

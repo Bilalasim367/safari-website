@@ -27,7 +27,7 @@ interface UploadResult {
 
 const SAMPLE_HEADERS = [
   'product_id', 'name', 'slug', 'category', 'gender', 'type', 'season', 'best_time',
-  'impression_of', 'top_notes', 'heart_notes', 'base_notes',
+  'impression_of', 'size', 'top_notes', 'heart_notes', 'base_notes',
   'short_description', 'long_description', 'tags', 'sizes_available',
   'price_3ml_physical', 'price_6ml_physical', 'price_12ml_physical', 'price_50ml_physical',
   'price_3ml_online', 'price_6ml_online', 'price_12ml_online', 'price_50ml_online',
@@ -37,7 +37,7 @@ const SAMPLE_HEADERS = [
 
 const SAMPLE_ROW = [
   'PRD0001', 'Rose Wood by Ajmal', 'rose-wood-by-ajmal', 'Attar & Perfume', 'Unisex', 'Attar & Spray',
-  'All Season', 'Evening', 'Ajmal',
+  'All Season', 'Evening', 'Ajmal', '12ml',
   'Rose, Saffron', 'Oud, Cedarwood', 'Musk, Amber, Sandalwood',
   'A luxurious rose wood attar', 'A premium blend of **rose** and **oud** with rich woody undertones.\n\nPerfect for evening wear.',
   'men,oud,winter,impression,attar,perfume', '3ml,6ml,12ml,50ml',
@@ -163,6 +163,11 @@ export default function BulkUploadPage() {
           <h1 className="text-2xl font-bold">Bulk Upload Products</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Upload a CSV file to create or update multiple products at once.
+          </p>
+          <p className="text-muted-foreground text-xs mt-1">
+            Auto-fill: <strong>size</strong> blank → <strong>Attar = 12ml</strong>, <strong>Perfume = 50ml</strong> ·
+            <strong> category</strong> fallback from <strong>gender</strong> · <strong>season</strong>,{" "}
+            <strong>best_time</strong>, <strong>impression_of</strong> saved to the product and shown on the product page.
           </p>
         </div>
         <Button variant="outline" onClick={downloadSample}>
