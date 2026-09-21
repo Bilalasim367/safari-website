@@ -178,7 +178,7 @@ export async function sendReturnRequestEmail(
 
     const storeName = settings?.storeName || 'Safari Perfumes'
     const storeEmail = settings?.storeEmail || 'noreply@safari-perfumes.com'
-    const storePhone = settings?.storePhone || '+92 334 6322462'
+    const storePhone = settings?.storePhone || '+92 3107435020'
     const typeLabel = type === 'exchange' ? 'Exchange' : 'Return'
 
     await transporter.sendMail({

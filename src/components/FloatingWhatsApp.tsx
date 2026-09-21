@@ -9,7 +9,7 @@ const WHATSAPP_SVG = (
 )
 
 export default function FloatingWhatsApp() {
-  const [number, setNumber] = useState('923346322462')
+  const [number, setNumber] = useState('923107435020')
 
   useEffect(() => {
     let cancelled = false

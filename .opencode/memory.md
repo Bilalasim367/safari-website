@@ -830,8 +830,23 @@ Symptom: login worked but the session was lost on any page reload / after ~15 mi
   - `src/app/api/popup-settings/route.ts` PUT fallback
   - `src/components/FloatingWhatsApp.tsx` initial state
   - `src/app/admin/(protected)/popup-settings/page.tsx` DEFAULT + fetch fallback
-  - `src/components/Footer.tsx` tel:+923346322462 · +92 334 6322462
-- Display format: `+92 334 6322462`; wa.me/country code: `923346322462`.
+  - `src/components/Footer.tsx` tel:+923107435020 · +92 3107435020
+- Display format: `+92 3107435020`; wa.me/country code: `923346322462`.
+
+## 4b. Canonical WhatsApp number → 923107435020  (2026-09-21)
+- Session 2 canonical number `923346322462` (+92 334 6322462) is now the
+  SECOND number. Canonical WhatsApp/tel number is NOW `923107435020`
+  (+92 3107435020) everywhere:
+  - `src/lib/popup-settings.ts` DEFAULT_POPUP_SETTINGS.whatsappNumber → `923107435020`
+  - `data/popup-settings.json` (runtime file, live) → `923107435020`
+  - `src/app/api/popup-settings/route.ts` PUT fallback → `923107435020`
+  - `src/components/FloatingWhatsApp.tsx` initial state → `923107435020`
+  - `src/app/admin/(protected)/popup-settings/page.tsx` DEFAULT + fetch fallback + placeholder → `923107435020`
+  - `src/app/returns/page.tsx` tel:+923107435020 · display `+92 3107435020`
+  - `tests/e2e-verify.spec.ts` WA_NUMBER + phone locator → tel:+923107435020
+- Footer Contact Us now lists BOTH numbers (user request):
+  - `+92 3107435020` → `tel:+923107435020`
+  - `+92 334 6322462` → `tel:+923346322462`
 
 ## Verification
 - `npx eslint` on changed files: 0 errors.

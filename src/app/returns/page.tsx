@@ -7,7 +7,7 @@ import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Returns & Exchange | Safari Perfumes Pakistan',
-  description: 'Easy returns, exchanges and cancellations. Raise a request within 3 days of delivery. Call +92 334 6322462 for urgent help.',
+  description: 'Easy returns, exchanges and cancellations. Raise a request within 3 days of delivery. Call +92 3107435020 for urgent help.',
   alternates: { canonical: `${SITE_URL}/returns` },
 }
 
@@ -83,7 +83,7 @@ export default function ReturnsPage() {
                   <p className='font-semibold text-foreground'>Need urgent help?</p>
                   <p className='text-sm text-muted-foreground'>
                     For complaints or urgent requests, call us at{' '}
-                    <a href='tel:+923346322462' className='text-gold font-semibold hover:underline'>+92 334 6322462</a>.
+                    <a href='tel:+923107435020' className='text-gold font-semibold hover:underline'>+92 3107435020</a>.
                   </p>
                 </div>
               </div>

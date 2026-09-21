@@ -3,8 +3,8 @@ import path from 'path';
 
 const ADMIN_EMAIL = 'admin@safari.com';
 const ADMIN_PASS = 'Admin123!';
-const WA_NUMBER = '923346322462';
-const PHONE_DISPLAY = '+92 334 6322462';
+const WA_NUMBER = '923107435020';
+const PHONE_DISPLAY = '+92 3107435020';
 const LOGIN_TIMEOUT = 30_000;
 
 interface Watcher {
@@ -73,7 +73,7 @@ test.describe('Homepage', () => {
     const hero = page.getByRole('heading', { level: 1 });
     await expect(hero).toContainText('Discover Your', { timeout: 30_000 });
 
-    const phone = page.locator('a[href="tel:+923346322462"]');
+    const phone = page.locator('a[href="tel:+923107435020"]');
     await expect(phone).toBeVisible();
     await expect(phone).toContainText(PHONE_DISPLAY);
 

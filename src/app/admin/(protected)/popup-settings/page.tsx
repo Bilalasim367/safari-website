@@ -18,7 +18,7 @@ interface PopupSettingsData {
 
 const DEFAULT_SETTINGS: PopupSettingsData = {
   enabled: true,
-  whatsappNumber: "923346322462",
+  whatsappNumber: "923107435020",
   names: [
     "Ahmed", "Bilal", "Usman", "Fatima", "Ayesha", "Zainab",
     "Hamza", "Ali", "Hassan", "Umar", "Sana", "Maryam", "Junaid", "Kashif",
@@ -44,7 +44,7 @@ export default function PopupSettingsPage() {
         if (!cancelled && data && !data.error) {
           setSettings({
             enabled: data.enabled !== false,
-            whatsappNumber: data.whatsappNumber || "923346322462",
+            whatsappNumber: data.whatsappNumber || "923107435020",
             names: Array.isArray(data.names) && data.names.length ? data.names : DEFAULT_SETTINGS.names,
             cities: Array.isArray(data.cities) && data.cities.length ? data.cities : DEFAULT_SETTINGS.cities,
           });
@@ -128,7 +128,7 @@ export default function PopupSettingsPage() {
               </Label>
               <Input
                 type="text"
-                placeholder="923346322462"
+                placeholder="923107435020"
                 value={settings.whatsappNumber}
                 onChange={(e) => setSettings((p) => ({ ...p, whatsappNumber: e.target.value }))}
               />

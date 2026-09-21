@@ -31,7 +31,7 @@ export async function PUT(request: Request) {
       whatsappNumber:
         typeof body.whatsappNumber === 'string' && body.whatsappNumber.trim()
           ? body.whatsappNumber.trim().replace(/\D/g, '')
-          : '923346322462',
+          : '923107435020',
       names:
         Array.isArray(body.names) && body.names.length
           ? body.names.map((n: string) => n.trim()).filter(Boolean)
