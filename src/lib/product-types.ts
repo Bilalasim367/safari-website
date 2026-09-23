@@ -1,7 +1,7 @@
 const ATTAR_SIZES = new Set(['3ml', '4ml', '6ml'])
 const PERFUME_SIZES = new Set(['30ml', '50ml', '100ml'])
 
-export type ProductCategoryType = 'attar' | 'perfume'
+export type ProductCategoryType = 'attar' | 'perfume' | 'tester'
 
 export interface ProductCategory {
   id: string
@@ -41,6 +41,8 @@ export function classifyProductType(product: {
   if (product.type === 'Perfume') return 'perfume'
   if (product.type === 'Attar') return 'attar'
   if (product.type && product.type.toLowerCase().includes('perfume')) return 'perfume'
+  if (product.type === 'Tester') return 'tester'
+  if (product.type && product.type.toLowerCase().includes('tester')) return 'tester'
 
   // Attar-specific fields are strong signals
   if (product.applicatorType || product.origin) return 'attar'

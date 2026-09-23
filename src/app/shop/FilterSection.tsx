@@ -4,13 +4,17 @@ const FILTERS = {
   categories: ['men', 'women', 'unisex'],
   genders: ['men', 'women', 'unisex'],
   fragranceFamilies: ['Floral', 'Woody', 'Oriental', 'Fresh'],
-  productTypes: ['attar', 'perfume'],
+  productTypes: ['attar', 'perfume', 'tester'],
   priceRanges: [
     { label: 'Under PKR 5,000', min: 0, max: 5000 },
     { label: 'PKR 5,000 - PKR 15,000', min: 5000, max: 15000 },
     { label: 'PKR 15,000 - PKR 25,000', min: 15000, max: 25000 },
     { label: 'Over PKR 25,000', min: 25000, max: Infinity },
   ],
+};
+
+const OPTION_LABELS: Record<string, string> = {
+  tester: 'Tester Box',
 };
 
 interface SearchParams {
@@ -99,7 +103,7 @@ export function FilterSection({
                 )}
               </span>
               <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">
-                {option.charAt(0).toUpperCase() + option.slice(1)}
+                {OPTION_LABELS[option] ?? option.charAt(0).toUpperCase() + option.slice(1)}
               </span>
             </Link>
           );

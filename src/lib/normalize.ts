@@ -12,12 +12,14 @@ export function normalizeType(t: string | null | undefined): string {
   const lower = t.toLowerCase().trim();
   if (lower === 'attar') return 'Attar';
   if (lower === 'perfume') return 'Perfume';
+  if (lower === 'tester' || lower === 'testerbox' || lower === 'tester box' || lower === 'tester-box') return 'Tester';
   return 'Attar';
 }
 
 export function normalizeTypeLoose(t: string | null | undefined): string {
   const lower = (t || '').toLowerCase().trim();
   if (lower.includes('perfume') || lower.includes('edp') || lower.includes('eau de')) return 'Perfume';
+  if (lower.includes('tester')) return 'Tester';
   return 'Attar';
 }
 
