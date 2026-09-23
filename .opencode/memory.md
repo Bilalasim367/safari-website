@@ -647,6 +647,33 @@ Existing 319 Attar products untouched (their saved sizes win; no retroactive cha
 
 ---
 
+## Phase 4 — Homepage 3-card section + Phase 5 — e2e verification (2026-09-23)
+
+### Phase 4 change (uncommitted)
+- `src/components/FeaturedCollectionsV2.tsx` — third Featured Collections card **"Our Collection (coming soon / Notify Me)"**
+  replaced with **Tester Box Collection** card (image reused from `/safari-our-collection.jpg`, no new asset).
+  Cards now = Attar / Perfumes / Tester Box, each with Men/Women/Unisex links to `/shop?type=<t>&gender=<g>`.
+  `comingSoon` interface field + JSX branch left in place (harmless, for future reuse).
+- NOTE: this removed the "Our Collection / Notify Me" marketing card — flagged to owner during review.
+
+### Local dummy tester data (LOCAL DB ONLY — prod untouched)
+- `scripts/seed-tester-dummies.ts` — idempotent upsert (by slug) of 6 Tester products (5ml, PKR 700–1000,
+  men/women/unisex, some bestseller/new/hot-selling/featured, reused `/products/*.png` local images).
+  Run: `npx tsx --env-file=.env.local scripts/seed-tester-dummies.ts`. Re-runs safe (updated, not duplicated).
+- Local DB now: 345 total (66 Attar / 273 Perfume / 6 Tester).
+
+### Phase 5 verification (all PASS, local dev only)
+- `npx next build` ✓ (full route map, incl. tester admin routes).
+- Playwright against `http://localhost:3000` (dev server, `.env.local` DB):
+  - Homepage: "Tester Box Collection" 3rd card renders ✓
+  - `/shop?type=tester`: "Showing 6 of 6 products", sidebar filter "Tester Box", all 6 products ✓
+  - PDP `/shop/signature-discovery-tester-box`: renders, buy-box **VOLUME: 5ML** ✓ (size fix E2E), cart, WhatsApp, recommendations ✓
+  - Console: 0 errors across homepage/shop/PDP ✓
+- Known cosmetics (documented, not fixed here): `/shop?type=tester` H1 title = "Shop All" (`getShopLabel` fallback),
+  active filter chip shows "Tester" (not "Tester Box"), PDP typeLabel "Fragrance".
+
+---
+
 # PHASE 4-6 COMPLETION LOG
 
 ## Performance Optimization Pass — 2026-08-20 (Turso + Prisma)
@@ -1082,3 +1109,57 @@ These cart "add" handlers used `'50ml'` when size was empty; all replaced with
   returnrequest/priceupdatelog + this runs fine on cPanel MySQL now.
 
 ---
+
+# COMING-SOON MAINTENANCE MODE — 2026-09-23 (Phases A/B/C done)
+## Goal
+One env flag (MAINTENANCE_MODE) redirects all customer pages to a dark luxury
+/coming-soon countdown page. Admin keeps full access. Flip + restart, NO rebuild.
+## Files
+- `src/proxy.ts` (NEW) — Next 16 Proxy (= middleware), Node.js runtime (default in
+  v16). Reads MAINTENANCE_MODE at request time; 307-redirects to /coming-soon when
+  on. Admin bypass = verify `access_token` JWT (jose, JWT_SECRET) with role==='admin'.
+  Matcher `'/((?!_next|api|admin|login|coming-soon|.*\\..*).*)'` — /admin/*, /login,
+  /api/*, /coming-soon, _next + file assets never intercepted.
+- `src/app/coming-soon/page.tsx` (NEW) — Server Component, `force-dynamic` (so
+  process.env.LAUNCH_DATE is read per-request, NOT build-inlined). robots noindex.
+  Brand: logo.jpeg, gold #B6965D, charcoal #050505 + gold/10 glow + noise.png 3%
+  grain (Newsletter pattern), WhatsApp wa.me/923107435020, Instagram/Facebook/TikTok.
+- `src/components/ComingSoonCountdown.tsx` (NEW) — client countdown, hydration-safe
+  ('—' placeholder + setTimeout(0)/setInterval via callbacks to satisfy
+  react-hooks/set-state-in-effect), Asia/Karachi formatted launch date.
+- `src/components/SiteShell.tsx` — only 2-line additive change: isComingSoon var +
+  conditionals (same pattern as isAdmin); hides Header/Footer/CartSidebar/WA-float/
+  popup on /coming-soon.
+- `.env.local` — MAINTENANCE_MODE=false + LAUNCH_DATE=2026-10-15T00:00:00+05:00.
+- `.env.example` — MAINTENANCE_MODE + LAUNCH_DATE documented.
+- `.gitignore` — coming-soon-*.png added.
+## Env vars (runtime on server, both flip+restart only)
+- MAINTENANCE_MODE (read by proxy) — 'true'|'1'|'yes'|'on' engages.
+- LAUNCH_DATE (read by coming-soon page) — ISO 8601 with offset; force-dynamic page.
+## Why no NEXT_PUBLIC for launch date (user-requested)
+NEXT_PUBLIC_* is build-inlined; LAUNCH_DATE/MAINTENANCE_MODE both read at runtime in
+Node runtime so they obey flip+restart without rebuild. Verified in `npm run build`
+output: /coming-soon = ƒ (Dynamic), ƒ Proxy (Middleware) registered.
+## Test matrix PASS (local, .env.local flag ON)
+- curl: / and /shop -> 307 to /coming-soon; /login, /admin/login, /coming-soon, /api/*,
+  /logo.jpeg, /robots.txt -> 200 (never intercepted).
+- Playwright (real jose-minted signed JWTs): no cookie -> countdown; admin-role cookie
+  -> normal site (header + H1 present); customer-role cookie -> countdown; admin-role
+  on /shop -> normal shop. 6/6 PASS. Fresh loads = 0 console errors.
+- npm run build: PASS (Dev server must be STOPPED first — running dev server locks
+  Prisma DLL on Windows -> EPERM rename in `prisma generate`).
+## Gotchas
+- Proxy = Node runtime default in Next 16; `runtime` option NOT allowed in proxy file.
+- Named export must be `export function proxy()` (default export also OK).
+- matcher alternatives must start after leading '/' and each path starts with prefix.
+- Countdown page is DB-independent (works even if DATABASE_URL breaks).
+- Old 404 console errors (api/auth/*, stale product IDs) seen mid-session were BFCache
+  restores from an earlier homepage load in the same browser context, NOT this feature;
+  fresh restart + load = 0 errors.
+- Phase D (cPanel) still pending: env vars MAINTENANCE_MODE/LAUNCH_DATE in cPanel
+  "Setup Node.js App" > Environment Variables + Restart. LAUNCH_DATE becomes effective
+  at build for the NEXT_PUBLIC-less dynamic page? NO — page is force-dynamic, so it is
+  runtime too; flip+restart updates countdown target without rebuild. (\c confirmed.)
+- PENDING (unrelated thread): Tester Box Phase 4+5 (FeaturedCollectionsV2 homepage card,
+  scripts/seed-tester-dummies.ts, memory log) still UNCOMMITTED; user decision on commit
+  + Phase 6 git push not yet given.

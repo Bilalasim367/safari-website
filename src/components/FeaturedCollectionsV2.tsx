@@ -38,14 +38,15 @@ const featuredCategories: CollectionCategory[] = [
     ],
   },
   {
-    id: "our-collection",
-    name: "Our Collection",
-    description: "Exclusive signature blends coming soon",
+    id: "tester",
+    name: "Tester Box Collection",
+    description: "Sample and decant sets to try fragrances before committing to a full bottle",
     image: "/safari-our-collection.jpg",
     subItems: [
-      { label: "Notify Me", href: "/contact?notify=our-collection" },
+      { label: "Men", href: "/shop?type=tester&gender=men" },
+      { label: "Women", href: "/shop?type=tester&gender=women" },
+      { label: "Unisex", href: "/shop?type=tester&gender=unisex" },
     ],
-    comingSoon: true,
   },
 ]
 
