@@ -11,6 +11,7 @@ import SocialProofPopup from '@/components/SocialProofPopup'
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || ''
   const isAdmin = pathname.startsWith('/admin')
+  const isComingSoon = pathname === '/coming-soon'
 
   useEffect(() => {
     if (isAdmin) {
@@ -24,12 +25,16 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {!isAdmin && <Header />}
-      {isAdmin ? children : <main className="flex-1 pt-20 md:pt-28">{children}</main>}
-      {!isAdmin && <Footer />}
-      {!isAdmin && <CartSidebar />}
-      {!isAdmin && <FloatingWhatsApp />}
-      {!isAdmin && <SocialProofPopup />}
+      {!isAdmin && !isComingSoon && <Header />}
+      {isAdmin || isComingSoon ? (
+        children
+      ) : (
+        <main className="flex-1 pt-20 md:pt-28">{children}</main>
+      )}
+      {!isAdmin && !isComingSoon && <Footer />}
+      {!isAdmin && !isComingSoon && <CartSidebar />}
+      {!isAdmin && !isComingSoon && <FloatingWhatsApp />}
+      {!isAdmin && !isComingSoon && <SocialProofPopup />}
     </>
   )
 }

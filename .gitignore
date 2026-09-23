@@ -70,6 +70,9 @@ debug-errors.log
 *.db-shm
 *.db-wal
 
+# Coming-soon design review screenshots
+coming-soon-*.png
+
 # Playwright MCP artifacts
 .playwright-mcp/
 test-results/
