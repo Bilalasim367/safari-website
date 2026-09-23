@@ -24,8 +24,13 @@ export function normalizeTypeLoose(t: string | null | undefined): string {
 }
 
 // Single source of truth for the storefront's default size label.
-// Attar = 12ml (per product spec); every other type falls back to 50ml.
-export function defaultSizeForType(t: string | null | undefined): '12ml' | '50ml' {
+// Attar = 12ml, Perfume = 50ml, Tester = 5ml; unknown falls back to 50ml.
+// Default SUGGESTION only (form pre-fill) — never a hard constraint:
+// a saved product size always wins over this fallback (p.size || defaultSizeForType(p.type)).
+export function defaultSizeForType(t: string | null | undefined): '12ml' | '50ml' | '5ml' {
   const lower = (t || '').toLowerCase().trim();
-  return lower === 'attar' ? '12ml' : '50ml';
+  if (lower === 'attar') return '12ml';
+  if (lower === 'perfume') return '50ml';
+  if (lower === 'tester' || lower === 'testerbox' || lower === 'tester box' || lower === 'tester-box') return '5ml';
+  return '50ml';
 }

@@ -8,14 +8,17 @@ Always use this document as project context before making any architectural or i
 
 ---
 
-# ⚖️ VOLUME STANDARDS (CRITICAL — 2026-09-17)
-**Attars = 12ml only. Perfumes = 50ml only.**
+# ⚖️ VOLUME STANDARDS (CRITICAL — 2026-09-17, updated 2026-09-23)
+**Attars = 12ml. Perfumes = 50ml. Tester Boxes = 5ml.**
 - This is the canonical rule for the WHOLE project. Do not change these defaults
   without an explicit user request.
 - `defaultSizeForType(type)` in `src/lib/normalize.ts` returns `'12ml'` for
-  `Attar` and `'50ml'` for `Perfume`. It is the single source of truth.
-- Currently the store shows **only Attars (12ml)**. Perfumes (50ml) will be added
-  later via phpMyAdmin / bulk upload (`scripts/seed-perfumes.sql` templates).
+  `Attar`, `'50ml'` for `Perfume`, `'5ml'` for `Tester`. It is the single source of truth.
+- These are DEFAULT SUGGESTIONS (form pre-fill) only — never a hard constraint.
+  Admins may override size per product (e.g. variable-size options); a saved product
+  size always wins over the fallback (`p.size || defaultSizeForType(p.type)`).
+- Currently the store shows **only Attars (12ml)**. Perfumes (50ml) and Tester Boxes (5ml)
+  will be added later via admin / bulk upload (`scripts/seed-perfumes.sql` templates).
 - Never hardcode a size fallback (e.g. `'50ml'`) in a cart/add-to-cart handler.
   If the product `type` is unknown at that point, default to `'12ml'` (attar).
 - PDP tab label: `Notes` (was `Attar Notes`) + new `Details` tab.
@@ -549,8 +552,9 @@ Approved shorthand variants normalized to `Tester`: `tester`, `testerbox`, `test
 ### Files modified (all additive)
 - `src/lib/normalize.ts` — `normalizeType()` now maps tester variants → `'Tester'`;
   `normalizeTypeLoose()` maps `tester`-containing values → `'Tester'` (CSV import path).
-  Unknown/missing still → `'Attar'` (unchanged). `defaultSizeForType` UNCHANGED
-  (tester = non-attar → existing `'50ml'` fallback; no invented business rule).
+  Unknown/missing still → `'Attar'` (unchanged). `defaultSizeForType` UNCHANGED in Phase 2
+  (tester = non-attar → existing `'50ml'` fallback), later updated by the size-default fix
+  (attar 12ml / perfume 50ml / tester 5ml) — see "Size-default fix" section below.
 - `src/lib/product-types.ts` — `ProductCategoryType` union += `'tester'`;
   `classifyProductType()` returns `'tester'` for type `Tester` (direct + contains).
   All legacy signals (applicatorType/origin/attar-sizes → attar, perfume signals → perfume)
@@ -592,9 +596,9 @@ Pure additive. No production changes (local test only). Creates/routs/edits Test
   "Tester Box" (Package icon); grid `sm:grid-cols-2 lg:grid-cols-3`. New exported helper
   `toAdminProductType(type)` → `'perfume' | 'tester' | 'attar'` via `normalizeType` (single source of truth).
 - `src/components/admin/ProductForm.tsx` — `productType` prop union += `'tester'`. Default type
-  `Tester`, default size `'50ml'` (matches `defaultSizeForType`), submit maps `'Tester'` (forced,
-  mirrors perfume forcing). H1 "Create Tester Box Product". Details tab shows informational
-  "Tester Box" card (no invented fields). Sidebar Type select += "Tester Box" option.
+  `Tester`, default size pre-fills from `defaultSizeForType` (single source of truth), submit maps
+  `'Tester'` (forced, mirrors perfume forcing). H1 "Create Tester Box Product". Details tab shows
+  informational "Tester Box" card (no invented fields). Sidebar Type select += "Tester Box" option.
 - `src/components/admin/ProductEditWrapper.tsx` — `productType` union += `'tester'`.
 - `src/app/admin/(protected)/products/[id]/edit/page.tsx` — redirect uses `toAdminProductType`
   (fixes Tester products previously mis-routing to attar edit).
@@ -616,6 +620,30 @@ Pure additive. No production changes (local test only). Creates/routs/edits Test
 
 ### Known follow-ups (later phases)
 - Phase 4 homepage 3-card section. Storefront polish: `/shop` H1, ShopContent chip, PDP typeLabel.
+
+---
+
+## Size-default fix — attar 12ml / perfume 50ml / tester 5ml (COMMITTED 2026-09-23)
+
+User-authorized default-size update. DEFAULT SUGGESTION only (form pre-fill), NOT a hard
+restriction — admins keep override flexibility; a saved `size` always wins (`p.size || defaultSizeForType(p.type)`).
+Existing 319 Attar products untouched (their saved sizes win; no retroactive change).
+
+### Files modified
+- `src/lib/normalize.ts` — `defaultSizeForType()` now returns `'12ml'` (Attar), `'50ml'` (Perfume),
+  `'5ml'` (Tester + its variants), `'50ml'` unknown. Return type `'12ml' | '50ml' | '5ml'`.
+- `src/components/admin/ProductForm.tsx` — size pre-fill now calls `defaultSizeForType(resolvedType)`
+  (was a hardcoded `'50ml'` ternary for tester). Removes the only hardcoded size duplicate;
+  all 12 call sites now read from the one function (single source of truth).
+
+### Cross-checked call sites (all inherit, no change)
+`csv-parser.ts`, `ProductDetailClient.tsx`, `shop/[slug]/page.tsx`, `app/page.tsx`,
+`ShopContent.tsx`, `ProductEditWrapper.tsx` (uses `p.size || defaultSizeForType(...)`),
+`actions.ts` create+update, `api/products/route.ts` POST, `api/admin/products/route.ts`
+(`defaultSizeForType(undefined)` → 50ml), `api/admin/products/import/route.ts`.
+
+### Verified
+- `npx eslint` on changed files: 0 errors. `npx tsc --noEmit`: no errors in changed files.
 
 ---
 

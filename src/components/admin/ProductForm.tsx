@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useImageUpload } from '@/hooks/useImageUpload'
+import { defaultSizeForType } from '@/lib/normalize'
 import { ArrowLeft, Plus, X, Trash2, Upload } from '@/lib/lucide-icons'
 
 const defaultFormState: AdminProductFormValues = {
@@ -235,7 +236,7 @@ export default function ProductForm({ initialData, mode, productId, productType 
     defaultValues: initialData || {
       ...defaultFormState,
       type: productType === 'perfume' ? 'Perfume' : productType === 'tester' ? 'Tester' : 'Attar',
-      size: productType === 'perfume' ? '50ml' : productType === 'tester' ? '50ml' : '12ml',
+      size: defaultSizeForType(productType === 'perfume' ? 'Perfume' : productType === 'tester' ? 'Tester' : 'Attar'),
     },
   })
 
