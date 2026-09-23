@@ -8,14 +8,17 @@ Always use this document as project context before making any architectural or i
 
 ---
 
-# ⚖️ VOLUME STANDARDS (CRITICAL — 2026-09-17)
-**Attars = 12ml only. Perfumes = 50ml only.**
+# ⚖️ VOLUME STANDARDS (CRITICAL — 2026-09-17, updated 2026-09-23)
+**Attars = 12ml. Perfumes = 50ml. Tester Boxes = 5ml.**
 - This is the canonical rule for the WHOLE project. Do not change these defaults
   without an explicit user request.
 - `defaultSizeForType(type)` in `src/lib/normalize.ts` returns `'12ml'` for
-  `Attar` and `'50ml'` for `Perfume`. It is the single source of truth.
-- Currently the store shows **only Attars (12ml)**. Perfumes (50ml) will be added
-  later via phpMyAdmin / bulk upload (`scripts/seed-perfumes.sql` templates).
+  `Attar`, `'50ml'` for `Perfume`, `'5ml'` for `Tester`. It is the single source of truth.
+- These are DEFAULT SUGGESTIONS (form pre-fill) only — never a hard constraint.
+  Admins may override size per product (e.g. variable-size options); a saved product
+  size always wins over the fallback (`p.size || defaultSizeForType(p.type)`).
+- Currently the store shows **only Attars (12ml)**. Perfumes (50ml) and Tester Boxes (5ml)
+  will be added later via admin / bulk upload (`scripts/seed-perfumes.sql` templates).
 - Never hardcode a size fallback (e.g. `'50ml'`) in a cart/add-to-cart handler.
   If the product `type` is unknown at that point, default to `'12ml'` (attar).
 - PDP tab label: `Notes` (was `Attar Notes`) + new `Details` tab.
@@ -429,6 +432,21 @@ Must be verified.
 
 ---
 
+## Issue #4 — COMMITTED PRODUCTION SECRETS (todo: ROTATE) — 2026-09-23
+
+`CPANEL_DEPLOYMENT.md` is git-tracked and contains LIVE production secrets:
+MySQL password (`Hassan224266`), `JWT_SECRET`, `ADMIN_SECRET_KEY`,
+`BLOB_READ_WRITE_TOKEN`. These were also pasted in a session by the owner.
+
+**Action (owner confirmed they are rotating separately):**
+1. Rotate all production secrets (DB password, JWT_SECRET, ADMIN_SECRET_KEY, Blob token),
+   update cPanel "Setup Node.js App" env vars + `.env*` accordingly.
+2. After rotation, strip real values from committed `CPANEL_DEPLOYMENT.md`
+   (replace with placeholders like `changeme`) and commit that cleanup.
+`.env*` stay untracked (already correct). Do NOT print these values in responses.
+
+---
+
 # Development Priorities
 
 Priority 1:
@@ -521,6 +539,138 @@ Client (React) → API Route (Next.js) → Prisma → Turso (SQL) → back up th
 ✅ Production-ready solution delivered
 
 Anything less is incomplete.
+
+---
+
+# PHASE 4-6 COMPLETION LOG
+
+## Phase 2 — Tester Box data-model & API support (COMPLETED 2026-09-23)
+
+Canonical type value: DB/API `Tester`, URL/filter `type=tester`, UI label "Tester Box".
+Approved shorthand variants normalized to `Tester`: `tester`, `testerbox`, `tester box`, `tester-box`.
+
+### Files modified (all additive)
+- `src/lib/normalize.ts` — `normalizeType()` now maps tester variants → `'Tester'`;
+  `normalizeTypeLoose()` maps `tester`-containing values → `'Tester'` (CSV import path).
+  Unknown/missing still → `'Attar'` (unchanged). `defaultSizeForType` UNCHANGED in Phase 2
+  (tester = non-attar → existing `'50ml'` fallback), later updated by the size-default fix
+  (attar 12ml / perfume 50ml / tester 5ml) — see "Size-default fix" section below.
+- `src/lib/product-types.ts` — `ProductCategoryType` union += `'tester'`;
+  `classifyProductType()` returns `'tester'` for type `Tester` (direct + contains).
+  All legacy signals (applicatorType/origin/attar-sizes → attar, perfume signals → perfume)
+  keep their existing precedence (tester checks AFTER perfume/attar, BEFORE attar-field heuristics).
+- `src/app/shop/FilterSection.tsx` — `productTypes` += `'tester'`; `OPTION_LABELS` map renders
+  "Tester Box" for the `tester` option (value stays `tester` in URLs).
+
+### Files verified NO code change needed (inherit via normalize.ts)
+- `src/app/api/products/route.ts` — GET `?type=` split-map and POST `type:` both call
+  `normalizeType()`; `[id]/route.ts` PUT and `home/route.ts` too. `defaultSizeForType` fallback live.
+- `src/lib/validations/product.ts` — `AdminProductSchema.type` is a free optional string; canonical
+  `Tester` passes; canonicalization happens in normalize.ts (single source of truth). No enum change
+  (would be non-additive / risk legacy edits).
+
+### Consumers that now auto-gain tester support (no change)
+API GET search (`api/search`), admin `actions.ts` createProduct/updateProduct, csv-parser import,
+`ShopContent.tsx` grid query (`where.type = { in: ['Tester'] }`).
+
+### Verification (local only, production untouched)
+- Logic assertions 27/27 PASS (temp script, deleted): normalizeType strict variants, loose CSV path,
+  classifyProductType tester + legacy precedence + fallbacks, defaultSizeForType unchanged.
+- `npx eslint` on changed files: 0 errors. `npx tsc --noEmit`: no errors in changed files
+  (pre-existing: seed.ts `pool`, api/admin/products `sizePrices`, `.next/types` shop-page artifact).
+- `npx next build`: ✓ compiled, full route map emitted.
+
+### Known follow-ups (LATER phases, not this one)
+- Homepage 3-card section (Phase 4). Storefront polish: `/shop` H1 label "Tester Box Collection"
+  (`getShopLabel` in shop/page.tsx currently falls back to "Shop All"), ShopContent chip label
+  "Tester Box" (currently `capitalize` → "Tester"), PDP typeLabel ("Fragrance" for tester now).
+
+---
+
+## Phase 3 — Admin panel Tester Box support (COMPLETED 2026-09-23)
+
+Pure additive. No production changes (local test only). Creates/routs/edits Tester products.
+
+### Files modified
+- `src/components/admin/ProductTypeSelector.tsx` — `ProductType` union += `'tester'`; third card
+  "Tester Box" (Package icon); grid `sm:grid-cols-2 lg:grid-cols-3`. New exported helper
+  `toAdminProductType(type)` → `'perfume' | 'tester' | 'attar'` via `normalizeType` (single source of truth).
+- `src/components/admin/ProductForm.tsx` — `productType` prop union += `'tester'`. Default type
+  `Tester`, default size pre-fills from `defaultSizeForType` (single source of truth), submit maps
+  `'Tester'` (forced, mirrors perfume forcing). H1 "Create Tester Box Product". Details tab shows
+  informational "Tester Box" card (no invented fields). Sidebar Type select += "Tester Box" option.
+- `src/components/admin/ProductEditWrapper.tsx` — `productType` union += `'tester'`.
+- `src/app/admin/(protected)/products/[id]/edit/page.tsx` — redirect uses `toAdminProductType`
+  (fixes Tester products previously mis-routing to attar edit).
+- `src/app/admin/(protected)/products/page.tsx` — Type filter select += "Tester Box";
+  Create-dialog "+ Tester Box" button; edit links use `toAdminProductType`; Type badge renders
+  "Tester Box" label for `Tester`. (Filter `.includes('tester')` already matched.)
+
+### Files created
+- `src/app/admin/(protected)/products/tester/new/page.tsx` — `<ProductForm mode="create" productType="tester" />`.
+- `src/app/admin/(protected)/products/tester/[id]/edit/page.tsx` — `<ProductEditWrapper productType="tester" />`.
+
+### Verified
+- `npx eslint` changed files: 0 errors (6 pre-existing warnings: img, unused sizePrices,
+  react-hooks/incompatible-library on form.watch, exhaustive-deps on productType — all pre-existing).
+- `npx tsc --noEmit`: no errors in changed files (pre-existing elsewhere unchanged:
+  seed.ts `pool`, api/admin/products `sizePrices`, api/orders/by-number `userId`, deploy-app/ copies).
+- `npx next build`: ✓; both new routes registered
+  (`/admin/products/tester/new`, `/admin/products/tester/[id]/edit`).
+
+### Known follow-ups (later phases)
+- Phase 4 homepage 3-card section. Storefront polish: `/shop` H1, ShopContent chip, PDP typeLabel.
+
+---
+
+## Size-default fix — attar 12ml / perfume 50ml / tester 5ml (COMMITTED 2026-09-23)
+
+User-authorized default-size update. DEFAULT SUGGESTION only (form pre-fill), NOT a hard
+restriction — admins keep override flexibility; a saved `size` always wins (`p.size || defaultSizeForType(p.type)`).
+Existing 319 Attar products untouched (their saved sizes win; no retroactive change).
+
+### Files modified
+- `src/lib/normalize.ts` — `defaultSizeForType()` now returns `'12ml'` (Attar), `'50ml'` (Perfume),
+  `'5ml'` (Tester + its variants), `'50ml'` unknown. Return type `'12ml' | '50ml' | '5ml'`.
+- `src/components/admin/ProductForm.tsx` — size pre-fill now calls `defaultSizeForType(resolvedType)`
+  (was a hardcoded `'50ml'` ternary for tester). Removes the only hardcoded size duplicate;
+  all 12 call sites now read from the one function (single source of truth).
+
+### Cross-checked call sites (all inherit, no change)
+`csv-parser.ts`, `ProductDetailClient.tsx`, `shop/[slug]/page.tsx`, `app/page.tsx`,
+`ShopContent.tsx`, `ProductEditWrapper.tsx` (uses `p.size || defaultSizeForType(...)`),
+`actions.ts` create+update, `api/products/route.ts` POST, `api/admin/products/route.ts`
+(`defaultSizeForType(undefined)` → 50ml), `api/admin/products/import/route.ts`.
+
+### Verified
+- `npx eslint` on changed files: 0 errors. `npx tsc --noEmit`: no errors in changed files.
+
+---
+
+## Phase 4 — Homepage 3-card section + Phase 5 — e2e verification (2026-09-23)
+
+### Phase 4 change (uncommitted)
+- `src/components/FeaturedCollectionsV2.tsx` — third Featured Collections card **"Our Collection (coming soon / Notify Me)"**
+  replaced with **Tester Box Collection** card (image reused from `/safari-our-collection.jpg`, no new asset).
+  Cards now = Attar / Perfumes / Tester Box, each with Men/Women/Unisex links to `/shop?type=<t>&gender=<g>`.
+  `comingSoon` interface field + JSX branch left in place (harmless, for future reuse).
+- NOTE: this removed the "Our Collection / Notify Me" marketing card — flagged to owner during review.
+
+### Local dummy tester data (LOCAL DB ONLY — prod untouched)
+- `scripts/seed-tester-dummies.ts` — idempotent upsert (by slug) of 6 Tester products (5ml, PKR 700–1000,
+  men/women/unisex, some bestseller/new/hot-selling/featured, reused `/products/*.png` local images).
+  Run: `npx tsx --env-file=.env.local scripts/seed-tester-dummies.ts`. Re-runs safe (updated, not duplicated).
+- Local DB now: 345 total (66 Attar / 273 Perfume / 6 Tester).
+
+### Phase 5 verification (all PASS, local dev only)
+- `npx next build` ✓ (full route map, incl. tester admin routes).
+- Playwright against `http://localhost:3000` (dev server, `.env.local` DB):
+  - Homepage: "Tester Box Collection" 3rd card renders ✓
+  - `/shop?type=tester`: "Showing 6 of 6 products", sidebar filter "Tester Box", all 6 products ✓
+  - PDP `/shop/signature-discovery-tester-box`: renders, buy-box **VOLUME: 5ML** ✓ (size fix E2E), cart, WhatsApp, recommendations ✓
+  - Console: 0 errors across homepage/shop/PDP ✓
+- Known cosmetics (documented, not fixed here): `/shop?type=tester` H1 title = "Shop All" (`getShopLabel` fallback),
+  active filter chip shows "Tester" (not "Tester Box"), PDP typeLabel "Fragrance".
 
 ---
 
@@ -959,3 +1109,119 @@ These cart "add" handlers used `'50ml'` when size was empty; all replaced with
   returnrequest/priceupdatelog + this runs fine on cPanel MySQL now.
 
 ---
+
+# COMING-SOON MAINTENANCE MODE — 2026-09-23 (Phases A/B/C done)
+## Goal
+One env flag (MAINTENANCE_MODE) redirects all customer pages to a dark luxury
+/coming-soon countdown page. Admin keeps full access. Flip + restart, NO rebuild.
+## Files
+- `src/proxy.ts` (NEW) — Next 16 Proxy (= middleware), Node.js runtime (default in
+  v16). Reads MAINTENANCE_MODE at request time; 307-redirects to /coming-soon when
+  on. Admin bypass = verify `access_token` JWT (jose, JWT_SECRET) with role==='admin'.
+  Matcher `'/((?!_next|api|admin|login|coming-soon|.*\\..*).*)'` — /admin/*, /login,
+  /api/*, /coming-soon, _next + file assets never intercepted.
+- `src/app/coming-soon/page.tsx` (NEW) — Server Component, `force-dynamic` (so
+  process.env.LAUNCH_DATE is read per-request, NOT build-inlined). robots noindex.
+  Brand: logo.jpeg, gold #B6965D, charcoal #050505 + gold/10 glow + noise.png 3%
+  grain (Newsletter pattern), WhatsApp wa.me/923107435020, Instagram/Facebook/TikTok.
+- `src/components/ComingSoonCountdown.tsx` (NEW) — client countdown, hydration-safe
+  ('—' placeholder + setTimeout(0)/setInterval via callbacks to satisfy
+  react-hooks/set-state-in-effect), Asia/Karachi formatted launch date.
+- `src/components/SiteShell.tsx` — only 2-line additive change: isComingSoon var +
+  conditionals (same pattern as isAdmin); hides Header/Footer/CartSidebar/WA-float/
+  popup on /coming-soon.
+- `.env.local` — MAINTENANCE_MODE=false + LAUNCH_DATE=2026-10-15T00:00:00+05:00.
+- `.env.example` — MAINTENANCE_MODE + LAUNCH_DATE documented.
+- `.gitignore` — coming-soon-*.png added.
+## Env vars (runtime on server, both flip+restart only)
+- MAINTENANCE_MODE (read by proxy) — 'true'|'1'|'yes'|'on' engages.
+- LAUNCH_DATE (read by coming-soon page) — ISO 8601 with offset; force-dynamic page.
+## Why no NEXT_PUBLIC for launch date (user-requested)
+NEXT_PUBLIC_* is build-inlined; LAUNCH_DATE/MAINTENANCE_MODE both read at runtime in
+Node runtime so they obey flip+restart without rebuild. Verified in `npm run build`
+output: /coming-soon = ƒ (Dynamic), ƒ Proxy (Middleware) registered.
+## Test matrix PASS (local, .env.local flag ON)
+- curl: / and /shop -> 307 to /coming-soon; /login, /admin/login, /coming-soon, /api/*,
+  /logo.jpeg, /robots.txt -> 200 (never intercepted).
+- Playwright (real jose-minted signed JWTs): no cookie -> countdown; admin-role cookie
+  -> normal site (header + H1 present); customer-role cookie -> countdown; admin-role
+  on /shop -> normal shop. 6/6 PASS. Fresh loads = 0 console errors.
+- npm run build: PASS (Dev server must be STOPPED first — running dev server locks
+  Prisma DLL on Windows -> EPERM rename in `prisma generate`).
+## Gotchas
+- Proxy = Node runtime default in Next 16; `runtime` option NOT allowed in proxy file.
+- Named export must be `export function proxy()` (default export also OK).
+- matcher alternatives must start after leading '/' and each path starts with prefix.
+- Countdown page is DB-independent (works even if DATABASE_URL breaks).
+- Old 404 console errors (api/auth/*, stale product IDs) seen mid-session were BFCache
+  restores from an earlier homepage load in the same browser context, NOT this feature;
+  fresh restart + load = 0 errors.
+- Phase D (cPanel) still pending: env vars MAINTENANCE_MODE/LAUNCH_DATE in cPanel
+  "Setup Node.js App" > Environment Variables + Restart. LAUNCH_DATE becomes effective
+  at build for the NEXT_PUBLIC-less dynamic page? NO — page is force-dynamic, so it is
+  runtime too; flip+restart updates countdown target without rebuild. (\c confirmed.)
+- PENDING (unrelated thread): Tester Box Phase 4+5 (FeaturedCollectionsV2 homepage card,
+  scripts/seed-tester-dummies.ts, memory log) still UNCOMMITTED; user decision on commit
+  + Phase 6 git push not yet given.
+# PHASE D — cPanel Coming-Soon Deploy Plan (DOCUMENTATION ONLY — no execution)
+## Prerequisite
+Coming-soon is on branch feature/coming-soon-maintenance-mode (962d98f). To deploy it,
+merge that branch into main, then push main to BOTH origin and deploy, then pull on
+cPanel (or let the cPanel webhook/pull do it). Do this only after code review + the
+user's merge go-ahead.
+## Production env vars (cPanel "Setup Node.js App" > Your App > Environment Variables)
+- JWT_SECRET          (already present)
+- MAINTENANCE_MODE    (default false; set true to engage)
+- LAUNCH_DATE         (ISO 8601 +05:00, e.g. 2026-10-15T00:00:00+05:00)
+Both MAINTENANCE_MODE and LAUNCH_DATE are READ AT RUNTIME (proxy + force-dynamic
+page). No .env* files are used in prod — cPanel env vars only. NO rebuild needed to
+toggle either after they are set once.
+## Engage (go-live)
+1. cPanel: set MAINTENANCE_MODE=true  -> Save
+2. Restart the Node.js app in cPanel UI (Setup Node.js App > Restart)
+3. Verify:
+   - public URLs /, /shop*, /collections*, /bundles*, /about, /contact, /blog*,
+     product pages -> 307 redirect to /coming-soon with working countdown
+   - /login, /admin/*, /api/*, /coming-soon, /favicon.ico, /robots.txt, /sitemap.xml
+     still reachable (200)
+   - WhatsApp CTA (wa.me/923107435020) + Instagram/Facebook/TikTok links open
+   - logged-in admin (role=admin JWT) still sees the normal site
+4. SEO: /coming-soon sends robots noindex (page-level metadata) — good during build-up.
+## Rollback
+1. cPanel: set MAINTENANCE_MODE=false (or delete the var) -> Save
+2. Restart Node.js app
+3. All customer pages serve normally again.
+## Post-launch notes
+- When LAUNCH_DATE passes, countdown shows zeros and "Our doors open on ..." stays;
+  flip MAINTENANCE_MODE=false to fully take the site live (or keep a teaser).
+- The /coming-soon page is DB-independent (works even if DATABASE_URL is broken).
+- force-dynamic is ONLY on /coming-soon (ƒ) — the rest of the site keeps its
+  static/cache behaviour from the build output.
+## Open items before Phase D can run
+- [] code review of feature/coming-soon-maintenance-mode
+- [] merge feature branch into main + push origin + deploy
+- [] confirm cPanel build runs `npm run build --webpack` (webpack, not Turbopack) so
+  the proxy + middleware JS chunks are emitted correctly
+
+--- 
+# BRANCH DISCIPLINE REWORK "] 2026-09-23
+
+- **Process miss (owned):** Tester Box commits were pushed to main AND the deploy remote
+  (production-linked) without an explicit deploy approval. Audit confirmed main ==
+  production path (deploy remote feds cPanel; manual git-pull deploy).
+- **New rule (user-mandated, from now on):** "Push karo" NEVER = "deploy remote par
+  push karo". Explicitly ASK before ANY commit/push targeting `main`/`deploy`
+  (feature branches are fine). Deploy-push ONLY on literal "production par deploy karo"
+  or "deploy remote par push karo".
+- **Solo-dev confirmed:** 87/87 commits single author (Bilalasim367); both remotes
+  single owner. No other collaborator in commit history.
+- **Rework executed (approved Option ii):**
+  - `feature/tester-box` created @ `6c514cd` (full Tester Box work; review checkpoint).
+  - main hard-reset to `b6a64fe` (approved baseline), then this docs commit added.
+  - `deploy/main` force-updated `6c514cd...b6a64fe` (deploy = exactly approved baseline).
+  - Tester Box exists ONLY on `feature/tester-box` until explicit merge approval.
+- **Coming-soon caveat:** `feature/coming-soon-maintenance-mode` is based on `271472b`
+  (tester-inclusive main). Merge it AFTER tester-box merges, OR rebase onto fresh main
+  at merge time; otherwise it drags tester changes into main.
+- **Dev server:** restarted on main (baseline, no tester/coming-soon code).
+  Resume tester work: `git checkout feature/tester-box && npm run dev`.
