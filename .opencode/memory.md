@@ -1220,8 +1220,9 @@ toggle either after they are set once.
   - main hard-reset to `b6a64fe` (approved baseline), then this docs commit added.
   - `deploy/main` force-updated `6c514cd...b6a64fe` (deploy = exactly approved baseline).
   - Tester Box exists ONLY on `feature/tester-box` until explicit merge approval.
-- **Coming-soon caveat:** `feature/coming-soon-maintenance-mode` is based on `271472b`
-  (tester-inclusive main). Merge it AFTER tester-box merges, OR rebase onto fresh main
-  at merge time; otherwise it drags tester changes into main.
+- **Coming-soon caveat RESOLVED:** `feature/coming-soon-maintenance-mode` rebased onto
+  `b6a64fe` (old commit `962d98f` -> new `85887eb`, forced update on origin). Its only
+  commit now sits directly on the approved baseline - it no longer carries any
+  tester-box changes and can be merged independently of tester-box order.
 - **Dev server:** restarted on main (baseline, no tester/coming-soon code).
   Resume tester work: `git checkout feature/tester-box && npm run dev`.
