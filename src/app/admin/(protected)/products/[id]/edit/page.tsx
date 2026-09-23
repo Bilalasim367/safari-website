@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getProductById } from '@/app/admin/(protected)/actions'
+import { toAdminProductType } from '@/components/admin/ProductTypeSelector'
 
 export default function EditProductPage() {
   const params = useParams()
@@ -17,7 +18,7 @@ export default function EditProductPage() {
         router.push('/admin/products')
         return
       }
-      const type = (result.product.type || '').toLowerCase().includes('perfume') ? 'perfume' : 'attar'
+      const type = toAdminProductType(result.product.type)
       router.replace(`/admin/products/${type}/${id}/edit`)
     })()
   }, [id, router])

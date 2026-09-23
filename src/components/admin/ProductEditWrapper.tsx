@@ -7,7 +7,7 @@ import { getProductById } from '@/app/admin/(protected)/actions'
 import { defaultSizeForType } from '@/lib/normalize'
 import type { AdminProductFormValues } from '@/lib/validations/product'
 
-export default function ProductEditWrapper({ productType }: { productType: 'perfume' | 'attar' }) {
+export default function ProductEditWrapper({ productType }: { productType: 'perfume' | 'attar' | 'tester' }) {
   const params = useParams()
   const id = params.id as string
   const [product, setProduct] = useState<AdminProductFormValues | null>(null)

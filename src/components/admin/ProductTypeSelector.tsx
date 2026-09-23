@@ -3,9 +3,17 @@
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FlaskRound, Droplets } from '@/lib/lucide-icons'
+import { FlaskRound, Droplets, Package } from '@/lib/lucide-icons'
+import { normalizeType } from '@/lib/normalize'
 
-export type ProductType = 'attar' | 'perfume'
+export type ProductType = 'attar' | 'perfume' | 'tester'
+
+export function toAdminProductType(type: string | null | undefined): ProductType {
+  const normalized = normalizeType(type)
+  if (normalized === 'Perfume') return 'perfume'
+  if (normalized === 'Tester') return 'tester'
+  return 'attar'
+}
 
 interface ProductTypeSelectorProps {
   selected: ProductType | null
@@ -26,6 +34,12 @@ const OPTIONS: { type: ProductType; label: string; description: string; icon: Re
     description: 'Concentrated oil-based fragrances — 3ml, 4ml, 6ml variants with roll-on, stick, or premium packaging.',
     icon: <Droplets className="h-10 w-10" />,
   },
+  {
+    type: 'tester',
+    label: 'Tester Box',
+    description: 'Fragrance tester boxes — sample and decant sets for trying scents without committing to a full bottle.',
+    icon: <Package className="h-10 w-10" />,
+  },
 ]
 
 export default function ProductTypeSelector({ selected, onSelect, onContinue }: ProductTypeSelectorProps) {
@@ -36,7 +50,7 @@ export default function ProductTypeSelector({ selected, onSelect, onContinue }: 
         <p className="text-muted-foreground mt-2">Choose the type of product you want to add. Each type has its own form with relevant fields.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {OPTIONS.map((opt) => {
           const isSelected = selected === opt.type
           return (

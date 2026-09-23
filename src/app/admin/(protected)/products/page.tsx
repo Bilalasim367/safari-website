@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { toAdminProductType } from "@/components/admin/ProductTypeSelector";
 
 interface Product {
   id: string;
@@ -192,6 +193,9 @@ export default function ProductsPage() {
                 <Link href="/admin/products/attar/new">
                   <Button variant="secondary" className="w-full">+ Attar</Button>
                 </Link>
+                <Link href="/admin/products/tester/new">
+                  <Button variant="secondary" className="w-full">+ Tester Box</Button>
+                </Link>
               </div>
             </div>
             <div className="border-t border-muted pt-4">
@@ -236,6 +240,7 @@ export default function ProductsPage() {
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="attar">Attar</SelectItem>
             <SelectItem value="perfume">Perfume</SelectItem>
+            <SelectItem value="tester">Tester Box</SelectItem>
           </SelectContent>
         </Select>
         <Select value={seasonFilter} onValueChange={(v) => v !== null && setSeasonFilter(v)}>
@@ -314,7 +319,7 @@ export default function ProductsPage() {
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>
                   <Badge variant={product.type?.toLowerCase().includes('perfume') ? 'default' : 'secondary'} className="text-xs">
-                    {product.type || 'Attar'}
+                    {product.type === 'Tester' ? 'Tester Box' : (product.type || 'Attar')}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -349,7 +354,7 @@ export default function ProductsPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Link href={`/admin/products/${(product.type || '').toLowerCase().includes('perfume') ? 'perfume' : 'attar'}/${product.id}/edit`}>
+                    <Link href={`/admin/products/${toAdminProductType(product.type)}/${product.id}/edit`}>
                       <Button variant="outline" size="sm">
                         Edit
                       </Button>

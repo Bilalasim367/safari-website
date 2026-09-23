@@ -220,7 +220,7 @@ interface ProductFormProps {
   initialData?: AdminProductFormValues
   mode: 'create' | 'edit'
   productId?: string
-  productType: 'perfume' | 'attar'
+  productType: 'perfume' | 'attar' | 'tester'
 }
 
 export default function ProductForm({ initialData, mode, productId, productType }: ProductFormProps) {
@@ -234,8 +234,8 @@ export default function ProductForm({ initialData, mode, productId, productType 
     resolver: zodResolver(AdminProductSchema),
     defaultValues: initialData || {
       ...defaultFormState,
-      type: productType === 'perfume' ? 'Perfume' : 'Attar',
-      size: productType === 'perfume' ? '50ml' : '12ml',
+      type: productType === 'perfume' ? 'Perfume' : productType === 'tester' ? 'Tester' : 'Attar',
+      size: productType === 'perfume' ? '50ml' : productType === 'tester' ? '50ml' : '12ml',
     },
   })
 
@@ -293,7 +293,7 @@ export default function ProductForm({ initialData, mode, productId, productType 
           price: Number(sp.price),
           originalPrice: sp.originalPrice ? Number(sp.originalPrice) : null,
         })),
-        type: productType === 'perfume' ? 'Perfume' : data.type || 'Attar',
+        type: productType === 'perfume' ? 'Perfume' : productType === 'tester' ? 'Tester' : data.type || 'Attar',
         notes: data.notes || null,
       }
 
@@ -332,7 +332,7 @@ export default function ProductForm({ initialData, mode, productId, productType 
             <ArrowLeft className="h-3 w-3" /> Back to Products
           </button>
           <h1 className="text-3xl font-serif font-bold">
-            {mode === 'edit' ? 'Edit Product' : `Create ${productType === 'perfume' ? 'Perfume' : 'Attar'} Product`}
+            {mode === 'edit' ? 'Edit Product' : `Create ${productType === 'perfume' ? 'Perfume' : productType === 'tester' ? 'Tester Box' : 'Attar'} Product`}
           </h1>
           {mode === 'edit' && form.watch('name') ? (
             <p className="text-sm text-muted-foreground mt-1">Editing: {form.watch('name')}</p>
@@ -588,6 +588,16 @@ export default function ProductForm({ initialData, mode, productId, productType 
                       </CardContent>
                     </Card>
                   </>
+                ) : productType === 'tester' ? (
+                  <Card>
+                    <CardHeader><CardTitle>Tester Box</CardTitle></CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        No dedicated detail fields yet for Tester Box. Use the Fragrance Notes,
+                        classification, and description fields to describe the product.
+                      </p>
+                    </CardContent>
+                  </Card>
                 ) : (
                   <>
                     <Card>
@@ -836,12 +846,13 @@ export default function ProductForm({ initialData, mode, productId, productType 
                 <Label htmlFor="type">Type</Label>
                 <select
                   id="type"
-                  value={form.watch('type') || (productType === 'perfume' ? 'Perfume' : 'Attar')}
+                  value={form.watch('type') || (productType === 'perfume' ? 'Perfume' : productType === 'tester' ? 'Tester' : 'Attar')}
                   onChange={(e) => form.setValue('type', e.target.value)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="Attar">Attar</option>
                   <option value="Perfume">Perfume</option>
+                  <option value="Tester">Tester Box</option>
                 </select>
               </div>
               <div className="space-y-2">

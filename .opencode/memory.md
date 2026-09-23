@@ -429,6 +429,21 @@ Must be verified.
 
 ---
 
+## Issue #4 — COMMITTED PRODUCTION SECRETS (todo: ROTATE) — 2026-09-23
+
+`CPANEL_DEPLOYMENT.md` is git-tracked and contains LIVE production secrets:
+MySQL password (`Hassan224266`), `JWT_SECRET`, `ADMIN_SECRET_KEY`,
+`BLOB_READ_WRITE_TOKEN`. These were also pasted in a session by the owner.
+
+**Action (owner confirmed they are rotating separately):**
+1. Rotate all production secrets (DB password, JWT_SECRET, ADMIN_SECRET_KEY, Blob token),
+   update cPanel "Setup Node.js App" env vars + `.env*` accordingly.
+2. After rotation, strip real values from committed `CPANEL_DEPLOYMENT.md`
+   (replace with placeholders like `changeme`) and commit that cleanup.
+`.env*` stay untracked (already correct). Do NOT print these values in responses.
+
+---
+
 # Development Priorities
 
 Priority 1:
@@ -521,6 +536,86 @@ Client (React) → API Route (Next.js) → Prisma → Turso (SQL) → back up th
 ✅ Production-ready solution delivered
 
 Anything less is incomplete.
+
+---
+
+# PHASE 4-6 COMPLETION LOG
+
+## Phase 2 — Tester Box data-model & API support (COMPLETED 2026-09-23)
+
+Canonical type value: DB/API `Tester`, URL/filter `type=tester`, UI label "Tester Box".
+Approved shorthand variants normalized to `Tester`: `tester`, `testerbox`, `tester box`, `tester-box`.
+
+### Files modified (all additive)
+- `src/lib/normalize.ts` — `normalizeType()` now maps tester variants → `'Tester'`;
+  `normalizeTypeLoose()` maps `tester`-containing values → `'Tester'` (CSV import path).
+  Unknown/missing still → `'Attar'` (unchanged). `defaultSizeForType` UNCHANGED
+  (tester = non-attar → existing `'50ml'` fallback; no invented business rule).
+- `src/lib/product-types.ts` — `ProductCategoryType` union += `'tester'`;
+  `classifyProductType()` returns `'tester'` for type `Tester` (direct + contains).
+  All legacy signals (applicatorType/origin/attar-sizes → attar, perfume signals → perfume)
+  keep their existing precedence (tester checks AFTER perfume/attar, BEFORE attar-field heuristics).
+- `src/app/shop/FilterSection.tsx` — `productTypes` += `'tester'`; `OPTION_LABELS` map renders
+  "Tester Box" for the `tester` option (value stays `tester` in URLs).
+
+### Files verified NO code change needed (inherit via normalize.ts)
+- `src/app/api/products/route.ts` — GET `?type=` split-map and POST `type:` both call
+  `normalizeType()`; `[id]/route.ts` PUT and `home/route.ts` too. `defaultSizeForType` fallback live.
+- `src/lib/validations/product.ts` — `AdminProductSchema.type` is a free optional string; canonical
+  `Tester` passes; canonicalization happens in normalize.ts (single source of truth). No enum change
+  (would be non-additive / risk legacy edits).
+
+### Consumers that now auto-gain tester support (no change)
+API GET search (`api/search`), admin `actions.ts` createProduct/updateProduct, csv-parser import,
+`ShopContent.tsx` grid query (`where.type = { in: ['Tester'] }`).
+
+### Verification (local only, production untouched)
+- Logic assertions 27/27 PASS (temp script, deleted): normalizeType strict variants, loose CSV path,
+  classifyProductType tester + legacy precedence + fallbacks, defaultSizeForType unchanged.
+- `npx eslint` on changed files: 0 errors. `npx tsc --noEmit`: no errors in changed files
+  (pre-existing: seed.ts `pool`, api/admin/products `sizePrices`, `.next/types` shop-page artifact).
+- `npx next build`: ✓ compiled, full route map emitted.
+
+### Known follow-ups (LATER phases, not this one)
+- Homepage 3-card section (Phase 4). Storefront polish: `/shop` H1 label "Tester Box Collection"
+  (`getShopLabel` in shop/page.tsx currently falls back to "Shop All"), ShopContent chip label
+  "Tester Box" (currently `capitalize` → "Tester"), PDP typeLabel ("Fragrance" for tester now).
+
+---
+
+## Phase 3 — Admin panel Tester Box support (COMPLETED 2026-09-23)
+
+Pure additive. No production changes (local test only). Creates/routs/edits Tester products.
+
+### Files modified
+- `src/components/admin/ProductTypeSelector.tsx` — `ProductType` union += `'tester'`; third card
+  "Tester Box" (Package icon); grid `sm:grid-cols-2 lg:grid-cols-3`. New exported helper
+  `toAdminProductType(type)` → `'perfume' | 'tester' | 'attar'` via `normalizeType` (single source of truth).
+- `src/components/admin/ProductForm.tsx` — `productType` prop union += `'tester'`. Default type
+  `Tester`, default size `'50ml'` (matches `defaultSizeForType`), submit maps `'Tester'` (forced,
+  mirrors perfume forcing). H1 "Create Tester Box Product". Details tab shows informational
+  "Tester Box" card (no invented fields). Sidebar Type select += "Tester Box" option.
+- `src/components/admin/ProductEditWrapper.tsx` — `productType` union += `'tester'`.
+- `src/app/admin/(protected)/products/[id]/edit/page.tsx` — redirect uses `toAdminProductType`
+  (fixes Tester products previously mis-routing to attar edit).
+- `src/app/admin/(protected)/products/page.tsx` — Type filter select += "Tester Box";
+  Create-dialog "+ Tester Box" button; edit links use `toAdminProductType`; Type badge renders
+  "Tester Box" label for `Tester`. (Filter `.includes('tester')` already matched.)
+
+### Files created
+- `src/app/admin/(protected)/products/tester/new/page.tsx` — `<ProductForm mode="create" productType="tester" />`.
+- `src/app/admin/(protected)/products/tester/[id]/edit/page.tsx` — `<ProductEditWrapper productType="tester" />`.
+
+### Verified
+- `npx eslint` changed files: 0 errors (6 pre-existing warnings: img, unused sizePrices,
+  react-hooks/incompatible-library on form.watch, exhaustive-deps on productType — all pre-existing).
+- `npx tsc --noEmit`: no errors in changed files (pre-existing elsewhere unchanged:
+  seed.ts `pool`, api/admin/products `sizePrices`, api/orders/by-number `userId`, deploy-app/ copies).
+- `npx next build`: ✓; both new routes registered
+  (`/admin/products/tester/new`, `/admin/products/tester/[id]/edit`).
+
+### Known follow-ups (later phases)
+- Phase 4 homepage 3-card section. Storefront polish: `/shop` H1, ShopContent chip, PDP typeLabel.
 
 ---
 
