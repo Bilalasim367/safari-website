@@ -19,7 +19,7 @@ const featuredCategories: CollectionCategory[] = [
     id: "attar",
     name: "Attar Collection",
     description: "Pure, concentrated perfume oils for lasting intensity",
-    image: "/safari-attar-collection.jpg",
+    image: "/safari-attar-collection.webp",
     subItems: [
       { label: "Men", href: "/shop?type=attar&gender=men" },
       { label: "Women", href: "/shop?type=attar&gender=women" },
@@ -30,7 +30,7 @@ const featuredCategories: CollectionCategory[] = [
     id: "perfume",
     name: "Perfumes Collection",
     description: "Luxury interpretations of iconic designer fragrances",
-    image: "/safari-perfume-collection.jpg",
+    image: "/safari-perfume-collection.webp",
     subItems: [
       { label: "Men", href: "/shop?type=perfume&gender=men" },
       { label: "Women", href: "/shop?type=perfume&gender=women" },
@@ -41,7 +41,7 @@ const featuredCategories: CollectionCategory[] = [
     id: "our-collection",
     name: "Our Collection",
     description: "Exclusive signature blends coming soon",
-    image: "/safari-our-collection.jpg",
+    image: "/safari-our-collection.webp",
     subItems: [
       { label: "Notify Me", href: "/contact?notify=our-collection" },
     ],

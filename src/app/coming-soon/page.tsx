@@ -29,7 +29,7 @@ export default function ComingSoonPage() {
 
       <div className="relative z-10 w-full max-w-3xl text-center">
         <img
-          src="/logo.jpeg"
+          src="/logo.webp"
           alt="Safari Perfumes"
           className="mx-auto mb-8 w-24 md:w-28 aspect-square object-cover rounded-full ring-1 ring-gold/40"
         />

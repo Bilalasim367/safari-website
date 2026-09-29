@@ -628,7 +628,7 @@
   position: relative;
   height: 280px;
   overflow: hidden;
-  background-image: url("/banner-lifestyle.jpg");
+  background-image: url("/banner-lifestyle.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

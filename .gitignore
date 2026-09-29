@@ -73,6 +73,9 @@ debug-errors.log
 # Coming-soon design review screenshots
 coming-soon-*.png
 
+# Original pre-WebP images (created by scripts/convert-images.js, never delete)
+/images_backup/
+
 # Playwright MCP artifacts
 .playwright-mcp/
 test-results/

@@ -11,7 +11,7 @@ export default function Hero() {
     <section className="relative h-[420px] sm:h-[480px] md:h-[560px] lg:min-h-[85vh] flex items-center justify-center overflow-hidden -mt-20 md:-mt-28 animate-fade-in">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/new-banneri.jpg"
+          src="/new-banneri.webp"
           alt="Safari Perfumes - Luxury fragrances"
           fill
           className="object-cover"

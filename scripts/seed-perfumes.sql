@@ -36,7 +36,7 @@ VALUES
   'safari-signature-one',                  -- slug (must be unique, lowercase w/ dashes)
   9900,                                    -- price (PKR)
   NULL,                                    -- originalPrice (NULL = no strikethrough)
-  '',                                      -- image ('' = placeholder; or '/images/x.jpg')
+  '',                                      -- image ('' = placeholder; or '/images/x.webp')
   '[]',                                    -- images (JSON array)
   'unisex',                                -- categorySlug (men/women/unisex)
   '50ml',                                  -- size — ALWAYS 50ml for perfume

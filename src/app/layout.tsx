@@ -64,7 +64,7 @@ const organizationJsonLd = {
   '@type': 'Organization',
   name: SITE_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.jpeg`,
+  logo: `${SITE_URL}/logo.webp`,
   email: 'support@safari-perfumes.com',
   telephone: '+92 3107435020',
   address: {

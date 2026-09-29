@@ -12,7 +12,7 @@ export default function BrandStory() {
           <div className="relative md:rounded-2xl overflow-hidden -mx-4 md:mx-0">
             <div className="relative aspect-[3/4] md:aspect-[4/5] overflow-hidden md:rounded-2xl">
               <Image
-                src="/safari-brand-story.png"
+                src="/safari-brand-story.webp"
                 alt="Safari Perfumes - Crafting luxury fragrances"
                 fill
                 className="object-cover"

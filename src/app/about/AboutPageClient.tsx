@@ -12,7 +12,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 grid grid-cols-2">
           <div className="relative">
             <Image
-              src="/safari-lifestyle-1.png"
+              src="/safari-lifestyle-1.webp"
               alt="Safari Perfumes lifestyle"
               fill
               className="object-cover object-center"
@@ -21,7 +21,7 @@ export default function AboutPage() {
           </div>
           <div className="relative hidden sm:block">
             <Image
-              src="/safari-lifestyle-2.png"
+              src="/safari-lifestyle-2.webp"
               alt="Safari Perfumes lifestyle"
               fill
               className="object-cover object-center"
@@ -60,7 +60,7 @@ export default function AboutPage() {
             </div>
             <div className="relative aspect-square rounded-2xl overflow-hidden">
               <Image
-                src="/safari-lifestyle-3.png"
+                src="/safari-lifestyle-3.webp"
                 alt="Safari craftsmanship"
                 fill
                 className="object-cover object-center"
@@ -125,7 +125,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative aspect-video lg:order-2 rounded-2xl overflow-hidden">
               <Image
-                src="/safari-lifestyle-4.png"
+                src="/safari-lifestyle-4.webp"
                 alt="Our perfumery"
                 fill
                 className="object-cover object-center"

@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "deploy-staging/**",
     "server.js",
     "next-env.d.ts",
+    // Image WebP tooling — Node CommonJS CLI scripts, not app source.
+    "scripts/convert-images.js",
+    "scripts/delete-originals.js",
   ]),
 ]);
 
