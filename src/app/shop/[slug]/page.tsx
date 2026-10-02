@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 import { readPopupSettings } from '@/lib/popup-settings'
 import { defaultSizeForType } from '@/lib/normalize'
+import { resolveDefaultPricing } from '@/lib/size-pricing'
 import ProductDetailClient, { type RelatedProduct } from './ProductDetailClient'
 
 export const revalidate = 300
@@ -266,6 +267,11 @@ export default async function ProductPage({
       season: true,
       impressionOf: true,
       currency: true,
+      sizesAvailable: true,
+      price3mlOnline: true,
+      price6mlOnline: true,
+      price12mlOnline: true,
+      price50mlOnline: true,
       category: { select: { name: true } },
     },
     orderBy: { createdAt: 'desc' },
@@ -273,25 +279,28 @@ export default async function ProductPage({
   })
 
   const formattedProduct = formatProduct(product)
-  const relatedProducts: RelatedProduct[] = related.map((p) => ({
+  const relatedProducts: RelatedProduct[] = related.map((p) => {
+    const pricing = resolveDefaultPricing(p)
+    return {
     id: p.id,
     name: p.name,
     slug: p.slug,
-    price: p.price,
+    price: pricing ? pricing.price : p.price,
     originalPrice: p.originalPrice,
     image: p.image || '',
     images: parseJsonArray(p.images),
     category: p.category?.name || 'Unisex',
     isNew: p.isNew,
     isBestseller: p.isBestseller,
-    size: p.size || defaultSizeForType(p.type),
+    size: pricing ? pricing.size : p.size || defaultSizeForType(p.type),
     rating: p.rating,
     reviewCount: p.reviewCount,
     gender: p.gender,
     season: p.season,
     impressionOf: p.impressionOf,
     currency: p.currency,
-  }))
+  }
+  })
 
   const reviews = await prisma.review.findMany({
     where: { productId: product.id, isApproved: true },

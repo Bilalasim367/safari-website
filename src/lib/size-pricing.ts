@@ -118,3 +118,24 @@ export function findSizeOption(
   const target = normalizeSize(size);
   return options.find((o) => o.size === target) ?? null;
 }
+
+/**
+ * Price + volume a product card should advertise.
+ *
+ * Uses the same default volume as the product detail page (Attar 12ml,
+ * Perfume 50ml) and that volume's real retail price, so a card, the PDP,
+ * the cart and checkout can never disagree. Returns null when the product
+ * has no sellable volume, so callers can fall back deliberately instead of
+ * silently showing the stale base `price`.
+ */
+export function resolveDefaultPricing(
+  product: SizePriceFields | null | undefined
+): { price: number; size: string } | null {
+  const options = resolveSizeOptions(product);
+  if (options.length === 0) return null;
+  const size = resolveDefaultSize(options, product);
+  if (!size) return null;
+  const option = findSizeOption(options, size);
+  if (!option) return null;
+  return { price: option.price, size: option.size };
+}

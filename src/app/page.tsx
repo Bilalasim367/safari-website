@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma"
 import HomePage from "@/components/HomePage"
 import { classifyProductType } from "@/lib/product-types"
 import { defaultSizeForType } from "@/lib/normalize"
+import { resolveDefaultPricing } from "@/lib/size-pricing"
 import { SITE_URL } from "@/lib/site"
 import type { Metadata } from "next"
 
@@ -44,13 +45,18 @@ function mapProduct(p: {
   fragranceFamily: string | null
   sizesAvailable: string | null
   sizePrices: string | null
+  price3mlOnline: number | null
+  price6mlOnline: number | null
+  price12mlOnline: number | null
+  price50mlOnline: number | null
   category: { name: string } | null
 }) {
+  const pricing = resolveDefaultPricing(p)
   return {
     id: p.id,
     name: p.name,
     slug: p.slug,
-    price: p.price,
+    price: pricing ? pricing.price : p.price,
     originalPrice: p.originalPrice,
     image: p.image || "",
     images: JSON.parse(p.images || "[]") as string[],
@@ -61,7 +67,7 @@ function mapProduct(p: {
     isNew: p.isNew,
     isHotSelling: p.isHotSelling,
     isTrending: p.isTrending,
-    size: p.size || defaultSizeForType(classifyProductType(p)),
+    size: pricing ? pricing.size : p.size || defaultSizeForType(classifyProductType(p)),
     inStock: p.inStock,
     rating: p.rating,
     reviewCount: p.reviewCount,
@@ -100,6 +106,10 @@ async function getProducts() {
       origin: true,
       price3mlPhysical: true,
       price6mlPhysical: true,
+      price3mlOnline: true,
+      price6mlOnline: true,
+      price12mlOnline: true,
+      price50mlOnline: true,
     } as const
 
     const [hotSelling, menProducts, womenProducts, unisexProducts] = await Promise.all([

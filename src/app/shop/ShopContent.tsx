@@ -6,6 +6,7 @@ import MobileFilterDrawer from './MobileFilterDrawer';
 import FILTERS, { FilterSection } from './FilterSection';
 import { classifyProductType, type ProductCategoryType } from '@/lib/product-types';
 import { normalizeGender, normalizeType, defaultSizeForType } from '@/lib/normalize';
+import { resolveDefaultPricing } from '@/lib/size-pricing';
 import { debugLog } from '@/lib/debugLog';
 
 export const dynamic = 'force-dynamic';
@@ -225,20 +226,26 @@ export default async function ShopContent({
     applicatorType: string | null;
     origin: string | null;
     category: { name: string; slug: string } | null;
+    sizesAvailable: string | null;
+    price3mlOnline: number | null;
+    price6mlOnline: number | null;
+    price12mlOnline: number | null;
+    price50mlOnline: number | null;
   }
 
   function mapToFormattedProduct(p: ShopProductRow): Product {
+    const pricing = resolveDefaultPricing(p);
     return {
       id: p.id,
       name: p.name,
       slug: p.slug,
-      price: p.price,
+      price: pricing ? pricing.price : p.price,
       originalPrice: p.originalPrice ?? undefined,
       image: p.image || '',
       images: parseJsonArray(p.images),
       category: p.category ? { name: p.category.name, slug: p.category.slug } : null,
       categorySlug: p.categorySlug ?? undefined,
-      size: p.size || defaultSizeForType(p.type),
+      size: pricing ? pricing.size : p.size || defaultSizeForType(p.type),
       
       isBestseller: p.isBestseller,
       isNew: p.isNew,
@@ -282,6 +289,11 @@ categorySlug: true,
           type: true,
           applicatorType: true,
           origin: true,
+          sizesAvailable: true,
+          price3mlOnline: true,
+          price6mlOnline: true,
+          price12mlOnline: true,
+          price50mlOnline: true,
           category: { select: { name: true, slug: true } },
         },
         orderBy,
