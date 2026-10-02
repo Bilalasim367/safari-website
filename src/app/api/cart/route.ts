@@ -109,29 +109,45 @@ export async function POST(request: Request) {
       : [];
     const productMap = new Map(products.map((p) => [p.id, p]));
 
-    await prisma.$transaction([
-      prisma.cartItem.deleteMany({ where: { userId: payload.userId } }),
-      ...(cart.length > 0
-        ? [prisma.cartItem.createMany({
-            data: cart.filter(item => item?.id).map(item => {
-              const p = productMap.get(item.id);
-              return {
-                userId: payload.userId,
-                productId: item.id,
-                // Fresh DB values win; fall back to the snapshot only when the
-                // product no longer exists (so the line is not silently dropped).
-                name: p?.name || item.name || 'Unknown',
-                price: p ? resolvePrice(p) : Number(item.price) || 0,
-                image: p?.image || item.image || '',
-                size: (p?.size && p.size.trim()) || item.size || '',
-                quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
-              };
-            }),
-          })]
-        : []),
-    ]);
+    // Never persist a line whose product does not exist. This endpoint accepts
+    // a client-supplied id list, so without this guard a tampered or stale
+    // payload (the old cart upsells wrote numeric placeholder ids straight from
+    // localStorage) would create unfulfillable CartItem rows that no amount of
+    // client-side cleanup would clear. Unknown ids are reported back so the
+    // client can drop them; known products are still saved.
+    const unknownIds = ids.filter((id) => !productMap.has(id));
+    const saveableCart = cart.filter((item) => item?.id && productMap.has(item.id));
 
-    return NextResponse.json({ success: true, message: 'Cart saved' });
+    if (saveableCart.length > 0) {
+      await prisma.$transaction([
+        prisma.cartItem.deleteMany({ where: { userId: payload.userId } }),
+        prisma.cartItem.createMany({
+          data: saveableCart.map((item) => {
+            const p = productMap.get(item.id)!;
+            return {
+              userId: payload.userId,
+              productId: p.id,
+              // Fresh DB values win for every persisted field.
+              name: p.name || 'Unknown',
+              price: resolvePrice(p),
+              image: p.image || '',
+              size: (p.size && p.size.trim()) || item.size || '',
+              quantity: Math.min(Math.max(Number(item.quantity) || 1, 1), 99),
+            };
+          }),
+        }),
+      ]);
+    } else {
+      // Whole payload was unknown ids: clear the stored cart rather than
+      // leaving orphaned rows behind.
+      await prisma.cartItem.deleteMany({ where: { userId: payload.userId } });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Cart saved',
+      ...(unknownIds.length > 0 ? { removedIds: unknownIds } : {}),
+    });
   } catch (error) {
     console.error('Error saving cart:', error);
     return NextResponse.json(

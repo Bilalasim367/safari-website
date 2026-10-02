@@ -82,9 +82,20 @@ export async function POST(request: Request) {
     const validatedItems: OrderItem[] = [];
     for (const item of items as OrderItem[]) {
       const product = productMap.get(item.id);
+      // Unknown id, or a product that has been deactivated: both mean this
+      // line cannot be bought. `productMap` is built from an `isActive: true`
+      // query, so an inactive product is absent here.
       if (!product) {
         return NextResponse.json(
           { success: false, message: `Invalid item in cart: ${item.name || item.id}` },
+          { status: 400 }
+        );
+      }
+      // Still active but not purchasable. Reject rather than silently taking
+      // the order; the cart UI blocks this too, but the server is authoritative.
+      if (product.inStock === false) {
+        return NextResponse.json(
+          { success: false, message: `Currently unavailable: ${product.name}` },
           { status: 400 }
         );
       }

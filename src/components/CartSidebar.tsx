@@ -12,7 +12,7 @@ import { useUpsells, type UpsellProduct } from "@/hooks/useUpsells";
 const UPSELL_LIMIT = 4;
 
 export default function CartSidebar() {
-  const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen } = useCart();
+  const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen, hasUnavailableItems, removedNotice, dismissRemovedNotice } = useCart();
   const router = useRouter();
   const shipping = 0;
   const total = subtotal + shipping;
@@ -38,6 +38,7 @@ export default function CartSidebar() {
   };
 
   const handleCheckout = () => {
+    if (hasUnavailableItems) return;
     setIsCartOpen(false);
     router.push('/checkout');
   };
@@ -62,6 +63,28 @@ export default function CartSidebar() {
             </button>
           </SheetHeader>
 
+          {removedNotice && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-start gap-2 px-6 py-3 bg-amber-50 border-b border-amber-200 text-amber-900 text-sm"
+            >
+              <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              <span className="flex-1">{removedNotice}</span>
+              <button
+                onClick={dismissRemovedNotice}
+                aria-label="Dismiss notice"
+                className="shrink-0 w-11 h-11 -my-2 -mr-2 flex items-center justify-center rounded-full hover:bg-amber-100 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto p-6">
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
@@ -77,48 +100,57 @@ export default function CartSidebar() {
             ) : (
               <div className="space-y-0">
                 {items.map((item) => (
-                  <div key={`${item.id}-${item.size}`} className="flex gap-4 py-5 border-b border-muted/30 last:border-b-0">
-                    <div className="relative w-20 h-24 sm:w-24 sm:h-28 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between py-0.5">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="font-serif text-foreground text-base sm:text-lg leading-tight">{item.name}</h3>
-                          <p className="text-muted-foreground text-xs mt-1 uppercase tracking-wider">{item.size}</p>
-                        </div>
-                        <button
-                          onClick={() => removeItem(item.id, item.size)}
-                          aria-label={`Remove ${item.name} from bag`}
-                          className="w-11 h-11 shrink-0 -mr-3 -mt-3 flex items-center justify-center rounded-full text-muted-foreground/50 hover:text-red-500 hover:bg-muted transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-center border border-muted rounded-full overflow-hidden">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                            aria-label={`Decrease quantity of ${item.name}`}
-                            className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
-                          >
-                            −
-                          </button>
-                          <span className="w-8 text-center text-foreground text-sm font-medium">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                            aria-label={`Increase quantity of ${item.name}`}
-                            className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <p className="font-serif text-foreground font-medium">PKR {item.price * item.quantity}</p>
-                      </div>
-                    </div>
-                  </div>
+<div key={`${item.id}-${item.size}`} className={`flex gap-4 py-5 border-b border-muted/30 last:border-b-0 ${item.unavailable ? 'opacity-70' : ''}`}>
+                     <div className="relative w-20 h-24 sm:w-24 sm:h-28 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                       {item.image ? (
+                         <Image src={item.image} alt={item.name} fill className="object-cover" />
+                       ) : null}
+                     </div>
+                     <div className="flex-1 flex flex-col justify-between py-0.5">
+                       <div className="flex justify-between">
+                         <div>
+                           <h3 className="font-serif text-foreground text-base sm:text-lg leading-tight">{item.name}</h3>
+                           <p className="text-muted-foreground text-xs mt-1 uppercase tracking-wider">{item.size}</p>
+                           {item.unavailable && (
+                             <p className="text-xs mt-1 text-red-600 font-medium">
+                               Currently unavailable &mdash; remove to continue
+                             </p>
+                           )}
+                         </div>
+                         <button
+                           onClick={() => removeItem(item.id, item.size)}
+                           aria-label={`Remove ${item.name} from bag`}
+                           className="w-11 h-11 shrink-0 -mr-3 -mt-3 flex items-center justify-center rounded-full text-muted-foreground/50 hover:text-red-500 hover:bg-muted transition-colors"
+                         >
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                           </svg>
+                         </button>
+                       </div>
+                       <div className="flex items-center justify-between mt-3">
+                         <div className="flex items-center border border-muted rounded-full overflow-hidden">
+                           <button
+                             onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                             disabled={item.unavailable}
+                             aria-label={`Decrease quantity of ${item.name}`}
+                             className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none"
+                           >
+                             &minus;
+                           </button>
+                           <span className="w-8 text-center text-foreground text-sm font-medium">{item.quantity}</span>
+                           <button
+                             onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                             disabled={item.unavailable}
+                             aria-label={`Increase quantity of ${item.name}`}
+                             className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none"
+                           >
+                             +
+                           </button>
+                         </div>
+                         <p className="font-serif text-foreground font-medium">PKR {item.price * item.quantity}</p>
+                       </div>
+                     </div>
+                   </div>
                 ))}
               </div>
             )}
@@ -174,7 +206,20 @@ export default function CartSidebar() {
                 </div>
               </div>
 
-              <Button onClick={handleCheckout} className="w-full mb-3 min-h-[44px] bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20">Checkout</Button>
+              {hasUnavailableItems && (
+                <p className="text-xs text-red-600 mb-3 text-center">
+                  Remove the unavailable item above to check out.
+                </p>
+              )}
+
+              <Button
+                onClick={handleCheckout}
+                disabled={hasUnavailableItems}
+                aria-disabled={hasUnavailableItems}
+                className="w-full mb-3 min-h-[44px] bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                Checkout
+              </Button>
               <Button onClick={() => setIsCartOpen(false)} variant="outline" className="w-full min-h-[44px] border-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground">Continue Shopping</Button>
             </div>
           )}
