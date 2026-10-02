@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { sendOrderConfirmationEmail } from '@/lib/email';
+import { priceCartLine } from '@/lib/order-pricing';
 
 
 function generateOrderNumber() {
@@ -91,28 +92,28 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-      // Still active but not purchasable. Reject rather than silently taking
-      // the order; the cart UI blocks this too, but the server is authoritative.
-      if (product.inStock === false) {
+
+      // Price and size both come from the CURRENT DB row for the size the
+      // customer actually selected. The client's `price` is ignored entirely,
+      // and `item.size` is validated against the sizes this product offers so
+      // a tampered payload cannot buy 6ml at the 50ml price (or vice versa).
+      const priced = priceCartLine(product, item.size);
+      if (!priced.ok) {
         return NextResponse.json(
-          { success: false, message: `Currently unavailable: ${product.name}` },
+          { success: false, message: priced.message, code: priced.code },
           { status: 400 }
         );
       }
+
       const quantity = Math.min(Math.max(parseInt(String(item.quantity)) || 1, 1), 99);
-      // Price = current DB base price, which is the ONLY price the storefront
-      // shows (PDP / product cards). No size selector exists, so `sizePrices`
-      // must never change what the customer saw when adding to cart.
-      const price = product.price;
-      // Size label = current DB value (fresh wins) — an attar once stored as
-      // "50ml" must be recorded as 12ml once the data is corrected, regardless
-      // of the stale client-supplied snapshot in the cart.
       validatedItems.push({
         id: product.id,
         name: product.name,
-        price,
+        price: priced.price,
         quantity,
-        size: product.size || item.size || '',
+        // Store the size that was actually charged, not the one the client
+        // claimed, so fulfilment and the invoice match the amount paid.
+        size: priced.size,
         image: product.image || item.image || '',
       });
     }
