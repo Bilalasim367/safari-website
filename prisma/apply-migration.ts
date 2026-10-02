@@ -1,3 +1,21 @@
+/**
+ * ============================================================================
+ * DEPRECATED — DO NOT USE FOR PRODUCTION SCHEMA CHANGES.
+ * ============================================================================
+ * This script predates versioned Prisma migrations. Every statement below is
+ * wrapped in a try/catch that ignores the error, so a real failure (missing
+ * ALTER/CREATE privilege, syntax error, wrong MySQL version) is SILENTLY
+ * SWALLOWED and only shows up later as a 500 in production.
+ *
+ * The schema is now owned by `prisma/migrations/` and applied with:
+ *     npx prisma migrate deploy        (production)
+ *     npm run db:migrate               (local dev, creates a new migration)
+ *
+ * This file is retained only as a historical record of the SQLite -> MySQL
+ * column additions. Prefer writing a proper migration instead.
+ * ============================================================================
+ */
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
