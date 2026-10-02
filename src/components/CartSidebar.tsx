@@ -7,7 +7,9 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { products } from "@/data/products";
+import { useUpsells, type UpsellProduct } from "@/hooks/useUpsells";
+
+const UPSELL_LIMIT = 4;
 
 export default function CartSidebar() {
   const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen } = useCart();
@@ -15,19 +17,22 @@ export default function CartSidebar() {
   const shipping = 0;
   const total = subtotal + shipping;
 
-  const suggestedProducts = products
-    .filter((p) => !items.some((i) => i.id === String(p.id)))
-    .slice(0, 3);
+  // Real catalogue rows only. When loading or on failure this is empty, so the
+  // "You Might Also Like" block renders nothing rather than placeholder items.
+  const { upsells, loading: upsellsLoading } = useUpsells(
+    items.map((i) => i.id),
+    UPSELL_LIMIT,
+  );
 
-  const handleAddSuggested = (e: React.MouseEvent, product: typeof products[0]) => {
+  const handleAddSuggested = (e: React.MouseEvent, product: UpsellProduct) => {
     e.preventDefault();
     e.stopPropagation();
     addItem({
-      id: String(product.id),
+      id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
-      size: String(product.size || '12ml'),
+      size: product.size,
       quantity: 1,
     });
   };
@@ -118,14 +123,14 @@ export default function CartSidebar() {
               </div>
             )}
 
-            {items.length > 0 && (
+            {(items.length > 0 && (upsells.length > 0 || upsellsLoading)) && (
               <div className="mt-6 pt-4 border-t border-muted/30">
                 <p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold mr-2" />
                   You Might Also Like
                 </p>
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6">
-                  {suggestedProducts.map((sp) => (
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6 min-h-[164px]">
+                  {upsells.map((sp) => (
                     <Link
                       key={sp.id}
                       href={`/shop/${sp.slug}`}
@@ -144,7 +149,7 @@ export default function CartSidebar() {
                         </button>
                       </div>
                       <p className="text-xs text-foreground font-medium truncate group-hover:text-gold transition-colors">{sp.name}</p>
-                      <p className="text-xs text-muted-foreground">PKR {sp.price}</p>
+                      <p className="text-xs text-muted-foreground">{sp.size.toUpperCase()} &middot; PKR {sp.price}</p>
                     </Link>
                   ))}
                 </div>
