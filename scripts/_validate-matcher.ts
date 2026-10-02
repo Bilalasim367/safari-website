@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise'
+import { mysqlPass } from './_db-env'
 import type { RowDataPacket } from 'mysql2'
 import fs from 'fs'
 import path from 'path'
@@ -14,7 +15,7 @@ interface DbRow {
 }
 
 async function main() {
-  const pass = process.env.MYSQL_PASS || 'Hassan224266'
+  const pass = mysqlPass()
   const c = await mysql.createConnection({ host: 'localhost', user: 'root', password: pass, database: 'perfume_db' })
   const [prodRows] = await c.query<RowDataPacket[] & DbRow[]>('SELECT id, name, price, oilPricePer100g, productId FROM product')
   await c.end()

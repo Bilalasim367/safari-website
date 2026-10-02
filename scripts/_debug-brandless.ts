@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise'
+import { mysqlPass } from './_db-env'
 import fs from 'fs'
 import path from 'path'
 import { parsePriceCsv, dedupeRows, buildDbIndex } from '../src/lib/bulk-price'
@@ -11,7 +12,7 @@ function stripBrand(norm: string): string {
 }
 
 async function main() {
-  const pass = process.env.MYSQL_PASS || 'Hassan224266'
+  const pass = mysqlPass()
   const c = await mysql.createConnection({ host: 'localhost', user: 'root', password: pass, database: 'perfume_db' })
   const [prodRows] = await c.query<any[]>('SELECT id, name FROM product')
   await c.end()

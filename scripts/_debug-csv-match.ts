@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise'
+import { mysqlPass } from './_db-env'
 import fs from 'fs'
 import path from 'path'
 import { parsePriceCsv, dedupeRows, buildDbIndex, matchRows } from '../src/lib/bulk-price'
@@ -6,7 +7,7 @@ import { normalizeProductName } from '../src/lib/text-match'
 
 async function main() {
   const user = process.env.MYSQL_USER || 'root'
-  const pass = process.env.MYSQL_PASS || 'Hassan224266'
+  const pass = mysqlPass()
   const dbName = process.env.MYSQL_DB || 'perfume_db'
   const c = await mysql.createConnection({ host: 'localhost', user, password: pass, database: dbName })
 

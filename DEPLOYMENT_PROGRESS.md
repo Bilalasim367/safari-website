@@ -10,7 +10,7 @@ New 4-step workflow (domain, build, git, cPanel) in progress. See bottom of file
 - [x] .env & .env.production NEXT_PUBLIC_BASE_URL = https://safari-perfumes.com
 - [x] CPANEL_DEPLOYMENT.md domain refs fixed (was no-hyphen on lines 20 & 175)
 - [x] AGENTS.md Database section corrected: Turso (libSQL) -> MySQL/cPanel + cPanel
-      DATABASE_URL mysql://safariperfumes:Hassan224266@localhost:3306/safariperfumes_perfume_db
+      DATABASE_URL mysql://safariperfumes:<REDACTED>@localhost:3306/safariperfumes_perfume_db
 - [x] Verified zero unhyphenated `safariperfumes.com` in src/buildable files
 - [x] Verified zero TURSO/libsql in all env files and all git-tracked .ts/.tsx/.js/.json
 
@@ -19,7 +19,7 @@ New 4-step workflow (domain, build, git, cPanel) in progress. See bottom of file
 - [x] Fresh .next/standalone regenerated; NEW BUILD_ID = k8BG0UGTBl-2n7TsI8TYq
 - [x] standalone bundled .env.production verified:
       NEXT_PUBLIC_BASE_URL=https://safari-perfumes.com (hyphen) +
-      DATABASE_URL=mysql://safariperfumes:Hassan224266@localhost:3306/safariperfumes_perfume_db
+      DATABASE_URL=mysql://safariperfumes:<REDACTED>@localhost:3306/safariperfumes_perfume_db
 - [x] `npm run lint` = 0 errors / 37 pre-existing warnings (test unused-vars only)
 
 ### Step 3 (git) — DONE 2026-09-02
@@ -100,7 +100,7 @@ Deploy blocker fixes:
    deleted; CPANEL_DEPLOYMENT.md updated; /deploy-app/ added to .gitignore.
 5. Env: .env.example rewritten MySQL-only; .env cleaned (Turso token + wrong-domain
    comments removed, same-origin API URL); .env.production aligns to
-   mysql://safariperfumes:Hassan224266@localhost:3306/safariperfumes_perfume_db.
+   mysql://safariperfumes:<REDACTED>@localhost:3306/safariperfumes_perfume_db.
 6. Build: fresh .next/standalone generated successfully.
 
 ## Untracked helper files created during this work
@@ -109,7 +109,7 @@ Deploy blocker fixes:
 (Both are safe; build-output.log can be deleted later.)
 
 ## OPEN ITEM (RESOLVED 2026-09-02)
-- DB credentials confirmed by user: user `safariperfumes`, password `Hassan224266`,
+- DB credentials confirmed by user: user `safariperfumes`, password `<REDACTED>`,
   db `safariperfumes_perfume_db` (matches .env and standalone bundle).
   - Updated .env.production DATABASE_URL to the confirmed creds.
   - Updated CPANEL_DEPLOYMENT.md MySQL user + env var block to the confirmed creds.
@@ -124,7 +124,7 @@ Deploy blocker fixes:
 - [x] Env files standardized (MySQL only, same-origin API URL)
 - [x] Fresh .next/standalone built (BUILD_ID UTpIwsElPNfWrOD6iUwoO; REBUILT after
        credential alignment -> NEW BUILD_ID lBII44tmDzQeODHSukbIx; both standalone
-       .env and .env.production now carry mysql://safariperfumes:Hassan224266@...)
+       .env and .env.production now carry mysql://safariperfumes:<REDACTED>@...)
 - [x] DB credentials aligned everywhere
 
 ## Log

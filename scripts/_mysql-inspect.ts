@@ -1,8 +1,9 @@
 import mysql from 'mysql2/promise'
+import { mysqlPass } from './_db-env'
 
 async function main() {
   const user = process.env.MYSQL_USER || 'root'
-  const pass = process.env.MYSQL_PASS || 'Hassan224266'
+  const pass = mysqlPass()
   const db = process.env.MYSQL_DB || 'perfume_db'
   const c = await mysql.createConnection({ host: 'localhost', user, password: pass, database: db })
   const [dbs] = await c.query('SHOW DATABASES')
