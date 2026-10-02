@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
+import { findSizeOption, resolveSizeOptions } from "@/lib/size-pricing";
 
 export interface CartItem {
   id: string;
@@ -56,16 +57,22 @@ type FreshProduct = {
   size?: string | null;
   type?: string | null;
   sizePrices?: string | null;
+  sizesAvailable?: string | null;
+  price3mlOnline?: number | null;
+  price6mlOnline?: number | null;
+  price12mlOnline?: number | null;
+  price50mlOnline?: number | null;
 };
 
-// Effective price for a cart line = the CURRENT DB base price, which is the ONLY
-// price the storefront ever shows (PDP, product cards — there is no size selector
-// and no UI uses sizePrices). This keeps PDP price === cart price === checkout
-// price === order price. Never trust the snapshot price stored at add-time.
-function effectivePrice(product: FreshProduct): number | null {
-  return typeof product.price === 'number' && Number.isFinite(product.price)
-    ? product.price
-    : null;
+// Effective price for a cart line = the CURRENT retail price of the size the
+// customer actually selected, resolved from price{3,6,12,50}mlOnline via the
+// shared size-pricing helper. The base `price` column is a stale bulk-import
+// artifact and is never used as a line price. Returning null means "no price
+// for this size" and the line is left untouched rather than being rewritten
+// with a bogus figure.
+function effectivePrice(product: FreshProduct, size: string | null | undefined): number | null {
+  const option = findSizeOption(resolveSizeOptions(product), size);
+  return option ? option.price : null;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -122,17 +129,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       prev.map((item) => {
         const p = map.get(item.id);
         if (!p) return item;
-        const price = effectivePrice(p);
-        const freshSize = p.size && p.size.trim() ? p.size.trim() : null;
+        const price = effectivePrice(p, item.size);
         return {
           ...item,
           name: p.name ? p.name : item.name,
           ...(price !== null ? { price } : {}),
           image: p.image ? p.image : item.image,
-          // Sync the size label from the current DB product too — an attar once
-          // stored as "50ml" would otherwise keep showing 50ml in the cart even
-          // after the data is corrected (same stale-snapshot problem as price).
-          size: freshSize || item.size,
         };
       })
     );

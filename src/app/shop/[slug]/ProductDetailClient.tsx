@@ -7,6 +7,12 @@ import ShopProductCard from "@/app/shop/ShopProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { defaultSizeForType } from "@/lib/normalize";
+import {
+  findSizeOption,
+  resolveDefaultSize,
+  resolveSizeOptions,
+  type SizeOption,
+} from "@/lib/size-pricing";
 import { SITE_URL } from "@/lib/site";
 import { ChevronLeft, Minus, Plus, Heart, Truck, Shield, Sparkles, Gem, Flame } from "lucide-react";
 import { Rating } from "@/components/Rating";
@@ -81,6 +87,11 @@ interface Product {
   origin?: string;
   ingredients?: string;
   size?: string;
+  sizesAvailable?: string;
+  price3mlOnline?: number | null;
+  price6mlOnline?: number | null;
+  price12mlOnline?: number | null;
+  price50mlOnline?: number | null;
 }
 
 interface ProductDetailClientProps {
@@ -145,6 +156,11 @@ export default function ProductDetailClient({
   const [activeTab, setActiveTab] = useState<"description" | "notes" | "details">("description");
   const [expanded, setExpanded] = useState(false);
 
+  const sizeOptions: SizeOption[] = resolveSizeOptions(product);
+  const [selectedSize, setSelectedSize] = useState<string>(
+    () => resolveDefaultSize(resolveSizeOptions(product), product) ?? "12ml"
+  );
+
   const router = useRouter();
 
   if (!product) {
@@ -163,13 +179,17 @@ export default function ProductDetailClient({
 
   const isAttar = product?.type === "Attar";
   const currencySymbol = product?.currency || "PKR";
-  const displayPrice = product?.price ?? 0;
+
+  const activeOption = findSizeOption(sizeOptions, selectedSize) ?? sizeOptions[0] ?? null;
+  const effectiveSize = activeOption?.size ?? (product?.size?.trim() || defaultSizeForType(product.type));
+  const displayPrice = activeOption?.price ?? product?.price ?? 0;
   const displayOriginalPrice = product?.originalPrice;
 
-  const sizeLabel = isAttar ? "SIZE" : "VOLUME";
+  const sizeLabel = isAttar ? "Size" : "Volume";
+  const hasSizeChoice = sizeOptions.length > 1;
 
   const genderDisplay = product.gender?.trim() || "Unisex";
-  const sizeDisplay = (product.size?.trim() || defaultSizeForType(product.type)).toUpperCase();
+  const sizeDisplay = effectiveSize.toUpperCase();
   const categoryDisplay = product.category?.name?.trim() || "";
   const typeDisplay = isAttar ? "Attar" : "Perfume";
   const categoryFromSlug = product.categorySlug
@@ -199,23 +219,25 @@ export default function ProductDetailClient({
       addItem({
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: displayPrice,
         image: product.image,
-        size: product.size?.trim() || defaultSizeForType(product.type),
+        size: effectiveSize,
         quantity,
       });
-      toast.success(`${product.name} added to cart!`);
+      toast.success(`${product.name} (${sizeDisplay}) added to cart!`);
     }
   };
 
   const productUrl = `${SITE_URL}/shop/${product.slug}`;
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\nQuantity: ${quantity}\nLink: ${productUrl}`
+    `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\nQuantity: ${quantity}\nTotal: ${currencySymbol} ${formatPrice(displayPrice * quantity)}\nLink: ${productUrl}`
   )}`;
 
   const infoChips = [
     { icon: "👫", key: "GENDER", value: genderDisplay },
-    { icon: "📦", key: sizeLabel, value: sizeDisplay },
+    ...(hasSizeChoice
+      ? []
+      : [{ icon: "📦", key: sizeLabel.toUpperCase(), value: sizeDisplay }]),
   ].filter((chip) => chip.value && String(chip.value).trim() !== "");
 
   const wishlisted = isWishlisted(product.id);
@@ -392,6 +414,53 @@ export default function ProductDetailClient({
                   </div>
                 )}
               </div>
+
+              {hasSizeChoice && (
+                <div className="mb-6">
+                  <div className="flex items-baseline justify-between gap-3 mb-3">
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#c9a873]">
+                      {sizeLabel}
+                    </span>
+                    <span className="text-[11px] text-[#8a867f]">
+                      {isAttar ? "Pure oil, alcohol-free" : "Alcohol-based spray"}
+                    </span>
+                  </div>
+                  <div
+                    role="radiogroup"
+                    aria-label={sizeLabel}
+                    className="grid grid-cols-4 gap-2"
+                  >
+                    {sizeOptions.map((option) => {
+                      const isActive = option.size === effectiveSize;
+                      return (
+                        <button
+                          key={option.size}
+                          type="button"
+                          role="radio"
+                          aria-checked={isActive}
+                          onClick={() => setSelectedSize(option.size)}
+                          className={`min-h-[56px] rounded-xl border px-2 py-2 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                            isActive
+                              ? "border-[#B6965D] bg-[#B6965D]/15 text-[#c9a873]"
+                              : "border-[#B6965D]/25 bg-[#161616] text-[#8a867f] hover:border-[#B6965D]/50 hover:text-[#c9a873]"
+                          }`}
+                        >
+                          <span className="text-sm font-bold leading-none">
+                            {option.label}
+                          </span>
+                          <span
+                            className={`text-[11px] font-semibold leading-none ${
+                              isActive ? "text-[#c9a873]" : "text-[#6f6a63]"
+                            }`}
+                          >
+                            {currencySymbol} {formatPrice(option.price)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Gender + Size chips only (price chip removed — duplicated in price box) */}
               {infoChips.length > 0 && (
@@ -729,14 +798,14 @@ export default function ProductDetailClient({
         <div className="flex items-center justify-between gap-3">
           <div className="flex-shrink-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c9a873]">
-              Total
+              {hasSizeChoice ? `${sizeDisplay} · ${quantity} ×` : `Total · ${quantity} ×`}
             </p>
             <p className="text-lg font-bold text-white leading-tight">
-              {currencySymbol} {formatPrice(displayPrice)}
+              {currencySymbol} {formatPrice(displayPrice * quantity)}
             </p>
             {displayOriginalPrice && displayOriginalPrice > displayPrice && (
               <p className="text-[11px] text-white/40 line-through">
-                {currencySymbol} {formatPrice(displayOriginalPrice)}
+                {currencySymbol} {formatPrice(displayOriginalPrice * quantity)}
               </p>
             )}
           </div>

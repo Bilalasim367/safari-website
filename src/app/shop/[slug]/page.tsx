@@ -81,6 +81,10 @@ function formatProduct(product: {
   metaTitle: string | null
   metaDescription: string | null
   notes: string | null
+  price3mlOnline: number | null
+  price6mlOnline: number | null
+  price12mlOnline: number | null
+  price50mlOnline: number | null
 }) {
   return {
     id: product.id,
@@ -124,6 +128,10 @@ function formatProduct(product: {
     origin: product.origin || undefined,
     ingredients: product.ingredients || undefined,
     notes: product.notes || undefined,
+    price3mlOnline: product.price3mlOnline,
+    price6mlOnline: product.price6mlOnline,
+    price12mlOnline: product.price12mlOnline,
+    price50mlOnline: product.price50mlOnline,
   }
 }
 
