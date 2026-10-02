@@ -50,7 +50,7 @@ export default function CartSidebar() {
                 Shopping Bag ({items.length})
               </SheetTitle>
             </div>
-            <button onClick={() => setIsCartOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
+            <button onClick={() => setIsCartOpen(false)} aria-label="Close bag" className="w-11 h-11 -mr-2 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
               <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -84,7 +84,8 @@ export default function CartSidebar() {
                         </div>
                         <button
                           onClick={() => removeItem(item.id, item.size)}
-                          className="text-muted-foreground/50 hover:text-red-500 transition-colors p-1 -mr-1 -mt-1"
+                          aria-label={`Remove ${item.name} from bag`}
+                          className="w-11 h-11 shrink-0 -mr-3 -mt-3 flex items-center justify-center rounded-full text-muted-foreground/50 hover:text-red-500 hover:bg-muted transition-colors"
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -95,14 +96,16 @@ export default function CartSidebar() {
                         <div className="flex items-center border border-muted rounded-full overflow-hidden">
                           <button
                             onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+                            aria-label={`Decrease quantity of ${item.name}`}
+                            className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
                           >
                             −
                           </button>
                           <span className="w-8 text-center text-foreground text-sm font-medium">{item.quantity}</span>
                           <button
                             onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+                            aria-label={`Increase quantity of ${item.name}`}
+                            className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
                           >
                             +
                           </button>
@@ -133,7 +136,7 @@ export default function CartSidebar() {
                         <button
                           onClick={(e) => handleAddSuggested(e, sp)}
                           aria-label={`Add ${sp.name} to cart`}
-                          className="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full bg-gold text-white flex items-center justify-center hover:bg-gold/90 hover:scale-110 transition-all duration-200 shadow-md"
+                          className="absolute bottom-1.5 right-1.5 w-11 h-11 rounded-full bg-gold text-white flex items-center justify-center hover:bg-gold/90 hover:scale-110 transition-all duration-200 shadow-md"
                         >
                           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                             <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -166,8 +169,8 @@ export default function CartSidebar() {
                 </div>
               </div>
 
-              <Button onClick={handleCheckout} className="w-full mb-3 bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20">Checkout</Button>
-              <Button onClick={() => setIsCartOpen(false)} variant="outline" className="w-full border-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground">Continue Shopping</Button>
+              <Button onClick={handleCheckout} className="w-full mb-3 min-h-[44px] bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20">Checkout</Button>
+              <Button onClick={() => setIsCartOpen(false)} variant="outline" className="w-full min-h-[44px] border-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground">Continue Shopping</Button>
             </div>
           )}
         </SheetContent>

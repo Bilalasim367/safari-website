@@ -146,7 +146,7 @@ export default function Header() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className='text-primary-foreground/80 hover:text-primary-foreground transition-all duration-200'
+                  className='w-11 h-11 -mx-3 flex items-center justify-center text-primary-foreground/80 hover:text-primary-foreground transition-all duration-200'
                   aria-label={social.label}
                   title={social.label}
                 >
@@ -204,7 +204,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className='md:hidden text-white/80 hover:text-gold'
+              className='md:hidden text-white/80 hover:text-gold h-11 w-11'
               onClick={() => setSearchOpen(true)}
               aria-label='Search'
             >
@@ -232,7 +232,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className='relative text-white/80 hover:text-gold'
+              className='relative text-white/80 hover:text-gold h-11 w-11'
               onClick={() => setIsCartOpen(true)}
               aria-label='Cart'
             >
@@ -247,7 +247,7 @@ export default function Header() {
             </Button>
 
             {/* Profile / Account */}
-            <Link href={user ? '/account' : '/login'} aria-label='Account' className='text-white/80 hover:text-gold transition-colors'>
+            <Link href={user ? '/account' : '/login'} aria-label='Account' className='w-11 h-11 flex items-center justify-center text-white/80 hover:text-gold transition-colors'>
               <svg className='w-6 h-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' />
               </svg>
@@ -257,7 +257,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className='xl:hidden text-white/80 hover:text-gold'
+              className='xl:hidden text-white/80 hover:text-gold h-11 w-11'
               onClick={() => setMenuOpen(true)}
               aria-label='Menu'
             >

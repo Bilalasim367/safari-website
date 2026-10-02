@@ -151,14 +151,16 @@ export default function HotSellingProducts({ products }: HotSellingProductsProps
             ))}
           </div>
 
-          <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Hot selling pagination">
+          <div className="flex justify-center gap-1 mt-4" role="tablist" aria-label="Hot selling pagination">
             {hotProducts.slice(0, 8).map((_, i) => (
               <button
                 key={i}
-                className={`w-2 h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-6" : "bg-white/30 hover:bg-white/50"}`}
+                className="w-11 h-11 flex items-center justify-center"
                 role="tab"
                 aria-label={`Go to product ${i + 1}`}
-              />
+              >
+                <span className={`w-2 h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-6" : "bg-white/30 group-hover:bg-white/50"}`} />
+              </button>
             ))}
           </div>
         </div>

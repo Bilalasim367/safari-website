@@ -511,7 +511,7 @@ categorySlug: true,
                     {page > 1 && (
                       <Link
                         href={`/shop?page=${page - 1}${buildParamString(params)}`}
-                        className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
+                        className="inline-flex items-center px-4 min-h-[44px] border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
                       >
                         Previous
                       </Link>
@@ -522,7 +522,7 @@ categorySlug: true,
                     {page < totalPages && (
                       <Link
                         href={`/shop?page=${page + 1}${buildParamString(params)}`}
-                        className="px-4 py-2 border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
+                        className="inline-flex items-center px-4 min-h-[44px] border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
                       >
                         Next
                       </Link>

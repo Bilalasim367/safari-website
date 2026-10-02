@@ -140,14 +140,16 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
             ))}
           </div>
 
-          <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Best sellers pagination">
+          <div className="flex justify-center gap-1 mt-4" role="tablist" aria-label="Best sellers pagination">
             {bestsellers.slice(0, 8).map((_, i) => (
               <button
                 key={i}
-                className="w-2 h-2 rounded-full bg-muted-foreground/30 hover:bg-gold transition-colors"
+                className="w-11 h-11 flex items-center justify-center"
                 role="tab"
                 aria-label={`Go to product ${i + 1}`}
-              />
+              >
+                <span className="w-2 h-2 rounded-full bg-muted-foreground/30 group-hover:bg-gold transition-colors" />
+              </button>
             ))}
           </div>
         </div>
