@@ -8,6 +8,34 @@ Always use this document as project context before making any architectural or i
 
 ---
 
+# 🗄️ DATABASE — CURRENT TRUTH (2026-10-02) — READ FIRST
+
+**The database is MySQL on cPanel. Any Turso/libSQL content further down this file is
+HISTORICAL and NO LONGER TRUE.**
+
+| Fact | Value |
+|------|-------|
+| Engine | **MySQL** (cPanel) — was SQLite, then Turso/libSQL, now MySQL |
+| `schema.prisma` | `provider = "mysql"` |
+| Client | `src/lib/prisma.ts` — plain `new PrismaClient()` on `DATABASE_URL` |
+| `src/lib/turso.ts` | **DELETED** — does not exist |
+| Driver adapter | **None.** Prisma 5.x ships no MySQL adapter (`@prisma/adapter-mysql` does not exist) |
+| Schema versioning | `prisma/migrations/` → `npm run db:deploy` (prod), `npm run db:migrate` (local) |
+| Deprecations | `prisma/apply-migration.ts` (swallows errors), `prisma db push` on production |
+| Data migration | Turso → MySQL **already completed** (see `CPANEL_DEPLOYMENT.md`) |
+
+**Rules:**
+- NEVER reintroduce Turso/libSQL, MongoDB, PostgreSQL, or Supabase.
+- NEVER add `String[]` — MySQL has no scalar lists. Store JSON as `@db.Text`.
+- `order` is a MySQL reserved word: `@@map("order")`, and backtick-quote it in raw SQL.
+- Never hardcode DB credentials. Use `.env.local` / cPanel env vars.
+
+> ⚠️ Note: locally, `.env` holds the **production** cPanel URL and fails to
+> authenticate on a dev machine. Local commands need `DATABASE_URL` pointed at
+> `.env.local`, or just run against the cPanel host deliberately.
+
+---
+
 # ⚖️ VOLUME STANDARDS (CRITICAL — 2026-09-17)
 **Attars = 12ml only. Perfumes = 50ml only.**
 - This is the canonical rule for the WHOLE project. Do not change these defaults

@@ -26,7 +26,7 @@
 | Prior | **Shop Listing** | Product grid with category, size, fragrance family, price range filters; sort by price/newest; pagination. | `src/app/shop/*`, `src/components/ProductCard.tsx` |
 | Prior | **Product Detail** | Image gallery, thumbnail nav, size selector, quantity controls, add-to-cart, accordion (description/notes/shipping), related products. | `src/app/shop/[slug]/page.tsx` |
 | Prior | **Homepage** | Hero slider, featured collections, best sellers, testimonials, newsletter signup, brand story. | `src/components/HomePage.tsx`, `src/components/HeroSlider.tsx` |
-| Prior | **Database (Turso)** | Prisma schema with Product, Category, Bundle, BundleItem, User, CartItem, Order, OrderItem, Notification, Settings, Address, WishlistItem models. | `prisma/schema.prisma`, `prisma/seed.ts`, `src/lib/turso.ts` |
+| Prior | **Database (Turso)** _(historical — since migrated to MySQL on cPanel; `src/lib/turso.ts` deleted)_ | Prisma schema with Product, Category, Bundle, BundleItem, User, CartItem, Order, OrderItem, Notification, Settings, Address, WishlistItem models. | `prisma/schema.prisma`, `prisma/seed.ts`, ~~`src/lib/turso.ts`~~ → now `src/lib/prisma.ts` |
 
 ---
 
