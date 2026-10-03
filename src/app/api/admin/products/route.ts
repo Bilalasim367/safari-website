@@ -78,6 +78,7 @@ export async function POST(request: Request) {
         images: JSON.stringify(image ? [image] : []),
         categorySlug: categorySlug?.toLowerCase() || 'men',
         size: size || defaultSizeForType(undefined),
+        sizePrices: JSON.stringify([]),
         inStock: inStock ?? true,
         isBestseller: isBestseller ?? false,
         isNew: isNew ?? false,

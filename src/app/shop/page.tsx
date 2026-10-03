@@ -5,34 +5,9 @@ import ShopContent from './ShopContent';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { SITE_URL } from '@/lib/site';
 import { debugLog } from '@/lib/debugLog';
+import { getShopLabel } from '@/lib/shop-label';
 
 export const dynamic = 'force-dynamic';
-
-export function getShopLabel(params: Record<string, string | string[] | undefined>): string {
-  const gender = typeof params.gender === 'string' ? params.gender.toLowerCase() : '';
-  const type = typeof params.type === 'string' ? params.type.toLowerCase() : '';
-  const category = typeof params.category === 'string' ? params.category : '';
-  const isNew = params.isNew === 'true';
-  const isBestseller = params.isBestseller === 'true';
-
-  let label = 'Shop All';
-  if (category && !['men', 'women', 'unisex'].includes(category)) {
-    label = `${category.charAt(0).toUpperCase()}${category.slice(1)}`;
-  } else if (type === 'attar' && gender) {
-    label = `Attars for ${gender.charAt(0).toUpperCase()}${gender.slice(1)}`;
-  } else if (type === 'perfume' && gender) {
-    label = `Perfumes for ${gender.charAt(0).toUpperCase()}${gender.slice(1)}`;
-  } else if (type === 'attar') {
-    label = 'Attar Collection';
-  } else if (type === 'perfume') {
-    label = 'Perfume Collection';
-  } else if (gender) {
-    label = `${gender.charAt(0).toUpperCase()}${gender.slice(1)} Fragrances`;
-  }
-  if (isNew) label = 'New Arrivals';
-  if (isBestseller) label = 'Bestsellers';
-  return label;
-}
 
 export async function generateMetadata({
   searchParams,
