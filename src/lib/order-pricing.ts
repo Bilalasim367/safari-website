@@ -1,5 +1,6 @@
 import {
   findSizeOption,
+  isDeclaredSize,
   resolveDefaultSize,
   resolveSizeOptions,
   type SizePriceFields,
@@ -25,7 +26,11 @@ export type PriceableProduct = SizePriceFields & {
 
 export type LinePricing =
   | { ok: true; size: string; price: number }
-  | { ok: false; code: 'unknown_size' | 'unavailable' | 'unpriced'; message: string };
+  | {
+      ok: false;
+      code: 'unknown_size' | 'unpriced_size' | 'unavailable' | 'unpriced';
+      message: string;
+    };
 
 /**
  * Resolve the unit price for one requested size.
@@ -52,24 +57,39 @@ export function priceCartLine(
   }
 
   const options = resolveSizeOptions(product);
+  const label = product.name || product.id;
+
+  if (requestedSize && requestedSize.trim()) {
+    const match = findSizeOption(options, requestedSize);
+    if (match) return { ok: true, size: match.size, price: match.price };
+
+    // Distinguish the two failure modes: a size this product never sold,
+    // versus a size it does sell but for which nobody has entered an online
+    // price. The second is a data gap that must be fixed before the size can
+    // be sold -- it must never quietly resolve to the stale base price.
+    //
+    // Checked before the "no sellable size" guard below so that a product
+    // whose only volume is unpriced still reports the actionable reason.
+    if (isDeclaredSize(product, requestedSize)) {
+      return {
+        ok: false,
+        code: 'unpriced_size',
+        message: `Size "${requestedSize}" has no online price set for ${label}`,
+      };
+    }
+    return {
+      ok: false,
+      code: 'unknown_size',
+      message: `Size "${requestedSize}" is not available for ${label}`,
+    };
+  }
+
   if (options.length === 0) {
     return {
       ok: false,
       code: 'unpriced',
-      message: `No sellable size available for ${product.name || product.id}`,
+      message: `No sellable size available for ${label}`,
     };
-  }
-
-  if (requestedSize && requestedSize.trim()) {
-    const match = findSizeOption(options, requestedSize);
-    if (!match) {
-      return {
-        ok: false,
-        code: 'unknown_size',
-        message: `Size "${requestedSize}" is not available for ${product.name || product.id}`,
-      };
-    }
-    return { ok: true, size: match.size, price: match.price };
   }
 
   const size = resolveDefaultSize(options, product);
@@ -78,7 +98,7 @@ export function priceCartLine(
     return {
       ok: false,
       code: 'unpriced',
-      message: `No sellable size available for ${product.name || product.id}`,
+      message: `No sellable size available for ${label}`,
     };
   }
   return { ok: true, size: fallback.size, price: fallback.price };

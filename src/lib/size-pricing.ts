@@ -58,6 +58,23 @@ function parseAvailableSizes(sizesAvailable: string | null | undefined): string[
     .filter(Boolean);
 }
 
+/**
+ * The sizes this product claims to offer, normalised, regardless of whether
+ * they are priced. Callers use this to tell "you asked for a size this
+ * product does not sell" apart from "this product sells that size but nobody
+ * has entered its price yet" — two very different problems.
+ */
+export function resolveDeclaredSizes(
+  product: SizePriceFields | null | undefined
+): string[] {
+  if (!product) return [];
+  const declared = parseAvailableSizes(product.sizesAvailable);
+  const candidates = declared.length
+    ? declared
+    : [normalizeSize(product.size || '')].filter(Boolean);
+  return sortSizes(candidates);
+}
+
 function sortSizes(sizes: string[]): string[] {
   return [...sizes].sort((a, b) => {
     const ai = SIZE_ORDER.indexOf(a as (typeof SIZE_ORDER)[number]);
@@ -75,24 +92,17 @@ function sortSizes(sizes: string[]): string[] {
 export function resolveSizeOptions(
   product: SizePriceFields | null | undefined
 ): SizeOption[] {
-  if (!product) return [];
-  const declared = parseAvailableSizes(product.sizesAvailable);
-  const candidates = declared.length
-    ? declared
-    : [normalizeSize(product.size || '')].filter(Boolean);
-
   const options: SizeOption[] = [];
-  for (const size of sortSizes(candidates)) {
+  for (const size of resolveDeclaredSizes(product)) {
     const column = COLUMN_BY_SIZE[size];
-    const priced = column ? toPositiveInt(product[column]) : null;
-    if (priced !== null) {
-      options.push({ size, label: formatLabel(size), price: priced });
-      continue;
-    }
-    const fallback = toPositiveInt(product.price);
-    if (fallback !== null) {
-      options.push({ size, label: formatLabel(size), price: fallback });
-    }
+    const priced = column ? toPositiveInt(product?.[column]) : null;
+    // A size with no online retail price is NOT sellable, and must never be
+    // priced from the base `price` column. That column is a stale bulk-import
+    // artifact matching no real volume, so falling back to it here would sell a
+    // 6ml attar at whatever figure the importer happened to leave behind.
+    // No price means no option: the size simply does not appear.
+    if (priced === null) continue;
+    options.push({ size, label: formatLabel(size), price: priced });
   }
   return options;
 }
@@ -117,6 +127,21 @@ export function findSizeOption(
   if (!size) return null;
   const target = normalizeSize(size);
   return options.find((o) => o.size === target) ?? null;
+}
+
+/**
+ * True when the product claims to offer this size, priced or not.
+ *
+ * Lets callers tell "you asked for a size this product does not sell" apart
+ * from "this product sells that size but nobody has entered its price yet" --
+ * two very different problems with two different fixes.
+ */
+export function isDeclaredSize(
+  product: SizePriceFields | null | undefined,
+  size: string | null | undefined
+): boolean {
+  if (!size) return false;
+  return resolveDeclaredSizes(product).includes(normalizeSize(size));
 }
 
 /**

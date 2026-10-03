@@ -7,12 +7,13 @@ import { Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { Rating } from "@/components/Rating";
+import PriceLabel from "@/components/PriceLabel";
 
 interface ShopProductCardProps {
   id: string;
   name: string;
   slug: string;
-  price: number;
+  price: number | null;
   originalPrice?: number | null;
   image: string;
   images?: string[];
@@ -42,11 +43,13 @@ export default function ShopProductCard({
   const [added, setAdded] = useState(false);
 
   const hasValidImage = image && image.trim() !== "";
-  const discount = originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  const isPriced = price !== null && price !== undefined;
+  const discount = isPriced && originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isPriced) return;
     addItem({
       id,
       name,
@@ -136,9 +139,9 @@ export default function ShopProductCard({
 
         <div className="mt-auto flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-3">
           <span className="text-base sm:text-xl font-bold text-[#B6965D] tracking-tight">
-            {(currency || "PKR") + " " + price.toLocaleString()}
+            <PriceLabel price={price} prefix={currency || "PKR"} />
           </span>
-          {originalPrice && originalPrice > price && (
+          {isPriced && originalPrice && originalPrice > price && (
             <span className="text-xs sm:text-sm text-[#9a958d] line-through">
               Was: {(currency || "PKR") + " " + originalPrice.toLocaleString()}
             </span>
@@ -148,8 +151,9 @@ export default function ShopProductCard({
         <div className="mt-4">
           <button
             onClick={handleAdd}
-            aria-label={`Add ${name} to cart`}
-            className={`${buyButtonClasses} ${revealClasses}`}
+            aria-label={isPriced ? `Add ${name} to cart` : `${name} is unavailable`}
+            disabled={!isPriced}
+            className={`${buyButtonClasses} ${revealClasses} ${!isPriced ? "cursor-not-allowed opacity-50" : ""}`}
           >
             {added ? (
               <>
@@ -165,7 +169,7 @@ export default function ShopProductCard({
                   <circle cx="7.5" cy="12.5" r="1" fill="currentColor" />
                   <circle cx="11.5" cy="12.5" r="1" fill="currentColor" />
                 </svg>
-                Add to Cart
+                {isPriced ? "Add to Cart" : "Unavailable"}
               </>
             )}
           </button>

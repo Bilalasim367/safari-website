@@ -4,12 +4,13 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
+import PriceLabel from "@/components/PriceLabel"
 
 interface Product {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   originalPrice?: number
   image: string
   images: string[]
@@ -125,10 +126,12 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
                       <span className="text-xs text-muted-foreground">({product.reviewCount})</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-foreground">
-                        ${product.price}
-                      </span>
-                      {product.originalPrice && (
+                      <PriceLabel
+                        price={product.price}
+                        prefix="$"
+                        className="text-lg font-bold text-foreground"
+                      />
+                      {product.originalPrice && product.price && (
                         <span className="text-sm text-muted-foreground line-through">
                           ${product.originalPrice}
                         </span>

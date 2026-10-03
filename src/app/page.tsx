@@ -56,7 +56,10 @@ function mapProduct(p: {
     id: p.id,
     name: p.name,
     slug: p.slug,
-    price: pricing ? pricing.price : p.price,
+    // No priced size => no honest figure to advertise. `null` renders as
+    // "Unavailable" and blocks add-to-cart. Falling back to the base `price`
+    // column here would quote a stale number that describes no real volume.
+    price: pricing ? pricing.price : null,
     originalPrice: p.originalPrice,
     image: p.image || "",
     images: JSON.parse(p.images || "[]") as string[],

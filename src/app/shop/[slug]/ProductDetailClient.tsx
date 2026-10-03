@@ -23,7 +23,7 @@ export interface RelatedProduct {
   id: string;
   name: string;
   slug: string;
-  price: number;
+  price: number | null;
   originalPrice: number | null;
   image: string;
   images: string[];
@@ -181,8 +181,12 @@ export default function ProductDetailClient({
   const currencySymbol = product?.currency || "PKR";
 
   const activeOption = findSizeOption(sizeOptions, selectedSize) ?? sizeOptions[0] ?? null;
+  // A size with no online retail price is not offered at all, so a product
+  // with no priced size has no price to show. The stale base `price` column is
+  // never a fallback here.
+  const isPriced = activeOption !== null;
+  const displayPrice: number | null = activeOption?.price ?? null;
   const effectiveSize = activeOption?.size ?? (product?.size?.trim() || defaultSizeForType(product.type));
-  const displayPrice = activeOption?.price ?? product?.price ?? 0;
   const displayOriginalPrice = product?.originalPrice;
 
   const sizeLabel = isAttar ? "Size" : "Volume";
@@ -215,7 +219,7 @@ export default function ProductDetailClient({
       : [];
 
   const handleAddToCart = () => {
-    if (product) {
+    if (product && isPriced && displayPrice !== null) {
       addItem({
         id: product.id,
         name: product.name,
@@ -229,8 +233,11 @@ export default function ProductDetailClient({
   };
 
   const productUrl = `${SITE_URL}/shop/${product.slug}`;
+  const pricedForMessage = displayPrice ?? 0;
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\nQuantity: ${quantity}\nTotal: ${currencySymbol} ${formatPrice(displayPrice * quantity)}\nLink: ${productUrl}`
+    isPriced
+      ? `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${formatPrice(pricedForMessage)}\nQuantity: ${quantity}\nTotal: ${currencySymbol} ${formatPrice(pricedForMessage * quantity)}\nLink: ${productUrl}`
+      : `Assalam o Alaikum! I would like to enquire about this product:\n\nProduct: ${product.name}\nLink: ${productUrl}`
   )}`;
 
   const infoChips = [
@@ -400,10 +407,15 @@ export default function ProductDetailClient({
                     Price
                   </p>
                   <span className="text-3xl lg:text-4xl font-bold text-[#B6965D] tracking-tight">
-                    {currencySymbol} {formatPrice(displayPrice)}
+                    {displayPrice !== null ? `${currencySymbol} ${formatPrice(displayPrice)}` : "Unavailable"}
                   </span>
+                  {displayPrice === null && (
+                    <p className="mt-1 text-xs text-[#8a867f] max-w-[28ch]">
+                      This size has no online price yet. Please contact us for details.
+                    </p>
+                  )}
                 </div>
-                {displayOriginalPrice && displayOriginalPrice > displayPrice && (
+                {isPriced && displayOriginalPrice && displayOriginalPrice > displayPrice && (
                   <div className="flex flex-col justify-end">
                     <span className="text-sm lg:text-base text-[#8a867f] line-through">
                       {currencySymbol} {formatPrice(displayOriginalPrice)}
@@ -672,9 +684,15 @@ export default function ProductDetailClient({
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="w-full min-h-[56px] rounded-full bg-[#B6965D] hover:bg-[#c9a873] text-black text-base font-bold uppercase tracking-wider px-8 transition-all duration-300 shadow-[0_0_20px_rgba(182,150,93,0.3)] hover:shadow-[0_0_32px_rgba(182,150,93,0.55)]"
+                  disabled={!isPriced}
+                  aria-disabled={!isPriced}
+                  className={`w-full min-h-[56px] rounded-full text-black text-base font-bold uppercase tracking-wider px-8 transition-all duration-300 ${
+                    isPriced
+                      ? "bg-[#B6965D] hover:bg-[#c9a873] shadow-[0_0_20px_rgba(182,150,93,0.3)] hover:shadow-[0_0_32px_rgba(182,150,93,0.55)]"
+                      : "cursor-not-allowed bg-[#3a3a3a] text-white/50"
+                  }`}
                 >
-                  Add to Cart
+                  {isPriced ? "Add to Cart" : "Unavailable"}
                 </button>
 
 <a
@@ -801,9 +819,9 @@ export default function ProductDetailClient({
               {hasSizeChoice ? `${sizeDisplay} · ${quantity} ×` : `Total · ${quantity} ×`}
             </p>
             <p className="text-lg font-bold text-white leading-tight">
-              {currencySymbol} {formatPrice(displayPrice * quantity)}
+              {displayPrice !== null ? `${currencySymbol} ${formatPrice(displayPrice * quantity)}` : "Unavailable"}
             </p>
-            {displayOriginalPrice && displayOriginalPrice > displayPrice && (
+            {isPriced && displayOriginalPrice && displayOriginalPrice > displayPrice && (
               <p className="text-[11px] text-white/40 line-through">
                 {currencySymbol} {formatPrice(displayOriginalPrice * quantity)}
               </p>
@@ -829,9 +847,13 @@ export default function ProductDetailClient({
             </div>
             <button
               onClick={handleAddToCart}
-              className="rounded-full bg-[#B6965D] hover:bg-[#c9a873] text-black text-sm font-bold uppercase tracking-wider px-5 h-12 transition-colors"
+              disabled={!isPriced}
+              aria-disabled={!isPriced}
+              className={`rounded-full text-sm font-bold uppercase tracking-wider px-5 h-12 transition-colors ${
+                isPriced ? "bg-[#B6965D] hover:bg-[#c9a873] text-black" : "cursor-not-allowed bg-[#3a3a3a] text-white/50"
+              }`}
             >
-              Add to Cart
+              {isPriced ? "Add to Cart" : "Unavailable"}
             </button>
           </div>
         </div>

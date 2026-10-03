@@ -173,7 +173,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const price = effectivePrice(p, item.size);
         // Exists but not currently sellable. Keep the line so the customer
         // sees it and can remove it, and flag it so checkout can be blocked.
-        const unavailable = p.isActive === false || p.inStock === false;
+        //
+        // A null price means there is no online retail price for this size --
+        // either the product has no priced size at all, or this particular size
+        // has not been priced yet. That is not sellable either, and it must
+        // never quietly fall back to the stale base `price` column.
+        const unavailable =
+          p.isActive === false || p.inStock === false || price === null;
         return [
           {
             ...item,

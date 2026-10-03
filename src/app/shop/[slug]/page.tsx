@@ -281,11 +281,12 @@ export default async function ProductPage({
   const formattedProduct = formatProduct(product)
   const relatedProducts: RelatedProduct[] = related.map((p) => {
     const pricing = resolveDefaultPricing(p)
+    // No priced size => no honest figure to advertise on a related card.
     return {
     id: p.id,
     name: p.name,
     slug: p.slug,
-    price: pricing ? pricing.price : p.price,
+    price: pricing ? pricing.price : null,
     originalPrice: p.originalPrice,
     image: p.image || '',
     images: parseJsonArray(p.images),

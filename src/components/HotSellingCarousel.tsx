@@ -4,12 +4,13 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
+import PriceLabel from "@/components/PriceLabel"
 
 interface Product {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   originalPrice?: number | null | undefined
   image: string
   images: string[]
@@ -159,10 +160,12 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
                         <span className="text-muted-foreground text-[11px] md:text-sm">({product.reviewCount})</span>
                       </div>
                       <div className="flex items-center gap-2 md:gap-3">
-                        <span className="text-xl md:text-2xl font-bold text-foreground">
-                          PKR {product.price.toLocaleString()}
-                        </span>
-                        {product.originalPrice && product.originalPrice > product.price && (
+                        <PriceLabel
+                          price={product.price}
+                          prefix="PKR"
+                          className="text-xl md:text-2xl font-bold text-foreground"
+                        />
+                        {product.originalPrice && product.price && product.originalPrice > product.price && (
                           <span className="text-muted-foreground line-through text-sm md:text-lg">
                             PKR {product.originalPrice.toLocaleString()}
                           </span>

@@ -10,6 +10,11 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../src/lib/prisma';
 import { priceCartLine, type PriceableProduct } from '../src/lib/order-pricing';
+import {
+  resolveDefaultPricing,
+  resolveDefaultSize,
+  resolveSizeOptions,
+} from '../src/lib/size-pricing';
 
 const BASE = process.env.TEST_BASE_URL || 'http://localhost:3001';
 
@@ -241,6 +246,115 @@ image: '',
     if (okJson.order?.id) createdOrderIds.push(okJson.order.id);
     const okItems = okJson.order?.id ? await prisma.orderItem.findMany({ where: { orderId: okJson.order.id } }) : [];
     check('12ml accepted at its own price (not 6ml, not base)', okItems[0]?.price === 777, `got ${okItems[0]?.price}`);
+  }
+
+  // ---- 4c. a size the product sells but has no online price ------------
+  // The core of the fallback fix: 6ml is declared and stocked, but nobody has
+  // entered price6mlOnline. It must be refused, never priced from base `price`.
+  console.log('\n[4c] declared size with no online price');
+  {
+    const gapped = await prisma.product.create({
+      data: {
+        name: '__PRICING_TEST_GAP__',
+        slug: '__pricing-test-gap__',
+        price: 555, // stale import artifact - must never be used
+        image: '',
+        images: '[]',
+        notesTop: '', notesHeart: '', notesBase: '',
+        size: '12ml', type: 'Attar', isActive: true, inStock: true,
+        sizesAvailable: '6ml,12ml', sizePrices: '[]',
+        price6mlOnline: null, price12mlOnline: 900,
+      },
+    });
+    createdProductIds.push(gapped.id);
+    const row = await prisma.product.findUniqueOrThrow({ where: { id: gapped.id } });
+
+    // The PDP size selector is driven by resolveSizeOptions; the unpriced 6ml
+    // must simply not appear as a choice.
+    const options = resolveSizeOptions(row);
+    check('selector omits the unpriced 6ml', !options.some((o) => o.size === '6ml'), JSON.stringify(options.map((o) => o.size)));
+    check('selector keeps the priced 12ml', options.some((o) => o.size === '12ml'));
+    check('no option anywhere carries the base price', options.every((o) => o.price !== 555), JSON.stringify(options));
+
+    const cardPrice = resolveDefaultPricing(row);
+    check('card advertises the priced default (900), not base 555', cardPrice?.price === 900, `got ${cardPrice?.price}`);
+
+    const res = await postOrder([{ id: gapped.id, name: 'X', price: 1, image: '', size: '6ml', quantity: 1 }]);
+    const json = await res.json();
+    check('order refuses the unpriced 6ml with 400', res.status === 400, `got ${res.status}`);
+    check('code is unpriced_size (not unknown_size)', json.code === 'unpriced_size', `got ${json.code}`);
+    check('error names the size and the gap', /6ml/.test(json.message) && /no online price/i.test(json.message), json.message);
+
+    const okRes = await postOrder([{ id: gapped.id, name: 'X', price: 1, image: '', size: '12ml', quantity: 1 }]);
+    const okJson = await okRes.json();
+    if (okJson.order?.id) createdOrderIds.push(okJson.order.id);
+    const okItems = okJson.order?.id ? await prisma.orderItem.findMany({ where: { orderId: okJson.order.id } }) : [];
+    check('the priced 12ml still sells at 900', okItems[0]?.price === 900, `got ${okItems[0]?.price}`);
+  }
+
+  // ---- 4d. a product with no priced size at all ----------------------
+  // Declares sizes, none priced. Nothing is sellable, so nothing may be shown
+  // or charged -- and never the stale base price.
+  console.log('\n[4d] product with no priced size at all');
+  {
+    const unpriced = await prisma.product.create({
+      data: {
+        name: '__PRICING_TEST_UNPRICED__',
+        slug: '__pricing-test-unpriced__',
+        price: 444,
+        image: '',
+        images: '[]',
+        notesTop: '', notesHeart: '', notesBase: '',
+        size: '12ml', type: 'Attar', isActive: true, inStock: true,
+        sizesAvailable: '6ml,12ml', sizePrices: '[]',
+        price6mlOnline: null, price12mlOnline: null,
+      },
+    });
+    createdProductIds.push(unpriced.id);
+    const row = await prisma.product.findUniqueOrThrow({ where: { id: unpriced.id } });
+
+    check('size selector is empty', resolveSizeOptions(row).length === 0);
+    check('card has no price to advertise', resolveDefaultPricing(row) === null);
+    check('default size resolution yields nothing', resolveDefaultSize(resolveSizeOptions(row), row) === null);
+
+    for (const size of ['6ml', '12ml', '']) {
+      const priced = priceCartLine(row as PriceableProduct, size || undefined);
+      check(`priceCartLine refuses "${size || '(default)'}"`, !priced.ok, JSON.stringify(priced));
+    }
+
+    const res = await postOrder([{ id: unpriced.id, name: 'X', price: 1, image: '', size: '12ml', quantity: 1 }]);
+    check('order rejects it with 400', res.status === 400, `got ${res.status}`);
+
+    await postCart([{ id: unpriced.id, name: 'X', price: 1, image: '', size: '12ml', quantity: 1 }]);
+    const uid = (await prisma.user.findUniqueOrThrow({ where: { email: TEST_EMAIL } })).id;
+    const remaining = await prisma.cartItem.count({ where: { userId: uid } });
+    check('cart persists nothing for it', remaining === 0, `remaining ${remaining}`);
+  }
+
+  // ---- 4e. a size with no price column at all (e.g. 5ml) -------------
+  // Mirrors the real "…Tester Box 5ml" products: 5ml is a legitimate volume
+  // with no price*mlOnline column, so it can never be priced.
+  console.log('\n[4e] declared size with no price column (5ml)');
+  {
+    const box = await prisma.product.create({
+      data: {
+        name: '__PRICING_TEST_5ML__',
+        slug: '__pricing-test-5ml__',
+        price: 800,
+        image: '',
+        images: '[]',
+        notesTop: '', notesHeart: '', notesBase: '',
+        size: '5ml', type: 'Attar', isActive: true, inStock: true,
+        sizesAvailable: '5ml', sizePrices: '[]',
+      },
+    });
+    createdProductIds.push(box.id);
+    const row = await prisma.product.findUniqueOrThrow({ where: { id: box.id } });
+
+    check('selector offers nothing', resolveSizeOptions(row).length === 0);
+    const priced = priceCartLine(row as PriceableProduct, '5ml');
+    check('priceCartLine refuses it rather than using base 800', !priced.ok, JSON.stringify(priced));
+    if (!priced.ok) check('code is unpriced_size', priced.code === 'unpriced_size', `got ${priced.code}`);
   }
 
   // ---- 5. deactivated product -----------------------------------------

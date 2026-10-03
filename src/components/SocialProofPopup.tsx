@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { resolveDefaultPricing } from '@/lib/size-pricing'
 
 interface PopupSettings {
   enabled: boolean
@@ -14,7 +15,7 @@ interface PopupProduct {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   image: string | null
   currency?: string | null
 }
@@ -65,7 +66,9 @@ export default function SocialProofPopup() {
                 id: pr.id,
                 name: pr.name,
                 slug: pr.slug,
-                price: Number(pr.price) || 0,
+                // Use the same authoritative retail price as the storefront. The raw base
+                // `price` column is a stale import artifact and must never be shown.
+                price: resolveDefaultPricing(pr)?.price ?? null,
                 image: pr.image || null,
                 currency: pr.currency || 'PKR',
               }))
@@ -146,7 +149,10 @@ export default function SocialProofPopup() {
 
   if (!settings?.enabled || dismissed || !frame) return null
 
-  const price = `${frame.product.currency || 'PKR'} ${(frame.product.price ?? 0).toLocaleString()}`
+  const price =
+    frame.product.price !== null
+      ? `${frame.product.currency || 'PKR'} ${frame.product.price.toLocaleString()}`
+      : 'Unavailable'
 
   return (
     <div

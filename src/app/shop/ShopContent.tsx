@@ -15,7 +15,7 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  price: number;
+  price: number | null;
   originalPrice?: number | null;
   image: string;
   images?: string[];
@@ -206,7 +206,7 @@ export default async function ShopContent({
     id: string;
     name: string;
     slug: string;
-    price: number;
+    price: number | null;
     originalPrice: number | null;
     image: string;
     images: string;
@@ -235,11 +235,14 @@ export default async function ShopContent({
 
   function mapToFormattedProduct(p: ShopProductRow): Product {
     const pricing = resolveDefaultPricing(p);
+    // No priced size => no honest figure to advertise. `null` renders as
+    // "Unavailable" and blocks add-to-cart. Falling back to the base `price`
+    // column here would quote a stale number that describes no real volume.
     return {
       id: p.id,
       name: p.name,
       slug: p.slug,
-      price: pricing ? pricing.price : p.price,
+      price: pricing ? pricing.price : null,
       originalPrice: p.originalPrice ?? undefined,
       image: p.image || '',
       images: parseJsonArray(p.images),
