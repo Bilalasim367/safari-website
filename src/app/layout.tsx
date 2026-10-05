@@ -1,6 +1,11 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Montserrat } from 'next/font/google'
 import './globals.css'
+// UI V2 design tokens. Every rule is scoped under [data-ui='v2']; with
+// NEXT_PUBLIC_UI_V2 off the attribute is absent and none of it can apply.
+import './ui2.css'
+// UI V2 global layout: announcement strip, header, drawer, footer, WhatsApp.
+import './ui2-shell.css'
 import SiteShell from '@/components/SiteShell'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
@@ -8,6 +13,12 @@ import { WishlistProvider } from '@/context/WishlistContext'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
+import {
+  UI_V2_ENABLED,
+  UI_V2_HTML_ATTRIBUTE,
+  UI_V2_HTML_ATTRIBUTE_VALUE,
+} from '@/lib/ui-flag'
+import { ui2FontVariables } from '@/components/v2/fonts'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -83,7 +94,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' className={`${playfair.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
+    <html lang='en' className={`${playfair.variable} ${montserrat.variable}${UI_V2_ENABLED ? ` ${ui2FontVariables}` : ''}`} data-scroll-behavior="smooth"
+      {...(UI_V2_ENABLED
+        ? { [UI_V2_HTML_ATTRIBUTE]: UI_V2_HTML_ATTRIBUTE_VALUE }
+        : {})}
+    >
       <body className='min-h-full flex flex-col'>
         <script
           type="application/ld+json"
