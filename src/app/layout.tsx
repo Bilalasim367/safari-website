@@ -16,7 +16,6 @@ import {
   UI_V2_HTML_ATTRIBUTE,
   UI_V2_HTML_ATTRIBUTE_VALUE,
 } from '@/lib/ui-flag'
-import { ui2FontVariables } from '@/components/v2/fonts'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -92,7 +91,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' className={`${playfair.variable} ${montserrat.variable}${UI_V2_ENABLED ? ` ${ui2FontVariables}` : ''}`} data-scroll-behavior="smooth"
+    <html lang='en' className={`${playfair.variable} ${montserrat.variable}`} data-scroll-behavior="smooth"
       {...(UI_V2_ENABLED
         ? { [UI_V2_HTML_ATTRIBUTE]: UI_V2_HTML_ATTRIBUTE_VALUE }
         : {})}
