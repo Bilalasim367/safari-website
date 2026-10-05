@@ -4,8 +4,6 @@ import './globals.css'
 // UI V2 design tokens. Every rule is scoped under [data-ui='v2']; with
 // NEXT_PUBLIC_UI_V2 off the attribute is absent and none of it can apply.
 import './ui2.css'
-// UI V2 global layout: announcement strip, header, drawer, footer, WhatsApp.
-import './ui2-shell.css'
 import SiteShell from '@/components/SiteShell'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
