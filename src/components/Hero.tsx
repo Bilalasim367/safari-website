@@ -44,7 +44,7 @@ const TRUST = {
 
 /** Card background photo — swap this path for any shot in /public (square or landscape). */
 const HERO_IMAGE = {
-  src: "/safari-our-collection.webp",
+  src: "/banner2.webp",
   alt: "Premium perfume collection",
 }
 
