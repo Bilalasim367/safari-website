@@ -99,18 +99,18 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
                       </div>
                     )}
                     {(product.isBestseller || product.isNew) && (
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        {product.isBestseller && (
-                          <span className="bg-gold text-black text-xs font-medium px-2 py-1 rounded-none">
-                            Bestseller
-                          </span>
-                        )}
-                        {product.isNew && (
-                          <span className="bg-white text-black text-xs font-medium px-2 py-1 rounded-none">
-                            New
-                          </span>
-                        )}
-                      </div>
+                        <div className="absolute top-3 left-3 flex gap-2">
+                          {product.isBestseller && (
+                            <span className="bg-gold text-black text-xs font-medium px-2 py-1 rounded-none">
+                              Bestseller
+                            </span>
+                          )}
+                          {product.isNew && (
+                            <span className="bg-white text-black text-xs font-medium px-2 py-1 rounded-none">
+                              New
+                            </span>
+                          )}
+                        </div>
                     )}
                   </div>
 
