@@ -2,6 +2,7 @@
 
 import React from "react"
 import Hero from "@/components/Hero"
+import NewLaunchBanner from "@/components/NewLaunchBanner"
 import SignaturePerfumeShowcase from "@/components/SignaturePerfumeShowcase"
 import LifestyleBanner from "@/components/LifestyleBanner"
 import HotSellingCarousel from "@/components/HotSellingCarousel"
@@ -35,6 +36,9 @@ export default function HomePage({
   return (
     <>
       <Hero />
+      <Reveal>
+        <NewLaunchBanner />
+      </Reveal>
       <Reveal>
         <HotSellingCarousel products={hotSelling} />
       </Reveal>
