@@ -1,57 +1,113 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 
-interface CollectionCategory {
+interface CollectionCard {
   id: string
-  name: string
+  /** Split into words so the LAST word can be highlighted in gold. */
+  title: string
+  /** Product counts below are from the live DB (active products, 2026-10-08). Edit freely. */
+  count: string
   description: string
-  image: string
-  icon?: React.ReactNode
-  subItems: { label: string; href: string }[]
-  comingSoon?: boolean
+  tags: string[]
+  cta: string
+  href: string
+  /** Omit `image` to fall back to a plain dark gradient (see "tester-box" note below). */
+  image?: string
 }
 
-const featuredCategories: CollectionCategory[] = [
-  {
-    id: "attar",
-    name: "Attar Collection",
-    description: "Pure, concentrated perfume oils for lasting intensity",
-    image: "/safari-attar-collection.webp",
-    subItems: [
-      { label: "Men", href: "/shop?type=attar&gender=men" },
-      { label: "Women", href: "/shop?type=attar&gender=women" },
-      { label: "Unisex", href: "/shop?type=attar&gender=unisex" },
-    ],
-  },
-  {
-    id: "perfume",
-    name: "Perfumes Collection",
-    description: "Luxury interpretations of iconic designer fragrances",
-    image: "/safari-perfume-collection.webp",
-    subItems: [
-      { label: "Men", href: "/shop?type=perfume&gender=men" },
-      { label: "Women", href: "/shop?type=perfume&gender=women" },
-      { label: "Unisex", href: "/shop?type=perfume&gender=unisex" },
-    ],
-  },
+const collections: CollectionCard[] = [
   {
     id: "our-collection",
-    name: "Our Collection",
-    description: "Exclusive signature blends coming soon",
+    title: "Our Collection",
+    count: "319 Products",
+    description: "Every Safari fragrance in one place, browse the full range.",
+    tags: ["Bestsellers", "New Arrivals", "Unisex"],
+    cta: "Explore Our Collection",
+    href: "/collections",
     image: "/safari-our-collection.webp",
-    subItems: [
-      { label: "Notify Me", href: "/contact?notify=our-collection" },
-    ],
-    comingSoon: true,
+  },
+  {
+    id: "perfumes",
+    title: "Perfumes Collection",
+    count: "264 Products",
+    description: "Designer-inspired sprays in 30ml, 50ml and 100ml sizes.",
+    tags: ["Men's Perfumes", "Women's Perfumes", "Woody"],
+    cta: "Shop Perfumes Now",
+    href: "/shop?type=perfume",
+    image: "/safari-perfume-collection.webp",
+  },
+  {
+    id: "tester-box",
+    title: "Tester Box",
+    count: "Coming Soon",
+    description: "Curated 5ml testers to explore before you commit to a full bottle.",
+    tags: ["Discovery Set", "5ml Samplers", "Gift Ready"],
+    cta: "Shop Tester Boxes",
+    href: "/shop?q=tester",
+  },
+  {
+    id: "attar",
+    title: "Attar Collection",
+    count: "55 Products",
+    description: "Pure, concentrated perfume oils for lasting intensity.",
+    tags: ["Oud Attar", "Musk Attar", "Floral Attar"],
+    cta: "Discover Attar Collection",
+    href: "/shop?type=attar",
+    image: "/safari-attar-collection.webp",
   },
 ]
 
+const cardFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+
+function TitleWithGoldLastWord({ title }: { title: string }) {
+  const words = title.split(" ")
+  const last = words[words.length - 1]
+  const rest = words.slice(0, -1).join(" ")
+
+  return (
+    <>
+      {rest && <span className="text-white">{rest} </span>}
+      <span className="text-gold">{last}</span>
+    </>
+  )
+}
+
 export default function FeaturedCollections() {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null)
-  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  const [staggerDone, setStaggerDone] = useState(false)
+
+  useEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  // Clear the stagger delay after the entrance finishes so hover lifts aren't delayed.
+  useEffect(() => {
+    if (!visible) return
+    const timer = setTimeout(() => setStaggerDone(true), 1000)
+    return () => clearTimeout(timer)
+  }, [visible])
 
   return (
     <section className="px-4 md:px-12 py-6 md:py-20 bg-background">
@@ -65,82 +121,96 @@ export default function FeaturedCollections() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {featuredCategories.map((category) => (
-            <article
-              key={category.id}
-              className="group relative overflow-hidden rounded-2xl bg-muted"
-              onMouseEnter={() => !category.comingSoon && setHoveredCategory(category.id)}
-              onMouseLeave={() => setHoveredCategory(null)}
-            >
-              <div className="relative aspect-[4/5] overflow-hidden">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover"
-                  priority={category.id === "attar"}
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 via-transparent to-transparent" />
-                <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
-                  <div className="backdrop-blur-md bg-white/5 rounded-2xl p-5 md:p-6 border border-white/10 shadow-xl">
-                    <h3 className="font-heading text-2xl md:text-3xl font-bold text-white drop-shadow-lg mb-2">
-                      {category.name}
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6"
+        >
+          {collections.map((collection, index) => (
+              <Link
+                key={collection.id}
+                href={collection.href}
+                aria-label={`${collection.title} — ${collection.cta}`}
+                className={cn(
+                  cardFocus,
+                  "group flex flex-col rounded-2xl overflow-hidden bg-[hsl(var(--card))] border border-border shadow-sm",
+                  "transition-[transform,box-shadow] duration-300 ease-out",
+                  "hover:-translate-y-1 hover:shadow-xl",
+                  visible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-6",
+                  "motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:transition-none"
+                )}
+                style={{
+                  transitionDelay: visible && !staggerDone ? `${index * 90}ms` : "0ms",
+                }}
+
+              >
+                {/* Image head with dark overlay so the title stays readable */}
+                <div className="relative h-[150px] md:h-[165px] overflow-hidden bg-gradient-to-br from-charcoal to-charcoal-dark">
+                  {collection.image && (
+                    <Image
+                      src={collection.image}
+                      alt={`${collection.title} preview`}
+                      fill
+                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
+                  <div className="absolute inset-0 flex items-center justify-center px-4">
+                    <h3 className="font-body font-bold text-xl md:text-2xl text-center drop-shadow">
+                      <TitleWithGoldLastWord title={collection.title} />
                     </h3>
-                    <p className="text-white/80 text-sm md:text-base mb-4 max-w-xs">
-                      {category.description}
-                    </p>
-                    
-                    {!category.comingSoon ? (
-                      <>
-                        {hoveredCategory === category.id && (
-                          <div className="space-y-2 animate-fade-in mb-3">
-                            {category.subItems.map((item, index) => (
-                              <Link
-                                key={item.label}
-                                href={item.href}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white font-medium text-sm transition-all duration-200 border border-white/20"
-                                style={{ animationDelay: `${index * 50}ms` }}
-                              >
-                                {item.label}
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                        <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-gold font-semibold text-sm uppercase tracking-[0.15em] border border-gold/30 hover:border-gold/50 transition-all duration-300 cursor-pointer">
-                          Explore {category.name}
-                          <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
-                        </span>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-start gap-3">
-                        <span className="inline-flex items-center gap-2 px-5 py-2 bg-gold/30 backdrop-blur-md text-gold font-semibold text-sm uppercase tracking-[0.15em] rounded-full border border-gold/40 shadow-lg shadow-gold/10">
-                          Coming Soon
-                        </span>
-                        <Link
-                          href={category.subItems[0].href}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/25 backdrop-blur-md rounded-full text-white font-medium text-sm border border-white/20 transition-all duration-200"
-                        >
-                          Notify Me
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
-                        </Link>
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-              </div>
-            </article>
-          ))}
+                {/* Body */}
+                <div className="flex flex-1 flex-col p-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-gold font-semibold text-lg">
+                      {collection.title}
+                    </span>
+                    <span className="text-muted-foreground text-xs whitespace-nowrap">
+                      {collection.count}
+                    </span>
+                  </div>
+
+                  <p className="text-muted-foreground text-sm mt-1.5 leading-snug">
+                    {collection.description}
+                  </p>
+
+                  <p className="text-muted-foreground/80 text-[11px] font-medium uppercase tracking-wider mt-3">
+                    Popular:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {collection.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-gold/15 text-gold text-[11px] px-2 py-0.5"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Button pinned to the bottom of equal-height cards */}
+                  <div className="mt-auto pt-4">
+                    <span
+                      className={cn(
+                        "block w-full text-center rounded-lg py-2.5",
+                        "bg-gradient-to-r from-gold to-gold-light",
+                        "text-charcoal font-bold text-sm",
+                        "transition-[filter,transform] duration-200",
+                        "group-hover:brightness-110 group-hover:-translate-y-0.5",
+                        "motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
+                      )}
+                    >
+                      {collection.cta}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
         </div>
       </div>
     </section>
