@@ -3,74 +3,187 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import { Plus_Jakarta_Sans } from "next/font/google"
+import { Banknote, Clock, Shield, ShoppingBag, Star, Truck } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-hero",
+  display: "swap",
+})
+
+/* ------------------------------------------------------------------ */
+/* Editable content — tweak copy, links and trust numbers here only.   */
+/* ------------------------------------------------------------------ */
+
+const HEADING_LINE_1 = "Inspired Fragrances,"
+const HEADING_LINE_2 = "Affordable Luxury"
+
+const DESCRIPTION =
+  "Premium quality perfumes at unbeatable prices. Long-lasting impressions that turn heads."
+
+const SHOP_HREF = "/shop"
+const BUNDLES_HREF = "/bundles"
+
+const FEATURES: { icon: LucideIcon; label: string }[] = [
+  { icon: Shield, label: "Alcohol-Free" },
+  { icon: Clock, label: "Long Lasting" },
+  { icon: Banknote, label: "Cash on Delivery" },
+  { icon: Truck, label: "Free Shipping" },
+]
+
+const TRUST = {
+  rating: "4.8/5",
+  reviews: "350+ Reviews",
+  customers: "2,000+",
+  customersLabel: "Happy Customers",
+}
+
+/** Card background photo — swap this path for any shot in /public (square or landscape). */
+const HERO_IMAGE = {
+  src: "/safari-our-collection.webp",
+  alt: "Premium perfume collection",
+}
+
+const sharedFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C98A00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFFBEB]"
+
+const enter = (delay: number) => ({
+  animationDelay: `${delay}ms`,
+})
 
 export default function Hero() {
   return (
-    <section className="relative h-[420px] sm:h-[480px] md:h-[560px] lg:min-h-[85vh] flex items-center justify-center overflow-hidden -mt-20 md:-mt-28 animate-fade-in">
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/new-banneri.webp"
-          alt="Safari Perfumes - Luxury fragrances"
-          fill
-          className="object-cover"
-          priority
-          sizes="100vw"
-          onError={(e) => { e.currentTarget.src = '/placeholder-product.jpg'; }}
-        />
-      </div>
+    <section
+      aria-labelledby="hero-heading"
+      className={cn(
+        jakarta.variable,
+        "relative -mt-20 overflow-hidden bg-[#FFFBEB] py-12 md:-mt-28 md:py-20",
+        "animate-fade-in motion-reduce:animate-none"
+      )}
+    >
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+        {/* ---------------- Left column ---------------- */}
+        <div className={cn("text-center lg:text-left", "animate-fade-in motion-reduce:animate-none")} style={enter(0)}>
+          <h1
+            id="hero-heading"
+            className={cn(
+              "text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl",
+              "animate-fade-in motion-reduce:animate-none"
+            )}
+            style={{ ...enter(60), fontFamily: "var(--font-hero), system-ui, sans-serif" }}
+          >
+            <span className="block bg-gradient-to-r from-[#C98A00] to-[#F5B82E] bg-clip-text text-transparent">
+              {HEADING_LINE_1}
+            </span>
+            <span className="block text-[#1F2937]">{HEADING_LINE_2}</span>
+          </h1>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 z-10" />
+          <p
+            className={cn(
+              "mx-auto mt-5 max-w-lg text-base leading-relaxed text-[#4B5563] md:mx-0 md:text-lg",
+              "animate-fade-in motion-reduce:animate-none"
+            )}
+            style={enter(160)}
+          >
+            {DESCRIPTION}
+          </p>
 
-      <div className="relative z-20 text-center px-4 md:px-12 py-12 md:py-24 lg:py-32 max-w-6xl mx-auto">
-        <p className="text-white/80 text-[10px] md:text-base tracking-[0.6em] uppercase mb-3 md:mb-8 animate-fade-in">
-          Luxury Fragrance House
-        </p>
+          {/* Feature grid */}
+          <ul
+            className={cn(
+              "mx-auto mt-8 grid max-w-lg grid-cols-2 gap-x-5 gap-y-4 text-left md:mx-0",
+              "animate-fade-in motion-reduce:animate-none"
+            )}
+            style={enter(260)}
+          >
+            {FEATURES.map(({ icon: Icon, label }) => (
+              <li key={label} className="flex items-center gap-2.5">
+                <Icon className="h-5 w-5 shrink-0 text-[#C98A00]" aria-hidden="true" strokeWidth={1.75} />
+                <span className="text-sm font-medium text-[#4B5563]">{label}</span>
+              </li>
+            ))}
+          </ul>
 
-        <h1 className="text-4xl leading-[1.1] md:text-7xl lg:text-8xl font-serif font-extrabold text-white mb-4 md:mb-10 animate-fade-in tracking-tight">
-          Discover Your
-          <br />
-          <span className="text-white italic block pt-2 md:pb-8">
-            Signature Scent
-          </span>
-        </h1>
-
-        <p className="hidden md:block text-white/80 text-lg md:text-2xl font-light max-w-3xl mx-auto mb-16 animate-fade-in delay-100 leading-relaxed">
-          Crafted with passion, designed to captivate your senses. Explore our
-          exclusive range of captivating fragrances.
-        </p>
-
-        <div className="animate-fade-in delay-200 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/shop" className="w-full sm:w-auto">
-            <Button
-              variant="outline"
+          {/* CTAs */}
+          <div
+            className={cn(
+              "mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4",
+              "animate-fade-in motion-reduce:animate-none"
+            )}
+            style={enter(360)}
+          >
+            <Link
+              href={SHOP_HREF}
               className={cn(
-                "border-white text-white bg-transparent hover:bg-white hover:text-black",
-                "transition-all duration-300 rounded-none px-7 py-4 md:px-8 md:py-6 text-sm tracking-[0.3em] uppercase w-full sm:w-auto"
+                "inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-[#C98A00] to-[#F5B82E] px-6 py-3 text-sm font-semibold text-white",
+                "shadow-[0_10px_24px_-8px_rgba(201,138,0,0.55)] transition-all duration-300",
+                "hover:-translate-y-0.5 hover:shadow-[0_16px_30px_-8px_rgba(201,138,0,0.65)]",
+                "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+                sharedFocus
               )}
             >
               Shop Now
-            </Button>
-          </Link>
-          <Link href="/about" className="hidden sm:block">
-            <Button
-              variant="ghost"
+            </Link>
+            <Link
+              href={BUNDLES_HREF}
               className={cn(
-                "border-white/30 text-white hover:bg-white/10 hover:border-white",
-                "transition-all duration-300 rounded-none px-8 py-6 text-sm tracking-[0.3em] uppercase"
+                "inline-flex w-full items-center justify-center rounded-lg border border-[#C98A00]/70 bg-transparent px-6 py-3 text-sm font-semibold text-[#C98A00]",
+                "transition-colors duration-300 hover:bg-[#C98A00]/10",
+                sharedFocus
               )}
             >
-              Our Story
-            </Button>
-          </Link>
-        </div>
-      </div>
+              Bundle Deals
+            </Link>
+          </div>
 
-      <div className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-        <div className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-        <div className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-        <div className="w-1 h-1 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+          {/* Trust row */}
+          <div
+            className={cn(
+              "mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 lg:justify-start",
+              "animate-fade-in motion-reduce:animate-none"
+            )}
+            style={enter(460)}
+          >
+            <p className="flex items-center gap-2 text-sm text-[#4B5563]">
+              <Star className="h-4 w-4 fill-current text-[#F5B82E]" aria-hidden="true" strokeWidth={1.5} />
+              <span>
+                {TRUST.rating} ({TRUST.reviews})
+              </span>
+            </p>
+            <p className="flex items-center gap-2 text-sm text-[#4B5563]">
+              <ShoppingBag className="h-4 w-4 text-[#C98A00]" aria-hidden="true" strokeWidth={1.75} />
+              <span>
+                <strong className="font-bold text-[#1F2937]">{TRUST.customers}</strong> {TRUST.customersLabel}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* ---------------- Right column: image card ---------------- */}
+        <div
+          className={cn("relative animate-fade-in motion-reduce:animate-none")}
+          style={enter(220)}
+        >
+          <div className="group relative h-[320px] overflow-hidden rounded-3xl bg-[#FFC13B] shadow-[0_24px_60px_-24px_rgba(31,41,55,0.45)] sm:h-[380px] md:aspect-square md:h-auto">
+            <Image
+              src={HERO_IMAGE.src}
+              alt={HERO_IMAGE.alt}
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              priority
+              className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            />
+            {/* light warm overlay to blend the photo with the gold theme */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#FFC13B]/15 via-transparent to-transparent"
+            />
+          </div>
+        </div>
       </div>
     </section>
   )
