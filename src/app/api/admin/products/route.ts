@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
@@ -88,6 +89,10 @@ export async function POST(request: Request) {
       },
     });
 
+    revalidateTag('shop-products', { expire: 0 });
+    revalidatePath('/', 'page');
+    revalidatePath('/shop', 'page');
+    revalidatePath('/shop/[slug]', 'page');
     return NextResponse.json({ success: true, product: { id: product.id, name: product.name } });
   } catch (error) {
     console.error('Error:', error);
@@ -122,6 +127,10 @@ export async function PUT(request: Request) {
 
     await prisma.product.update({ where: { id }, data: updateData });
 
+    revalidateTag('shop-products', { expire: 0 });
+    revalidatePath('/', 'page');
+    revalidatePath('/shop', 'page');
+    revalidatePath('/shop/[slug]', 'page');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error:', error);
@@ -148,6 +157,10 @@ export async function DELETE(request: Request) {
       data: { isActive: false },
     });
 
+    revalidateTag('shop-products', { expire: 0 });
+    revalidatePath('/', 'page');
+    revalidatePath('/shop', 'page');
+    revalidatePath('/shop/[slug]', 'page');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error:', error);
