@@ -1,4 +1,6 @@
 import prisma from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
+import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import ShopProductCard from './ShopProductCard';
 import SortSelect from './SortSelect';
@@ -8,8 +10,6 @@ import { classifyProductType, type ProductCategoryType } from '@/lib/product-typ
 import { normalizeGender, normalizeType, defaultSizeForType } from '@/lib/normalize';
 import { resolveDefaultPricing } from '@/lib/size-pricing';
 import { debugLog } from '@/lib/debugLog';
-
-export const dynamic = 'force-dynamic';
 
 interface Product {
   id: string;
@@ -61,6 +61,62 @@ interface SearchParams {
 }
 
 const PAGE_SIZE = 12;
+
+// Shared cache tag. Admin product mutations call `revalidateTag('shop-products')`
+// so edits show up immediately; otherwise results are reused for 5 minutes.
+const SHOP_PRODUCT_TAG = 'shop-products';
+
+const SHOP_PRODUCT_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  price: true,
+  originalPrice: true,
+  image: true,
+  images: true,
+  categorySlug: true,
+  size: true,
+  isBestseller: true,
+  isNew: true,
+  rating: true,
+  reviewCount: true,
+  gender: true,
+  season: true,
+  impressionOf: true,
+  tags: true,
+  currency: true,
+  type: true,
+  applicatorType: true,
+  origin: true,
+  sizesAvailable: true,
+  price3mlOnline: true,
+  price6mlOnline: true,
+  price12mlOnline: true,
+  price50mlOnline: true,
+  category: { select: { name: true, slug: true } },
+} satisfies Prisma.ProductSelect;
+
+const getShopProducts = unstable_cache(
+  async (
+    where: Prisma.ProductWhereInput,
+    orderBy: Prisma.ProductOrderByWithRelationInput[],
+    skip: number,
+  ) => {
+    const [products, count] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        select: SHOP_PRODUCT_SELECT,
+        orderBy,
+        skip,
+        take: PAGE_SIZE,
+      }),
+      prisma.product.count({ where }),
+    ]);
+    return { products, count };
+  },
+  ['shop-products-v1'],
+  { revalidate: 300, tags: [SHOP_PRODUCT_TAG] },
+);
 
 function buildParamString(params: SearchParams): string {
   const sp = new URLSearchParams();
@@ -164,37 +220,49 @@ export default async function ShopContent({
   }
   if (params.minPrice || params.maxPrice) {
     where.price = {};
-    if (params.minPrice) (where.price as Record<string, number>).gte = parseFloat(params.minPrice);
+    if (params.minPrice) {
+      const n = parseFloat(params.minPrice);
+      if (Number.isFinite(n) && n >= 0) (where.price as Record<string, number>).gte = n;
+    }
     if (params.maxPrice && params.maxPrice !== 'Infinity') {
-      (where.price as Record<string, number>).lte = parseFloat(params.maxPrice);
+      const n = parseFloat(params.maxPrice);
+      if (Number.isFinite(n) && n >= 0) (where.price as Record<string, number>).lte = n;
     }
   }
   if (params.q) {
-    where.OR = [
-      { name: { contains: params.q } },
-      { description: { contains: params.q } },
-      { type: { contains: params.q } },
-      { gender: { contains: params.q } },
-      { categorySlug: { contains: params.q } },
-      { tags: { contains: params.q } },
-      { productId: { contains: params.q } },
-    ];
+    const qv = String(params.q).replace(/[\x00-\x1F\x7F]/g, '').trim().slice(0, 60);
+    if (qv.length > 0) {
+      where.OR = [
+        { name: { contains: qv } },
+        { description: { contains: qv } },
+        { type: { contains: qv } },
+        { gender: { contains: qv } },
+        { categorySlug: { contains: qv } },
+        { tags: { contains: qv } },
+        { productId: { contains: qv } },
+      ];
+    }
   }
 
-  let orderBy: Record<string, string> = { createdAt: 'desc' };
+  let orderBy: Prisma.ProductOrderByWithRelationInput[] = [
+    { displayOrder: 'desc' },
+    { createdAt: 'desc' },
+  ];
   switch (sort) {
     case 'price-low':
-      orderBy = { price: 'asc' };
+      orderBy = [{ price: 'asc' }, { createdAt: 'desc' }];
       break;
     case 'price-high':
-      orderBy = { price: 'desc' };
+      orderBy = [{ price: 'desc' }, { createdAt: 'desc' }];
       break;
     case 'newest':
-      orderBy = { createdAt: 'desc' };
+      orderBy = [{ createdAt: 'desc' }];
       break;
     case 'rating':
-      orderBy = { rating: 'desc' };
+      orderBy = [{ rating: 'desc' }, { createdAt: 'desc' }];
       break;
+    default:
+      orderBy = [{ displayOrder: 'desc' }, { createdAt: 'desc' }];
   }
 
   function parseJsonArray(val: string | null): string[] {
@@ -267,44 +335,11 @@ export default async function ShopContent({
   let total = 0;
 
   try {
-    const [products, count] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          price: true,
-          originalPrice: true,
-          image: true,
-          images: true,
-categorySlug: true,
-      size: true,
-      isBestseller: true,
-          isNew: true,
-          rating: true,
-          reviewCount: true,
-          gender: true,
-          season: true,
-          impressionOf: true,
-          tags: true,
-          currency: true,
-          type: true,
-          applicatorType: true,
-          origin: true,
-          sizesAvailable: true,
-          price3mlOnline: true,
-          price6mlOnline: true,
-          price12mlOnline: true,
-          price50mlOnline: true,
-          category: { select: { name: true, slug: true } },
-        },
-        orderBy,
-        skip,
-        take: PAGE_SIZE,
-      }),
-      prisma.product.count({ where }),
-    ]);
+    const { products, count } = await getShopProducts(
+      where as Prisma.ProductWhereInput,
+      orderBy,
+      skip,
+    );
     total = count;
     formattedProducts = products.map((p) => mapToFormattedProduct(p));
   } catch (error) {
@@ -350,7 +385,7 @@ categorySlug: true,
                   <Link
                     href="/shop"
                     className="text-[#9a958d] text-sm hover:text-[#B6965D] transition-colors"
-                  >
+                   prefetch={false}>
                     Clear All Filters
                   </Link>
                 )}
@@ -471,7 +506,7 @@ categorySlug: true,
                   </svg>
                 </div>
                 <p className="text-muted-foreground mb-6">No products found matching your filters.</p>
-                <Link href="/shop" className="text-sm border-b border-foreground pb-1 hover:opacity-60 transition-opacity">
+                <Link href="/shop" className="text-sm border-b border-foreground pb-1 hover:opacity-60 transition-opacity" prefetch={false}>
                   Clear All Filters
                 </Link>
               </div>
@@ -484,7 +519,7 @@ categorySlug: true,
                         key={chip.label}
                         href={chip.href}
                         className="inline-flex items-center gap-1.5 pl-3 pr-2 py-2 text-xs text-foreground border border-border rounded-full bg-background hover:border-[#B6965D] hover:text-[#B6965D] transition-colors"
-                      >
+                       prefetch={false}>
                         {chip.label}
                         <span className="text-[#9a958d]" aria-hidden="true">×</span>
                       </Link>
@@ -515,7 +550,7 @@ categorySlug: true,
                       <Link
                         href={`/shop?page=${page - 1}${buildParamString(params)}`}
                         className="inline-flex items-center px-4 min-h-[44px] border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
-                      >
+                       prefetch={false}>
                         Previous
                       </Link>
                     )}
@@ -526,7 +561,7 @@ categorySlug: true,
                       <Link
                         href={`/shop?page=${page + 1}${buildParamString(params)}`}
                         className="inline-flex items-center px-4 min-h-[44px] border border-input text-sm hover:bg-foreground hover:text-background transition-colors"
-                      >
+                       prefetch={false}>
                         Next
                       </Link>
                     )}

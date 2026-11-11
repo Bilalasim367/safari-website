@@ -72,6 +72,7 @@ export default function ProductEditWrapper({ productType }: { productType: 'perf
           supplier: p.supplier || null,
           isFeatured: p.isFeatured ?? false,
           isActive: p.isActive ?? true,
+          displayOrder: p.displayOrder ?? 0,
           stockStatus: p.stockStatus || 'in_stock',
           imageFolder: p.imageFolder || null,
           metaTitle: p.metaTitle || null,

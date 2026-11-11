@@ -9,7 +9,9 @@ import type { Metadata } from "next"
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: "Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan",
+  title: {
+    absolute: "Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan",
+  },
   description:
     "Shop 330+ designer-inspired attars and perfumes in Pakistan at affordable PKR prices. Long-lasting fragrances for men, women, and unisex with fast delivery across Pakistan.",
   alternates: { canonical: SITE_URL },
@@ -115,9 +117,15 @@ async function getProducts() {
       price50mlOnline: true,
     } as const
 
-    const [hotSelling, menProducts, womenProducts, unisexProducts] = await Promise.all([
+    const [pinnedProducts, hotSelling, menProducts, womenProducts, unisexProducts] = await Promise.all([
       prisma.product.findMany({
-        where: { isHotSelling: true, isActive: true },
+        where: { isActive: true, displayOrder: { gt: 0 } },
+        select: { ...select, category: { select: { name: true } } },
+        take: 10,
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
+      }),
+      prisma.product.findMany({
+        where: { isHotSelling: true, isActive: true, displayOrder: 0 },
         select: { ...select, category: { select: { name: true } } },
         take: 8,
         orderBy: { createdAt: "desc" },
@@ -125,21 +133,22 @@ async function getProducts() {
       prisma.product.findMany({
         where: { gender: 'Men', isActive: true },
         select: { ...select, category: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
       }),
       prisma.product.findMany({
         where: { gender: 'Women', isActive: true },
         select: { ...select, category: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
       }),
       prisma.product.findMany({
         where: { gender: 'Unisex', isActive: true },
         select: { ...select, category: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
       }),
     ])
 
     return {
+      pinnedProducts: pinnedProducts.map(mapProduct),
       hotSelling: hotSelling.map(mapProduct),
       menProducts: menProducts.map(mapProduct),
       womenProducts: womenProducts.map(mapProduct),
@@ -147,12 +156,12 @@ async function getProducts() {
     }
   } catch (error) {
     console.error("Error fetching products:", error)
-    return { hotSelling: [], menProducts: [], womenProducts: [], unisexProducts: [] }
+    return { pinnedProducts: [], hotSelling: [], menProducts: [], womenProducts: [], unisexProducts: [] }
   }
 }
 
 export default async function Home() {
-  const { hotSelling, menProducts, womenProducts, unisexProducts } = await getProducts()
+  const { pinnedProducts, hotSelling, menProducts, womenProducts, unisexProducts } = await getProducts()
 
-  return <HomePage hotSelling={hotSelling} menProducts={menProducts} womenProducts={womenProducts} unisexProducts={unisexProducts} />
+  return <HomePage pinnedProducts={pinnedProducts} hotSelling={hotSelling} menProducts={menProducts} womenProducts={womenProducts} unisexProducts={unisexProducts} />
 }

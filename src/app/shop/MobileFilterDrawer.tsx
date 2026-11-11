@@ -33,7 +33,7 @@ export default function MobileFilterDrawer({
             {filterCount > 0 && (
               <Link
                 href="/shop"
-                onClick={() => setOpen(false)}
+                prefetch={false} onClick={() => setOpen(false)}
                 className="text-sm text-[#9a958d] hover:text-[#B6965D] transition-colors underline underline-offset-2"
               >
                 Clear All
@@ -58,3 +58,6 @@ export default function MobileFilterDrawer({
     </Sheet>
   );
 }
+
+
+

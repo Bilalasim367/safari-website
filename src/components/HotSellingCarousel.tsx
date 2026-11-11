@@ -26,10 +26,20 @@ interface Product {
 
 interface HotSellingCarouselProps {
   products: Product[]
+  eyebrow?: string
+  title?: string
+  viewAllHref?: string
+  ariaLabel?: string
 }
 
-export default function HotSellingCarousel({ products }: HotSellingCarouselProps) {
-  const hotSelling = products.filter((p) => p.isHotSelling).slice(0, 8)
+export default function HotSellingCarousel({
+  products,
+  eyebrow = "Hot Selling",
+  title = "Trending This Week",
+  viewAllHref = "/shop?sort=hot",
+  ariaLabel = "Hot selling products carousel",
+}: HotSellingCarouselProps) {
+  const hotSelling = products.slice(0, 12)
 
   const showFallback = hotSelling.length === 0
 
@@ -39,14 +49,14 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
         <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
           <div>
             <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-              Hot Selling
+              {eyebrow}
             </p>
             <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-              Trending This Week
+              {title}
             </h2>
           </div>
           <Link
-            href="/shop?sort=hot"
+            href={viewAllHref}
             className="hidden md:inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm uppercase tracking-[0.1em]"
           >
             View All
@@ -70,7 +80,7 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
           <div
             className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 md:pb-8 -mx-4 md:-mx-12 px-4 md:px-12"
             role="region"
-            aria-label="Hot selling products carousel"
+            aria-label={ariaLabel}
           >
             {showFallback ? (
               Array.from({ length: 4 }).map((_, i) => (
@@ -191,7 +201,7 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
                 </button>
               ))
             ) : (
-              hotSelling.slice(0, 8).map((_, i) => (
+              hotSelling.map((_, i) => (
                 <button
                   key={i}
                   className="w-11 h-11 flex items-center justify-center"

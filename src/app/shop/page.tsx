@@ -7,7 +7,65 @@ import { SITE_URL } from '@/lib/site';
 import { debugLog } from '@/lib/debugLog';
 import { getShopLabel } from '@/lib/shop-label';
 
-export const dynamic = 'force-dynamic';
+// Query params are whitelisted and clamped here so junk URLs never reach the
+// cached Prisma query in ShopContent (which revalidates every 300s).
+
+
+const ALLOWED_PARAMS = new Set(['category', 'size', 'fragranceFamily', 'minPrice', 'maxPrice', 'page', 'sort', 'type', 'collection', 'gender', 'isBestseller', 'isNew', 'q']);
+const MAX_SEARCH_LEN = 60;
+const MAX_MULTI = 10;
+const ALLOWED_SORT = new Set(['featured', 'price-low', 'price-high', 'newest', 'rating']);
+
+function sanitizeParamValue(v: string | string[] | undefined): string | string[] | undefined {
+  if (v === undefined || v === null) return undefined;
+  if (Array.isArray(v)) {
+    const out: string[] = [];
+    for (const item of v) {
+      if (typeof item !== 'string') continue;
+      const cleaned = item.replace(/[\x00-\x1F\x7F]/g, '').trim();
+      if (cleaned.length === 0) continue;
+      out.push(cleaned);
+      if (out.length >= MAX_MULTI) break;
+    }
+    return out.length > 0 ? out : undefined;
+  }
+  if (typeof v === 'string') {
+    const cleaned = v.replace(/[\x00-\x1F\x7F]/g, '').trim();
+    if (cleaned.length === 0) return undefined;
+    if (cleaned.length > MAX_SEARCH_LEN) return cleaned.slice(0, MAX_SEARCH_LEN);
+    return cleaned;
+  }
+  return undefined;
+}
+
+function whitelistParams(input: Record<string, string | string[] | undefined>): Record<string, string | string[] | undefined> {
+  const out: Record<string, string | string[] | undefined> = {};
+  for (const k of Object.keys(input)) {
+    if (!ALLOWED_PARAMS.has(k)) continue;
+    const sv = sanitizeParamValue(input[k]);
+    if (sv === undefined) continue;
+    if (k === 'sort' && typeof sv === 'string' && !ALLOWED_SORT.has(sv)) continue;
+    if (k === 'page' && typeof sv === 'string') {
+      const n = Number(sv);
+      if (!Number.isFinite(n) || n < 1) continue;
+    }
+    if ((k === 'minPrice' || k === 'maxPrice') && typeof sv === 'string') {
+      const n = Number(sv);
+      if (!Number.isFinite(n) || n < 0) continue;
+    }
+    out[k] = sv;
+  }
+  return out;
+}
+
+function hasFilteredParams(p: Record<string, string | string[] | undefined>): boolean {
+  const keys = Object.keys(p);
+  if (keys.length === 0) return false;
+  if (keys.some((k) => k !== 'page' && k !== 'sort')) return true;
+  if (p.page && String(p.page) !== '1') return true;
+  if (p.sort && String(p.sort) !== 'featured') return true;
+  return false;
+}
 
 export async function generateMetadata({
   searchParams,
@@ -15,19 +73,24 @@ export async function generateMetadata({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   try {
-    const params = await searchParams;
-    const label = getShopLabel(params);
-
+    const raw = await searchParams;
+    const params = whitelistParams(raw);
+    const label = getShopLabel(params as Record<string,string|string[]|undefined>);
+    const hasFiltered = hasFilteredParams(params);
+    const canonical = `${SITE_URL}/shop`;
     return {
-      title: `${label} | Safari Perfumes Pakistan`,
+      title: `${label}`,
       description: `Shop ${label.toLowerCase()} at Safari Perfumes — designer-inspired fragrances at affordable PKR prices with fast delivery across Pakistan.`,
-      alternates: { canonical: `${SITE_URL}/shop` },
+      alternates: { canonical },
+      robots: hasFiltered ? { index: false, follow: true } : { index: true, follow: true },
     };
   } catch (error) {
     debugLog('ShopPage:generateMetadata', error);
     return {
-      title: 'Shop | Safari Perfumes Pakistan',
+      title: 'Shop',
       description: 'Shop designer-inspired fragrances at Safari Perfumes.',
+      alternates: { canonical: `${SITE_URL}/shop` },
+      robots: { index: true, follow: true },
     };
   }
 }
@@ -37,15 +100,16 @@ export default async function ShopPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  let params: Record<string, string | string[] | undefined> = {};
+  let raw: Record<string, string | string[] | undefined> = {};
   let label = 'Shop All';
-
   try {
-    params = (await searchParams) || {};
-    label = getShopLabel(params);
+    raw = (await searchParams) || {};
+    const w = whitelistParams(raw);
+    label = getShopLabel(w as Record<string,string|string[]|undefined>);
   } catch (error) {
     debugLog('ShopPage:searchParams', error);
   }
+  const params = whitelistParams(raw);
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -82,7 +146,7 @@ export default async function ShopPage({
                 <BreadcrumbList className="text-sm">
                   <BreadcrumbItem>
                     <BreadcrumbLink asChild>
-                      <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
+                      <Link href="/" prefetch={false} className="text-muted-foreground hover:text-foreground transition-colors">Home</Link>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />

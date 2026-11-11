@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card"
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Safari Perfumes',
+  title: 'Privacy Policy',
   robots: { index: false },
 }
 

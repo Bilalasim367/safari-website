@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Shipping & Delivery | Safari Perfumes Pakistan',
+  title: 'Shipping & Delivery',
   description: 'Fast, reliable delivery across Pakistan. Learn about shipping times, fees, and free shipping thresholds for Safari Perfumes orders.',
   alternates: { canonical: `${SITE_URL}/shipping` },
 }

@@ -113,6 +113,7 @@ export const AdminProductSchema = z.object({
   supplier: z.string().nullable().optional(),
   isFeatured: z.boolean().default(false),
   isActive: z.boolean().default(true),
+  displayOrder: z.number().int().min(0).default(0),
   stockStatus: z.string().default('in_stock'),
   imageFolder: z.string().nullable().optional(),
   metaTitle: z.string().nullable().optional(),

@@ -17,6 +17,7 @@ import Reveal from "@/components/Reveal"
 import type { ProductCategory } from "@/lib/product-types"
 
 interface HomePageProps {
+  pinnedProducts: ProductCategory[]
   hotSelling: ProductCategory[]
   menProducts: ProductCategory[]
   womenProducts: ProductCategory[]
@@ -28,6 +29,7 @@ function GoldDivider() {
 }
 
 export default function HomePage({
+  pinnedProducts,
   hotSelling,
   menProducts,
   womenProducts,
@@ -36,6 +38,17 @@ export default function HomePage({
   return (
     <>
       <Hero />
+      {pinnedProducts.length > 0 && (
+        <Reveal>
+          <HotSellingCarousel
+            products={pinnedProducts}
+            eyebrow="Just Arrived"
+            title="New This Season"
+            viewAllHref="/shop?sort=newest"
+            ariaLabel="New arrivals carousel"
+          />
+        </Reveal>
+      )}
       <Reveal>
         <NewLaunchBanner />
       </Reveal>

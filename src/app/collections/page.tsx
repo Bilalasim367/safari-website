@@ -6,7 +6,7 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: "Our Collection | Safari Perfumes Pakistan",
+  title: "Our Collection",
   description: "Explore our complete collection of designer-inspired perfumes and attars for men, women, and unisex at affordable PKR prices.",
   alternates: { canonical: `${SITE_URL}/collections` },
 }

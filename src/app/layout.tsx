@@ -40,9 +40,6 @@ export const metadata: Metadata = {
     'fragrance Pakistan',
     'gift perfume Pakistan',
   ],
-  alternates: {
-    canonical: SITE_URL,
-  },
   openGraph: {
     title: 'Safari Perfumes — Designer-Inspired Attars & Perfumes in Pakistan',
     description:
@@ -77,6 +74,21 @@ const organizationJsonLd = {
   ],
 }
 
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_NAME,
+  url: SITE_URL,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE_URL}/shop?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -88,6 +100,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <TooltipProvider>
           <AuthProvider>

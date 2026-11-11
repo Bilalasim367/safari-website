@@ -70,6 +70,7 @@ export default function Hero() {
         <div className={cn("text-center lg:text-left", "animate-fade-in motion-reduce:animate-none")} style={enter(0)}>
           <h1
             id="hero-heading"
+            aria-label="Inspired Fragrances, Affordable Luxury"
             className={cn(
               "text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl",
               "animate-fade-in motion-reduce:animate-none"
@@ -78,7 +79,7 @@ export default function Hero() {
           >
             <span className="block bg-gradient-to-r from-[#C98A00] to-[#F5B82E] bg-clip-text text-transparent">
               {HEADING_LINE_1}
-            </span>
+            </span>{" "}
             <span className="block text-[#1F2937]">{HEADING_LINE_2}</span>
           </h1>
 

@@ -14,6 +14,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "deploy-staging/**",
+    // Local copy of the app used to assemble cPanel uploads — not source.
+    "deploy-app/**",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
     "server.js",
     "next-env.d.ts",
     // Image WebP tooling — Node CommonJS CLI scripts, not app source.

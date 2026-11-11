@@ -16,11 +16,11 @@ export async function generateMetadata({
   const { slug } = await params
   const post = getBlogPost(slug)
   if (!post) {
-    return { title: 'Article Not Found | Safari Perfumes' }
+    return { title: { absolute: 'Article Not Found | Safari Perfumes' } }
   }
   const url = `${SITE_URL}/blog/${post.slug}`
   return {
-    title: `${post.title} | Safari Perfumes`,
+    title: { absolute: `${post.title} | Safari Perfumes` },
     description: post.description,
     alternates: { canonical: url },
     openGraph: {

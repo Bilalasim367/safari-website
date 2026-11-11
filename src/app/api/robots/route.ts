@@ -1,34 +1,8 @@
 import { NextResponse } from 'next/server';
+import { SITE_URL } from '@/lib/site';
 
+// Legacy duplicate of the real robots route (`src/app/robots.ts`, served at
+// `/robots.txt`). Redirect so crawlers and audits only see one robots policy.
 export async function GET() {
-  const robots = `User-agent: *
-Allow: /
-
-# Disallow admin routes
-Disallow: /admin/
-Disallow: /api/admin/
-
-# Disallow auth routes
-Disallow: /login/
-Disallow: /signup/
-Disallow: /forgot-password/
-
-# Disallow checkout
-Disallow: /checkout/
-
-# Disallow account pages
-Disallow: /account/
-
-# Allow search engines to crawl sitemap
-  Sitemap: ${process.env.NEXT_PUBLIC_BASE_URL || 'https://safari-perfumes.com'}/api/sitemap
-
-# Crawl delay (optional, uncomment if needed)
-# Crawl-delay: 1
-`;
-
-  return new NextResponse(robots, {
-    headers: {
-      'Content-Type': 'text/plain',
-    },
-  });
+  return NextResponse.redirect(`${SITE_URL}/robots.txt`, 308);
 }

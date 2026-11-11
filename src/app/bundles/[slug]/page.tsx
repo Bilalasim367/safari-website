@@ -81,7 +81,7 @@ export async function generateMetadata({
   const { slug } = await params
   const bundle = await getBundle(slug)
   if (!bundle) {
-    return { title: 'Bundle Not Found | Safari Perfumes' }
+    return { title: { absolute: 'Bundle Not Found | Safari Perfumes' } }
   }
   const url = `${SITE_URL}/bundles/${bundle.slug}`
   const price = Math.round(bundle.price).toLocaleString()
@@ -89,7 +89,7 @@ export async function generateMetadata({
     bundle.description ||
     `${bundle.name} — premium fragrance bundle at PKR ${price} with fast delivery across Pakistan.`
   return {
-    title: `${bundle.name} | PKR ${price} | Safari Perfumes Pakistan`,
+    title: { absolute: `${bundle.name} | PKR ${price} | Safari Perfumes` },
     description,
     alternates: { canonical: url },
     openGraph: {

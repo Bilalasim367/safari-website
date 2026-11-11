@@ -4,12 +4,12 @@ import { blogPosts } from '@/data/blog'
 import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Fragrance Guides & Tips | Safari Perfumes Blog',
+  title: 'Fragrance Guides & Tips',
   description:
     'Practical fragrance guides for Pakistan: designer perfume impressions explained, oud vs attar, and how to make your perfume last longer.',
   alternates: { canonical: `${SITE_URL}/blog` },
   openGraph: {
-    title: 'Fragrance Guides & Tips | Safari Perfumes Blog',
+    title: 'Fragrance Guides & Tips',
     description:
       'Practical fragrance guides for Pakistan: designer perfume impressions explained, oud vs attar, and how to make your perfume last longer.',
     url: `${SITE_URL}/blog`,

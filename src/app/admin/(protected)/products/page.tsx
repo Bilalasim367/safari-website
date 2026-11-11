@@ -3,13 +3,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getAdminProducts, deleteProduct, updateProductPartial } from "../actions";
+import { getAdminProducts, deleteProduct, updateProductPartial, setProductPinned, setProductsPinned, movePinnedProduct } from "../actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronDown, ChevronUp, Loader2, Star } from "@/lib/lucide-icons";
 import { toast } from "sonner";
 
 interface Product {
@@ -32,6 +33,7 @@ interface Product {
   isFeatured?: boolean;
   type?: string | null;
   productId?: string | null;
+  displayOrder: number;
 }
 
 export default function ProductsPage() {
@@ -47,6 +49,9 @@ export default function ProductsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [bestsellerFilter, setBestsellerFilter] = useState<string>("all");
   const [newFilter, setNewFilter] = useState<string>("all");
+  const [placementFilter, setPlacementFilter] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [placementBusy, setPlacementBusy] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
   const loadProducts = useCallback(async () => {
@@ -90,8 +95,106 @@ export default function ProductsPage() {
     const matchesActive = activeFilter === "all" || (product.isActive === true).toString() === activeFilter;
     const matchesBestseller = bestsellerFilter === "all" || (product.isBestseller === true).toString() === bestsellerFilter;
     const matchesNew = newFilter === "all" || (product.isNew === true).toString() === newFilter;
-    return matchesSearch && matchesGender && matchesType && matchesSeason && matchesStock && matchesActive && matchesBestseller && matchesNew;
+    const matchesPlacement = placementFilter === "all"
+      || (placementFilter === "pinned" && product.displayOrder > 0)
+      || (placementFilter === "unpinned" && product.displayOrder <= 0);
+    return matchesSearch && matchesGender && matchesType && matchesSeason && matchesStock && matchesActive && matchesBestseller && matchesNew && matchesPlacement;
   });
+
+  const allFilteredSelected = filteredProducts.length > 0
+    && filteredProducts.every((product) => selectedIds.includes(product.id));
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => prev.includes(id) ? prev.filter((selected) => selected !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds(allFilteredSelected ? [] : filteredProducts.map((product) => product.id));
+  };
+
+  const handleTogglePinned = async (product: Product) => {
+    setPlacementBusy(product.id);
+    try {
+      const shouldPin = product.displayOrder <= 0;
+      const result = await setProductPinned(product.id, shouldPin);
+      if (result.success) {
+        toast.success(shouldPin ? `"${product.name}" pinned to top` : `"${product.name}" unpinned`);
+        await loadProducts();
+      } else {
+        toast.error(result.error || 'Error updating placement');
+      }
+    } catch {
+      toast.error('Error updating placement');
+    } finally {
+      setPlacementBusy(null);
+    }
+  };
+
+  const handleMovePinned = async (product: Product, direction: 'up' | 'down') => {
+    setPlacementBusy(product.id);
+    try {
+      const result = await movePinnedProduct(product.id, direction);
+      if (result.success) {
+        await loadProducts();
+      } else {
+        toast.error(result.error || 'Error reordering product');
+      }
+    } catch {
+      toast.error('Error reordering product');
+    } finally {
+      setPlacementBusy(null);
+    }
+  };
+
+  const handleBulkPin = async (pinned: boolean) => {
+    if (selectedIds.length === 0) {
+      toast.error('Select at least one product');
+      return;
+    }
+    setPlacementBusy('bulk');
+    try {
+      const result = await setProductsPinned(selectedIds, pinned);
+      if (result.success) {
+        toast.success(`${result.updated ?? selectedIds.length} product(s) ${pinned ? 'pinned to top' : 'unpinned'}`);
+        setSelectedIds([]);
+        await loadProducts();
+      } else {
+        toast.error(result.error || 'Error updating placement');
+      }
+    } catch {
+      toast.error('Error updating placement');
+    } finally {
+      setPlacementBusy(null);
+    }
+  };
+
+  const handlePinNewest = async () => {
+    const newestUnpinned = filteredProducts
+      .filter((product) => product.displayOrder <= 0)
+      .slice(0, 10)
+      .map((product) => product.id);
+
+    if (newestUnpinned.length === 0) {
+      toast.error('No unpinned products to pin');
+      return;
+    }
+
+    setPlacementBusy('bulk');
+    try {
+      const result = await setProductsPinned(newestUnpinned, true);
+      if (result.success) {
+        toast.success(`${result.updated ?? newestUnpinned.length} newest product(s) pinned to top`);
+        setSelectedIds([]);
+        await loadProducts();
+      } else {
+        toast.error(result.error || 'Error updating placement');
+      }
+    } catch {
+      toast.error('Error updating placement');
+    } finally {
+      setPlacementBusy(null);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
@@ -290,14 +393,65 @@ export default function ProductsPage() {
             <SelectItem value="false">No</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={placementFilter} onValueChange={(v) => v !== null && setPlacementFilter(v)}>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Placement" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Placement</SelectItem>
+            <SelectItem value="pinned">Pinned to Top</SelectItem>
+            <SelectItem value="unpinned">Normal Order</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          onClick={handlePinNewest}
+          disabled={placementBusy === 'bulk'}
+          title="Pin the 10 newest unpinned products (respects the current filters)"
+        >
+          {placementBusy === 'bulk' ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Star className="mr-2 h-4 w-4" />
+          )}
+          Pin 10 newest
+        </Button>
       </div>
+
+      {selectedIds.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-md border border-gold/40 bg-gold/5 px-4 py-3">
+          <span className="text-sm font-medium">
+            {selectedIds.length} product(s) selected
+          </span>
+          <Button size="sm" onClick={() => handleBulkPin(true)} disabled={placementBusy === 'bulk'}>
+            {placementBusy === 'bulk' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Pin selected to top
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handleBulkPin(false)} disabled={placementBusy === 'bulk'}>
+            Unpin selected
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])} disabled={placementBusy === 'bulk'}>
+            Clear
+          </Button>
+        </div>
+      )}
 
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10">
+                <input
+                  type="checkbox"
+                  aria-label="Select all filtered products"
+                  className="h-4 w-4 accent-[#b6965d]"
+                  checked={allFilteredSelected}
+                  onChange={toggleSelectAll}
+                />
+              </TableHead>
               <TableHead>Product ID</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Placement</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Gender</TableHead>
               <TableHead>Season</TableHead>
@@ -308,10 +462,69 @@ export default function ProductsPage() {
           <TableBody>
             {filteredProducts.map((product) => (
               <TableRow key={product.id}>
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${product.name}`}
+                    className="h-4 w-4 accent-[#b6965d]"
+                    checked={selectedIds.includes(product.id)}
+                    onChange={() => toggleSelected(product.id)}
+                  />
+                </TableCell>
                 <TableCell className="font-mono text-xs">
                   {product.productId || <span className="text-muted-foreground">—</span>}
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    {product.displayOrder > 0 ? (
+                      <>
+                        <Badge className="bg-gold text-black text-xs whitespace-nowrap">
+                          TOP #{product.displayOrder}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          aria-label={`Move ${product.name} up`}
+                          title="Move up"
+                          disabled={placementBusy === product.id}
+                          onClick={() => handleMovePinned(product, 'up')}
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          aria-label={`Move ${product.name} down`}
+                          title="Move down"
+                          disabled={placementBusy === product.id}
+                          onClick={() => handleMovePinned(product, 'down')}
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Normal</span>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      aria-label={product.displayOrder > 0 ? `Unpin ${product.name}` : `Pin ${product.name} to top`}
+                      title={product.displayOrder > 0 ? 'Unpin' : 'Pin to top'}
+                      disabled={placementBusy === product.id}
+                      onClick={() => handleTogglePinned(product)}
+                    >
+                      {placementBusy === product.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Star className={`h-4 w-4 ${product.displayOrder > 0 ? 'fill-gold text-gold' : ''}`} />
+                      )}
+                    </Button>
+                  </div>
+                </TableCell>
                 <TableCell>
                   <Badge variant={product.type?.toLowerCase().includes('perfume') ? 'default' : 'secondary'} className="text-xs">
                     {product.type || 'Attar'}
