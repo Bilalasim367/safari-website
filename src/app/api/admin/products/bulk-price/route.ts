@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
@@ -221,6 +222,14 @@ export async function POST(request: Request) {
 
       applied = toUpdate.filter((c) => Object.keys(c.updates).length > 0).length;
       unchanged = matchedProductIds.size - applied;
+
+      // Purge storefront caches so the new prices show up immediately.
+      if (applied > 0) {
+        revalidateTag('shop-products', { expire: 0 });
+        revalidatePath('/', 'page');
+        revalidatePath('/shop', 'page');
+        revalidatePath('/shop/[slug]', 'page');
+      }
     }
 
     return NextResponse.json({

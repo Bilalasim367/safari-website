@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise'
+import { mysqlPass } from './_db-env'
 import type { RowDataPacket } from 'mysql2'
 import fs from 'fs'
 import path from 'path'
@@ -6,7 +7,7 @@ import { parsePriceCsv, dedupeRows, buildDbIndex, matchRows, type DbProductLight
 import { normalizeBrandlessName } from '../src/lib/text-match'
 
 async function main() {
-  const c = await mysql.createConnection({ host: 'localhost', user: 'root', password: 'Hassan224266', database: 'perfume_db' })
+  const c = await mysql.createConnection({ host: 'localhost', user: 'root', password: mysqlPass(), database: 'perfume_db' })
   const [prodRows] = await c.query<RowDataPacket[] & DbProductLight[]>('SELECT id, name, price, oilPricePer100g, productId FROM product')
   await c.end()
   const products: DbProductLight[] = prodRows.map((p) => ({ id: String(p.id), name: p.name, price: Number(p.price) || 0, oilPricePer100g: p.oilPricePer100g == null ? null : Number(p.oilPricePer100g), productId: p.productId ?? null }))

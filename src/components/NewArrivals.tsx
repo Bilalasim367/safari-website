@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Rating } from "@/components/Rating"
+import PriceLabel from "@/components/PriceLabel"
 import type { ProductCategory } from "@/lib/product-types"
 
 interface NewArrivalsProps {
@@ -123,10 +124,12 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
                     <span className="text-muted-foreground text-sm">({product.reviewCount})</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl font-bold text-foreground">
-                      ${product.price}
-                    </span>
-                    {product.originalPrice && product.originalPrice > product.price && (
+                    <PriceLabel
+                      price={product.price}
+                      prefix="$"
+                      className="text-2xl font-bold text-foreground"
+                    />
+                    {product.originalPrice && product.price && product.originalPrice > product.price && (
                       <span className="text-muted-foreground line-through text-lg">
                         ${product.originalPrice}
                       </span>

@@ -40,9 +40,6 @@ export const metadata: Metadata = {
     'fragrance Pakistan',
     'gift perfume Pakistan',
   ],
-  alternates: {
-    canonical: SITE_URL,
-  },
   openGraph: {
     title: 'Safari Perfumes — Designer-Inspired Attars & Perfumes in Pakistan',
     description:
@@ -64,7 +61,7 @@ const organizationJsonLd = {
   '@type': 'Organization',
   name: SITE_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.jpeg`,
+  logo: `${SITE_URL}/logo.webp`,
   email: 'support@safari-perfumes.com',
   telephone: '+92 3107435020',
   address: {
@@ -75,6 +72,21 @@ const organizationJsonLd = {
     'https://www.tiktok.com/@safari.perfumes?_r=1&_t=ZS-995di8B29qv',
     'https://www.facebook.com/share/19G8xxiTP7/',
   ],
+}
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_NAME,
+  url: SITE_URL,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE_URL}/shop?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
 }
 
 export default function RootLayout({
@@ -88,6 +100,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <TooltipProvider>
           <AuthProvider>

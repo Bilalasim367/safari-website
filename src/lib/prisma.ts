@@ -5,6 +5,23 @@ declare global {
   var __prisma: PrismaClient | undefined
 }
 
+/**
+ * Builds a log-safe description of the database target.
+ *
+ * Never log the raw connection string: it embeds the username and password and
+ * debugLogMessage persists to debug-errors.log at the project root, which is
+ * readable through the cPanel File Manager.
+ */
+function describeDatabaseTarget(url: string): string {
+  try {
+    const parsed = new URL(url.replace(/^mysql:\/\//, 'http://'))
+    const database = parsed.pathname.replace(/^\//, '')
+    return database ? `${parsed.hostname}/${database}` : parsed.hostname
+  } catch {
+    return 'unparseable DATABASE_URL'
+  }
+}
+
 const createPrismaClient = () => {
   const url = process.env.DATABASE_URL
 
@@ -16,7 +33,7 @@ const createPrismaClient = () => {
     throw err
   }
 
-  debugLogMessage('prisma:init', `Connecting to DB (url prefix: ${url.slice(0, 30)}...)`)
+  debugLogMessage('prisma:init', `Connecting to DB (${describeDatabaseTarget(url)})`)
 
   try {
     const client = new PrismaClient({

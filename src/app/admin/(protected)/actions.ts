@@ -2,8 +2,23 @@
 
 import prisma from '@/lib/prisma';
 import { cookies } from 'next/headers';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { verifyToken } from '@/lib/auth';
 import { normalizeGender, normalizeType, defaultSizeForType } from '@/lib/normalize';
+
+// Purge the cached storefront product listing so admin edits are visible
+// immediately, without waiting for the 5-minute revalidate window.
+function revalidateShopProducts() {
+  // `{ expire: 0 }` (not 'max') so the stale cached entry is NEVER served
+  // after an admin edit — the next request blocks until fresh data is fetched.
+  // 'max' served stale content for up to a year, which is why price/image
+  // changes never appeared on the storefront.
+  revalidateTag('shop-products', { expire: 0 });
+  // Purge the ISR page caches too (homepage + shop list + every product detail).
+  revalidatePath('/', 'page');
+  revalidatePath('/shop', 'page');
+  revalidatePath('/shop/[slug]', 'page');
+}
 
 async function getAuth() {
   const cookieStore = await cookies();
@@ -20,7 +35,7 @@ export async function getAdminProducts() {
   
   try {
     const products = await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ displayOrder: 'desc' }, { createdAt: 'desc' }],
       select: {
         id: true,
         name: true,
@@ -34,6 +49,7 @@ export async function getAdminProducts() {
         inStock: true,
         isBestseller: true,
         isNew: true,
+        displayOrder: true,
         productId: true,
         gender: true,
         season: true,
@@ -134,6 +150,7 @@ export interface ProductFormData {
   supplier?: string | null;
   isFeatured?: boolean;
   isActive?: boolean;
+  displayOrder?: number;
   stockStatus?: string;
   imageFolder?: string | null;
   metaTitle?: string | null;
@@ -227,6 +244,7 @@ export async function createProduct(data: ProductFormData) {
         supplier: data.supplier || null,
         isFeatured: data.isFeatured ?? false,
         isActive: data.isActive ?? true,
+        displayOrder: data.displayOrder ?? 0,
         stockStatus: data.stockStatus || 'in_stock',
         imageFolder: data.imageFolder || null,
         metaTitle: data.metaTitle || null,
@@ -243,6 +261,7 @@ export async function createProduct(data: ProductFormData) {
         notes: data.notes || null,
       },
     });
+    revalidateShopProducts();
     return { success: true, product };
   } catch (e) {
     return { error: 'Failed to create product', detail: String(e) };
@@ -302,6 +321,7 @@ export async function updateProduct(id: string, data: ProductFormData) {
         supplier: data.supplier || null,
         isFeatured: data.isFeatured ?? false,
         isActive: data.isActive ?? true,
+        displayOrder: data.displayOrder ?? 0,
         stockStatus: data.stockStatus || 'in_stock',
         imageFolder: data.imageFolder || null,
         metaTitle: data.metaTitle || null,
@@ -318,6 +338,7 @@ export async function updateProduct(id: string, data: ProductFormData) {
         notes: data.notes || null,
       },
     });
+    revalidateShopProducts();
     return { success: true };
   } catch (e) {
     console.error('updateProduct error:', e);
@@ -336,6 +357,7 @@ export async function deleteProduct(id: string) {
       where: { id },
       data: { isActive: false },
     });
+    revalidateShopProducts();
     return { success: true };
   } catch (e) {
     console.error('deleteProduct error:', e);
@@ -354,9 +376,132 @@ export async function updateProductPartial(id: string, data: Record<string, unkn
       where: { id },
       data,
     });
+    revalidateShopProducts();
     return { success: true };
   } catch {
     return { error: 'Failed to update product' };
+  }
+}
+
+// ─── Storefront Placement (Pin to top) ────────────────────────────
+
+const MAX_PIN_SELECTION = 50;
+
+function uniqueProductIds(ids: string[]): string[] {
+  return Array.from(new Set((ids || []).filter((id) => typeof id === 'string' && id.length > 0)));
+}
+
+/**
+ * Pin or unpin products from the top of the storefront.
+ * Pinned products get a unique `displayOrder` (higher = higher on the site).
+ * When multiple products are pinned together, the newest product lands highest.
+ */
+export async function setProductsPinned(ids: string[], pinned: boolean) {
+  const auth = await getAuth();
+  if (!auth || auth.role !== 'admin') {
+    return { error: 'Unauthorized' };
+  }
+
+  const cleanIds = uniqueProductIds(ids);
+  if (cleanIds.length === 0) {
+    return { error: 'No products selected' };
+  }
+  if (cleanIds.length > MAX_PIN_SELECTION) {
+    return { error: `Select ${MAX_PIN_SELECTION} products or fewer at a time` };
+  }
+
+  try {
+    if (!pinned) {
+      await prisma.product.updateMany({
+        where: { id: { in: cleanIds } },
+        data: { displayOrder: 0 },
+      });
+      revalidateShopProducts();
+      return { success: true, updated: cleanIds.length };
+    }
+
+    const [max, products] = await Promise.all([
+      prisma.product.aggregate({ _max: { displayOrder: true } }),
+      prisma.product.findMany({
+        where: { id: { in: cleanIds } },
+        select: { id: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    if (products.length === 0) {
+      return { error: 'Products not found' };
+    }
+
+    const base = max._max.displayOrder ?? 0;
+    await prisma.$transaction(
+      products.map((product, index) =>
+        prisma.product.update({
+          where: { id: product.id },
+          data: { displayOrder: base + products.length - index },
+        })
+      )
+    );
+
+    revalidateShopProducts();
+    return { success: true, updated: products.length };
+  } catch (e) {
+    console.error('setProductsPinned error:', e);
+    return { error: 'Failed to update storefront placement' };
+  }
+}
+
+export async function setProductPinned(id: string, pinned: boolean) {
+  return setProductsPinned([id], pinned);
+}
+
+/** Move a pinned product one place up/down within the pinned group. */
+export async function movePinnedProduct(id: string, direction: 'up' | 'down') {
+  const auth = await getAuth();
+  if (!auth || auth.role !== 'admin') {
+    return { error: 'Unauthorized' };
+  }
+
+  if (direction !== 'up' && direction !== 'down') {
+    return { error: 'Invalid direction' };
+  }
+
+  try {
+    const pinned = await prisma.product.findMany({
+      where: { displayOrder: { gt: 0 } },
+      orderBy: [{ displayOrder: 'desc' }, { createdAt: 'desc' }],
+      select: { id: true },
+    });
+
+    const index = pinned.findIndex((product) => product.id === id);
+    if (index === -1) {
+      return { error: 'Product is not pinned' };
+    }
+
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= pinned.length) {
+      return { success: true };
+    }
+
+    const reordered = [...pinned];
+    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
+
+    // Renumber the whole pinned group so every value stays unique and gaps
+    // created by manual edits can never freeze the move buttons.
+    await prisma.$transaction(
+      reordered.map((product, position) =>
+        prisma.product.update({
+          where: { id: product.id },
+          data: { displayOrder: reordered.length - position },
+        })
+      )
+    );
+
+    revalidateShopProducts();
+    return { success: true };
+  } catch (e) {
+    console.error('movePinnedProduct error:', e);
+    return { error: 'Failed to reorder products' };
   }
 }
 

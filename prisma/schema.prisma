@@ -48,6 +48,8 @@ model Product {
   isNew            Boolean      @default(false)
   isHotSelling     Boolean      @default(false)
   isTrending       Boolean      @default(false)
+  // Storefront placement: higher number = higher up the site (0 = normal).
+  displayOrder     Int          @default(0)
 
   // Bulk upload fields (additive, optional)
   productId        String?      @unique
@@ -107,6 +109,7 @@ model Product {
   @@index([isTrending, isActive])
   @@index([isHotSelling, isActive])
   @@index([isFeatured, isActive])
+  @@index([isActive, displayOrder])
   @@index([isActive])
   @@index([createdAt])
   @@map("product")

@@ -56,7 +56,7 @@ export default function Footer() {
                 <li>
                   <a
                     href='mailto:support@safari-perfumes.com'
-                    className='hover:text-[#B6965D] transition-colors flex items-center gap-3'
+                    className='hover:text-[#B6965D] transition-colors flex items-center gap-3 min-h-[44px]'
                   >
                     <svg
                       className='w-5 h-5'
@@ -77,7 +77,7 @@ export default function Footer() {
                 <li>
                   <a
                     href='tel:+923107435020'
-                    className='hover:text-[#B6965D] transition-colors flex items-center gap-3'
+                    className='hover:text-[#B6965D] transition-colors flex items-center gap-3 min-h-[44px]'
                   >
                     <svg
                       className='w-5 h-5'
@@ -98,7 +98,7 @@ export default function Footer() {
                 <li>
                   <a
                     href='tel:+923346322462'
-                    className='hover:text-[#B6965D] transition-colors flex items-center gap-3'
+                    className='hover:text-[#B6965D] transition-colors flex items-center gap-3 min-h-[44px]'
                   >
                     <svg
                       className='w-5 h-5'
@@ -142,7 +142,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className='text-base text-[#9a958d] hover:text-[#B6965D] transition-colors'
+                    className='inline-flex items-center min-h-[44px] text-base text-[#9a958d] hover:text-[#B6965D] transition-colors'
                   >
                     {link.label}
                   </Link>
@@ -168,7 +168,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className='text-base text-[#9a958d] hover:text-[#B6965D] transition-colors'
+                    className='inline-flex items-center min-h-[44px] text-base text-[#9a958d] hover:text-[#B6965D] transition-colors'
                   >
                     {link.label}
                   </Link>
@@ -291,7 +291,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className='text-base text-[#9a958d] hover:text-[#B6965D] transition-colors'
+                  className='inline-flex items-center min-h-[44px] text-base text-[#9a958d] hover:text-[#B6965D] transition-colors'
                 >
                   {link.label}
                 </Link>

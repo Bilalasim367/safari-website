@@ -4,12 +4,13 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
+import PriceLabel from "@/components/PriceLabel"
 
 interface Product {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   originalPrice?: number
   image: string
   images: string[]
@@ -98,18 +99,18 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
                       </div>
                     )}
                     {(product.isBestseller || product.isNew) && (
-                      <div className="absolute top-3 left-3 flex gap-2">
-                        {product.isBestseller && (
-                          <span className="bg-gold text-black text-xs font-medium px-2 py-1 rounded-none">
-                            Bestseller
-                          </span>
-                        )}
-                        {product.isNew && (
-                          <span className="bg-white text-black text-xs font-medium px-2 py-1 rounded-none">
-                            New
-                          </span>
-                        )}
-                      </div>
+                        <div className="absolute top-3 left-3 flex gap-2">
+                          {product.isBestseller && (
+                            <span className="bg-gold text-black text-xs font-medium px-2 py-1 rounded-none">
+                              Bestseller
+                            </span>
+                          )}
+                          {product.isNew && (
+                            <span className="bg-white text-black text-xs font-medium px-2 py-1 rounded-none">
+                              New
+                            </span>
+                          )}
+                        </div>
                     )}
                   </div>
 
@@ -125,10 +126,12 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
                       <span className="text-xs text-muted-foreground">({product.reviewCount})</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-foreground">
-                        ${product.price}
-                      </span>
-                      {product.originalPrice && (
+                      <PriceLabel
+                        price={product.price}
+                        prefix="$"
+                        className="text-lg font-bold text-foreground"
+                      />
+                      {product.originalPrice && product.price && (
                         <span className="text-sm text-muted-foreground line-through">
                           ${product.originalPrice}
                         </span>
@@ -140,14 +143,16 @@ export default function BestSellersCarousel({ products }: BestSellersCarouselPro
             ))}
           </div>
 
-          <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Best sellers pagination">
+          <div className="flex justify-center gap-1 mt-4" role="tablist" aria-label="Best sellers pagination">
             {bestsellers.slice(0, 8).map((_, i) => (
               <button
                 key={i}
-                className="w-2 h-2 rounded-full bg-muted-foreground/30 hover:bg-gold transition-colors"
+                className="w-11 h-11 flex items-center justify-center"
                 role="tab"
                 aria-label={`Go to product ${i + 1}`}
-              />
+              >
+                <span className="w-2 h-2 rounded-full bg-muted-foreground/30 group-hover:bg-gold transition-colors" />
+              </button>
             ))}
           </div>
         </div>

@@ -2,13 +2,16 @@ import prisma from "@/lib/prisma"
 import HomePage from "@/components/HomePage"
 import { classifyProductType } from "@/lib/product-types"
 import { defaultSizeForType } from "@/lib/normalize"
+import { resolveDefaultPricing } from "@/lib/size-pricing"
 import { SITE_URL } from "@/lib/site"
 import type { Metadata } from "next"
 
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: "Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan",
+  title: {
+    absolute: "Safari Perfumes | Affordable Designer-Inspired Attars & Perfumes in Pakistan",
+  },
   description:
     "Shop 330+ designer-inspired attars and perfumes in Pakistan at affordable PKR prices. Long-lasting fragrances for men, women, and unisex with fast delivery across Pakistan.",
   alternates: { canonical: SITE_URL },
@@ -44,13 +47,21 @@ function mapProduct(p: {
   fragranceFamily: string | null
   sizesAvailable: string | null
   sizePrices: string | null
+  price3mlOnline: number | null
+  price6mlOnline: number | null
+  price12mlOnline: number | null
+  price50mlOnline: number | null
   category: { name: string } | null
 }) {
+  const pricing = resolveDefaultPricing(p)
   return {
     id: p.id,
     name: p.name,
     slug: p.slug,
-    price: p.price,
+    // No priced size => no honest figure to advertise. `null` renders as
+    // "Unavailable" and blocks add-to-cart. Falling back to the base `price`
+    // column here would quote a stale number that describes no real volume.
+    price: pricing ? pricing.price : null,
     originalPrice: p.originalPrice,
     image: p.image || "",
     images: JSON.parse(p.images || "[]") as string[],
@@ -61,7 +72,7 @@ function mapProduct(p: {
     isNew: p.isNew,
     isHotSelling: p.isHotSelling,
     isTrending: p.isTrending,
-    size: p.size || defaultSizeForType(classifyProductType(p)),
+    size: pricing ? pricing.size : p.size || defaultSizeForType(classifyProductType(p)),
     inStock: p.inStock,
     rating: p.rating,
     reviewCount: p.reviewCount,
@@ -100,11 +111,21 @@ async function getProducts() {
       origin: true,
       price3mlPhysical: true,
       price6mlPhysical: true,
+      price3mlOnline: true,
+      price6mlOnline: true,
+      price12mlOnline: true,
+      price50mlOnline: true,
     } as const
 
-    const [hotSelling, menProducts, womenProducts, unisexProducts] = await Promise.all([
+    const [pinnedProducts, hotSelling, menProducts, womenProducts, unisexProducts] = await Promise.all([
       prisma.product.findMany({
-        where: { isHotSelling: true, isActive: true },
+        where: { isActive: true, displayOrder: { gt: 0 } },
+        select: { ...select, category: { select: { name: true } } },
+        take: 10,
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
+      }),
+      prisma.product.findMany({
+        where: { isHotSelling: true, isActive: true, displayOrder: 0 },
         select: { ...select, category: { select: { name: true } } },
         take: 8,
         orderBy: { createdAt: "desc" },
@@ -112,21 +133,22 @@ async function getProducts() {
       prisma.product.findMany({
         where: { gender: 'Men', isActive: true },
         select: { ...select, category: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
       }),
       prisma.product.findMany({
         where: { gender: 'Women', isActive: true },
         select: { ...select, category: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
       }),
       prisma.product.findMany({
         where: { gender: 'Unisex', isActive: true },
         select: { ...select, category: { select: { name: true } } },
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ displayOrder: "desc" }, { createdAt: "desc" }],
       }),
     ])
 
     return {
+      pinnedProducts: pinnedProducts.map(mapProduct),
       hotSelling: hotSelling.map(mapProduct),
       menProducts: menProducts.map(mapProduct),
       womenProducts: womenProducts.map(mapProduct),
@@ -134,12 +156,12 @@ async function getProducts() {
     }
   } catch (error) {
     console.error("Error fetching products:", error)
-    return { hotSelling: [], menProducts: [], womenProducts: [], unisexProducts: [] }
+    return { pinnedProducts: [], hotSelling: [], menProducts: [], womenProducts: [], unisexProducts: [] }
   }
 }
 
 export default async function Home() {
-  const { hotSelling, menProducts, womenProducts, unisexProducts } = await getProducts()
+  const { pinnedProducts, hotSelling, menProducts, womenProducts, unisexProducts } = await getProducts()
 
-  return <HomePage hotSelling={hotSelling} menProducts={menProducts} womenProducts={womenProducts} unisexProducts={unisexProducts} />
+  return <HomePage pinnedProducts={pinnedProducts} hotSelling={hotSelling} menProducts={menProducts} womenProducts={womenProducts} unisexProducts={unisexProducts} />
 }

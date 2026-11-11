@@ -13,7 +13,22 @@ Do not skip this. Do not guess architecture — verify against these files and t
 Custom JWT (jose) + bcryptjs + HttpOnly cookies. NEVER suggest, install, or migrate to NextAuth or Clerk.
 
 ## Database (Critical)
-Prisma + Turso (libSQL). NEVER suggest MongoDB, PostgreSQL, or Supabase migrations unless explicitly asked.
+**MySQL on cPanel, via Prisma.** `prisma/schema.prisma` has `provider = "mysql"`.
+Production runs on cPanel with `DATABASE_URL=mysql://user:pass@localhost:3306/db`.
+
+- Use plain `new PrismaClient()` from `@/lib/prisma`. Prisma 5.x has **no MySQL
+  driver adapter** — `@prisma/adapter-mysql` does not exist on npm. No `@libsql/client`.
+- **NEVER** suggest Turso/libSQL, MongoDB, PostgreSQL, or Supabase. The legacy
+  Turso → MySQL data migration is already complete; `src/lib/turso.ts` was deleted.
+- Schema is versioned in `prisma/migrations/`. Change `schema.prisma`, then run
+  `npm run db:migrate` (local) and `npm run db:deploy` (production). Do NOT use
+  `prisma db push` on production.
+- `prisma/apply-migration.ts` is DEPRECATED — it swallows all errors.
+- Store JSON as `@db.Text` strings (MySQL has no scalar lists — no `String[]`).
+- `order` is a MySQL reserved word; the model uses `@@map("order")` and any raw
+  SQL must backtick-quote it.
+- Never commit credentials. Use `.env.local` (gitignored) or cPanel env vars.
+  Reference `.env.example` for the shape only.
 
 ## State Management (Critical)
 React Context only (Auth/Cart/Wishlist/Admin Context). NEVER introduce Redux or Zustand.
@@ -50,7 +65,7 @@ Run `npm run lint` before making commits. There is no separate typecheck - ESLin
 - **Lib**: `src/lib/` - utilities, models, API client, validation
 - **Data**: `src/data/products.ts` - static product catalog
 - **Database**: `prisma/schema.prisma` - Prisma models
-- **DB Client**: `src/lib/turso.ts` - Prisma client configured for Turso (libSQL)
+- **DB Client**: `src/lib/prisma.ts` - Prisma client for MySQL (plain `new PrismaClient()`)
 
 ## Path Alias
 Use `@/*` to import from `./src/*` (e.g., `@/components/Header`).

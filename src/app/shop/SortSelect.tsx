@@ -22,7 +22,7 @@ export default function SortSelect({ currentSort }: { currentSort: string }) {
     <select
       defaultValue={currentSort}
       onChange={handleChange}
-      className="bg-transparent border border-input text-foreground text-sm px-4 py-2.5 outline-none focus:border-foreground transition-colors cursor-pointer"
+      className="bg-transparent border border-input text-foreground text-sm px-4 min-h-[44px] outline-none focus:border-foreground transition-colors cursor-pointer"
     >
       <option value="featured">Sort: Featured</option>
       <option value="price-low">Price: Low to High</option>

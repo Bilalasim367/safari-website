@@ -2,6 +2,7 @@
 
 import React from "react"
 import Hero from "@/components/Hero"
+import NewLaunchBanner from "@/components/NewLaunchBanner"
 import SignaturePerfumeShowcase from "@/components/SignaturePerfumeShowcase"
 import LifestyleBanner from "@/components/LifestyleBanner"
 import HotSellingCarousel from "@/components/HotSellingCarousel"
@@ -16,6 +17,7 @@ import Reveal from "@/components/Reveal"
 import type { ProductCategory } from "@/lib/product-types"
 
 interface HomePageProps {
+  pinnedProducts: ProductCategory[]
   hotSelling: ProductCategory[]
   menProducts: ProductCategory[]
   womenProducts: ProductCategory[]
@@ -27,6 +29,7 @@ function GoldDivider() {
 }
 
 export default function HomePage({
+  pinnedProducts,
   hotSelling,
   menProducts,
   womenProducts,
@@ -35,6 +38,20 @@ export default function HomePage({
   return (
     <>
       <Hero />
+      {pinnedProducts.length > 0 && (
+        <Reveal>
+          <HotSellingCarousel
+            products={pinnedProducts}
+            eyebrow="Just Arrived"
+            title="New This Season"
+            viewAllHref="/shop?sort=newest"
+            ariaLabel="New arrivals carousel"
+          />
+        </Reveal>
+      )}
+      <Reveal>
+        <NewLaunchBanner />
+      </Reveal>
       <Reveal>
         <HotSellingCarousel products={hotSelling} />
       </Reveal>

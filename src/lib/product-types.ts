@@ -7,7 +7,7 @@ export interface ProductCategory {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   originalPrice?: number | null | undefined
   image: string
   images: string[]

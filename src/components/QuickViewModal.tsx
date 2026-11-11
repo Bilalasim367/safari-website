@@ -7,12 +7,13 @@ import { X, Heart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { Rating } from "@/components/Rating";
+import PriceLabel from "@/components/PriceLabel";
 
 interface QuickViewModalProps {
   id: string;
   name: string;
   slug: string;
-  price: number;
+  price: number | null;
   originalPrice?: number;
   image: string;
   images?: string[];
@@ -33,9 +34,11 @@ export default function QuickViewModal({
 
   const allImages = [image, ...(propImages || []).slice(1)].filter(Boolean);
   const wishlisted = isWishlisted(id);
-  const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  const isPriced = price !== null && price !== undefined;
+  const discount = isPriced && originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   const handleAdd = () => {
+    if (!isPriced) return;
     addItem({ id, name, price, image, size: (size && size.trim()) || '12ml', quantity: 1 });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -82,8 +85,8 @@ export default function QuickViewModal({
             )}
 
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-3xl font-bold text-foreground">PKR {price.toLocaleString()}</span>
-              {originalPrice && originalPrice > price && (
+              <PriceLabel price={price} prefix="PKR" className="text-3xl font-bold text-foreground" />
+              {isPriced && originalPrice && originalPrice > price && (
                 <span className="text-lg text-muted-foreground line-through">PKR {originalPrice.toLocaleString()}</span>
               )}
               {discount > 0 && (
@@ -94,9 +97,10 @@ export default function QuickViewModal({
             <div className="flex gap-3 mt-auto">
               <button
                 onClick={handleAdd}
-                className="flex-1 py-3 px-6 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors font-medium"
+                disabled={!isPriced}
+                className={`flex-1 py-3 px-6 rounded-lg transition-colors font-medium ${isPriced ? "bg-foreground text-background hover:bg-foreground/90" : "cursor-not-allowed bg-muted text-muted-foreground"}`}
               >
-                {added ? 'Added!' : 'Add to Cart'}
+                {added ? 'Added!' : isPriced ? 'Add to Cart' : 'Unavailable'}
               </button>
               <button
                 onClick={() => toggleWishlist(id)}

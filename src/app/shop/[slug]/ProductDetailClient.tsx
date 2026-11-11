@@ -7,6 +7,12 @@ import ShopProductCard from "@/app/shop/ShopProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { defaultSizeForType } from "@/lib/normalize";
+import {
+  findSizeOption,
+  resolveDefaultSize,
+  resolveSizeOptions,
+  type SizeOption,
+} from "@/lib/size-pricing";
 import { SITE_URL } from "@/lib/site";
 import { ChevronLeft, Minus, Plus, Heart, Truck, Shield, Sparkles, Gem, Flame } from "lucide-react";
 import { Rating } from "@/components/Rating";
@@ -17,7 +23,7 @@ export interface RelatedProduct {
   id: string;
   name: string;
   slug: string;
-  price: number;
+  price: number | null;
   originalPrice: number | null;
   image: string;
   images: string[];
@@ -81,6 +87,11 @@ interface Product {
   origin?: string;
   ingredients?: string;
   size?: string;
+  sizesAvailable?: string;
+  price3mlOnline?: number | null;
+  price6mlOnline?: number | null;
+  price12mlOnline?: number | null;
+  price50mlOnline?: number | null;
 }
 
 interface ProductDetailClientProps {
@@ -145,6 +156,11 @@ export default function ProductDetailClient({
   const [activeTab, setActiveTab] = useState<"description" | "notes" | "details">("description");
   const [expanded, setExpanded] = useState(false);
 
+  const sizeOptions: SizeOption[] = resolveSizeOptions(product);
+  const [selectedSize, setSelectedSize] = useState<string>(
+    () => resolveDefaultSize(resolveSizeOptions(product), product) ?? "12ml"
+  );
+
   const router = useRouter();
 
   if (!product) {
@@ -163,13 +179,21 @@ export default function ProductDetailClient({
 
   const isAttar = product?.type === "Attar";
   const currencySymbol = product?.currency || "PKR";
-  const displayPrice = product?.price ?? 0;
+
+  const activeOption = findSizeOption(sizeOptions, selectedSize) ?? sizeOptions[0] ?? null;
+  // A size with no online retail price is not offered at all, so a product
+  // with no priced size has no price to show. The stale base `price` column is
+  // never a fallback here.
+  const isPriced = activeOption !== null;
+  const displayPrice: number | null = activeOption?.price ?? null;
+  const effectiveSize = activeOption?.size ?? (product?.size?.trim() || defaultSizeForType(product.type));
   const displayOriginalPrice = product?.originalPrice;
 
-  const sizeLabel = isAttar ? "SIZE" : "VOLUME";
+  const sizeLabel = isAttar ? "Size" : "Volume";
+  const hasSizeChoice = sizeOptions.length > 1;
 
   const genderDisplay = product.gender?.trim() || "Unisex";
-  const sizeDisplay = (product.size?.trim() || defaultSizeForType(product.type)).toUpperCase();
+  const sizeDisplay = effectiveSize.toUpperCase();
   const categoryDisplay = product.category?.name?.trim() || "";
   const typeDisplay = isAttar ? "Attar" : "Perfume";
   const categoryFromSlug = product.categorySlug
@@ -195,27 +219,32 @@ export default function ProductDetailClient({
       : [];
 
   const handleAddToCart = () => {
-    if (product) {
+    if (product && isPriced && displayPrice !== null) {
       addItem({
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: displayPrice,
         image: product.image,
-        size: product.size?.trim() || defaultSizeForType(product.type),
+        size: effectiveSize,
         quantity,
       });
-      toast.success(`${product.name} added to cart!`);
+      toast.success(`${product.name} (${sizeDisplay}) added to cart!`);
     }
   };
 
   const productUrl = `${SITE_URL}/shop/${product.slug}`;
+  const pricedForMessage = displayPrice ?? 0;
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nPrice: ${currencySymbol} ${formatPrice(displayPrice)}\nQuantity: ${quantity}\nLink: ${productUrl}`
+    isPriced
+      ? `Assalam o Alaikum! I would like to place an order:\n\nProduct: ${product.name}\nSize: ${sizeDisplay}\nPrice: ${currencySymbol} ${formatPrice(pricedForMessage)}\nQuantity: ${quantity}\nTotal: ${currencySymbol} ${formatPrice(pricedForMessage * quantity)}\nLink: ${productUrl}`
+      : `Assalam o Alaikum! I would like to enquire about this product:\n\nProduct: ${product.name}\nLink: ${productUrl}`
   )}`;
 
   const infoChips = [
     { icon: "👫", key: "GENDER", value: genderDisplay },
-    { icon: "📦", key: sizeLabel, value: sizeDisplay },
+    ...(hasSizeChoice
+      ? []
+      : [{ icon: "📦", key: sizeLabel.toUpperCase(), value: sizeDisplay }]),
   ].filter((chip) => chip.value && String(chip.value).trim() !== "");
 
   const wishlisted = isWishlisted(product.id);
@@ -378,10 +407,15 @@ export default function ProductDetailClient({
                     Price
                   </p>
                   <span className="text-3xl lg:text-4xl font-bold text-[#B6965D] tracking-tight">
-                    {currencySymbol} {formatPrice(displayPrice)}
+                    {displayPrice !== null ? `${currencySymbol} ${formatPrice(displayPrice)}` : "Unavailable"}
                   </span>
+                  {displayPrice === null && (
+                    <p className="mt-1 text-xs text-[#8a867f] max-w-[28ch]">
+                      This size has no online price yet. Please contact us for details.
+                    </p>
+                  )}
                 </div>
-                {displayOriginalPrice && displayOriginalPrice > displayPrice && (
+                {isPriced && displayOriginalPrice && displayOriginalPrice > displayPrice && (
                   <div className="flex flex-col justify-end">
                     <span className="text-sm lg:text-base text-[#8a867f] line-through">
                       {currencySymbol} {formatPrice(displayOriginalPrice)}
@@ -392,6 +426,53 @@ export default function ProductDetailClient({
                   </div>
                 )}
               </div>
+
+              {hasSizeChoice && (
+                <div className="mb-6">
+                  <div className="flex items-baseline justify-between gap-3 mb-3">
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#c9a873]">
+                      {sizeLabel}
+                    </span>
+                    <span className="text-[11px] text-[#8a867f]">
+                      {isAttar ? "Pure oil, alcohol-free" : "Alcohol-based spray"}
+                    </span>
+                  </div>
+                  <div
+                    role="radiogroup"
+                    aria-label={sizeLabel}
+                    className="grid grid-cols-4 gap-2"
+                  >
+                    {sizeOptions.map((option) => {
+                      const isActive = option.size === effectiveSize;
+                      return (
+                        <button
+                          key={option.size}
+                          type="button"
+                          role="radio"
+                          aria-checked={isActive}
+                          onClick={() => setSelectedSize(option.size)}
+                          className={`min-h-[56px] rounded-xl border px-2 py-2 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                            isActive
+                              ? "border-[#B6965D] bg-[#B6965D]/15 text-[#c9a873]"
+                              : "border-[#B6965D]/25 bg-[#161616] text-[#8a867f] hover:border-[#B6965D]/50 hover:text-[#c9a873]"
+                          }`}
+                        >
+                          <span className="text-sm font-bold leading-none">
+                            {option.label}
+                          </span>
+                          <span
+                            className={`text-[11px] font-semibold leading-none ${
+                              isActive ? "text-[#c9a873]" : "text-[#6f6a63]"
+                            }`}
+                          >
+                            {currencySymbol} {formatPrice(option.price)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Gender + Size chips only (price chip removed — duplicated in price box) */}
               {infoChips.length > 0 && (
@@ -603,9 +684,15 @@ export default function ProductDetailClient({
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="w-full min-h-[56px] rounded-full bg-[#B6965D] hover:bg-[#c9a873] text-black text-base font-bold uppercase tracking-wider px-8 transition-all duration-300 shadow-[0_0_20px_rgba(182,150,93,0.3)] hover:shadow-[0_0_32px_rgba(182,150,93,0.55)]"
+                  disabled={!isPriced}
+                  aria-disabled={!isPriced}
+                  className={`w-full min-h-[56px] rounded-full text-black text-base font-bold uppercase tracking-wider px-8 transition-all duration-300 ${
+                    isPriced
+                      ? "bg-[#B6965D] hover:bg-[#c9a873] shadow-[0_0_20px_rgba(182,150,93,0.3)] hover:shadow-[0_0_32px_rgba(182,150,93,0.55)]"
+                      : "cursor-not-allowed bg-[#3a3a3a] text-white/50"
+                  }`}
                 >
-                  Add to Cart
+                  {isPriced ? "Add to Cart" : "Unavailable"}
                 </button>
 
 <a
@@ -729,14 +816,14 @@ export default function ProductDetailClient({
         <div className="flex items-center justify-between gap-3">
           <div className="flex-shrink-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c9a873]">
-              Total
+              {hasSizeChoice ? `${sizeDisplay} · ${quantity} ×` : `Total · ${quantity} ×`}
             </p>
             <p className="text-lg font-bold text-white leading-tight">
-              {currencySymbol} {formatPrice(displayPrice)}
+              {displayPrice !== null ? `${currencySymbol} ${formatPrice(displayPrice * quantity)}` : "Unavailable"}
             </p>
-            {displayOriginalPrice && displayOriginalPrice > displayPrice && (
+            {isPriced && displayOriginalPrice && displayOriginalPrice > displayPrice && (
               <p className="text-[11px] text-white/40 line-through">
-                {currencySymbol} {formatPrice(displayOriginalPrice)}
+                {currencySymbol} {formatPrice(displayOriginalPrice * quantity)}
               </p>
             )}
           </div>
@@ -760,9 +847,13 @@ export default function ProductDetailClient({
             </div>
             <button
               onClick={handleAddToCart}
-              className="rounded-full bg-[#B6965D] hover:bg-[#c9a873] text-black text-sm font-bold uppercase tracking-wider px-5 h-12 transition-colors"
+              disabled={!isPriced}
+              aria-disabled={!isPriced}
+              className={`rounded-full text-sm font-bold uppercase tracking-wider px-5 h-12 transition-colors ${
+                isPriced ? "bg-[#B6965D] hover:bg-[#c9a873] text-black" : "cursor-not-allowed bg-[#3a3a3a] text-white/50"
+              }`}
             >
-              Add to Cart
+              {isPriced ? "Add to Cart" : "Unavailable"}
             </button>
           </div>
         </div>

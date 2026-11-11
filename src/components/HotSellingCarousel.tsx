@@ -4,12 +4,13 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
+import PriceLabel from "@/components/PriceLabel"
 
 interface Product {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   originalPrice?: number | null | undefined
   image: string
   images: string[]
@@ -25,10 +26,20 @@ interface Product {
 
 interface HotSellingCarouselProps {
   products: Product[]
+  eyebrow?: string
+  title?: string
+  viewAllHref?: string
+  ariaLabel?: string
 }
 
-export default function HotSellingCarousel({ products }: HotSellingCarouselProps) {
-  const hotSelling = products.filter((p) => p.isHotSelling).slice(0, 8)
+export default function HotSellingCarousel({
+  products,
+  eyebrow = "Hot Selling",
+  title = "Trending This Week",
+  viewAllHref = "/shop?sort=hot",
+  ariaLabel = "Hot selling products carousel",
+}: HotSellingCarouselProps) {
+  const hotSelling = products.slice(0, 12)
 
   const showFallback = hotSelling.length === 0
 
@@ -38,14 +49,14 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
         <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
           <div>
             <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-              Hot Selling
+              {eyebrow}
             </p>
             <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-              Trending This Week
+              {title}
             </h2>
           </div>
           <Link
-            href="/shop?sort=hot"
+            href={viewAllHref}
             className="hidden md:inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm uppercase tracking-[0.1em]"
           >
             View All
@@ -69,7 +80,7 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
           <div
             className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 md:pb-8 -mx-4 md:-mx-12 px-4 md:px-12"
             role="region"
-            aria-label="Hot selling products carousel"
+            aria-label={ariaLabel}
           >
             {showFallback ? (
               Array.from({ length: 4 }).map((_, i) => (
@@ -159,10 +170,12 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
                         <span className="text-muted-foreground text-[11px] md:text-sm">({product.reviewCount})</span>
                       </div>
                       <div className="flex items-center gap-2 md:gap-3">
-                        <span className="text-xl md:text-2xl font-bold text-foreground">
-                          PKR {product.price.toLocaleString()}
-                        </span>
-                        {product.originalPrice && product.originalPrice > product.price && (
+                        <PriceLabel
+                          price={product.price}
+                          prefix="PKR"
+                          className="text-xl md:text-2xl font-bold text-foreground"
+                        />
+                        {product.originalPrice && product.price && product.originalPrice > product.price && (
                           <span className="text-muted-foreground line-through text-sm md:text-lg">
                             PKR {product.originalPrice.toLocaleString()}
                           </span>
@@ -175,24 +188,28 @@ export default function HotSellingCarousel({ products }: HotSellingCarouselProps
             )}
           </div>
 
-          <div className="flex justify-center gap-2 mt-4 md:mt-6" role="tablist" aria-label="Hot selling pagination">
+          <div className="flex justify-center gap-1 mt-4 md:mt-6" role="tablist" aria-label="Hot selling pagination">
             {showFallback ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <button
                   key={i}
-                  className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-4 md:w-6" : "bg-white/30 hover:bg-white/50"}`}
+                  className="w-11 h-11 flex items-center justify-center"
                   role="tab"
                   aria-label={`Go to slide ${i + 1}`}
-                />
+                >
+                  <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-4 md:w-6" : "bg-white/30 group-hover:bg-white/50"}`} />
+                </button>
               ))
             ) : (
-              hotSelling.slice(0, 8).map((_, i) => (
+              hotSelling.map((_, i) => (
                 <button
                   key={i}
-                  className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-4 md:w-6" : "bg-white/30 hover:bg-white/50"}`}
+                  className="w-11 h-11 flex items-center justify-center"
                   role="tab"
                   aria-label={`Go to product ${i + 1}`}
-                />
+                >
+                  <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-4 md:w-6" : "bg-white/30 group-hover:bg-white/50"}`} />
+                </button>
               ))
             )}
           </div>

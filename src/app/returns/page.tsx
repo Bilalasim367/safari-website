@@ -6,7 +6,7 @@ import ReturnsForm from '@/components/ReturnsForm'
 import { SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Returns & Exchange | Safari Perfumes Pakistan',
+  title: 'Returns & Exchange',
   description: 'Easy returns, exchanges and cancellations. Raise a request within 3 days of delivery. Call +92 3107435020 for urgent help.',
   alternates: { canonical: `${SITE_URL}/returns` },
 }

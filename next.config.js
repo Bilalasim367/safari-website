@@ -5,18 +5,30 @@ const nextConfig = {
   experimental: {
     cpus: 2,
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com', port: '', pathname: '/**' },
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com', port: '', pathname: '/**' },
     ],
+    minimumCacheTTL: 31536000,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   async headers() {
     return [
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/((?:images|fonts|icons|uploads)/.*|favicon\\.ico|robots\\.txt|sitemap\\.xml)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

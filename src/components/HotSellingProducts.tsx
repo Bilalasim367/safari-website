@@ -4,13 +4,14 @@ import React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
+import PriceLabel from "@/components/PriceLabel"
 import { cn } from "@/lib/utils"
 
 interface Product {
   id: string
   name: string
   slug: string
-  price: number
+  price: number | null
   originalPrice?: number
   image: string
   images: string[]
@@ -136,10 +137,12 @@ export default function HotSellingProducts({ products }: HotSellingProductsProps
                       <span className="text-muted-foreground text-sm">({product.reviewCount})</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-foreground">
-                        ${product.price}
-                      </span>
-                      {product.originalPrice && product.originalPrice > product.price && (
+                      <PriceLabel
+                        price={product.price}
+                        prefix="$"
+                        className="text-2xl font-bold text-foreground"
+                      />
+                      {product.originalPrice && product.price && product.originalPrice > product.price && (
                         <span className="text-muted-foreground line-through text-lg">
                           ${product.originalPrice}
                         </span>
@@ -151,14 +154,16 @@ export default function HotSellingProducts({ products }: HotSellingProductsProps
             ))}
           </div>
 
-          <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Hot selling pagination">
+          <div className="flex justify-center gap-1 mt-4" role="tablist" aria-label="Hot selling pagination">
             {hotProducts.slice(0, 8).map((_, i) => (
               <button
                 key={i}
-                className={`w-2 h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-6" : "bg-white/30 hover:bg-white/50"}`}
+                className="w-11 h-11 flex items-center justify-center"
                 role="tab"
                 aria-label={`Go to product ${i + 1}`}
-              />
+              >
+                <span className={`w-2 h-2 rounded-full transition-all ${i === 0 ? "bg-gold w-6" : "bg-white/30 group-hover:bg-white/50"}`} />
+              </button>
             ))}
           </div>
         </div>

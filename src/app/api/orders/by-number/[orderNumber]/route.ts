@@ -23,6 +23,7 @@ export async function GET(
       select: {
         id: true,
         orderNumber: true,
+        userId: true,
         customerName: true,
         customerEmail: true,
         status: true,

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
+import { findSizeOption, resolveSizeOptions } from "@/lib/size-pricing";
 
 export interface CartItem {
   id: string;
@@ -10,6 +11,12 @@ export interface CartItem {
   image: string;
   size: string;
   quantity: number;
+  /**
+   * The product still exists but cannot currently be bought (deactivated or
+   * out of stock). The line is kept so the customer can see what happened and
+   * remove it deliberately, but checkout is blocked while it is present.
+   */
+  unavailable?: boolean;
 }
 
 interface CartContextType {
@@ -23,6 +30,11 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   loading: boolean;
+  /** True when at least one line cannot currently be purchased. */
+  hasUnavailableItems: boolean;
+  /** Set when a sync removed a line whose product no longer exists. */
+  removedNotice: string | null;
+  dismissRemovedNotice: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -55,28 +67,52 @@ type FreshProduct = {
   image?: string;
   size?: string | null;
   type?: string | null;
+  isActive?: boolean;
+  inStock?: boolean;
   sizePrices?: string | null;
+  sizesAvailable?: string | null;
+  price3mlOnline?: number | null;
+  price6mlOnline?: number | null;
+  price12mlOnline?: number | null;
+  price50mlOnline?: number | null;
 };
 
-// Effective price for a cart line = the CURRENT DB base price, which is the ONLY
-// price the storefront ever shows (PDP, product cards — there is no size selector
-// and no UI uses sizePrices). This keeps PDP price === cart price === checkout
-// price === order price. Never trust the snapshot price stored at add-time.
-function effectivePrice(product: FreshProduct): number | null {
-  return typeof product.price === 'number' && Number.isFinite(product.price)
-    ? product.price
-    : null;
+/**
+ * Outcome of validating one cart line against the catalogue.
+ *
+ * The distinction between `missing` and `error` is the whole point: only a
+ * product the server positively reports as absent may be dropped from a
+ * customer's bag. A timeout, an offline device, a 5xx or an expired session
+ * all resolve to `error`, which leaves the line untouched. Treating an
+ * unreachable server as "product deleted" would empty real carts.
+ */
+type LineCheck =
+  | { status: 'ok'; product: FreshProduct }
+  | { status: 'missing' }
+  | { status: 'error' };
+
+// Effective price for a cart line = the CURRENT retail price of the size the
+// customer actually selected, resolved from price{3,6,12,50}mlOnline via the
+// shared size-pricing helper. The base `price` column is a stale bulk-import
+// artifact and is never used as a line price. Returning null means "no price
+// for this size" and the line is left untouched rather than being rewritten
+// with a bogus figure.
+function effectivePrice(product: FreshProduct, size: string | null | undefined): number | null {
+  const option = findSizeOption(resolveSizeOptions(product), size);
+  return option ? option.price : null;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [removedNotice, setRemovedNotice] = useState<string | null>(null);
   const { user } = useAuth();
   const debouncedItems = useDebounce(items, 500);
 
   const totalItems = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
+  const hasUnavailableItems = useMemo(() => items.some((item) => item.unavailable), [items]);
 
   // Keys only on the set of product ids (not price/name/image), so a price sync
   // never retriggers itself.
@@ -94,18 +130,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const ids = cartIdsKey === '' ? [] : cartIdsKey.split('|');
     if (ids.length === 0) return;
 
-    let products: (FreshProduct | null)[];
+    let checks: LineCheck[];
     try {
-      products = await Promise.all(
-        ids.map(async (id) => {
+      checks = await Promise.all(
+        ids.map(async (id): Promise<LineCheck> => {
           try {
             const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
               cache: 'no-store',
             });
-            if (!res.ok) return null;
-            return (await res.json()) as FreshProduct;
+            // Only an explicit 404 means "this product does not exist".
+            if (res.status === 404) return { status: 'missing' };
+            // 401/403 (expired session), 429, 5xx and anything else are
+            // inconclusive: keep the line exactly as it is.
+            if (!res.ok) return { status: 'error' };
+            return { status: 'ok', product: (await res.json()) as FreshProduct };
           } catch {
-            return null;
+            // Offline, DNS failure, abort, CORS: never treat as deletion.
+            return { status: 'error' };
           }
         })
       );
@@ -113,29 +154,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const map = new Map<string, FreshProduct>();
-    for (const p of products) {
-      if (p && p.id) map.set(p.id, p);
-    }
+    const byId = new Map<string, LineCheck>();
+    ids.forEach((id, i) => byId.set(id, checks[i]));
+
+    // Counted outside the state updater: React may invoke the updater more than
+    // once (StrictMode / concurrent re-render), which would double-count.
+    const missingCount = checks.filter((c) => c.status === 'missing').length;
 
     setItems((prev) =>
-      prev.map((item) => {
-        const p = map.get(item.id);
-        if (!p) return item;
-        const price = effectivePrice(p);
-        const freshSize = p.size && p.size.trim() ? p.size.trim() : null;
-        return {
-          ...item,
-          name: p.name ? p.name : item.name,
-          ...(price !== null ? { price } : {}),
-          image: p.image ? p.image : item.image,
-          // Sync the size label from the current DB product too — an attar once
-          // stored as "50ml" would otherwise keep showing 50ml in the cart even
-          // after the data is corrected (same stale-snapshot problem as price).
-          size: freshSize || item.size,
-        };
+      prev.flatMap((item) => {
+        const check = byId.get(item.id);
+        // Unknown id (added between renders) or inconclusive result: keep.
+        if (!check || check.status === 'error') return [item];
+
+        if (check.status === 'missing') return [];
+
+        const p = check.product;
+        const price = effectivePrice(p, item.size);
+        // Exists but not currently sellable. Keep the line so the customer
+        // sees it and can remove it, and flag it so checkout can be blocked.
+        //
+        // A null price means there is no online retail price for this size --
+        // either the product has no priced size at all, or this particular size
+        // has not been priced yet. That is not sellable either, and it must
+        // never quietly fall back to the stale base `price` column.
+        const unavailable =
+          p.isActive === false || p.inStock === false || price === null;
+        return [
+          {
+            ...item,
+            name: p.name ? p.name : item.name,
+            ...(price !== null ? { price } : {}),
+            image: p.image ? p.image : item.image,
+            unavailable,
+          },
+        ];
       })
     );
+
+    if (missingCount > 0) {
+      setRemovedNotice('An item in your cart is no longer available');
+    }
   }, [cartIdsKey]);
 
   // Initial sync on mount (and whenever cart contents change).
@@ -235,6 +294,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         isCartOpen,
         setIsCartOpen,
         loading,
+        hasUnavailableItems,
+        removedNotice,
+        dismissRemovedNotice: () => setRemovedNotice(null),
       }}
     >
       {children}

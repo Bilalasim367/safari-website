@@ -1,7 +1,7 @@
 # SEO REBUILD PLAN — Safari Perfumes
 
 Status: IN PROGRESS (started 2026-08-20)
-Stack: Next.js 16.2.4 App Router (confirmed), Prisma 5.22 + Turso (libSQL), Tailwind. Prices PKR, Pakistan ops, ~335 active products.
+Stack: Next.js 16.2.4 App Router (confirmed), Prisma 5.22 + MySQL (cPanel; was Turso/libSQL), Tailwind. Prices PKR, Pakistan ops, ~335 active products.
 Committed: 56ec6a1, 67fce30, aeb515b (pushed to main). Domain confirmed: safari-perfumes.com.
 
 ## PRIORITY 0 — Fix SSR rendering on product pages (DONE)

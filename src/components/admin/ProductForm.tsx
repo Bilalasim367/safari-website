@@ -65,6 +65,7 @@ const defaultFormState: AdminProductFormValues = {
   supplier: null,
   isFeatured: false,
   isActive: true,
+  displayOrder: 0,
   stockStatus: 'in_stock',
   imageFolder: null,
   metaTitle: null,
@@ -649,6 +650,27 @@ export default function ProductForm({ initialData, mode, productId, productType 
             {/* ── Status & Flags Tab ── */}
             {activeTab === 'status' && (
               <div className="space-y-6">
+                <Card>
+                  <CardHeader><CardTitle>Storefront Placement</CardTitle></CardHeader>
+                  <CardContent>
+                    <div className="max-w-xs space-y-2">
+                      <Label htmlFor="displayOrder">Top placement order</Label>
+                      <Input
+                        id="displayOrder"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={form.watch('displayOrder') ?? 0}
+                        onChange={(e) => form.setValue('displayOrder', Math.max(0, Number(e.target.value) || 0))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        0 = normal order. Higher numbers appear first on the homepage and in the shop&apos;s default view.
+                        For one-click placement use Products → Pin.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card>
                   <CardHeader><CardTitle>Flags</CardTitle></CardHeader>
                   <CardContent>

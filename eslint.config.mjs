@@ -4,6 +4,8 @@ import nextTs from "eslint-config-next/typescript";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
+
+  
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
@@ -12,8 +14,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "deploy-staging/**",
+    // Local copy of the app used to assemble cPanel uploads — not source.
+    "deploy-app/**",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
     "server.js",
     "next-env.d.ts",
+    // Image WebP tooling — Node CommonJS CLI scripts, not app source.
+    "scripts/convert-images.js",
+    "scripts/delete-originals.js",
   ]),
 ]);
 

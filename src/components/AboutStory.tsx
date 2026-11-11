@@ -11,7 +11,7 @@ export default function AboutStory() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative aspect-[4/5] lg:aspect-[3/4] overflow-hidden rounded-2xl">
             <Image
-              src="/safari-brand-story.png"
+              src="/safari-brand-story.webp"
               alt="Safari Perfumes - Our Story"
               fill
               className="object-cover"

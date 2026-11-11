@@ -1,3 +1,21 @@
+/**
+ * ============================================================================
+ * DEPRECATED — DO NOT USE FOR PRODUCTION SCHEMA CHANGES.
+ * ============================================================================
+ * This script predates versioned Prisma migrations. Every statement below is
+ * wrapped in a try/catch that ignores the error, so a real failure (missing
+ * ALTER/CREATE privilege, syntax error, wrong MySQL version) is SILENTLY
+ * SWALLOWED and only shows up later as a 500 in production.
+ *
+ * The schema is now owned by `prisma/migrations/` and applied with:
+ *     npx prisma migrate deploy        (production)
+ *     npm run db:migrate               (local dev, creates a new migration)
+ *
+ * This file is retained only as a historical record of the SQLite -> MySQL
+ * column additions. Prefer writing a proper migration instead.
+ * ============================================================================
+ */
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -121,6 +139,56 @@ async function main() {
   ]
   for (const sql of normalizeSql) {
     try { await prisma.$executeRawUnsafe(sql) } catch (e) { console.error('Normalization statement failed:', sql, e) }
+  }
+
+  // Point legacy .png/.jpeg image paths at their .webp equivalents (idempotent).
+  // scripts/convert-images.js wrote a .webp next to every original in public/.
+  // Only LOCAL paths are touched: rows starting with http:// or https:// point at
+  // external storage (Vercel Blob) which we do not control, so they are skipped.
+  console.log('Migrating product image paths to .webp...')
+  const imageSql = [
+    `UPDATE product SET image = REPLACE(image, '.png', '.webp') WHERE image IS NOT NULL AND image <> '' AND LOWER(image) LIKE '%.png' AND image NOT LIKE 'http://%' AND image NOT LIKE 'https://%';`,
+    `UPDATE product SET image = REPLACE(image, '.jpeg', '.webp') WHERE image IS NOT NULL AND image <> '' AND LOWER(image) LIKE '%.jpeg' AND image NOT LIKE 'http://%' AND image NOT LIKE 'https://%';`,
+    `UPDATE product SET image = REPLACE(image, '.jpg', '.webp') WHERE image IS NOT NULL AND image <> '' AND LOWER(image) LIKE '%.jpg' AND image NOT LIKE 'http://%' AND image NOT LIKE 'https://%';`,
+  ]
+  for (const sql of imageSql) {
+    try {
+      const res = await prisma.$executeRawUnsafe(sql)
+      if (res) console.log(`  product.image updated on ${res} row(s)`)
+    } catch (e) { console.error('Image path statement failed:', sql, e) }
+  }
+
+  // `images` is a JSON string array and can mix local and external URLs, so it is
+  // rewritten entry by entry in JS rather than with a blanket REPLACE. Only local
+  // entries are touched; a row is written back only if something actually changed.
+  try {
+    const galleryRows = await prisma.$queryRawUnsafe<{ id: string; images: string }[]>(
+      `SELECT id, images FROM product WHERE images IS NOT NULL AND images <> '';`
+    )
+    let galleryUpdated = 0
+    for (const row of galleryRows) {
+      let parsed: unknown
+      try { parsed = JSON.parse(row.images) } catch { continue }
+      if (!Array.isArray(parsed)) continue
+      let changed = false
+      const next = parsed.map((entry) => {
+        if (typeof entry !== 'string') return entry
+        if (/^https?:\/\//i.test(entry)) return entry
+        if (!/\.(png|jpe?g)$/i.test(entry)) return entry
+        changed = true
+        return entry.replace(/\.(png|jpe?g)$/i, '.webp')
+      })
+      if (!changed) continue
+      await prisma.$executeRawUnsafe(
+        `UPDATE product SET images = ? WHERE id = ?;`,
+        JSON.stringify(next),
+        row.id
+      )
+      galleryUpdated += 1
+    }
+    if (galleryUpdated) console.log(`  product.images updated on ${galleryUpdated} row(s)`)
+  } catch (e) {
+    console.error('Gallery image path migration failed:', e)
   }
 
   // Ensure a settings row exists

@@ -84,7 +84,7 @@ export function FilterSection({
           const href = buildHref(option, isSelected);
 
           return (
-            <Link key={option} href={href} className={`flex items-center gap-3 group ${rowClassName ?? ''}`}>
+            <Link key={option} href={href} className={`flex items-center gap-3 group ${rowClassName ?? ''}`} prefetch={false}>
               <span
                 className={`w-4 h-4 border flex items-center justify-center ${
                   isSelected

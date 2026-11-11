@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
 import { readPopupSettings } from '@/lib/popup-settings'
 import { defaultSizeForType } from '@/lib/normalize'
+import { resolveDefaultPricing } from '@/lib/size-pricing'
 import ProductDetailClient, { type RelatedProduct } from './ProductDetailClient'
 
 export const revalidate = 300
@@ -81,6 +82,10 @@ function formatProduct(product: {
   metaTitle: string | null
   metaDescription: string | null
   notes: string | null
+  price3mlOnline: number | null
+  price6mlOnline: number | null
+  price12mlOnline: number | null
+  price50mlOnline: number | null
 }) {
   return {
     id: product.id,
@@ -124,6 +129,10 @@ function formatProduct(product: {
     origin: product.origin || undefined,
     ingredients: product.ingredients || undefined,
     notes: product.notes || undefined,
+    price3mlOnline: product.price3mlOnline,
+    price6mlOnline: product.price6mlOnline,
+    price12mlOnline: product.price12mlOnline,
+    price50mlOnline: product.price50mlOnline,
   }
 }
 
@@ -169,44 +178,58 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: 'Product Not Found | Safari Perfumes',
+      title: { absolute: 'Product Not Found | Safari Perfumes' },
       robots: { index: false },
     }
   }
 
-  // SEO-optimized title: {fragranceName} Impression — {type} | Safari Perfumes (under ~65 chars)
-  const fragranceName = product.name
+  // SEO-optimized title: {fragranceName} — {type} | Safari Perfumes (under ~65 chars)
+  // The root layout appends "| Safari Perfumes" via a template, so this title is
+  // declared as `absolute` to avoid "… | Safari Perfumes | Safari Perfumes".
+  const rawName = product.name.replace(/\s+/g, ' ').trim()
+  const hasImpression = /impression/i.test(rawName)
+  const fragranceName = hasImpression ? rawName : `${rawName} Impression`
   const typeLabel = product.type === 'Attar' ? 'Attar' : product.type === 'Perfume' ? 'Perfume' : 'Fragrance'
-  let title = `${fragranceName} Impression — ${typeLabel} | Safari Perfumes`
-  if (title.length > 65) {
-    title = `${fragranceName.substring(0, 65 - (' Impression — '.length + typeLabel.length + ' | Safari Perfumes'.length))}… Impression — ${typeLabel} | Safari Perfumes`
+  const siteSuffix = 'Safari Perfumes'
+  const suffix = ` — ${typeLabel} | ${siteSuffix}`
+  const manualTitle = product.metaTitle?.trim()
+
+  let title: string
+  if (manualTitle) {
+    title = /safari perfumes/i.test(manualTitle) ? manualTitle : `${manualTitle} | ${siteSuffix}`
+  } else {
+    title = `${fragranceName}${suffix}`
+    if (title.length > 65) {
+      const maxNameLength = Math.max(20, 65 - suffix.length)
+      const shortName = rawName.slice(0, maxNameLength).trimEnd()
+      title = `${shortName}${hasImpression ? '' : ' Impression'}${suffix}`
+    }
   }
 
   // SEO-optimized description with notes (under ~155 chars)
   const notesTop = product.notesTop ? JSON.parse(product.notesTop) : []
   const notesBase = product.notesBase ? JSON.parse(product.notesBase) : []
-  const topNoteStr = notesTop.slice(0, 3).join(', ')
-  const baseNoteStr = notesBase.slice(0, 2).join(', ')
-  let description = `Shop our ${fragranceName} impression`
-  if (topNoteStr) description += ` — ${topNoteStr} top notes`
-  if (baseNoteStr) description += `, ${baseNoteStr} base`
-  description += '. Alcohol-free attar & EDP spray. Free delivery across Pakistan.'
+  const topNoteStr = Array.isArray(notesTop) ? notesTop.slice(0, 3).join(', ') : ''
+  const baseNoteStr = Array.isArray(notesBase) ? notesBase.slice(0, 2).join(', ') : ''
+  const manualDescription = product.metaDescription?.trim()
+  let description = manualDescription
+    || `${fragranceName} — a long-lasting ${typeLabel.toLowerCase()} impression${topNoteStr ? ` with ${topNoteStr} top notes` : ''}${baseNoteStr ? ` and ${baseNoteStr} base` : ''}. Alcohol-free, free delivery across Pakistan.`
   if (description.length > 155) {
-    description = description.substring(0, 152) + '...'
+    description = description.substring(0, 152).trimEnd() + '...'
   }
 
   const url = `${SITE_URL}/shop/${product.slug}`
   const image = product.image?.trim()
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: url },
     openGraph: {
       title,
       description,
       url,
-      siteName: 'Safari Perfumes',
+      siteName: siteSuffix,
       type: 'website',
       images: image ? [{ url: image, alt: product.name }] : undefined,
     },
@@ -258,6 +281,11 @@ export default async function ProductPage({
       season: true,
       impressionOf: true,
       currency: true,
+      sizesAvailable: true,
+      price3mlOnline: true,
+      price6mlOnline: true,
+      price12mlOnline: true,
+      price50mlOnline: true,
       category: { select: { name: true } },
     },
     orderBy: { createdAt: 'desc' },
@@ -265,25 +293,29 @@ export default async function ProductPage({
   })
 
   const formattedProduct = formatProduct(product)
-  const relatedProducts: RelatedProduct[] = related.map((p) => ({
+  const relatedProducts: RelatedProduct[] = related.map((p) => {
+    const pricing = resolveDefaultPricing(p)
+    // No priced size => no honest figure to advertise on a related card.
+    return {
     id: p.id,
     name: p.name,
     slug: p.slug,
-    price: p.price,
+    price: pricing ? pricing.price : null,
     originalPrice: p.originalPrice,
     image: p.image || '',
     images: parseJsonArray(p.images),
     category: p.category?.name || 'Unisex',
     isNew: p.isNew,
     isBestseller: p.isBestseller,
-    size: p.size || defaultSizeForType(p.type),
+    size: pricing ? pricing.size : p.size || defaultSizeForType(p.type),
     rating: p.rating,
     reviewCount: p.reviewCount,
     gender: p.gender,
     season: p.season,
     impressionOf: p.impressionOf,
     currency: p.currency,
-  }))
+  }
+  })
 
   const reviews = await prisma.review.findMany({
     where: { productId: product.id, isApproved: true },
@@ -299,13 +331,18 @@ export default async function ProductPage({
   }))
 
   const productUrl = `${SITE_URL}/shop/${product.slug}`
+  const productImage = product.image?.trim()
+  const absoluteProductImage = productImage
+    ? (/^https?:\/\//i.test(productImage) ? productImage : `${SITE_URL}${productImage.startsWith('/') ? '' : '/'}${productImage}`)
+    : undefined
   const jsonLd: JsonLd[] = [
     {
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: product.name,
+      url: productUrl,
       description: buildDescription(product),
-      image: product.image?.trim() ? [product.image.trim()] : undefined,
+      image: absoluteProductImage ? [absoluteProductImage] : undefined,
       brand: { '@type': 'Brand', name: 'Safari Perfumes' },
       category: product.category?.name || product.type || undefined,
       sku: product.slug,
@@ -314,6 +351,7 @@ export default async function ProductPage({
         url: productUrl,
         priceCurrency: product.currency || 'PKR',
         price: String(Math.round(product.price)),
+        itemCondition: 'https://schema.org/NewCondition',
         availability: product.inStock
           ? 'https://schema.org/InStock'
           : 'https://schema.org/OutOfStock',

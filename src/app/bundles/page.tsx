@@ -8,7 +8,7 @@ import { SITE_URL } from '@/lib/site'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Bundles & Gift Sets | Safari Perfumes Pakistan',
+  title: 'Bundles & Gift Sets',
   description:
     'Shop curated perfume and attar bundles & gift sets at Safari Perfumes. Premium fragrance sets at discounted PKR prices — perfect for gifting in Pakistan.',
   alternates: { canonical: `${SITE_URL}/bundles` },

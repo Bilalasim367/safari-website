@@ -8,12 +8,13 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { Rating } from "@/components/Rating";
 import QuickViewModal from "@/components/QuickViewModal";
+import PriceLabel from "@/components/PriceLabel";
 
 interface ProductCardProps {
   id: string;
   name: string;
   slug: string;
-  price: number;
+  price: number | null;
   originalPrice?: number | null;
   image: string;
   images?: string[];
@@ -54,11 +55,18 @@ export default function ProductCard({
   const [showQuickView, setShowQuickView] = useState(false);
 
   const hasValidImage = image && image.trim() !== "";
-  const discount = originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  // A product with no priced size cannot be sold, so it must not be added to
+  // the bag and must not advertise a figure borrowed from the stale base price.
+  const isPriced = price !== null && price !== undefined;
+  const discount =
+    isPriced && originalPrice && originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isPriced) return;
     addItem({
       id,
       name,
@@ -178,10 +186,8 @@ export default function ProductCard({
           )}
 
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
-              {currency || "PKR"} {price.toLocaleString()}
-            </span>
-            {originalPrice && originalPrice > price && (
+            <PriceLabel price={price} prefix={currency || "PKR"} className="text-lg sm:text-2xl font-bold text-foreground tracking-tight" />
+            {isPriced && originalPrice && originalPrice > price && (
               <>
                 <span className="text-sm text-muted-foreground line-through">
                   {currency || "PKR"} {originalPrice.toLocaleString()}
@@ -197,8 +203,9 @@ export default function ProductCard({
         <div className="px-3 pb-5 pt-0 sm:px-5">
           <button
             onClick={handleAdd}
-            aria-label={`Add ${name} to cart`}
-            className="w-full py-2 px-2 sm:px-4 whitespace-nowrap text-xs sm:text-sm border border-border rounded-lg transition-all duration-300 bg-background hover:bg-accent hover:text-accent-foreground sm:opacity-0 sm:translate-y-2 sm:group-hover:opacity-100 sm:group-hover:translate-y-0"
+aria-label={isPriced ? `Add ${name} to cart` : `${name} is unavailable`}
+            disabled={!isPriced}
+            className={`w-full py-2 px-2 sm:px-4 whitespace-nowrap text-xs sm:text-sm border border-border rounded-lg transition-all duration-300 bg-background hover:bg-accent hover:text-accent-foreground sm:opacity-0 sm:translate-y-2 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 ${!isPriced ? "cursor-not-allowed opacity-50 sm:opacity-50" : ""}`}
             style={{
               backgroundColor: added ? "hsl(var(--primary))" : undefined,
               color: added ? "hsl(var(--primary-foreground))" : undefined,
@@ -218,7 +225,7 @@ export default function ProductCard({
                   <circle cx="7.5" cy="12.5" r="1" fill="currentColor" />
                   <circle cx="11.5" cy="12.5" r="1" fill="currentColor" />
                 </svg>
-                Add to Cart
+{isPriced ? "Add to Cart" : "Unavailable"}
               </span>
             )}
           </button>

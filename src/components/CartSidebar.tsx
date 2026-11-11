@@ -7,32 +7,38 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { products } from "@/data/products";
+import { useUpsells, type UpsellProduct } from "@/hooks/useUpsells";
+
+const UPSELL_LIMIT = 4;
 
 export default function CartSidebar() {
-  const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen } = useCart();
+  const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen, hasUnavailableItems, removedNotice, dismissRemovedNotice } = useCart();
   const router = useRouter();
   const shipping = 0;
   const total = subtotal + shipping;
 
-  const suggestedProducts = products
-    .filter((p) => !items.some((i) => i.id === String(p.id)))
-    .slice(0, 3);
+  // Real catalogue rows only. When loading or on failure this is empty, so the
+  // "You Might Also Like" block renders nothing rather than placeholder items.
+  const { upsells, loading: upsellsLoading } = useUpsells(
+    items.map((i) => i.id),
+    UPSELL_LIMIT,
+  );
 
-  const handleAddSuggested = (e: React.MouseEvent, product: typeof products[0]) => {
+  const handleAddSuggested = (e: React.MouseEvent, product: UpsellProduct) => {
     e.preventDefault();
     e.stopPropagation();
     addItem({
-      id: String(product.id),
+      id: product.id,
       name: product.name,
       price: product.price,
       image: product.image,
-      size: String(product.size || '12ml'),
+      size: product.size,
       quantity: 1,
     });
   };
 
   const handleCheckout = () => {
+    if (hasUnavailableItems) return;
     setIsCartOpen(false);
     router.push('/checkout');
   };
@@ -50,12 +56,34 @@ export default function CartSidebar() {
                 Shopping Bag ({items.length})
               </SheetTitle>
             </div>
-            <button onClick={() => setIsCartOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
+            <button onClick={() => setIsCartOpen(false)} aria-label="Close bag" className="w-11 h-11 -mr-2 flex items-center justify-center rounded-full hover:bg-muted transition-colors">
               <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </SheetHeader>
+
+          {removedNotice && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="flex items-start gap-2 px-6 py-3 bg-amber-50 border-b border-amber-200 text-amber-900 text-sm"
+            >
+              <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              <span className="flex-1">{removedNotice}</span>
+              <button
+                onClick={dismissRemovedNotice}
+                aria-label="Dismiss notice"
+                className="shrink-0 w-11 h-11 -my-2 -mr-2 flex items-center justify-center rounded-full hover:bg-amber-100 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto p-6">
             {items.length === 0 ? (
@@ -72,57 +100,69 @@ export default function CartSidebar() {
             ) : (
               <div className="space-y-0">
                 {items.map((item) => (
-                  <div key={`${item.id}-${item.size}`} className="flex gap-4 py-5 border-b border-muted/30 last:border-b-0">
-                    <div className="relative w-20 h-24 sm:w-24 sm:h-28 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between py-0.5">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="font-serif text-foreground text-base sm:text-lg leading-tight">{item.name}</h3>
-                          <p className="text-muted-foreground text-xs mt-1 uppercase tracking-wider">{item.size}</p>
-                        </div>
-                        <button
-                          onClick={() => removeItem(item.id, item.size)}
-                          className="text-muted-foreground/50 hover:text-red-500 transition-colors p-1 -mr-1 -mt-1"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-center border border-muted rounded-full overflow-hidden">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
-                          >
-                            −
-                          </button>
-                          <span className="w-8 text-center text-foreground text-sm font-medium">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <p className="font-serif text-foreground font-medium">PKR {item.price * item.quantity}</p>
-                      </div>
-                    </div>
-                  </div>
+<div key={`${item.id}-${item.size}`} className={`flex gap-4 py-5 border-b border-muted/30 last:border-b-0 ${item.unavailable ? 'opacity-70' : ''}`}>
+                     <div className="relative w-20 h-24 sm:w-24 sm:h-28 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                       {item.image ? (
+                         <Image src={item.image} alt={item.name} fill className="object-cover" />
+                       ) : null}
+                     </div>
+                     <div className="flex-1 flex flex-col justify-between py-0.5">
+                       <div className="flex justify-between">
+                         <div>
+                           <h3 className="font-serif text-foreground text-base sm:text-lg leading-tight">{item.name}</h3>
+                           <p className="text-muted-foreground text-xs mt-1 uppercase tracking-wider">{item.size}</p>
+                           {item.unavailable && (
+                             <p className="text-xs mt-1 text-red-600 font-medium">
+                               Currently unavailable &mdash; remove to continue
+                             </p>
+                           )}
+                         </div>
+                         <button
+                           onClick={() => removeItem(item.id, item.size)}
+                           aria-label={`Remove ${item.name} from bag`}
+                           className="w-11 h-11 shrink-0 -mr-3 -mt-3 flex items-center justify-center rounded-full text-muted-foreground/50 hover:text-red-500 hover:bg-muted transition-colors"
+                         >
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                           </svg>
+                         </button>
+                       </div>
+                       <div className="flex items-center justify-between mt-3">
+                         <div className="flex items-center border border-muted rounded-full overflow-hidden">
+                           <button
+                             onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                             disabled={item.unavailable}
+                             aria-label={`Decrease quantity of ${item.name}`}
+                             className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none"
+                           >
+                             &minus;
+                           </button>
+                           <span className="w-8 text-center text-foreground text-sm font-medium">{item.quantity}</span>
+                           <button
+                             onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                             disabled={item.unavailable}
+                             aria-label={`Increase quantity of ${item.name}`}
+                             className="w-11 h-11 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none"
+                           >
+                             +
+                           </button>
+                         </div>
+                         <p className="font-serif text-foreground font-medium">PKR {item.price * item.quantity}</p>
+                       </div>
+                     </div>
+                   </div>
                 ))}
               </div>
             )}
 
-            {items.length > 0 && (
+            {(items.length > 0 && (upsells.length > 0 || upsellsLoading)) && (
               <div className="mt-6 pt-4 border-t border-muted/30">
                 <p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold mr-2" />
                   You Might Also Like
                 </p>
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6">
-                  {suggestedProducts.map((sp) => (
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6 min-h-[164px]">
+                  {upsells.map((sp) => (
                     <Link
                       key={sp.id}
                       href={`/shop/${sp.slug}`}
@@ -133,7 +173,7 @@ export default function CartSidebar() {
                         <button
                           onClick={(e) => handleAddSuggested(e, sp)}
                           aria-label={`Add ${sp.name} to cart`}
-                          className="absolute bottom-1.5 right-1.5 w-7 h-7 rounded-full bg-gold text-white flex items-center justify-center hover:bg-gold/90 hover:scale-110 transition-all duration-200 shadow-md"
+                          className="absolute bottom-1.5 right-1.5 w-11 h-11 rounded-full bg-gold text-white flex items-center justify-center hover:bg-gold/90 hover:scale-110 transition-all duration-200 shadow-md"
                         >
                           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                             <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -141,7 +181,7 @@ export default function CartSidebar() {
                         </button>
                       </div>
                       <p className="text-xs text-foreground font-medium truncate group-hover:text-gold transition-colors">{sp.name}</p>
-                      <p className="text-xs text-muted-foreground">PKR {sp.price}</p>
+                      <p className="text-xs text-muted-foreground">{sp.size.toUpperCase()} &middot; PKR {sp.price}</p>
                     </Link>
                   ))}
                 </div>
@@ -166,8 +206,21 @@ export default function CartSidebar() {
                 </div>
               </div>
 
-              <Button onClick={handleCheckout} className="w-full mb-3 bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20">Checkout</Button>
-              <Button onClick={() => setIsCartOpen(false)} variant="outline" className="w-full border-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground">Continue Shopping</Button>
+              {hasUnavailableItems && (
+                <p className="text-xs text-red-600 mb-3 text-center">
+                  Remove the unavailable item above to check out.
+                </p>
+              )}
+
+              <Button
+                onClick={handleCheckout}
+                disabled={hasUnavailableItems}
+                aria-disabled={hasUnavailableItems}
+                className="w-full mb-3 min-h-[44px] bg-gold hover:bg-gold/90 text-white shadow-md shadow-gold/20 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                Checkout
+              </Button>
+              <Button onClick={() => setIsCartOpen(false)} variant="outline" className="w-full min-h-[44px] border-muted/40 text-muted-foreground hover:text-foreground hover:border-foreground">Continue Shopping</Button>
             </div>
           )}
         </SheetContent>
