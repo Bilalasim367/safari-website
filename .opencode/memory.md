@@ -1175,3 +1175,56 @@ baseline (9 errors, all in old `scripts/*.js|ts`).
 
 ---
 
+# 📦 cPanel DEPLOY BUNDLE (2026-11-14)
+
+Owner does NOT run `npm install` on the server (node_modules is large). Deploy =
+upload one zip, extract into `~/safariperfumes`, run one shell script.
+
+## Artifacts (repo root, committed)
+- `after-upload.sh` — post-extract steps: loads `.env`, checks DB baselining,
+  `prisma generate`, `npm run db:deploy`, `migrate status`, `touch tmp/restart.txt`.
+- `DEPLOY-README.txt` — same instructions in plain language (goes inside the zip).
+- `deploy/_pack.ps1` — builds `deploy/safari-perfumes-deploy-<date>.zip` with
+  `System.IO.Compression` (bsdtar's `--exclude` is broken in this environment).
+
+## Zip contents (22.3 MB, 4393 entries)
+`.next/` (4049 files) + `prisma/` + `src/` + `public/` (WITHOUT `public/uploads`,
+so production uploads are never overwritten) + `server.js`, `package.json`,
+configs + `.env` (production `DATABASE_URL` only) + README + script.
+Excluded: `node_modules`, `.git`, `.env*` (local), `public/uploads`, logs,
+`images_backup`, `deploy/` itself.
+
+## Facts confirmed with owner (2026-11-14)
+- Production is cPanel MySQL: DB `safariperfumes_perfume_db`, user
+  `safariperfumes_perfume_user`, host `localhost:3306`.
+- cPanel env vars: `NODE_ENV`, `DATABASE_URL`, `JWT_SECRET`, `ADMIN_SECRET_KEY`,
+  `BLOB_READ_WRITE_TOKEN`, `NEXT_TELEMETRY_DISABLED` — these match
+  `.env.production` exactly, so no code/env change was needed.
+- App code only reads `DATABASE_URL`, `JWT_SECRET`, `ADMIN_SECRET_KEY`,
+  `NEXT_PUBLIC_API_URL`, `NODE_ENV`. SMTP config lives in the `settings` table
+  (`smtpHost`/`smtpPort`/...), not in env.
+- `node_modules` must never be uploaded: Windows build (SWC, sharp, Prisma
+  engine) is incompatible with Linux. Server already has its own node_modules.
+  `prisma generate` on the server is mandatory because the new models need a
+  Linux client + query engine.
+- Script baselines automatically: if `_prisma_migrations` is missing but app
+  tables exist (DB created with `db push`), it marks `init_baseline` and
+  `add_product_display_order` as applied before deploying.
+
+## Deploy sequence
+1. cPanel > Setup Node.js App > Stop.
+2. `mv .next .next.bak-$(date +%Y%m%d-%H%M)`.
+3. Upload + extract zip into `~/safariperfumes` (avoid `.next/.next`).
+4. `bash after-upload.sh`.
+5. Restart app in UI; hard-refresh the site.
+6. `/admin/homepage` → create first slide; `/admin/marketing` → Pixel + CAPI.
+
+## Security
+- The zip carries the DB password → it is git-ignored (`*.zip`) and must not be
+  shared. Production secrets are never committed (`*.env*` ignored).
+- Owner pasted production env values into chat on 2026-11-14; recommend rotating
+  `ADMIN_SECRET_KEY` and `BLOB_READ_WRITE_TOKEN` (cheap, no user impact).
+  Rotating `JWT_SECRET` logs every session out — do it deliberately.
+
+---
+
