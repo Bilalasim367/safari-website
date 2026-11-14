@@ -1175,24 +1175,37 @@ baseline (9 errors, all in old `scripts/*.js|ts`).
 
 ---
 
-# 📦 cPanel DEPLOY BUNDLE (2026-11-14)
+# 📦 cPanel DEPLOY (2026-11-14)
 
-Owner does NOT run `npm install` on the server (node_modules is large). Deploy =
-upload one zip, extract into `~/safariperfumes`, run one shell script.
+Owner does NOT run `npm install` on the server (node_modules is large).
+Owner's own workflow (confirmed): **push here → git pull there**, then locally
+`npm run build`, zip the `.next` folder themselves, upload + extract it into
+`~/safariperfumes`, restart the app. Do not create deploy bundles/staging
+folders for them.
 
-## Artifacts (repo root, committed)
-- `after-upload.sh` — post-extract steps: loads `.env`, checks DB baselining,
-  `prisma generate`, `npm run db:deploy`, `migrate status`, `touch tmp/restart.txt`.
-- `DEPLOY-README.txt` — same instructions in plain language (goes inside the zip).
-- `deploy/_pack.ps1` — builds `deploy/safari-perfumes-deploy-<date>.zip` with
-  `System.IO.Compression` (bsdtar's `--exclude` is broken in this environment).
+## Artifacts kept (repo root, committed)
+- `after-upload.sh` — server-side steps after extracting `.next`: loads `.env`,
+  checks DB baselining, `prisma generate`, `npm run db:deploy`, `migrate status`,
+  `touch tmp/restart.txt`.
+- `DEPLOY-README.txt` — the same steps in plain language.
+- `.gitattributes` — `*.sh text eol=lf` (CRLF breaks bash on the Linux server).
 
-## Zip contents (22.3 MB, 4393 entries)
-`.next/` (4049 files) + `prisma/` + `src/` + `public/` (WITHOUT `public/uploads`,
-so production uploads are never overwritten) + `server.js`, `package.json`,
-configs + `.env` (production `DATABASE_URL` only) + README + script.
-Excluded: `node_modules`, `.git`, `.env*` (local), `public/uploads`, logs,
-`images_backup`, `deploy/` itself.
+## Removed (do not recreate)
+- `deploy/` (agent-made 22.3 MB zip + `_pack.ps1`): redundant with the owner's
+  own build+zip flow. Deleted 2026-11-14.
+- `deploy-app/` (76 MB stale staging from `scripts/deploy-package.ps1`, build of
+  2026-11-11): deleted 2026-11-14. `scripts/deploy-package.ps1` still exists but
+  is not part of the current flow.
+- Note: bsdtar's `--exclude` is broken in this environment (exits 1 on any
+  exclude pattern); use `System.IO.Compression` if a zip ever has to be built
+  in-agent.
+
+## Current local build artifact
+`.next` — BUILD_ID `1iOK4ipPw9j0YutmifFvW`, 4049 files / 77.8 MB, built
+2026-11-14 08:01, `.next/cache` + `.next/dev` absent (Next recreates cache at
+runtime). Homepage prerender: `.next/server/app/index.html`. Do not run
+`next build`/`next start` locally against it if the owner is about to upload it
+(starting the server would write `.next/cache`).
 
 ## Facts confirmed with owner (2026-11-14)
 - Production is cPanel MySQL: DB `safariperfumes_perfume_db`, user
@@ -1207,21 +1220,24 @@ Excluded: `node_modules`, `.git`, `.env*` (local), `public/uploads`, logs,
   engine) is incompatible with Linux. Server already has its own node_modules.
   `prisma generate` on the server is mandatory because the new models need a
   Linux client + query engine.
-- Script baselines automatically: if `_prisma_migrations` is missing but app
-  tables exist (DB created with `db push`), it marks `init_baseline` and
+- `after-upload.sh` baselines automatically: if `_prisma_migrations` is missing
+  but app tables exist (DB created with `db push`), it marks `init_baseline` and
   `add_product_display_order` as applied before deploying.
 
 ## Deploy sequence
 1. cPanel > Setup Node.js App > Stop.
 2. `mv .next .next.bak-$(date +%Y%m%d-%H%M)`.
-3. Upload + extract zip into `~/safariperfumes` (avoid `.next/.next`).
-4. `bash after-upload.sh`.
-5. Restart app in UI; hard-refresh the site.
-6. `/admin/homepage` → create first slide; `/admin/marketing` → Pixel + CAPI.
+3. Upload + extract the zipped `.next` into `~/safariperfumes` (avoid
+   `.next/.next`). Only `.next` changes — DB is untouched by the upload.
+4. `git pull origin main` (schema + migrations + `after-upload.sh`).
+5. `bash after-upload.sh`.
+6. Restart app in UI; hard-refresh the site.
+7. `/admin/homepage` → create first slide; `/admin/marketing` → Pixel + CAPI.
 
 ## Security
-- The zip carries the DB password → it is git-ignored (`*.zip`) and must not be
-  shared. Production secrets are never committed (`*.env*` ignored).
+- Production secrets live only in cPanel env vars + local `.env.production`
+  (git-ignored). Never commit them and never paste them into a zip that leaves
+  the owner's machine.
 - Owner pasted production env values into chat on 2026-11-14; recommend rotating
   `ADMIN_SECRET_KEY` and `BLOB_READ_WRITE_TOKEN` (cheap, no user impact).
   Rotating `JWT_SECRET` logs every session out — do it deliberately.
