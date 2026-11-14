@@ -4,62 +4,16 @@ import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import {
+  DEFAULT_COLLECTIONS,
+  isSafeImageSrc,
+  safeHref,
+  type CollectionsConfig,
+} from "@/lib/homepage-content"
 
-interface CollectionCard {
-  id: string
-  /** Split into words so the LAST word can be highlighted in gold. */
-  title: string
-  /** Product counts below are from the live DB (active products, 2026-10-08). Edit freely. */
-  count: string
-  description: string
-  tags: string[]
-  cta: string
-  href: string
-  /** Omit `image` to fall back to a plain dark gradient (see "tester-box" note below). */
-  image?: string
+interface FeaturedCollectionsProps {
+  content?: CollectionsConfig
 }
-
-const collections: CollectionCard[] = [
-  {
-    id: "our-collection",
-    title: "Our Collection",
-    count: "319 Products",
-    description: "Every Safari fragrance in one place, browse the full range.",
-    tags: ["Bestsellers", "New Arrivals", "Unisex"],
-    cta: "Explore Our Collection",
-    href: "/collections",
-    image: "/safari-our-collection.webp",
-  },
-  {
-    id: "perfumes",
-    title: "Perfumes Collection",
-    count: "264 Products",
-    description: "Designer-inspired sprays in 30ml, 50ml and 100ml sizes.",
-    tags: ["Men's Perfumes", "Women's Perfumes", "Woody"],
-    cta: "Shop Perfumes Now",
-    href: "/shop?type=perfume",
-    image: "/safari-perfume-collection.webp",
-  },
-  {
-    id: "tester-box",
-    title: "Tester Box",
-    count: "Coming Soon",
-    description: "Curated 5ml testers to explore before you commit to a full bottle.",
-    tags: ["Discovery Set", "5ml Samplers", "Gift Ready"],
-    cta: "Shop Tester Boxes",
-    href: "/shop?q=tester",
-  },
-  {
-    id: "attar",
-    title: "Attar Collection",
-    count: "55 Products",
-    description: "Pure, concentrated perfume oils for lasting intensity.",
-    tags: ["Oud Attar", "Musk Attar", "Floral Attar"],
-    cta: "Discover Attar Collection",
-    href: "/shop?type=attar",
-    image: "/safari-attar-collection.webp",
-  },
-]
 
 const cardFocus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -77,10 +31,11 @@ function TitleWithGoldLastWord({ title }: { title: string }) {
   )
 }
 
-export default function FeaturedCollections() {
+export default function FeaturedCollections({ content = DEFAULT_COLLECTIONS }: FeaturedCollectionsProps) {
   const gridRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [staggerDone, setStaggerDone] = useState(false)
+  const cards = content.cards?.length ? content.cards : DEFAULT_COLLECTIONS.cards
 
   useEffect(() => {
     const el = gridRef.current
@@ -114,10 +69,10 @@ export default function FeaturedCollections() {
       <div className="container-custom">
         <div className="text-center mb-6 md:mb-12">
           <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-3">
-            Featured Collections
+            {content.eyebrow}
           </p>
           <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-            Discover Our Fragrance Collection
+            {content.title}
           </h2>
         </div>
 
@@ -125,10 +80,10 @@ export default function FeaturedCollections() {
           ref={gridRef}
           className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6"
         >
-          {collections.map((collection, index) => (
+          {cards.map((collection, index) => (
               <Link
                 key={collection.id}
-                href={collection.href}
+                href={safeHref(collection.href, "/shop")}
                 aria-label={`${collection.title} — ${collection.cta}`}
                 className={cn(
                   cardFocus,
@@ -147,9 +102,9 @@ export default function FeaturedCollections() {
               >
                 {/* Image head with dark overlay so the title stays readable */}
                 <div className="relative h-[150px] md:h-[165px] overflow-hidden bg-gradient-to-br from-charcoal to-charcoal-dark">
-                  {collection.image && (
+                  {isSafeImageSrc(collection.image) && (
                     <Image
-                      src={collection.image}
+                      src={collection.image as string}
                       alt={`${collection.title} preview`}
                       fill
                       className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"

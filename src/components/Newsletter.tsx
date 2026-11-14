@@ -1,12 +1,44 @@
 "use client"
 
 import React, { useState } from "react"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Mail, CheckCircle, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { DEFAULT_NEWSLETTER, type NewsletterConfig } from "@/lib/homepage-content"
 
-export default function Newsletter() {
+interface NewsletterProps {
+  content?: NewsletterConfig
+}
+
+function renderDescription(description: string, highlight?: string) {
+  const phrase = highlight?.trim()
+  if (!phrase || !description.includes("{{highlight}}")) return description
+  const parts = description.split("{{highlight}}")
+  return parts.map((part, index) => (
+    <React.Fragment key={index}>
+      {part}
+      {index < parts.length - 1 && <span className="text-gold font-medium">{phrase}</span>}
+    </React.Fragment>
+  ))
+}
+
+function renderDisclaimer(disclaimer: string) {
+  if (!disclaimer.includes("Privacy Policy")) return disclaimer
+  const [before, after] = disclaimer.split("Privacy Policy")
+  return (
+    <>
+      {before}
+      <Link href="/privacy" className="underline hover:text-gold">
+        Privacy Policy
+      </Link>
+      {after}
+    </>
+  )
+}
+
+export default function Newsletter({ content = DEFAULT_NEWSLETTER }: NewsletterProps) {
   const [email, setEmail] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [message, setMessage] = useState("")
@@ -24,15 +56,24 @@ export default function Newsletter() {
 
       if (res.ok) {
         setStatus("success")
-        setMessage("Thank you for subscribing! Your welcome offer is on its way.")
+        setMessage(content.successMessage)
         setEmail("")
       } else {
-        setStatus("error")
-        setMessage("Something went wrong. Please try again.")
+        const data = await res.json().catch(() => null)
+        // The API may call an existing address a success; a real failure is
+        // surfaced as an error.
+        if (data?.alreadySubscribed) {
+          setStatus("success")
+          setMessage("You're already part of the Safari Circle.")
+          setEmail("")
+        } else {
+          setStatus("error")
+          setMessage(data?.error || "Something went wrong. Please try again.")
+        }
       }
     } catch {
       setStatus("error")
-      setMessage("Network error. Please check your connection.")
+      setMessage("Something went wrong. Please try again.")
     }
   }
 
@@ -44,14 +85,13 @@ export default function Newsletter() {
       <div className="container-custom relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-            Join the Safari Circle
+            {content.eyebrow}
           </p>
           <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-white mb-3 md:mb-6">
-            Unlock Exclusive Access
+            {content.title}
           </h2>
           <p className="text-white/70 text-base md:text-xl leading-relaxed mb-6 md:mb-10 max-w-2xl mx-auto">
-            Be the first to discover new releases, enjoy members-only pricing,
-            and receive a <span className="text-gold font-medium">15% welcome discount</span> on your first order.
+            {renderDescription(content.description, content.highlight)}
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 md:gap-4 max-w-md mx-auto">
@@ -103,7 +143,7 @@ export default function Newsletter() {
                   Subscribed!
                 </span>
               ) : (
-                "Subscribe"
+                content.buttonLabel
               )}
             </Button>
           </form>
@@ -123,7 +163,7 @@ export default function Newsletter() {
           )}
 
           <p className="text-white/40 text-[10px] md:text-xs mt-6 md:mt-8 max-w-sm mx-auto">
-            By subscribing, you agree to our <a href="/privacy" className="underline hover:text-gold">Privacy Policy</a>. Unsubscribe anytime.
+            {renderDisclaimer(content.disclaimer)}
           </p>
         </div>
       </div>

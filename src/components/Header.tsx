@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import SearchOverlay from './SearchOverlay';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetClose } from '@/components/ui/sheet';
+import { DEFAULT_HEADER, safeHref, type HeaderContent } from '@/lib/homepage-content';
 
 interface NavItem {
   label: string;
@@ -49,17 +50,18 @@ const topLinks = [
   { href: '/contact?faq=true', label: 'FAQs' },
 ];
 
-const announcementMessages = [
-  'FREE SHIPPING ON COD',
-];
+const DEFAULT_SOCIALS = DEFAULT_HEADER.socials
 
-const socialIcons = [
-  { image: '/instagram.svg', label: 'Instagram', href: 'https://www.instagram.com/safariperfumesofficial' },
-  { image: '/facebook.svg', label: 'Facebook', href: 'https://www.facebook.com/share/19G8xxiTP7/' },
-  { image: '/tiktok.svg', label: 'TikTok', href: 'https://www.tiktok.com/@safari.perfumes' },
-];
+interface HeaderProps {
+  content?: HeaderContent
+}
 
-export default function Header() {
+export default function Header({ content = DEFAULT_HEADER }: HeaderProps) {
+  const socials = content.socials?.length ? content.socials : DEFAULT_SOCIALS
+  const announcementText = content.announcementText || DEFAULT_HEADER.announcementText
+  const announcementHref = content.announcementHref
+    ? safeHref(content.announcementHref, "")
+    : ""
   const { totalItems, setIsCartOpen } = useCart();
   const { user } = useAuth();
   const router = useRouter();
@@ -140,7 +142,7 @@ export default function Header() {
             </nav>
 
             <div className='flex items-center gap-3 md:gap-4'>
-              {socialIcons.map((social) => (
+              {socials.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
@@ -152,7 +154,7 @@ export default function Header() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={social.image}
+                    src={social.icon}
                     alt={social.label}
                     width={18}
                     height={18}
@@ -173,7 +175,18 @@ export default function Header() {
               key={i}
               className='inline-block px-8 text-[11px] md:text-sm font-semibold uppercase tracking-[0.12em] md:tracking-[0.3em]'
             >
-              {announcementMessages[0]}
+              {announcementHref ? (
+                <Link
+                  href={announcementHref}
+                  className='hover:underline'
+                  tabIndex={i === 0 ? 0 : -1}
+                  aria-hidden={i === 0 ? undefined : true}
+                >
+                  {announcementText}
+                </Link>
+              ) : (
+                announcementText
+              )}
             </span>
           ))}
         </div>
@@ -426,7 +439,7 @@ export default function Header() {
             {/* Social in Drawer */}
             <div className='p-6 border-t border-white/10'>
               <div className='flex gap-4'>
-                {socialIcons.map((social, i) => (
+                {socials.map((social, i) => (
                   <a
                     key={i}
                     href={social.href}
@@ -438,7 +451,7 @@ export default function Header() {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={social.image}
+                      src={social.icon}
                       alt={social.label}
                       width={20}
                       height={20}

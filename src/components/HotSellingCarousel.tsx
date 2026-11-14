@@ -28,6 +28,7 @@ interface HotSellingCarouselProps {
   products: Product[]
   eyebrow?: string
   title?: string
+  viewAllLabel?: string
   viewAllHref?: string
   ariaLabel?: string
 }
@@ -36,6 +37,7 @@ export default function HotSellingCarousel({
   products,
   eyebrow = "Hot Selling",
   title = "Trending This Week",
+  viewAllLabel = "View All",
   viewAllHref = "/shop?sort=hot",
   ariaLabel = "Hot selling products carousel",
 }: HotSellingCarouselProps) {
@@ -59,7 +61,7 @@ export default function HotSellingCarousel({
             href={viewAllHref}
             className="hidden md:inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm uppercase tracking-[0.1em]"
           >
-            View All
+            {viewAllLabel}
             <svg
               className="w-4 h-4 transition-transform group-hover:translate-x-1"
               fill="none"

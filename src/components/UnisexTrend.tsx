@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
 import PriceLabel from "@/components/PriceLabel"
+import { DEFAULT_UNISEX, safeHref, type CarouselConfig } from "@/lib/homepage-content"
 
 interface Product {
   id: string
@@ -26,14 +27,20 @@ interface Product {
 
 interface UnisexTrendProps {
   products: Product[]
+  /** Dashboard-editable heading copy for this carousel. */
+  copy?: CarouselConfig
 }
 
-export default function UnisexTrend({ products }: UnisexTrendProps) {
+export default function UnisexTrend({ products, copy = DEFAULT_UNISEX }: UnisexTrendProps) {
   const trendingProducts = products
     .filter((p) => p.gender?.toLowerCase() === "unisex")
     .slice(0, 8)
 
-  const viewAllHref = "/shop?gender=unisex&sort=trending"
+  const viewAllHref = safeHref(copy.viewAllHref, "/shop?gender=unisex&sort=trending")
+  const eyebrow = copy.eyebrow || "Unisex Trend"
+  const heading = copy.title || "Unisex Trending"
+  const viewAllLabel = copy.viewAllLabel || "View All Unisex"
+  const regionLabel = copy.ariaLabel || "Unisex products carousel"
 
   if (trendingProducts.length === 0) {
     return (
@@ -42,10 +49,10 @@ export default function UnisexTrend({ products }: UnisexTrendProps) {
           <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
             <div>
               <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-                Unisex Trend
+                {eyebrow}
               </p>
               <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-                Unisex Trending
+                {heading}
               </h2>
             </div>
           </div>
@@ -86,7 +93,7 @@ export default function UnisexTrend({ products }: UnisexTrendProps) {
               href={viewAllHref}
               className="inline-flex items-center justify-center w-full md:w-auto bg-gold text-black hover:bg-gold-light font-semibold text-sm uppercase tracking-[0.15em] px-8 py-4 rounded-none transition-all"
             >
-              View All Unisex
+              {viewAllLabel}
             </Link>
           </div>
         </div>
@@ -100,17 +107,17 @@ export default function UnisexTrend({ products }: UnisexTrendProps) {
           <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
             <div>
               <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-                Unisex Trend
+                {eyebrow}
               </p>
               <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-                Unisex Trending
+                {heading}
               </h2>
             </div>
             <Link
               href={viewAllHref}
             className="hidden md:inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm uppercase tracking-[0.1em]"
           >
-            View All Unisex
+            {viewAllLabel}
             <svg
               className="w-4 h-4 transition-transform group-hover:translate-x-1"
               fill="none"
@@ -131,7 +138,7 @@ export default function UnisexTrend({ products }: UnisexTrendProps) {
           <div
             className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 md:pb-8 -mx-4 md:-mx-12 px-4 md:px-12"
             role="region"
-            aria-label="Unisex products carousel"
+            aria-label={regionLabel}
           >
             {trendingProducts.map((product) => (
               <div
@@ -211,7 +218,7 @@ export default function UnisexTrend({ products }: UnisexTrendProps) {
             href={viewAllHref}
             className="inline-flex items-center justify-center w-full md:w-auto bg-gold text-black hover:bg-gold-light font-semibold text-sm uppercase tracking-[0.15em] px-8 py-4 rounded-none transition-all"
           >
-            View All Unisex
+            {viewAllLabel}
           </Link>
         </div>
       </div>

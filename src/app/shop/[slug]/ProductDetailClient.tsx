@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ShopProductCard from "@/app/shop/ShopProductCard";
@@ -14,6 +14,7 @@ import {
   type SizeOption,
 } from "@/lib/size-pricing";
 import { SITE_URL } from "@/lib/site";
+import { META_CURRENCY, metaTrack } from "@/lib/meta-client";
 import { ChevronLeft, Minus, Plus, Heart, Truck, Shield, Sparkles, Gem, Flame } from "lucide-react";
 import { Rating } from "@/components/Rating";
 import ScarcityLine from "@/components/ScarcityLine";
@@ -162,6 +163,22 @@ export default function ProductDetailClient({
   );
 
   const router = useRouter();
+
+  // Meta Pixel ViewContent — fired once per product page view. Hooks must run
+  // before the early return below, so the guard lives inside the effect.
+  const viewContentId = product?.id ?? null;
+  useEffect(() => {
+    if (!viewContentId) return;
+    metaTrack("ViewContent", {
+      content_type: "product",
+      content_ids: [viewContentId],
+      content_name: product.name,
+      currency: META_CURRENCY,
+      value: product.price,
+    });
+    // Only re-fire when the customer lands on a different product.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewContentId]);
 
   if (!product) {
     return (

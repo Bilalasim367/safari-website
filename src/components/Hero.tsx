@@ -4,9 +4,24 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Plus_Jakarta_Sans } from "next/font/google"
-import { Banknote, Clock, Shield, ShoppingBag, Star, Truck } from "lucide-react"
+import {
+  Banknote,
+  Clock,
+  Gift,
+  Shield,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  Truck,
+} from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import {
+  DEFAULT_HERO,
+  isSafeImageSrc,
+  safeHref,
+  type HeroConfig,
+} from "@/lib/homepage-content"
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -15,37 +30,13 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 })
 
-/* ------------------------------------------------------------------ */
-/* Editable content — tweak copy, links and trust numbers here only.   */
-/* ------------------------------------------------------------------ */
-
-const HEADING_LINE_1 = "Inspired Fragrances,"
-const HEADING_LINE_2 = "Affordable Luxury"
-
-const DESCRIPTION =
-  "Premium quality perfumes at unbeatable prices. Long-lasting impressions that turn heads."
-
-const SHOP_HREF = "/shop"
-const BUNDLES_HREF = "/bundles"
-
-const FEATURES: { icon: LucideIcon; label: string }[] = [
-  { icon: Shield, label: "Alcohol-Free" },
-  { icon: Clock, label: "Long Lasting" },
-  { icon: Banknote, label: "Cash on Delivery" },
-  { icon: Truck, label: "Free Shipping" },
-]
-
-const TRUST = {
-  rating: "4.8/5",
-  reviews: "350+ Reviews",
-  customers: "2,000+",
-  customersLabel: "Happy Customers",
-}
-
-/** Card background photo — swap this path for any shot in /public (square or landscape). */
-const HERO_IMAGE = {
-  src: "/new-banneri.webp",
-  alt: "Premium perfume collection",
+const FEATURE_ICONS: Record<string, LucideIcon> = {
+  shield: Shield,
+  clock: Clock,
+  banknote: Banknote,
+  truck: Truck,
+  sparkles: Sparkles,
+  gift: Gift,
 }
 
 const sharedFocus =
@@ -55,7 +46,20 @@ const enter = (delay: number) => ({
   animationDelay: `${delay}ms`,
 })
 
-export default function Hero() {
+interface HeroProps {
+  content?: HeroConfig
+}
+
+export default function Hero({ content = DEFAULT_HERO }: HeroProps) {
+  const headingLine1 = content.headingLine1 || DEFAULT_HERO.headingLine1
+  const headingLine2 = content.headingLine2 || DEFAULT_HERO.headingLine2
+  const imageSrc = isSafeImageSrc(content.image?.src)
+    ? (content.image?.src as string)
+    : DEFAULT_HERO.image.src
+  const imageAlt = content.image?.alt || DEFAULT_HERO.image.alt
+  const features = content.features?.length ? content.features : DEFAULT_HERO.features
+  const trust = content.trust ?? DEFAULT_HERO.trust
+
   return (
     <section
       aria-labelledby="hero-heading"
@@ -70,7 +74,7 @@ export default function Hero() {
         <div className={cn("text-center lg:text-left", "animate-fade-in motion-reduce:animate-none")} style={enter(0)}>
           <h1
             id="hero-heading"
-            aria-label="Inspired Fragrances, Affordable Luxury"
+            aria-label={`${headingLine1} ${headingLine2}`}
             className={cn(
               "text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl",
               "animate-fade-in motion-reduce:animate-none"
@@ -78,9 +82,9 @@ export default function Hero() {
             style={{ ...enter(60), fontFamily: "var(--font-hero), system-ui, sans-serif" }}
           >
             <span className="block bg-gradient-to-r from-[#C98A00] to-[#F5B82E] bg-clip-text text-transparent">
-              {HEADING_LINE_1}
+              {headingLine1}
             </span>{" "}
-            <span className="block text-[#1F2937]">{HEADING_LINE_2}</span>
+            <span className="block text-[#1F2937]">{headingLine2}</span>
           </h1>
 
           <p
@@ -90,7 +94,7 @@ export default function Hero() {
             )}
             style={enter(160)}
           >
-            {DESCRIPTION}
+            {content.description}
           </p>
 
           {/* Feature grid */}
@@ -101,12 +105,15 @@ export default function Hero() {
             )}
             style={enter(260)}
           >
-            {FEATURES.map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-2.5">
-                <Icon className="h-5 w-5 shrink-0 text-[#C98A00]" aria-hidden="true" strokeWidth={1.75} />
-                <span className="text-sm font-medium text-[#4B5563]">{label}</span>
-              </li>
-            ))}
+            {features.map((feature) => {
+              const Icon = FEATURE_ICONS[feature.icon] ?? Shield
+              return (
+                <li key={feature.label} className="flex items-center gap-2.5">
+                  <Icon className="h-5 w-5 shrink-0 text-[#C98A00]" aria-hidden="true" strokeWidth={1.75} />
+                  <span className="text-sm font-medium text-[#4B5563]">{feature.label}</span>
+                </li>
+              )
+            })}
           </ul>
 
           {/* CTAs */}
@@ -118,7 +125,7 @@ export default function Hero() {
             style={enter(360)}
           >
             <Link
-              href={SHOP_HREF}
+              href={safeHref(content.shopHref, "/shop")}
               className={cn(
                 "inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-[#C98A00] to-[#F5B82E] px-6 py-3 text-sm font-semibold text-white",
                 "shadow-[0_10px_24px_-8px_rgba(201,138,0,0.55)] transition-all duration-300",
@@ -127,17 +134,17 @@ export default function Hero() {
                 sharedFocus
               )}
             >
-              Shop Now
+              {content.shopLabel}
             </Link>
             <Link
-              href={BUNDLES_HREF}
+              href={safeHref(content.bundlesHref, "/bundles")}
               className={cn(
                 "inline-flex w-full items-center justify-center rounded-lg border border-[#C98A00]/70 bg-transparent px-6 py-3 text-sm font-semibold text-[#C98A00]",
                 "transition-colors duration-300 hover:bg-[#C98A00]/10",
                 sharedFocus
               )}
             >
-              Bundle Deals
+              {content.bundlesLabel}
             </Link>
           </div>
 
@@ -152,13 +159,14 @@ export default function Hero() {
             <p className="flex items-center gap-2 text-sm text-[#4B5563]">
               <Star className="h-4 w-4 fill-current text-[#F5B82E]" aria-hidden="true" strokeWidth={1.5} />
               <span>
-                {TRUST.rating} ({TRUST.reviews})
+                {trust.rating} ({trust.reviews})
               </span>
             </p>
             <p className="flex items-center gap-2 text-sm text-[#4B5563]">
               <ShoppingBag className="h-4 w-4 text-[#C98A00]" aria-hidden="true" strokeWidth={1.75} />
               <span>
-                <strong className="font-bold text-[#1F2937]">{TRUST.customers}</strong> {TRUST.customersLabel}
+                <strong className="font-bold text-[#1F2937]">{trust.customers}</strong>{" "}
+                {trust.customersLabel}
               </span>
             </p>
           </div>
@@ -171,8 +179,8 @@ export default function Hero() {
         >
           <div className="group relative h-[320px] overflow-hidden rounded-3xl bg-[#FFC13B] shadow-[0_24px_60px_-24px_rgba(31,41,55,0.45)] sm:h-[380px] md:aspect-square md:h-auto">
             <Image
-              src={HERO_IMAGE.src}
-              alt={HERO_IMAGE.alt}
+              src={imageSrc}
+              alt={imageAlt}
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               priority

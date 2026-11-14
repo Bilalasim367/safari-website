@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { sendOrderConfirmationEmail } from '@/lib/email';
 import { priceCartLine } from '@/lib/order-pricing';
+import { sendMetaPurchaseEvent } from '@/lib/meta';
 
 
 function generateOrderNumber() {
@@ -11,6 +12,34 @@ function generateOrderNumber() {
   const timestamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `${prefix}-${timestamp}-${random}`;
+}
+
+const ATTRIBUTION_KEYS = [
+  'fbclid',
+  'fbc',
+  'fbp',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_content',
+  'utm_term',
+  'landingPage',
+  'referrer',
+  'capturedAt',
+] as const;
+
+/** Whitelist and length-limit marketing attribution from the browser. */
+function sanitizeAttribution(value: unknown): Record<string, string> | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const source = value as Record<string, unknown>;
+  const result: Record<string, string> = {};
+  for (const key of ATTRIBUTION_KEYS) {
+    const entry = source[key];
+    if (typeof entry === 'string' && entry.trim()) {
+      result[key] = entry.trim().slice(0, 500);
+    }
+  }
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 interface OrderItem {
@@ -134,12 +163,17 @@ export async function POST(request: Request) {
 
     const customerName = shippingAddress.firstName + ' ' + shippingAddress.lastName
 
+    const attribution = sanitizeAttribution(body.attribution);
+    const cookieFbp = cookieStore.get('_fbp')?.value || null;
+    const cookieFbc = cookieStore.get('_fbc')?.value || null;
+
     const order = await prisma.order.create({
       data: {
         orderNumber,
         userId,
         customerName,
         customerEmail,
+        customerPhone: shippingAddress.phone || null,
         subtotal,
         shipping,
         tax,
@@ -147,6 +181,13 @@ export async function POST(request: Request) {
         status: 'pending',
         paymentStatus: 'pending',
         shippingAddress: JSON.stringify(shippingAddress),
+        attribution: attribution
+          ? JSON.stringify({
+              ...attribution,
+              fbp: cookieFbp || attribution.fbp,
+              fbc: cookieFbc || attribution.fbc,
+            })
+          : null,
         items: {
           create: validatedItems.map((item) => ({
             productId: item.id,
@@ -160,6 +201,40 @@ export async function POST(request: Request) {
       },
       include: { items: true },
     });
+
+    // Server-side Purchase, deduplicated with the browser Pixel event via
+    // event_id = orderNumber. Fire-and-forget: tracking must not block checkout.
+    void sendMetaPurchaseEvent(
+      {
+        orderNumber,
+        total,
+        customerEmail,
+        customerName,
+        customerPhone: shippingAddress.phone || null,
+        userId,
+        address: shippingAddress as Record<string, string>,
+        items: validatedItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        attribution: attribution
+          ? { ...attribution, fbp: cookieFbp, fbc: cookieFbc }
+          : { fbp: cookieFbp, fbc: cookieFbc },
+      },
+      {
+        ip:
+          request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+          request.headers.get('x-real-ip') ||
+          null,
+        userAgent: request.headers.get('user-agent'),
+        eventSourceUrl: request.headers.get('referer') || undefined,
+        cookieFbp,
+        cookieFbc,
+      }
+    ).catch((error) => console.error('Meta CAPI Purchase failed:', error));
 
     await prisma.notification.create({
       data: {

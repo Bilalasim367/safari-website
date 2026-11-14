@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Rating } from "@/components/Rating"
 import PriceLabel from "@/components/PriceLabel"
+import { DEFAULT_WOMEN, safeHref, type CarouselConfig } from "@/lib/homepage-content"
 
 interface Product {
   id: string
@@ -28,14 +29,21 @@ interface GenderCollectionProps {
   products: Product[]
   title: string
   gender: string
+  /** Dashboard-editable heading copy for this carousel. */
+  copy?: CarouselConfig
 }
 
-export default function GenderCollection({ products, title, gender }: GenderCollectionProps) {
+export default function GenderCollection({ products, title, gender, copy = DEFAULT_WOMEN }: GenderCollectionProps) {
   const filteredProducts = products
     .filter((p) => p.gender?.toLowerCase() === gender.toLowerCase())
     .slice(0, 8)
 
-  const viewAllHref = `/shop?gender=${gender.toLowerCase()}&sort=trending`
+  const defaultViewAllHref = `/shop?gender=${gender.toLowerCase()}&sort=trending`
+  const viewAllHref = safeHref(copy.viewAllHref, defaultViewAllHref)
+  const eyebrow = copy.eyebrow || `${gender} Collection`
+  const heading = copy.title || title
+  const viewAllLabel = copy.viewAllLabel || `View All ${gender}`
+  const regionLabel = copy.ariaLabel || `${gender} products carousel`
 
   // Show fallback UI when no products found
   if (filteredProducts.length === 0) {
@@ -45,10 +53,10 @@ export default function GenderCollection({ products, title, gender }: GenderColl
           <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
             <div>
               <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-                {gender} Collection
+                {eyebrow}
               </p>
               <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-                {title}
+                {heading}
               </h2>
             </div>
           </div>
@@ -89,7 +97,7 @@ export default function GenderCollection({ products, title, gender }: GenderColl
               href={viewAllHref}
               className="inline-flex items-center justify-center w-full md:w-auto bg-gold text-black hover:bg-gold-light font-semibold text-sm uppercase tracking-[0.15em] px-8 py-4 rounded-none transition-all"
             >
-              View All {gender}
+              {viewAllLabel}
             </Link>
           </div>
         </div>
@@ -103,17 +111,17 @@ export default function GenderCollection({ products, title, gender }: GenderColl
           <div className="flex flex-row items-center justify-between mb-6 md:mb-12">
             <div>
               <p className="text-gold text-[10px] md:text-sm tracking-[0.5em] uppercase mb-1 md:mb-4">
-                {gender} Collection
+                {eyebrow}
               </p>
               <h2 className="text-2xl md:text-5xl lg:text-6xl font-heading text-foreground">
-                {title}
+                {heading}
               </h2>
             </div>
             <Link
               href={viewAllHref}
             className="hidden md:inline-flex items-center gap-2 text-gold hover:text-gold-light transition-colors font-medium text-sm uppercase tracking-[0.1em]"
           >
-            View All {gender}
+            {viewAllLabel}
             <svg
               className="w-4 h-4 transition-transform group-hover:translate-x-1"
               fill="none"
@@ -134,7 +142,7 @@ export default function GenderCollection({ products, title, gender }: GenderColl
           <div
             className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 md:pb-8 -mx-4 md:-mx-12 px-4 md:px-12"
             role="region"
-            aria-label={`${gender} products carousel`}
+            aria-label={regionLabel}
           >
             {filteredProducts.map((product) => (
               <div
@@ -214,7 +222,7 @@ export default function GenderCollection({ products, title, gender }: GenderColl
             href={viewAllHref}
             className="inline-flex items-center justify-center w-full md:w-auto bg-gold text-black hover:bg-gold-light font-semibold text-sm uppercase tracking-[0.15em] px-8 py-4 rounded-none transition-all"
           >
-            View All {gender}
+            {viewAllLabel}
           </Link>
         </div>
       </div>

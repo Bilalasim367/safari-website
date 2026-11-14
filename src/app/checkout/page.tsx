@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { META_CURRENCY, metaTrack } from "@/lib/meta-client";
+import { getStoredAttribution } from "@/lib/meta-attribution";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
@@ -17,6 +19,22 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
+  const initiateCheckoutTracked = useRef(false);
+
+  useEffect(() => {
+    if (initiateCheckoutTracked.current || items.length === 0) return;
+    initiateCheckoutTracked.current = true;
+    metaTrack("InitiateCheckout", {
+      currency: META_CURRENCY,
+      value: Math.round(subtotal * 100) / 100,
+      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+      contents: items.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        item_price: item.price,
+      })),
+    });
+  }, [items, subtotal]);
 
   const [formData, setFormData] = useState({
     email: user?.email || "",
@@ -68,12 +86,31 @@ export default function CheckoutPage() {
           items,
           shippingAddress,
           paymentMethod: formData.paymentMethod,
+          attribution: getStoredAttribution(),
         }),
       });
 
       const data = await res.json();
 
       if (data.success) {
+        // Same event_id as the server-side Conversions API event so Meta
+        // counts this Purchase once, not twice.
+        metaTrack(
+          "Purchase",
+          {
+            currency: META_CURRENCY,
+            value: data.order.total,
+            order_id: data.order.orderNumber,
+            num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+            content_type: "product",
+            contents: items.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+              item_price: item.price,
+            })),
+          },
+          data.order.orderNumber
+        );
         clearCart();
         router.push(`/track?order=${data.order.orderNumber}`);
       } else {

@@ -7,8 +7,14 @@ import Footer from '@/components/Footer'
 import CartSidebar from '@/components/CartSidebar'
 import FloatingWhatsApp from '@/components/FloatingWhatsApp'
 import SocialProofPopup from '@/components/SocialProofPopup'
+import type { SiteContentBundle } from '@/lib/homepage-content-store'
 
-export default function SiteShell({ children }: { children: React.ReactNode }) {
+interface SiteShellProps {
+  children: React.ReactNode
+  siteContent: SiteContentBundle
+}
+
+export default function SiteShell({ children, siteContent }: SiteShellProps) {
   const pathname = usePathname() || ''
   const isAdmin = pathname.startsWith('/admin')
 
@@ -24,13 +30,13 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {!isAdmin && <Header />}
+      {!isAdmin && <Header content={siteContent.header} />}
       {isAdmin ? (
         children
       ) : (
         <main className="flex-1 pt-20 md:pt-28">{children}</main>
       )}
-      {!isAdmin && <Footer />}
+      {!isAdmin && <Footer content={siteContent.footer} />}
       {!isAdmin && <CartSidebar />}
       {!isAdmin && <FloatingWhatsApp />}
       {!isAdmin && <SocialProofPopup />}

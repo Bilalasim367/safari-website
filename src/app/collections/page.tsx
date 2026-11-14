@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import ShopContent from '@/app/shop/ShopContent'
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from '@/components/ui/breadcrumb'
 import { SITE_URL } from '@/lib/site'
+import { getSiteContent } from '@/lib/homepage-content-store'
 
 export const metadata: Metadata = {
   title: "Our Collection",
@@ -17,16 +18,17 @@ export default async function CollectionsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const { collectionsPage } = await getSiteContent();
 
   return (
     <div>
       <div className="bg-background border-b border-border py-16 md:py-20">
         <div className="container-custom">
           <div className="max-w-2xl">
-            <p className="text-muted-foreground text-sm tracking-[0.3em] uppercase mb-4">Our Collection</p>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-foreground mb-6">Our Collection</h1>
+            <p className="text-muted-foreground text-sm tracking-[0.3em] uppercase mb-4">{collectionsPage.eyebrow}</p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-foreground mb-6">{collectionsPage.title}</h1>
             <p className="text-muted-foreground text-lg max-w-md">
-              Explore our complete range of luxury fragrances, crafted with rare ingredients for every occasion.
+              {collectionsPage.description}
             </p>
           </div>
           <div className="mt-8">

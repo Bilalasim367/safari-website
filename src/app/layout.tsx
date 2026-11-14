@@ -8,6 +8,10 @@ import { WishlistProvider } from '@/context/WishlistContext'
 import { Toaster } from '@/components/ui/toaster'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
+import { getSiteContent } from '@/lib/homepage-content-store'
+import { getMetaPublicConfig } from '@/lib/meta'
+import MetaPixel from '@/components/MetaPixel'
+import AttributionCapture from '@/components/AttributionCapture'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -89,14 +93,21 @@ const websiteJsonLd = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [siteContent, meta] = await Promise.all([getSiteContent(), getMetaPublicConfig()])
+
   return (
     <html lang='en' className={`${playfair.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
       <body className='min-h-full flex flex-col'>
+        {meta.domainVerification && (
+          <meta name="facebook-domain-verification" content={meta.domainVerification} />
+        )}
+        <MetaPixel pixelId={meta.pixelId} enabled={meta.pixelEnabled} />
+        <AttributionCapture />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -109,7 +120,7 @@ export default function RootLayout({
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                <SiteShell>{children}</SiteShell>
+                <SiteShell siteContent={siteContent}>{children}</SiteShell>
                 <Toaster />
               </WishlistProvider>
             </CartProvider>

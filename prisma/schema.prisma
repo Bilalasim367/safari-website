@@ -241,6 +241,8 @@ model Order {
   shippingAddress String? @db.Text   // JSON string or formatted address
   billingAddress  String?  
   notes           String?   
+  // Marketing attribution captured at checkout (JSON: fbclid/fbc/utm/landingPage)
+  attribution     String?   @db.Text
   trackingNumber  String?
   shippedAt       DateTime?
   estimatedDelivery DateTime?
@@ -360,7 +362,78 @@ model Settings {
   metaTitle           String?
   metaDescription     String?  
   metaKeywords       String?
+
+  // Meta / Facebook Ads integration (admin-only; token is never exposed publicly)
+  metaPixelEnabled       Boolean  @default(false)
+  metaPixelId            String?
+  metaCapiEnabled        Boolean  @default(false)
+  metaCapiToken          String?
+  metaTestEventCode      String?
+  metaCatalogToken       String?
+  metaDomainVerification String?
+
   updatedAt           DateTime @updatedAt
 
   @@map("settings")
+}
+
+model HomepageSlide {
+  id            String    @id @default(cuid())
+  placement     String    @default("home_main") // home_main (above Trending), future placements
+  eyebrow       String?
+  title         String?
+  subtitle      String?   @db.Text
+  imageDesktop  String
+  imageMobile   String?
+  imageAlt      String?
+  href          String?
+  ctaLabel      String?
+  openInNewTab  Boolean   @default(false)
+  sortOrder     Int       @default(0)
+  isActive      Boolean   @default(true)
+  startsAt      DateTime?
+  endsAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([placement, isActive, sortOrder])
+  @@index([startsAt, endsAt])
+  @@map("homepageslide")
+}
+
+model HomepageSection {
+  id        String   @id @default(cuid())
+  key       String   @unique // hero, promo_slider, new_season, launch_banner, trending, ...
+  eyebrow   String?
+  title     String?
+  subtitle  String?  @db.Text
+  isVisible Boolean  @default(true)
+  sortOrder Int      @default(0)
+  // Section-specific content (JSON string) — validated with zod per section key.
+  config    String?  @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("homepagesection")
+}
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique // header, footer, collections_page, ...
+  // JSON string (MySQL has no JSON scalar lists in Prisma 5)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("sitecontent")
+}
+
+model NewsletterSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  source        String   @default("homepage") // homepage, footer
+  isActive      Boolean  @default(true)
+  subscribedAt  DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([subscribedAt])
+  @@map("newslettersubscriber")
 }

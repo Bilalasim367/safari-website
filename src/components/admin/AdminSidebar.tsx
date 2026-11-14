@@ -31,6 +31,8 @@ const navItems = [
   { href: '/admin/users', label: 'Customers', icon: Users },
   { href: '/admin/returns', label: 'Return Requests', icon: Megaphone },
   { href: '/admin/showcase', label: 'Showcase', icon: Sparkles },
+  { href: '/admin/homepage', label: 'Homepage Manager', icon: LayoutDashboard },
+  { href: '/admin/marketing', label: 'Marketing & Meta', icon: Megaphone },
   { href: '/admin/popup-settings', label: 'Popup Settings', icon: Megaphone },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 import { findSizeOption, resolveSizeOptions } from "@/lib/size-pricing";
+import { META_CURRENCY, metaTrack } from "@/lib/meta-client";
 
 export interface CartItem {
   id: string;
@@ -240,6 +241,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const addItem = useCallback((newItem: CartItem) => {
+    metaTrack("AddToCart", {
+      currency: META_CURRENCY,
+      value: Math.round(newItem.price * newItem.quantity * 100) / 100,
+      content_type: "product",
+      contents: [{ id: newItem.id, quantity: newItem.quantity, item_price: newItem.price }],
+    });
     setItems((prev) => {
       const existing = prev.find((item) => item.id === newItem.id && item.size === newItem.size);
       if (existing) {

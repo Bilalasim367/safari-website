@@ -987,3 +987,191 @@ These cart "add" handlers used `'50ml'` when size was empty; all replaced with
   returnrequest/priceupdatelog + this runs fine on cPanel MySQL now.
 
 ---
+
+# HOMEPAGE SLIDER + DASHBOARD CONTENT + META ADS — PLAN (2026-11-14)
+
+## Status
+Planning session completed after full codebase audit. Full plan saved at
+`C:\Users\Bilal\.opencode\plan\safari-homepage-slider-meta-ads-plan.md`.
+Implementation proceeds phase by phase in this session (see below).
+
+## User goal (Roman Urdu)
+1. "Trending This Week" (Hot Selling) ke upar naya carousel — "Our Collection" +
+   new launches (owner apni images upload karega).
+2. Website ko Facebook/Meta Ads se connect karna — Pixel + conversions.
+3. Dashboard se har content editable ho — code change na karna pare.
+
+## Verified current state (read from code)
+- Homepage order (`src/components/HomePage.tsx`): Hero → "New This Season"
+  (pinned products, `displayOrder > 0`) → NewLaunchBanner → "Trending This Week"
+  (`isHotSelling`) → Signature showcase → Men → Lifestyle → Women → Featured
+  Collections → Unisex → WhyChooseUs → Testimonials → Newsletter.
+- `src/app/page.tsx`: `revalidate = 300`; 5 parallel Prisma queries with explicit
+  `select`; `mapProduct()` uses `resolveDefaultPricing()` / `defaultSizeForType()`.
+- `HotSellingCarousel.tsx`: native scroll-snap, props for eyebrow/title/href,
+  decorative dots, fallback cards.
+- Hardcoded content: Hero, NewLaunchBanner, FeaturedCollectionsV2 (4 cards),
+  LifestyleBanner, WhyChooseUs (4), Testimonials (3), Newsletter, Header
+  announcement, Footer contacts/socials, `/collections` hero.
+- Existing editable: showcase + popup settings via **JSON files** in `data/`
+  (`homepage-showcase.json`, `popup-settings.json`) — deploy can overwrite them.
+- No Meta Pixel / CAPI / GTM / analytics anywhere (only generic cookies-page text).
+- Uploads: Vercel Blob via `useImageUpload` → `/api/upload` (needs
+  `BLOB_READ_WRITE_TOKEN` on cPanel). 5MB, jpeg/png/webp/gif, client compression.
+- Admin: showcase + popup-settings pages; sidebar in
+  `src/components/admin/AdminSidebar.tsx`. Settings API is admin-only and returns
+  the full row (smtpPassword included) — masking needed.
+- Stack: Next 16.2.4 beta, React 19.2.4 + React Compiler, Prisma 5.22 MySQL,
+  `embla-carousel-react` + autoplay already installed but unused.
+- Order flow: checkout POST `/api/orders` (server-side pricing) → `/track?order=`;
+  `CartContext` is the AddToCart choke point; PDP client is
+  `src/app/shop/[slug]/ProductDetailClient.tsx`.
+
+## Agreed implementation design
+- New banner slider `HomePromoSlider` placed directly above "Trending This Week",
+  reorderable from dashboard; desktop + mobile images; embla; autoplay pause;
+  reduced-motion off; empty state renders nothing; max 8 slides.
+- New MySQL tables: `HomepageSlide` (+ placement, schedule, sortOrder, images,
+  CTA), `HomepageSection` (key, eyebrow/title/subtitle, isVisible, sortOrder,
+  config JSON as `@db.Text`). Extend `Settings` with `metaPixelEnabled`,
+  `metaPixelId`, `metaCapiEnabled`, `metaCapiToken`, `metaTestEventCode`,
+  `metaCatalogToken`, `metaDomainVerification`. Extend `Order` with
+  `attribution @db.Text` (fbclid/fbc/utm/landing page).
+- Admin: `/admin/homepage` (Slider, Sections, Hero, Launch Banner, Featured
+  Collections, Why Us, Testimonials, Newsletter) + `/admin/marketing`
+  (Pixel/CAPI/catalog/test event). Save → `revalidatePath('/')`.
+- Meta: client Pixel (PageView on navigation, ViewContent PDP, AddToCart in
+  CartContext, InitiateCheckout, AddPaymentInfo), server CAPI Purchase in
+  `/api/orders` with `event_id = orderNumber` (browser Purchase on `/track`
+  dedups), hashed PII, fbp/fbc, `test_event_code`, catalog CSV at
+  `/api/meta/catalog?token=…`, domain verification meta tag, attribution cookie.
+- Storage decision: new content in MySQL only (not `data/*.json`) so deploys
+  cannot overwrite dashboard edits. Migrating existing showcase/popup JSON to DB
+  is a recommended later step.
+
+## Open questions (to confirm with owner)
+1. Slider = banner images (recommended) or product cards too?
+2. Meta Pixel ID / CAPI token already available?
+3. Vercel Blob token available on cPanel, or build local-upload fallback?
+
+## Phase plan
+0 baseline (lint/build, Next 16 docs) → 1 schema/content layer → 2 slider →
+3 Homepage Manager UI → 4 edit-all-content → 5 Meta Pixel/CAPI/catalog →
+6 QA + cPanel deploy runbook.
+
+---
+
+# ✅ HOMEPAGE SLIDER + META ADS — IMPLEMENTED (2026-11-14)
+
+All phases implemented and QA'd locally. Production build passes
+(`npm run build`), `npx tsc --noEmit` clean, lint back to the pre-existing
+baseline (9 errors, all in old `scripts/*.js|ts`).
+
+## What was built
+
+### 1. Admin-managed promo slider
+- `src/components/HomePromoSlider.tsx` — embla carousel directly above
+  "Trending This Week" (`promo_slider` section, sortOrder 60).
+- Desktop + optional mobile image, eyebrow/title/subtitle, CTA link/label,
+  new-tab flag, start/end schedule, sort order, active flag. Max 8 slides.
+- Autoplay 6s, pauses on hover/focus, pause/play button, arrows, dots,
+  keyboard, swipe. Disabled for `prefers-reduced-motion`. Renders **nothing**
+  when there are no live slides (verified: section disappears, no gap).
+
+### 2. Homepage layout + site content in MySQL (not JSON)
+- New Prisma models: `HomepageSlide`, `HomepageSection`, `SiteContent`,
+  `NewsletterSubscriber`; `Settings` extended with 7 Meta fields; `Order`
+  extended with `attribution @db.Text`.
+- Migrations (order matters):
+  `20261114000000_add_homepage_content_and_marketing` →
+  `20261114000001_sync_updated_at_defaults`.
+- `src/lib/homepage-content.ts` — types, zod schemas, defaults, field
+  definitions (`SECTION_FIELDS`, `SITE_BLOCK_FIELDS`), sanitizers,
+  `isSafeImageSrc`, `safeHref`, `isSlideLive`, `MAX_PROMO_SLIDES`.
+- `src/lib/homepage-content-store.ts` — server reads merged over defaults.
+- `HomePage.tsx` renders ordered + visible sections from DB (current order
+  preserved); `page.tsx` fetches content with `revalidate = 300`.
+- Root layout is async and passes editable site content to Header/Footer;
+  renders `MetaPixel`, `AttributionCapture`, optional
+  `facebook-domain-verification` meta tag.
+
+### 3. Admin dashboard (no code edits needed)
+- `/admin/homepage` — tabs: **Slider** (CRUD, image upload, schedule,
+  reorder, preview), **Layout** (reorder/hide/rename sections, edit every
+  section's fields), **Site** (header, footer, contacts, socials, newsletter).
+- `/admin/marketing` — Meta connection checklist, 30-day stats, Pixel ID,
+  CAPI + catalog tokens (write-only), test event code, domain verification,
+  copyable catalog feed URL.
+- APIs: `/api/admin/homepage` (+`/slides`, `/slides/[id]`, `/sections`,
+  `/blocks`, `/upload`), `/api/admin/marketing`, public
+  `GET /api/homepage-content`, `POST /api/newsletter`.
+- Every admin save calls `revalidatePath('/')`. `src/lib/admin-guard.ts` +
+  `src/lib/revalidate-storefront.ts` centralize auth + invalidation.
+- Homepage uploads use `/api/admin/homepage/upload` → `public/uploads/homepage/`
+  (no Vercel Blob dependency).
+
+### 4. Meta Ads / Pixel integration
+- `src/lib/meta.ts` — CAPI sender + cached settings (`invalidateMetaSettings`),
+  SHA-256 hashed PII, fbp/fbc, `test_event_code` support.
+- `src/lib/meta-client.ts` + `src/components/MetaPixel.tsx` — PageView,
+  ViewContent (PDP), AddToCart (CartContext), InitiateCheckout, Purchase.
+- `src/lib/meta-attribution.ts` + `AttributionCapture.tsx` — captures
+  fbclid/fbc/utm/landing page into `Order.attribution`.
+- Server Purchase in `/api/orders` with `event_id = orderNumber`; browser
+  Purchase on `/track` dedups on the same event ID.
+- `GET /api/meta/catalog` — CSV product feed for Meta Commerce Manager,
+  320 products, optional `?token=` gate (401 without/with wrong token).
+
+## Bugs found + fixed during QA
+1. **HomePromoSlider crash with a single slide**
+   `TypeError: Cannot read properties of undefined (reading '0')` inside
+   embla-autoplay `setTimer`. Cause: the autoplay plugin bails out of init
+   for 1 snap and never builds its delay array, so `play()` throws. Fix:
+   only attach the plugin when `slides.length > 1`, `playOnInit: false`, and
+   guard the effect on `emblaApi.scrollSnapList().length >= 2`.
+   **Also**: the browser kept executing a stale cached dev chunk, which made
+   the crash look unfixed. Always CDP `Network.clearBrowserCache` +
+   `setCacheDisabled: true` before judging Next dev changes.
+2. **`PUT /api/settings` wiped `metaPixelId` on partial writes**
+   Every field absent from the body became `null`, so the marketing page's
+   token-only save silently cleared the Pixel ID (checklist flipped to
+   "Action needed"). Fix: `metaPixelId` is only updated when the key is
+   present; validation runs only then. Other fields already used `undefined`
+   (Prisma skips) so they were safe.
+
+## QA evidence (local, dev + prod build)
+- Slider: 1 slide clean; 2 slides autoplay rotates (dot 0→1); pause holds
+  position; all slides inactive → section hidden; no console errors.
+- Responsive 390/768/1280/1440: promo directly above "Trending This Week",
+  `document.scrollWidth <= viewport`, images loaded, no error overlay.
+- Marketing: invalid Pixel ID → 400 `Meta Pixel ID must be 6–20 digits
+  (numbers only).`; valid save persists; tokens masked (`null` + `has*`
+  flags); feed URL includes catalog token; feed 401 without/with wrong token,
+  200 CSV (321 lines) with token.
+- Newsletter: invalid email → 400; new email → `alreadySubscribed:false`;
+  repeat → `alreadySubscribed:true`.
+- `GET /api/homepage-content` → `{ slides, sections }`, 14 sections in
+  current order, `cache-control: no-store`.
+- Tracked fingerprint script absent and `window.fbq === undefined` when
+  Pixel is off.
+
+## Production setup remaining (owner)
+1. Deploy → `npm run db:deploy` (migrations `20261114000000`, then
+   `20261114000001`). Never `prisma db push`.
+2. `/admin/marketing`: paste Pixel ID → enable Pixel; paste CAPI access token
+   → enable CAPI; submit `https://safari-perfumes.com/api/meta/catalog?token=…`
+   to Meta Commerce Manager; add the domain-verification token.
+3. Ensure `public/uploads/homepage/` is writable/persistent on cPanel.
+4. Tokens are write-only by design (blank field keeps the saved value);
+   to erase a token, update the DB directly.
+
+## Notes / limits
+- Homepage is statically prerendered with `revalidate = 300`; dashboard saves
+  call `revalidatePath('/')` for instant updates.
+- `src/lib/turso.ts` remains deleted; no JSON content files for the new
+  homepage data (deploys cannot overwrite dashboard edits).
+- Showcase + popup settings still use `data/*.json` — migrating them to MySQL
+  is a future step (not required for this task).
+
+---
+

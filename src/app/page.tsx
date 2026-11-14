@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import HomePage from "@/components/HomePage"
+import { getHomepageContent } from "@/lib/homepage-content-store"
 import { classifyProductType } from "@/lib/product-types"
 import { defaultSizeForType } from "@/lib/normalize"
 import { resolveDefaultPricing } from "@/lib/size-pricing"
@@ -161,7 +162,17 @@ async function getProducts() {
 }
 
 export default async function Home() {
-  const { pinnedProducts, hotSelling, menProducts, womenProducts, unisexProducts } = await getProducts()
+  const [{ pinnedProducts, hotSelling, menProducts, womenProducts, unisexProducts }, content] =
+    await Promise.all([getProducts(), getHomepageContent()])
 
-  return <HomePage pinnedProducts={pinnedProducts} hotSelling={hotSelling} menProducts={menProducts} womenProducts={womenProducts} unisexProducts={unisexProducts} />
+  return (
+    <HomePage
+      pinnedProducts={pinnedProducts}
+      hotSelling={hotSelling}
+      menProducts={menProducts}
+      womenProducts={womenProducts}
+      unisexProducts={unisexProducts}
+      content={content}
+    />
+  )
 }
