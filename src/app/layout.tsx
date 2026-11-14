@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Montserrat } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import SiteShell from '@/components/SiteShell'
 import { CartProvider } from '@/context/CartContext'
@@ -13,18 +13,30 @@ import { getMetaPublicConfig } from '@/lib/meta'
 import MetaPixel from '@/components/MetaPixel'
 import AttributionCapture from '@/components/AttributionCapture'
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+// Self-hosted copies of the Google Fonts (see scripts/fetch-local-fonts.mjs).
+// Loading them locally keeps `next build` working when Google Fonts serves
+// extension-less `fonts.gstatic.com/l/font?kit=...` URLs, which the Google
+// loader in this Next version cannot parse.
+const playfair = localFont({
+  src: [
+    { path: '../fonts/playfair-display-latin.woff2', weight: '400 900', style: 'normal' },
+    { path: '../fonts/playfair-display-latin-ext.woff2', weight: '400 900', style: 'normal' },
+  ],
   variable: '--font-playfair',
   display: 'swap',
+  fallback: ['Georgia', 'Times New Roman', 'serif'],
+  adjustFontFallback: 'Times New Roman',
 })
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+const montserrat = localFont({
+  src: [
+    { path: '../fonts/montserrat-latin.woff2', weight: '100 900', style: 'normal' },
+    { path: '../fonts/montserrat-latin-ext.woff2', weight: '100 900', style: 'normal' },
+  ],
   variable: '--font-montserrat',
   display: 'swap',
+  fallback: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+  adjustFontFallback: 'Arial',
 })
 
 export const metadata: Metadata = {

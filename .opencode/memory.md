@@ -1244,3 +1244,47 @@ runtime). Homepage prerender: `.next/server/app/index.html`. Do not run
 
 ---
 
+# 🔤 BUILD FIX — SELF-HOSTED FONTS (2026-11-14)
+
+## Symptom
+`npm run build` failed in `next/font`:
+`TypeError: Cannot read properties of null (reading '1')` at
+`node_modules/next/dist/compiled/@next/font/dist/google/loader.js:122`.
+Reported for `src/app/layout.tsx` and `src/components/Hero.tsx`.
+
+## Root cause (verified, not a guess)
+Google Fonts answers some families with extension-less URLs:
+`https://fonts.gstatic.com/l/font?kit=…&skey=…&v=v12` (seen for Plus Jakarta
+Sans with Next's Chrome-104 UA). `loader.js:122` does
+`/\.(woff|woff2|eot|ttf|otf)$/.exec(url)[1]` → `exec` returns `null` → TypeError.
+So it is a **Next 16.2.4 font-loader bug triggered by a Google response format
+change**. Playfair/Montserrat still returned `.woff2`; one affected family breaks
+the whole build. Nothing in our source caused it, and it can reappear for any
+family at any time — so the Google loader must not be used at build time.
+
+## Fix
+Fonts are vendored into `src/fonts/` and loaded with `next/font/local`
+(no network during build):
+- `playfair-display-{latin,latin-ext}.woff2` — variable, weight `400 900`,
+  `adjustFontFallback: 'Times New Roman'`
+- `montserrat-{latin,latin-ext}.woff2` — variable, `100 900`, Arial
+- `plus-jakarta-sans-{latin,latin-ext}.woff2` — variable, `200 800`, Arial
+- `poppins-{latin,latin-ext}-{500,600,700}.woff2` — static (Poppins has no
+  variable version on Google Fonts)
+Consumers: `src/app/layout.tsx` (Playfair + Montserrat),
+`src/components/Hero.tsx` (Jakarta), `src/components/NewLaunchBanner.tsx`
+(Poppins). CSS variables unchanged (`--font-playfair`, `--font-montserrat`,
+`--font-hero`, `--font-launch`), so no component styling changed.
+Regenerate with `node scripts/fetch-local-fonts.mjs` (downloads + validates the
+`wOF2` magic bytes; keep only `latin` + `latin-ext` subsets).
+
+## Verify
+- `npm run build` → `✓ Compiled successfully`, BUILD_ID `c8yhEBH4J-g9YPQlpCNzW`.
+- 12 self-hosted woff2 in `.next/static/media`, 16 `@font-face` in the CSS,
+  0 references to `fonts.googleapis.com` / `fonts.gstatic.com`.
+- `npx tsc --noEmit` clean.
+- Never reintroduce `next/font/google` in this project without pinning/validating
+  the response format.
+
+---
+

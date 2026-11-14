@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Poppins } from "next/font/google"
+import localFont from "next/font/local"
 import { cn } from "@/lib/utils"
 import {
   DEFAULT_LAUNCH_BANNER,
@@ -12,11 +12,19 @@ import {
   type LaunchBannerConfig,
 } from "@/lib/homepage-content"
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+const poppins = localFont({
+  src: [
+    { path: "../fonts/poppins-latin-500.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/poppins-latin-600.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/poppins-latin-700.woff2", weight: "700", style: "normal" },
+    { path: "../fonts/poppins-latin-ext-500.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/poppins-latin-ext-600.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/poppins-latin-ext-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-launch",
   display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+  adjustFontFallback: "Arial",
 })
 
 const sharedFocus =

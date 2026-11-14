@@ -3,7 +3,7 @@
 import React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Plus_Jakarta_Sans } from "next/font/google"
+import localFont from "next/font/local"
 import {
   Banknote,
   Clock,
@@ -23,11 +23,15 @@ import {
   type HeroConfig,
 } from "@/lib/homepage-content"
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+const jakarta = localFont({
+  src: [
+    { path: "../fonts/plus-jakarta-sans-latin.woff2", weight: "200 800", style: "normal" },
+    { path: "../fonts/plus-jakarta-sans-latin-ext.woff2", weight: "200 800", style: "normal" },
+  ],
   variable: "--font-hero",
   display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+  adjustFontFallback: "Arial",
 })
 
 const FEATURE_ICONS: Record<string, LucideIcon> = {
