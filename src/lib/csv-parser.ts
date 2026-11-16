@@ -19,6 +19,7 @@ export interface CsvRow {
   long_description: string;
   tags: string;
   sizes_available: string;
+  price: string;
   price_3ml_physical: string;
   price_6ml_physical: string;
   price_12ml_physical: string;
@@ -108,10 +109,15 @@ function hasValidPrice(row: CsvRow): boolean {
     'price_3ml_physical', 'price_6ml_physical', 'price_12ml_physical', 'price_50ml_physical',
     'price_3ml_online', 'price_6ml_online', 'price_12ml_online', 'price_50ml_online',
   ];
-  return priceFields.some((field) => {
+  const hasSizePrice = priceFields.some((field) => {
     const val = (row as unknown as Record<string, string>)[field];
     return val !== undefined && val !== '' && !isNaN(Number(val)) && Number(val) > 0;
   });
+  if (hasSizePrice) return true;
+  // A single selling-price column is enough to create a product: it prices the
+  // volume the product actually sells.
+  const base = row.price?.trim();
+  return base !== undefined && base !== '' && !isNaN(Number(base)) && Number(base) > 0;
 }
 
 function toInt(val: string | undefined | null): number | null {
@@ -188,6 +194,16 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
 
   const allPrices = [p3p, p6p, p12p, p50p, p3o, p6o, p12o, p50o].filter((p): p is number => p !== null);
   const lowestPrice = allPrices.length > 0 ? Math.min(...allPrices) : 0;
+  // An explicit selling price column wins; otherwise the base `price` mirrors
+  // the cheapest volume, as before.
+  const explicitPrice = toInt(row.price);
+
+  // "is_active" absent means the operator never said "hide this" — a new
+  // product must be visible, not silently parked as inactive.
+  const isActive =
+    row.is_active === undefined || row.is_active === ''
+      ? true
+      : row.is_active.toLowerCase() === 'true';
 
   const sizePricesArr: { size: string; price: number }[] = [];
   if (p3p !== null) sizePricesArr.push({ size: '3ml', price: p3p });
@@ -225,13 +241,13 @@ export function transformRow(row: CsvRow, existingSlugs: Set<string>): Transform
     oilPricePer100g: toInt(row.oil_price_per_100g),
     supplier: row.supplier?.trim() || null,
     isFeatured: row.is_featured?.toLowerCase() === 'true',
-    isActive: row.is_active?.toLowerCase() === 'true',
+    isActive,
     stockStatus: ['in_stock', 'out_of_stock', 'pre_order'].includes(row.stock_status?.trim()) ? row.stock_status.trim() : 'in_stock',
     imageFolder: row.image_folder?.trim() || null,
     metaTitle: row.meta_title?.trim() || null,
     metaDescription: row.meta_description?.trim() || null,
     description: row.short_description?.trim() || `${row.name.trim()} - Premium fragrance`,
-    price: lowestPrice,
+    price: explicitPrice ?? lowestPrice,
     image: '',
     sizePrices: JSON.stringify(sizePricesArr),
     inStock: row.stock_status?.trim() !== 'out_of_stock',

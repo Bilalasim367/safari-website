@@ -23,7 +23,14 @@ interface UploadResult {
   updated: number;
   skipped: number;
   errors: UploadError[];
+  warnings?: { row: number; name: string; reason: string }[];
 }
+
+const PRICE_COLUMNS = [
+  'price',
+  'price_3ml_physical', 'price_6ml_physical', 'price_12ml_physical', 'price_50ml_physical',
+  'price_3ml_online', 'price_6ml_online', 'price_12ml_online', 'price_50ml_online',
+];
 
 const SAMPLE_HEADERS = [
   'product_id', 'name', 'slug', 'category', 'gender', 'type', 'season', 'best_time',
@@ -125,9 +132,12 @@ export default function BulkUploadPage() {
     }
   };
 
-  const totalColumns = SAMPLE_HEADERS?.length ?? 0;
-  const detectedColumns = headers?.length ?? 0;
-  const columnsMatch = detectedColumns === totalColumns;
+  // Only a name and one price column are required. Demanding all 35 columns
+  // used to leave the Import button permanently disabled with no reason shown.
+  const normalizedHeaders = headers.map((h) => h.trim().toLowerCase());
+  const hasNameColumn = normalizedHeaders.includes('name');
+  const hasPriceColumn = normalizedHeaders.some((h) => PRICE_COLUMNS.includes(h));
+  const canImport = hasNameColumn && hasPriceColumn;
 
   return (
     <div className="p-8">
@@ -213,15 +223,22 @@ export default function BulkUploadPage() {
           </div>
 
           <div className="flex items-center gap-2 p-3 rounded-lg border">
-            {columnsMatch ? (
+            {canImport ? (
               <CheckCircle className="h-5 w-5 text-green-500" />
             ) : (
               <AlertCircle className="h-5 w-5 text-amber-500" />
             )}
             <span className="text-sm">
-              Detected <strong>{detectedColumns}</strong> of {totalColumns} expected columns
-              {!columnsMatch && (
-                <span className="text-amber-600"> — column mismatch detected</span>
+              Detected <strong>{headers.length}</strong> columns
+              {canImport ? (
+                <span className="text-green-600"> — ready to import (name + price found)</span>
+              ) : (
+                <span className="text-amber-600">
+                  {' '}— required:{' '}
+                  {!hasNameColumn && 'a "name" column'}
+                  {!hasNameColumn && !hasPriceColumn && ' and '}
+                  {!hasPriceColumn && 'one price column (price, price_12ml_online, price_12ml_physical, …)'}
+                </span>
               )}
             </span>
           </div>
@@ -260,7 +277,7 @@ export default function BulkUploadPage() {
             <Button
               size="lg"
               onClick={handleImport}
-              disabled={uploading || !columnsMatch}
+              disabled={uploading || !canImport}
             >
               {uploading ? (
                 <>
@@ -316,6 +333,39 @@ export default function BulkUploadPage() {
                   )}
                 </div>
               </div>
+
+              {result.warnings && result.warnings.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4 text-amber-500" />
+                    Missing selling price ({result.warnings.length})
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    These products were saved but have no online price, so the storefront shows
+                    &quot;Unavailable&quot; until you add one (Bulk Price Update, or edit the product).
+                  </p>
+                  <div className="rounded-md border overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-16 text-xs">Row</TableHead>
+                          <TableHead className="text-xs">Product</TableHead>
+                          <TableHead className="text-xs">Reason</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {result.warnings.map((warn, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="text-sm">{warn.row}</TableCell>
+                            <TableCell className="text-sm">{warn.name}</TableCell>
+                            <TableCell className="text-sm text-amber-700">{warn.reason}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
 
               {result.errors.length > 0 && (
                 <div>

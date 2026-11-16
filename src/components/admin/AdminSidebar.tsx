@@ -24,7 +24,8 @@ import {
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/products/bulk-import', label: 'Bulk Import (CSV)', icon: Upload },
+  { href: '/admin/products/bulk-upload', label: 'Bulk Upload Products', icon: Upload },
+  { href: '/admin/products/bulk-import', label: 'Import Notes (CSV)', icon: Upload },
   { href: '/admin/products/bulk-price', label: 'Bulk Price Update', icon: Upload },
   { href: '/admin/bundles', label: 'Bundles', icon: Gift },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },

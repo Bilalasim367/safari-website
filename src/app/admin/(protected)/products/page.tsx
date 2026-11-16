@@ -302,11 +302,19 @@ export default function ProductsPage() {
                 Bulk Import
               </p>
               <p className="text-sm text-muted-foreground mb-3">
-                Upload a CSV file to create or update many products at once (matched by slug).
+                Upload a CSV to create or update many products at once. Only{' '}
+                <strong>name</strong> and one <strong>price</strong> column are required —
+                matched by <strong>product_id</strong> / SKU.
               </p>
-              <Link href="/admin/products/bulk-import">
+              <Link href="/admin/products/bulk-upload">
                 <Button className="w-full">Upload CSV</Button>
               </Link>
+              <p className="text-xs text-muted-foreground mt-2">
+                Importing fragrance notes for existing products?{' '}
+                <Link href="/admin/products/bulk-import" className="underline">
+                  Import Notes (CSV)
+                </Link>
+              </p>
             </div>
           </div>
         </DialogContent>

@@ -16,7 +16,15 @@ import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useImageUpload } from '@/hooks/useImageUpload'
+import { defaultSizeForType } from '@/lib/normalize'
 import { ArrowLeft, Plus, X, Trash2, Upload } from '@/lib/lucide-icons'
+
+const SELLING_PRICE_FIELDS = [
+  { key: 'price3mlOnline', size: '3ml' },
+  { key: 'price6mlOnline', size: '6ml' },
+  { key: 'price12mlOnline', size: '12ml' },
+  { key: 'price50mlOnline', size: '50ml' },
+] as const
 
 const defaultFormState: AdminProductFormValues = {
   name: '',
@@ -323,7 +331,13 @@ export default function ProductForm({ initialData, mode, productId, productType 
   const notesHeart = form.watch('notesHeart')
   const notesBase = form.watch('notesBase')
   const galleryImages = form.watch('images')
-  const sizePrices = form.watch('sizePrices')
+  const defaultSellingSize = defaultSizeForType(form.watch('type'))
+  const sellingPriceValues = {
+    price3mlOnline: form.watch('price3mlOnline'),
+    price6mlOnline: form.watch('price6mlOnline'),
+    price12mlOnline: form.watch('price12mlOnline'),
+    price50mlOnline: form.watch('price50mlOnline'),
+  }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -407,7 +421,58 @@ export default function ProductForm({ initialData, mode, productId, productType 
                   </CardContent>
                 </Card>
 
-                {/* Pricing is handled by Base Pricing card above - use price (sale) and originalPrice (MRP) */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Selling Prices (per size)</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-xs text-muted-foreground">
+                      These are the prices customers see and pay on the shop and product page.
+                      At least one is needed — with none, the product shows{' '}
+                      <span className="font-semibold">Unavailable</span>. Leave all four empty and
+                      the base price is used for the default size ({defaultSellingSize}).
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {SELLING_PRICE_FIELDS.map((field) => (
+                        <div key={field.key} className="space-y-2">
+                          <Label htmlFor={field.key}>{field.size}</Label>
+                          <Input
+                            id={field.key}
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="—"
+                            value={sellingPriceValues[field.key] ?? ''}
+                            onChange={(e) =>
+                              form.setValue(
+                                field.key,
+                                e.target.value ? Number(e.target.value) : null
+                              )
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const base = Number(form.watch('price'))
+                        if (!Number.isFinite(base) || base <= 0) {
+                          toast.error('Enter a base price first')
+                          return
+                        }
+                        const target = SELLING_PRICE_FIELDS.find((f) => f.size === defaultSellingSize)
+                        if (!target) return
+                        form.setValue(target.key, Math.round(base))
+                        toast.success(`Set ${target.size} price to ${Math.round(base)}`)
+                      }}
+                    >
+                      Use base price for {defaultSellingSize}
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
             )}
 

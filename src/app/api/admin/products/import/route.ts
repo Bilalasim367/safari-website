@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import Papa from 'papaparse';
 import { normalizeGender, normalizeTypeLoose, defaultSizeForType } from '@/lib/normalize';
+import { resolveOnlinePrices } from '@/lib/size-pricing';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,6 +39,10 @@ interface ImportRow {
   images: string[];
   gender: string;
   type: string;
+  price3mlOnline: number | null;
+  price6mlOnline: number | null;
+  price12mlOnline: number | null;
+  price50mlOnline: number | null;
   error: string | null;
 }
 
@@ -87,13 +93,7 @@ export async function POST(request: Request) {
     const fields = (parsed.meta.fields || []).map((f: string) => f.trim().toLowerCase());
     if (!fields.includes('name')) {
       return NextResponse.json(
-        { error: 'Missing "name" column. Columns: name, sku, description, price, sale_price, stock, category, images.' },
-        { status: 400 }
-      );
-    }
-    if (!fields.includes('sku')) {
-      return NextResponse.json(
-        { error: 'Missing "sku" column. Columns: name, sku, description, price, sale_price, stock, category, images.' },
+        { error: 'Missing "name" column. Columns: name, sku (optional), description, price, sale_price, stock, category, images.' },
         { status: 400 }
       );
     }
@@ -107,7 +107,12 @@ export async function POST(request: Request) {
       const raw = parsed.data[i];
       const rowNum = i + 2;
       const name = (raw['name'] || '').trim();
-      const sku = (raw['sku'] || raw['product_id'] || '').trim().toUpperCase();
+      const slugBase = slugify(name);
+      // SKU is optional: a name is enough to add a product. A derived SKU keeps
+      // re-uploading the same file idempotent (updates instead of duplicates).
+      const sku =
+        (raw['sku'] || raw['product_id'] || '').trim().toUpperCase() ||
+        `AUTO-${slugBase.toUpperCase()}`;
       const description = (raw['description'] || '').trim();
       const price = parsePrice((raw['price'] ?? '').toString());
       const originalPrice = parsePrice((raw['sale_price'] ?? raw['regular_price'] ?? '').toString());
@@ -119,7 +124,6 @@ export async function POST(request: Request) {
 
       let error: string | null = null;
       if (!name) error = 'Missing product name';
-      else if (!sku) error = 'Missing sku';
       else if (seenSkus.has(sku)) error = 'Duplicate sku in file';
       else if (price === null || price <= 0) error = `Invalid price "${raw['price'] ?? ''}"`;
       else if (gender && !['men', 'women', 'unisex'].includes(gender.toLowerCase())) {
@@ -140,6 +144,10 @@ export async function POST(request: Request) {
         images,
         gender: gender ? normalizeGender(gender) : '',
         type: type ? normalizeTypeLoose(type) : '',
+        price3mlOnline: parsePrice((raw['price_3ml_online'] ?? '').toString()),
+        price6mlOnline: parsePrice((raw['price_6ml_online'] ?? '').toString()),
+        price12mlOnline: parsePrice((raw['price_12ml_online'] ?? '').toString()),
+        price50mlOnline: parsePrice((raw['price_50ml_online'] ?? '').toString()),
         error,
       });
     }
@@ -149,7 +157,7 @@ export async function POST(request: Request) {
 
     const existing = await prisma.product.findMany({
       where: { OR: [{ productId: { in: validSkus } }] },
-      select: { productId: true, name: true },
+      select: { productId: true, name: true, type: true, size: true },
     });
     const existingMap = new Map(existing.map((p) => [p.productId, p]));
 
@@ -187,6 +195,28 @@ export async function POST(request: Request) {
           continue;
         }
 
+        // For an existing product the row's `type` is optional: without it,
+        // keep the type and sold volume the product already has instead of
+        // silently re-pricing it as an Attar's 12ml.
+        const current = existingMap.get(r.sku);
+        const productType = r.type || current?.type || 'Attar';
+        const sellingSize = current && !r.type ? current.size : defaultSizeForType(productType);
+        // Online (retail) prices are what the storefront reads. `price` fills the
+        // product's sold volume; optional per-size columns override it.
+        const resolvedOnline = resolveOnlinePrices({
+          price: r.price,
+          type: productType,
+          size: sellingSize,
+          price3mlOnline: r.price3mlOnline,
+          price6mlOnline: r.price6mlOnline,
+          price12mlOnline: r.price12mlOnline,
+          price50mlOnline: r.price50mlOnline,
+        });
+        const suppliedOnline: Record<string, number> = {};
+        for (const [key, value] of Object.entries(resolvedOnline)) {
+          if (value !== null) suppliedOnline[key] = value;
+        }
+
         const baseData = {
           name: r.name,
           description: r.description || r.name,
@@ -197,10 +227,13 @@ export async function POST(request: Request) {
           stockStatus: r.stock,
           categorySlug: (r.category || r.gender || 'unisex').toLowerCase(),
           gender: r.gender || (['men', 'women', 'unisex'].includes(r.category.toLowerCase()) ? normalizeGender(r.category) : 'Unisex'),
-          type: r.type || 'Attar',
-          size: defaultSizeForType((r.type || 'Attar') as 'Attar' | 'Perfume'),
+          type: productType,
+          size: sellingSize,
           images: JSON.stringify(r.images),
-          sizePrices: JSON.stringify([{ size: defaultSizeForType((r.type || 'Attar') as 'Attar' | 'Perfume'), price: r.price, originalPrice: r.originalPrice }]),
+          sizePrices: JSON.stringify([{ size: sellingSize, price: r.price, originalPrice: r.originalPrice }]),
+          ...resolvedOnline,
+          // An imported product must be visible; "off" was never implied.
+          isActive: true,
           notesTop: '[]',
           notesHeart: '[]',
           notesBase: '[]',
@@ -218,8 +251,9 @@ export async function POST(request: Request) {
               shortDescription: r.description || null,
               inStock: r.stock !== 'out_of_stock',
               stockStatus: r.stock,
-              size: defaultSizeForType((r.type || 'Attar') as 'Attar' | 'Perfume'),
-              sizePrices: JSON.stringify([{ size: defaultSizeForType((r.type || 'Attar') as 'Attar' | 'Perfume'), price: r.price, originalPrice: r.originalPrice }]),
+              size: sellingSize,
+              ...suppliedOnline,
+              sizePrices: JSON.stringify([{ size: sellingSize, price: r.price, originalPrice: r.originalPrice }]),
             };
             if (r.images.length > 0) {
               data.image = r.images[0];
@@ -248,6 +282,14 @@ export async function POST(request: Request) {
           errors.push({ row: r.rowNum, sku: r.sku, name: r.name, reason: 'Operation failed' });
         }
       }
+    }
+
+    // An import creates/updates products the storefront already caches.
+    if (mode === 'import' && (created > 0 || updated > 0)) {
+      revalidateTag('shop-products', { expire: 0 });
+      revalidatePath('/', 'page');
+      revalidatePath('/shop', 'page');
+      revalidatePath('/shop/[slug]', 'page');
     }
 
     return NextResponse.json({

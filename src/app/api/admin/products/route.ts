@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { defaultSizeForType } from '@/lib/normalize';
+import { resolveOnlinePrices } from '@/lib/size-pricing';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -80,6 +81,12 @@ export async function POST(request: Request) {
         categorySlug: categorySlug?.toLowerCase() || 'men',
         size: size || defaultSizeForType(undefined),
         sizePrices: JSON.stringify([]),
+        // Storefront pricing reads only the online columns — never leave a
+        // product without at least one, or it renders "Unavailable".
+        ...resolveOnlinePrices({
+          price: parseFloat(price),
+          size: size || defaultSizeForType(undefined),
+        }),
         inStock: inStock ?? true,
         isBestseller: isBestseller ?? false,
         isNew: isNew ?? false,
@@ -124,6 +131,25 @@ export async function PUT(request: Request) {
     if (data.inStock !== undefined) updateData.inStock = data.inStock;
     if (data.isBestseller !== undefined) updateData.isBestseller = data.isBestseller;
     if (data.isNew !== undefined) updateData.isNew = data.isNew;
+    if (data.price) {
+      const parsed = parseFloat(data.price);
+      // Price the volume this product actually sells: use the incoming
+      // type/size when given, otherwise the product's stored ones — guessing
+      // 12ml for a 50ml perfume would quote the wrong number.
+      const existing = await prisma.product.findUnique({
+        where: { id },
+        select: { type: true, size: true },
+      });
+      const resolved = resolveOnlinePrices({
+        price: parsed,
+        type: data.type ?? existing?.type ?? null,
+        size: data.size ?? existing?.size ?? null,
+      });
+      // Fill only what this update did not carry; never wipe a per-size price.
+      for (const [key, value] of Object.entries(resolved)) {
+        if (value !== null && updateData[key] === undefined) updateData[key] = value;
+      }
+    }
 
     await prisma.product.update({ where: { id }, data: updateData });
 

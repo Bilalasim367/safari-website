@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { verifyToken } from '@/lib/auth';
 import { normalizeGender, normalizeType, defaultSizeForType } from '@/lib/normalize';
+import { resolveOnlinePrices } from '@/lib/size-pricing';
 
 // Purge the cached storefront product listing so admin edits are visible
 // immediately, without waiting for the 5-minute revalidate window.
@@ -199,6 +200,19 @@ export async function createProduct(data: ProductFormData) {
   }
 
   try {
+    // Every saved product must carry at least one online (retail) price —
+    // storefront pricing reads only those columns and renders "Unavailable"
+    // otherwise. Explicit per-size prices win; `price` fills the sold volume.
+    const onlinePrices = resolveOnlinePrices({
+      price: data.price,
+      type: data.type,
+      size: data.size,
+      price3mlOnline: data.price3mlOnline,
+      price6mlOnline: data.price6mlOnline,
+      price12mlOnline: data.price12mlOnline,
+      price50mlOnline: data.price50mlOnline,
+    });
+
     const product = await prisma.product.create({
       data: {
         name: data.name,
@@ -235,10 +249,7 @@ export async function createProduct(data: ProductFormData) {
         price6mlPhysical: data.price6mlPhysical ?? null,
         price12mlPhysical: data.price12mlPhysical ?? null,
         price50mlPhysical: data.price50mlPhysical ?? null,
-        price3mlOnline: data.price3mlOnline ?? null,
-        price6mlOnline: data.price6mlOnline ?? null,
-        price12mlOnline: data.price12mlOnline ?? null,
-        price50mlOnline: data.price50mlOnline ?? null,
+        ...onlinePrices,
         currency: data.currency || 'PKR',
         oilPricePer100g: data.oilPricePer100g ?? null,
         supplier: data.supplier || null,
@@ -275,6 +286,19 @@ export async function updateProduct(id: string, data: ProductFormData) {
   }
   
   try {
+    // Same guarantee as create: a product saved from the form can never lose
+    // its last sellable price. Explicit per-size values win; `price` fills the
+    // sold volume when every per-size field is empty.
+    const onlinePrices = resolveOnlinePrices({
+      price: data.price,
+      type: data.type,
+      size: data.size,
+      price3mlOnline: data.price3mlOnline,
+      price6mlOnline: data.price6mlOnline,
+      price12mlOnline: data.price12mlOnline,
+      price50mlOnline: data.price50mlOnline,
+    });
+
     await prisma.product.update({
       where: { id },
       data: {
@@ -312,10 +336,7 @@ export async function updateProduct(id: string, data: ProductFormData) {
         price6mlPhysical: data.price6mlPhysical ?? null,
         price12mlPhysical: data.price12mlPhysical ?? null,
         price50mlPhysical: data.price50mlPhysical ?? null,
-        price3mlOnline: data.price3mlOnline ?? null,
-        price6mlOnline: data.price6mlOnline ?? null,
-        price12mlOnline: data.price12mlOnline ?? null,
-        price50mlOnline: data.price50mlOnline ?? null,
+        ...onlinePrices,
         currency: data.currency || 'PKR',
         oilPricePer100g: data.oilPricePer100g ?? null,
         supplier: data.supplier || null,
@@ -372,9 +393,40 @@ export async function updateProductPartial(id: string, data: Record<string, unkn
   }
 
   try {
+    // Inline edits that only carry `price` must not leave the product
+    // unsellable. Fill the missing online price for the sold volume; existing
+    // per-size prices are never overwritten from a partial update.
+    let payload = data;
+    const onlineKeys = ['price3mlOnline', 'price6mlOnline', 'price12mlOnline', 'price50mlOnline'];
+    if (data.price !== undefined && data.price !== null) {
+      const asOnline = (key: string) => {
+        const value = data[key];
+        return typeof value === 'number' ? value : null;
+      };
+      const resolved = resolveOnlinePrices({
+        price: Number(data.price),
+        type: typeof data.type === 'string' ? data.type : null,
+        size: typeof data.size === 'string' ? data.size : null,
+        price3mlOnline: asOnline('price3mlOnline'),
+        price6mlOnline: asOnline('price6mlOnline'),
+        price12mlOnline: asOnline('price12mlOnline'),
+        price50mlOnline: asOnline('price50mlOnline'),
+      });
+      // Only add the columns this update did not carry: a partial edit can
+      // fill a missing price, never wipe or override one.
+      const derived: Record<string, number> = {};
+      for (const key of onlineKeys) {
+        const value = (resolved as Record<string, number | null>)[key];
+        if (data[key] === undefined && value !== null && value !== undefined) {
+          derived[key] = value;
+        }
+      }
+      payload = { ...data, ...derived };
+    }
+
     await prisma.product.update({
       where: { id },
-      data,
+      data: payload,
     });
     revalidateShopProducts();
     return { success: true };

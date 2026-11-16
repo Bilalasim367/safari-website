@@ -155,8 +155,10 @@ export default function ProductImportPage() {
           </Link>
           <h1 className="text-2xl font-bold">Import Products (Simple CSV)</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Add or update products from a CSV with <strong>name</strong>, <strong>sku</strong>, <strong>price</strong>,
-            <strong>sale_price</strong>, <strong>stock</strong>, <strong>category</strong>, <strong>images</strong>.
+            Add or update products from a CSV with <strong>name</strong> and <strong>price</strong>.
+            <strong> sku</strong> is optional (derived from the name), and{' '}
+            <strong>description</strong>, <strong>sale_price</strong>, <strong>stock</strong>,{' '}
+            <strong>category</strong>, <strong>images</strong> are supported.
             Duplicate SKUs: choose <em>Skip</em> or <em>Update</em>.
           </p>
         </div>

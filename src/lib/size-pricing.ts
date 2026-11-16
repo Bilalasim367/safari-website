@@ -164,3 +164,73 @@ export function resolveDefaultPricing(
   if (!option) return null;
   return { price: option.price, size: option.size };
 }
+
+// ─── Persistence: guarantee every saved product has a sellable price ──────
+
+export type OnlinePriceFields = {
+  price3mlOnline?: number | null;
+  price6mlOnline?: number | null;
+  price12mlOnline?: number | null;
+  price50mlOnline?: number | null;
+};
+
+export type ResolvedOnlinePrices = {
+  price3mlOnline: number | null;
+  price6mlOnline: number | null;
+  price12mlOnline: number | null;
+  price50mlOnline: number | null;
+};
+
+type OnlineColumn =
+  | 'price3mlOnline'
+  | 'price6mlOnline'
+  | 'price12mlOnline'
+  | 'price50mlOnline';
+
+/**
+ * The four online (retail) price columns, resolved for writing to the DB.
+ *
+ * `resolveSizeOptions` reads ONLY these columns, so a product saved with an
+ * empty `price*Online` set is unsellable: every card, carousel and the PDP
+ * render "Unavailable". The admin form and every CSV importer therefore persist
+ * through this function, so a product that carries a base `price` is always
+ * stored with at least one real retail price — on the volume that product
+ * actually sells (Attar 12ml, Perfume 50ml by default).
+ *
+ * Explicit per-size prices always win; the base price only fills the sold
+ * volume's column when that column itself is empty. It is never copied into a
+ * different volume, so a 3ml entry can never price a 12ml product.
+ */
+export function resolveOnlinePrices(
+  input: OnlinePriceFields & {
+    price?: number | null;
+    type?: string | null;
+    size?: string | null;
+  }
+): ResolvedOnlinePrices {
+  const resolved: ResolvedOnlinePrices = {
+    price3mlOnline: toPositiveInt(input.price3mlOnline),
+    price6mlOnline: toPositiveInt(input.price6mlOnline),
+    price12mlOnline: toPositiveInt(input.price12mlOnline),
+    price50mlOnline: toPositiveInt(input.price50mlOnline),
+  };
+
+  const base = toPositiveInt(input.price);
+  if (base === null) return resolved;
+
+  const column = getSoldColumn(input);
+  if (!column) return resolved;
+
+  // Only fill the sold volume's own column — an explicit per-size value for
+  // that volume is never overwritten, and no other volume is ever priced.
+  if (resolved[column] === null) resolved[column] = base;
+  return resolved;
+}
+
+/** The online-price column for the volume this product actually sells. */
+function getSoldColumn(
+  input: OnlinePriceFields & { type?: string | null; size?: string | null }
+): OnlineColumn | null {
+  const size = normalizeSize(input.size || defaultSizeForType(input.type));
+  return (COLUMN_BY_SIZE[size] as OnlineColumn | undefined) ?? null;
+}
