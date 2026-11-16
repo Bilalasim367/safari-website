@@ -5,6 +5,8 @@ import { verifyToken } from '@/lib/auth';
 import { sendOrderConfirmationEmail } from '@/lib/email';
 import { priceCartLine } from '@/lib/order-pricing';
 import { sendMetaPurchaseEvent } from '@/lib/meta';
+import { sendOrderEmail } from '@/lib/notify';
+import { resolveDeliveryCharge } from '@/lib/delivery';
 
 
 function generateOrderNumber() {
@@ -148,11 +150,11 @@ export async function POST(request: Request) {
     }
 
     const taxRate = settings?.taxRate ?? 0;
-    const shippingFee = settings?.shippingFee ?? 0;
-    const freeShippingThreshold = settings?.freeShippingThreshold ?? 0;
 
     const subtotal = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = freeShippingThreshold > 0 && subtotal >= freeShippingThreshold ? 0 : shippingFee;
+    // Flat delivery charge (PKR 250 by default) shown on the customer bill.
+    // Never folded into product prices.
+    const shipping = resolveDeliveryCharge(subtotal, settings);
     const tax = Math.round(subtotal * (taxRate / 100) * 100) / 100;
     const total = Math.round((subtotal + shipping + tax) * 100) / 100;
 
@@ -259,6 +261,9 @@ export async function POST(request: Request) {
       total,
       shippingAddress
     ).catch(e => console.error('Order confirmation email failed:', e))
+
+    // Owner notification — new order email to admin
+    sendOrderEmail(order).catch(e => console.error('Owner notification email failed:', e))
 
     return NextResponse.json({
       success: true,

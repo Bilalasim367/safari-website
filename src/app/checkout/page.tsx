@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { META_CURRENCY, metaTrack } from "@/lib/meta-client";
 import { getStoredAttribution } from "@/lib/meta-attribution";
+import { DELIVERY_CHARGE } from "@/lib/delivery";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
@@ -20,6 +21,10 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [step, setStep] = useState(1);
   const initiateCheckoutTracked = useRef(false);
+
+  // Delivery is a separate line item; product prices stay untouched.
+  const delivery = DELIVERY_CHARGE;
+  const orderTotal = Math.round((subtotal + delivery) * 100) / 100;
 
   useEffect(() => {
     if (initiateCheckoutTracked.current || items.length === 0) return;
@@ -408,11 +413,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Delivery</span>
-                  <span className="text-green-600 font-medium">Free Delivery</span>
+                  <span className="text-foreground font-medium">PKR {delivery.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-foreground font-semibold text-lg pt-3 border-t border-border">
                   <span>Total</span>
-                  <span>PKR {subtotal.toLocaleString()}</span>
+                  <span>PKR {orderTotal.toLocaleString()}</span>
                 </div>
               </div>
             </Card>

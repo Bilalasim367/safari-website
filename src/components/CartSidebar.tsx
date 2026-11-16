@@ -8,13 +8,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useUpsells, type UpsellProduct } from "@/hooks/useUpsells";
+import { DELIVERY_CHARGE } from "@/lib/delivery";
 
 const UPSELL_LIMIT = 4;
 
 export default function CartSidebar() {
   const { items, addItem, removeItem, updateQuantity, subtotal, isCartOpen, setIsCartOpen, hasUnavailableItems, removedNotice, dismissRemovedNotice } = useCart();
   const router = useRouter();
-  const shipping = 0;
+  const shipping = DELIVERY_CHARGE;
   const total = subtotal + shipping;
 
   // Real catalogue rows only. When loading or on failure this is empty, so the
@@ -198,7 +199,7 @@ export default function CartSidebar() {
                 </div>
                 <div className="flex justify-between items-center bg-muted/20 rounded-lg px-4 py-2.5">
                   <span className="text-sm text-muted-foreground">Shipping</span>
-                  <span className="text-xs font-medium text-green-600 bg-green-50 px-2.5 py-0.5 rounded-full">Free</span>
+                  <span className="text-sm font-medium text-foreground">PKR {shipping.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-3 border-t border-muted/50">
                   <span className="text-foreground font-medium">Total</span>

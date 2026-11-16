@@ -7,6 +7,14 @@ const eslintConfig = defineConfig([
 
   
   ...nextTs,
+  // Owner-notification module is intentionally CommonJS (.js) and is imported
+  // by the TypeScript order route; `require` is correct there.
+  {
+    files: ["src/lib/notify.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

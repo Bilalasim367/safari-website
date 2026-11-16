@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import prisma from '@/lib/prisma'
 import { SITE_URL } from '@/lib/site'
+import { resolveDeliveryCharge } from '@/lib/delivery'
 
 export const metadata: Metadata = {
   title: 'Shipping & Delivery',
@@ -22,7 +23,8 @@ export default async function ShippingPage() {
   }
 
   const freeShippingThreshold = settings?.freeShippingThreshold ?? 0
-  const standardShippingFee = settings?.shippingFee ?? 0
+  // Matches the amount the checkout bill and the order pipeline actually charge.
+  const standardShippingFee = resolveDeliveryCharge(0, settings)
 
   return (
     <>
