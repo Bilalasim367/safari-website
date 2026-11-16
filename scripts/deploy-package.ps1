@@ -16,6 +16,10 @@ Server side (cPanel), AFTER uploading deploy-app.zip:
   npx tsx --env-file=.env prisma/apply-migration.ts   # creates priceupdatelog
   # Restart the Node.js app from cPanel UI. Do NOT run `npm run build` there.
 
+Repair products that show "Unavailable" (base price but no online price):
+  npx tsx --env-file=.env scripts/backfill-online-prices.ts           # dry run
+  npx tsx --env-file=.env scripts/backfill-online-prices.ts --apply   # write
+
 Usage:
   powershell -ExecutionPolicy Bypass -File scripts\deploy-package.ps1
   powershell -ExecutionPolicy Bypass -File scripts\deploy-package.ps1 -SkipBuild
@@ -79,7 +83,7 @@ try {
   foreach ($f in @('server.js','next.config.js','package.json','package-lock.json','tsconfig.json','next-env.d.ts','postcss.config.mjs','tailwind.config.js')) {
     if (Test-Path (Join-Path $root $f)) { Copy-Item (Join-Path $root $f) (Join-Path $stage $f) }
   }
-  foreach ($d in @('public','src','prisma')) {
+  foreach ($d in @('public','src','prisma','scripts')) {
     if (Test-Path (Join-Path $root $d)) { Copy-Item (Join-Path $root $d) (Join-Path $stage $d) -Recurse }
   }
 
